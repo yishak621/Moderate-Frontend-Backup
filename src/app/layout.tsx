@@ -4,7 +4,13 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Moderate Tech",
-  description: "School Test Grading Platform",
+  description:
+    "A modern platform for schools to manage students, teachers, and learning effectively.",
+  icons: {
+    icon: "/favicon.ico",
+    shortcut: "/favicon-16x16.png",
+    apple: "/apple-touch-icon.png",
+  },
 };
 
 const outfit = Outfit({
