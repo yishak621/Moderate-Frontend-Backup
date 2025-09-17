@@ -1,52 +1,49 @@
+"use client";
 import Image from "next/image";
 
 export default function LoginScreen() {
   return (
-    <div
-      className="flex flex-col items-center justify-center border border-green-600 relative  "
-      style={{
-        borderRadius: "37px",
-        background:
-          "url(/images/login-background.png) lightgray -23.246px 0px / 109.143% 100% no-repeat",
-        mixBlendMode: "soft-light",
-      }}
-    >
-      {/* Gradient overlay */}
+    <div className="z-233 p-4 pb-2 sm:p-6 lg:p-8">
       <div
+        className="flex flex-col items-center justify-between relative w-full max-w-[1440px] mx-auto  rounded-[24px] sm:rounded-[32px] lg:rounded-[37px] overflow-hidden"
         style={{
-          position: "absolute",
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
           background:
-            "linear-gradient(180deg, #1072FF 0%, #3398FF 50%, #3C8AFF 100%)",
-          opacity: 0.8,
-          borderRadius: "37px",
-          zIndex: 1,
+            "url(/images/login-background.png) lightgray center/cover no-repeat",
+          mixBlendMode: "soft-light",
         }}
-      />
-      {/* Content */}
-      <div style={{ position: "relative", zIndex: 2 }}>
-        {/* Logo and title */}
-        <div className="flex flex-col gap-2 text-left ">
-          <h4 className="text-2xl font-medium text-[#FDFDFD]">Moderate</h4>
-          <p className="text-base font-normal text-[#F1F1F1]">
-            Management Portal System
-          </p>
-        </div>
+      >
+        {/* Gradient overlay */}
+        <div className="absolute inset-0 bg-gradient-to-b from-[#1072FF] via-[#3398FF] to-[#3C8AFF] opacity-80 z-0" />
 
-        {/* Brand Image */}
-        <div
-          className="w-[465px] h-[609px] border border-red-600"
-          style={{
-            background: `
-      linear-gradient(rgba(16, 114, 255, 0.4), rgba(16, 114, 255, 0.4)),
-      url('/images/brand.svg') center / contain no-repeat
-    `,
-            mixBlendMode: "soft-light",
-          }}
-        ></div>
+        {/* Content */}
+        <div className="relative z-10 flex flex-col items-center w-full px-4 py-14  sm:px-6 lg:px-12   ">
+          {/* Logo and title */}
+          <div className="flex flex-col gap-2  w-full max-w-md">
+            <h4 className="text-xl sm:text-2xl lg:text-3xl font-medium text-white">
+              Moderate
+            </h4>
+            <p className="text-sm sm:text-base lg:text-lg font-normal text-[#F1F1F1]">
+              Management Portal System
+            </p>
+          </div>
+          {/* Brand Image (responsive, constrained by parent) */}
+          <div className="flex justify-center items-center ">
+            <Image
+              src="/images/brand.svg"
+              alt="Brand"
+              width={320}
+              height={320}
+              className="max-w-full h-auto object-contain"
+              priority
+            />
+          </div>
+
+          {/* Footer */}
+          <div className="relative z-10 w-full flex flex-col sm:flex-row justify-between items-center gap-2   text-center text-small  font-normal text-[#F1F1F1] ">
+            <p>Moderate Tech</p>
+            <p>© 2025 Moderate Tech. All rights reserved.</p>
+          </div>
+        </div>
       </div>
     </div>
   );

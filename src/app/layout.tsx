@@ -25,7 +25,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${outfit.className} antialiased`}>{children}</body>
+      <body className={`${outfit.className} antialiased`}>
+        <div className="max-w-[1440px] mx-auto ">{children}</div>
+      </body>
     </html>
   );
 }
