@@ -44,6 +44,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
       sidebarItems={sidebarItems}
       onSearchChange={() => {}}
       rightContent={<div>User Menu</div>}
+      place={role === "admin" ? "admin" : "teacher"}
     >
       {children}
     </DashboardShell>

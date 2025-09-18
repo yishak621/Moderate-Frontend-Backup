@@ -27,6 +27,7 @@ type DashboardShellProps = {
   onSearchChange?: (value: string) => void;
   initialSearch?: string;
   rightContent?: React.ReactNode;
+  place?: string;
 };
 
 export default function DashboardShell({
@@ -36,6 +37,7 @@ export default function DashboardShell({
   onSearchChange,
   initialSearch = "",
   rightContent,
+  place = "admin",
 }: DashboardShellProps) {
   const pathname = usePathname();
   const [isExpanded, setIsExpanded] = useState(true);
@@ -200,16 +202,18 @@ export default function DashboardShell({
       <main className="flex-1 flex flex-col">
         {/* main top section */}
         <header className="flex items-center justify-between border-b bg-whiteCard p-4 pt-6 2xl:pt-11 pl-5.5  gap-4">
-          <h1 className="text-xl font-semibold text-gray-900 dark:text-gray-100 whitespace-nowrap">
+          <h1 className="text-3xl font-medium text-[#0C0C0C]  whitespace-nowrap">
             {title}
           </h1>
-          <div className="flex-1 max-w-xl">
-            <Input
-              placeholder="Search..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
-          </div>
+          {place === "teacher" && (
+            <div className="flex-1 max-w-xl">
+              <Input
+                placeholder="Search..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+              />
+            </div>
+          )}
           <div className="min-w-[120px] flex items-center justify-end">
             {rightContent}
           </div>
