@@ -3,31 +3,25 @@
 :root {
   --color-primary: #368fff;
   --color-secondary: #63a8ff;
-  --color-border-line: #dbdbdb;
-  --color-white-card: #3d1e1e;
-  --color-background-gray: #f1f1f1;
-  --color-dark: #0c0c0c;
-
   --color-accent: #f59e0b;
   --color-success: #10b981;
   --color-warning: #f97316;
   --color-error: #ef4444;
-  --color-gray: #717171;
+  --color-border-line: #dbdbdb;
+  --color-white-card: #ffffff;
+  --color-background-gray: #f1f5f9;
 }
 
 .dark {
   --color-primary: #0f172a;
   --color-secondary: #5b21b6;
-  --color-border-line: #dbdbdb;
-  --color-white-card: #fdfdfd;
-  --color-background-gray: #f1f1f1;
-  --color-dark: #0c0c0c;
-
   --color-accent: #eab308;
   --color-success: #059669;
   --color-warning: #ea580c;
   --color-error: #dc2626;
-  --color-gray: #94a3b8;
+  --color-border-line: #374151;
+  --color-white-card: #111827;
+  --color-background-gray: #0b1220;
 }
 
 .scrollbar-hide {

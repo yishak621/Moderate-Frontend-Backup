@@ -6,6 +6,7 @@ import CheckboxWithLabel from "@/components/CheckboxWithLabel";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
 import TextLink from "@/components/ui/Link";
+import Link from "next/link";
 
 const options = [
   { value: "chocolate", label: "Chocolate" },
@@ -52,14 +53,14 @@ export default function RegisterForm() {
         Signup
       </Button>
 
-      <div className="text-center text-sm sm:text-base mt-4">
+      <div className="text-center text-sm sm:text-base mt-1">
         <span className="text-gray-600">Already have an account?</span>{" "}
-        <a
+        <Link
           href="/auth/login"
           className="font-medium text-blue-600 hover:underline"
         >
           Log in
-        </a>
+        </Link>
       </div>
     </div>
   );

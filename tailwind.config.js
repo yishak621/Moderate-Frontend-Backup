@@ -1,5 +1,6 @@
 // tailwind.config.js
 module.exports = {
+  darkMode: "class",
   theme: {
     extend: {
       colors: {
@@ -12,7 +13,6 @@ module.exports = {
         borderLine: "var(--color-border-line)",
         whiteCard: "var(--color-white-card)",
         backgroundGray: "var(--color-background-gray)",
-        dark: "var(--color-dark)",
       },
     },
   },
