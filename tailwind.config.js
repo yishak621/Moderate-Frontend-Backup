@@ -13,6 +13,8 @@ module.exports = {
         borderLine: "var(--color-border-line)",
         whiteCard: "var(--color-white-card)",
         backgroundGray: "var(--color-background-gray)",
+        gray: "var(--color-gray)",
+        dark: "var(--color-dark)",
       },
     },
   },

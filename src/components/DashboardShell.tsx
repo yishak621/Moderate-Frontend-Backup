@@ -81,17 +81,23 @@ export default function DashboardShell({
   const activeSet = useMemo(() => new Set([pathname]), [pathname]);
 
   return (
-    <div className="flex h-screen w-full bg-backgroundGray">
+    <div className="flex h-screen w-full bg-[#F1F1F1]">
       <aside
         className={clsx(
-          "transition-all duration-300 bg-whiteCard shadow-lg flex flex-col",
+          "transition-all duration-300 bg-whiteCard shadow-lg flex flex-col overflow-y-scroll scrollbar-hide border border-green-400",
           isExpanded ? "w-64" : "w-20"
         )}
       >
-        <div className="flex items-center justify-between p-4">
-          <span className="font-bold text-lg text-gray-800 dark:text-gray-100">
-            {isExpanded ? "Moderate" : "Mode"}
-          </span>
+        <div className="flex items-center justify-between pt-6 2xl:pt-11 p-4 px-7.5  border border-red-600">
+          <div className=" flex flex-col gap-1">
+            <span className="font-bold text-lg text-dark ">
+              {isExpanded ? "Moderate" : "Mode"}
+            </span>
+            <span className=" text-base font-normal text-gray">
+              Management Portal System
+            </span>
+          </div>
+
           <button
             onClick={() => setIsExpanded((v) => !v)}
             className="text-gray-500 dark:text-gray-300"
@@ -100,7 +106,7 @@ export default function DashboardShell({
             {isExpanded ? "<" : ">"}
           </button>
         </div>
-        <nav className="mt-6 flex flex-col space-y-2 px-2">
+        <nav className="mt-6 flex flex-col space-y-2 px-7.5">
           {sidebarItems.map(({ label, icon: Icon, href }) => {
             const isActive = activeSet.has(href) || pathname?.startsWith(href);
             return (
@@ -108,12 +114,29 @@ export default function DashboardShell({
                 key={href}
                 href={href}
                 className={clsx(
-                  "flex items-center gap-3 rounded-md p-2 text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700",
-                  isActive && "bg-gray-200/70 dark:bg-gray-700/70"
+                  "text-base font-medium  flex items-center gap-3 rounded-[41px] py-5 px-5.5 text-dark ",
+                  isActive && "bg-[#FDFDFD] "
                 )}
               >
-                {Icon && <Icon size={20} />}
-                {isExpanded && <span>{label}</span>}
+                {Icon && (
+                  <Icon
+                    size={22}
+                    className={`${
+                      isActive ? "text-[#0C0C0C]" : "text-[#717171]"
+                    }`}
+                  />
+                )}
+                {isExpanded && (
+                  <span
+                    className={`${
+                      isActive
+                        ? "text-[#0C0C0C] font-medium"
+                        : "text-[#717171] font-normal"
+                    } text-base`}
+                  >
+                    {label}
+                  </span>
+                )}
               </Link>
             );
           })}
@@ -175,7 +198,8 @@ export default function DashboardShell({
       </aside>
 
       <main className="flex-1 flex flex-col">
-        <header className="flex items-center justify-between border-b bg-whiteCard px-6 py-4 gap-4">
+        {/* main top section */}
+        <header className="flex items-center justify-between border-b bg-whiteCard p-4 pt-6 2xl:pt-11 pl-5.5  gap-4">
           <h1 className="text-xl font-semibold text-gray-900 dark:text-gray-100 whitespace-nowrap">
             {title}
           </h1>

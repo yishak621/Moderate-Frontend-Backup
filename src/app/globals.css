@@ -10,6 +10,8 @@
   --color-border-line: #dbdbdb;
   --color-white-card: #ffffff;
   --color-background-gray: #f1f5f9;
+  --color-dark: #0c0c0c;
+  --color-gray: #717171;
 }
 
 .dark {
@@ -22,6 +24,8 @@
   --color-border-line: #374151;
   --color-white-card: #111827;
   --color-background-gray: #0b1220;
+  --color-dark: #f8f4f4;
+  --color-gray: #e6e2e2;
 }
 
 .scrollbar-hide {
