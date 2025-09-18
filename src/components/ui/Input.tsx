@@ -22,7 +22,11 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
           ref={ref}
           type={type}
           className={clsx(
-            "w-full rounded-lg border px-6 py-4.5 text-sm outline-none",
+            "w-full rounded-lg border",
+            "px-3 py-2 text-sm", // base
+            "sm:px-4 sm:py-2.5 sm:text-base", // small screens
+            "md:px-5 md:py-3 md:text-base", // tablets
+            "lg:px-6 lg:py-3.5 lg:text-lg", // large screens
             "focus:ring-2 focus:ring-blue-500 focus:border-blue-500",
             "bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100",
             error ? "border-red-500" : "border-gray-300",

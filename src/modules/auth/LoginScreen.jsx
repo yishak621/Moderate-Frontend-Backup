@@ -18,7 +18,7 @@ export default function LoginScreen() {
         {/* Content */}
         <div className="relative z-10 flex flex-col items-center w-full px-4 py-14  sm:px-6 lg:px-12   ">
           {/* Logo and title */}
-          <div className="flex flex-col gap-2  w-full max-w-md">
+          <div className="flex flex-col gap-2  w-full max-w-md xl:max-w-2xl">
             <h4 className="text-xl sm:text-2xl lg:text-3xl font-medium text-white">
               Moderate
             </h4>
@@ -27,13 +27,13 @@ export default function LoginScreen() {
             </p>
           </div>
           {/* Brand Image (responsive, constrained by parent) */}
-          <div className="flex justify-center items-center ">
+          <div className="flex justify-center items-center">
             <Image
               src="/images/brand.svg"
               alt="Brand"
               width={320}
               height={320}
-              className="max-w-full h-auto object-contain"
+              className="w-30 sm:w-40 lg:w-65 xl:w-80 2xl:w-[420px] h-auto object-contain"
               priority
             />
           </div>
