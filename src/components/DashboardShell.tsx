@@ -12,7 +12,8 @@ import clsx from "clsx";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import Input from "./ui/Input";
-import { Moon, Sun } from "lucide-react";
+import { LogOut } from "lucide-react";
+// theme icons removed since theme toggle is disabled
 
 export type NavItem = {
   label: string;
@@ -43,7 +44,8 @@ export default function DashboardShell({
   const [isExpanded, setIsExpanded] = useState(true);
   const [search, setSearch] = useState(initialSearch);
   const debounceTimerRef = useRef<number | null>(null);
-  const [theme, setTheme] = useState<"light" | "dark">(() => {
+
+  const [theme] = useState<"light" | "dark">(() => {
     if (typeof window === "undefined") return "light";
     const stored = window.localStorage.getItem("theme");
     if (stored === "light" || stored === "dark") return stored;
@@ -61,7 +63,6 @@ export default function DashboardShell({
       root.classList.remove("dark");
     }
     window.localStorage.setItem("theme", theme);
-    // keep color-scheme in sync for native UI
     root.style.colorScheme = theme;
   }, [theme]);
 
@@ -86,19 +87,19 @@ export default function DashboardShell({
     <div className="flex h-screen w-full bg-[#F1F1F1]">
       <aside
         className={clsx(
-          "transition-all duration-300 bg-whiteCard shadow-lg flex flex-col overflow-y-scroll scrollbar-hide border border-green-400",
+          "transition-all duration-300 bg-whiteCard shadow-lg flex flex-col overflow-y-scroll scrollbar-hide ",
           isExpanded ? "w-64" : "w-20"
         )}
       >
-        <div className="flex items-center justify-between pt-6 2xl:pt-11 p-4 px-7.5  border border-red-600">
-          <div className=" flex flex-col gap-1">
-            <span className="font-bold text-lg text-dark ">
-              {isExpanded ? "Moderate" : "Mode"}
-            </span>
-            <span className=" text-base font-normal text-gray">
-              Management Portal System
-            </span>
-          </div>
+        <div className="flex items-center justify-between pt-6 2xl:pt-11 p-4 px-7.5  ">
+          {isExpanded && (
+            <div className=" flex flex-col gap-1">
+              <span className="font-medium text-lg text-dark ">Moderate</span>
+              <span className=" text-base font-normal text-gray">
+                Management Portal System
+              </span>
+            </div>
+          )}
 
           <button
             onClick={() => setIsExpanded((v) => !v)}
@@ -108,7 +109,15 @@ export default function DashboardShell({
             {isExpanded ? "<" : ">"}
           </button>
         </div>
-        <nav className="mt-6 flex flex-col space-y-2 px-7.5">
+        {/* 
+              SIDEBAR NAV ITEMS
+              */}
+        <nav
+          className={clsx(
+            "mt-6 flex flex-col space-y-2",
+            isExpanded ? "px-7.5" : "px-0"
+          )}
+        >
           {sidebarItems.map(({ label, icon: Icon, href }) => {
             const isActive = activeSet.has(href) || pathname?.startsWith(href);
             return (
@@ -116,7 +125,8 @@ export default function DashboardShell({
                 key={href}
                 href={href}
                 className={clsx(
-                  "text-base font-medium  flex items-center gap-3 rounded-[41px] py-5 px-5.5 text-dark ",
+                  "text-base font-medium  flex items-center gap-3 rounded-[41px] text-dark ",
+                  isExpanded ? "py-5 px-5.5" : "p-5 justify-center",
                   isActive && "bg-[#FDFDFD] "
                 )}
               >
@@ -142,8 +152,24 @@ export default function DashboardShell({
               </Link>
             );
           })}
+
+          {/* 
+              LOG OUT BUTTON
+              */}
+          <div
+            className={clsx(
+              "mt-auto", // Added mt-auto to push it to the bottom of its parent container
+              isExpanded ? "py-5 px-5.5" : "p-5 justify-center",
+              "text-base font-medium text-[#717171] flex flex-row gap-3 cursor-pointer"
+            )}
+          >
+            <LogOut width={22} height={22} />{" "}
+            {isExpanded && <span>Logout</span>}{" "}
+            {/* Made Logout text conditional on sidebar expansion */}
+          </div>
         </nav>
-        <div className="mt-auto p-3">
+
+        {/* <div className="mt-auto p-3">
           <button
             onClick={() => setTheme((t) => (t === "dark" ? "light" : "dark"))}
             className={clsx(
@@ -196,12 +222,12 @@ export default function DashboardShell({
               )}
             </div>
           </button>
-        </div>
+        </div> */}
       </aside>
 
       <main className="flex-1 flex flex-col">
         {/* main top section */}
-        <header className="flex items-center justify-between border-b bg-whiteCard p-4 pt-6 2xl:pt-11 pl-5.5  gap-4">
+        <header className="flex items-center justify-between bg-whiteCard p-4 pt-6 2xl:pt-11 pl-5.5  gap-4">
           <h1 className="text-3xl font-medium text-[#0C0C0C]  whitespace-nowrap">
             {title}
           </h1>

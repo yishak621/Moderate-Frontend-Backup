@@ -1,7 +1,17 @@
 "use client";
 
 import { ReactNode, useMemo } from "react";
-import { LayoutDashboard, Settings, Users, FileText, Bell } from "lucide-react";
+import {
+  LayoutDashboard,
+  Settings,
+  Users,
+  FileText,
+  Bell,
+  ChartColumn,
+  Globe,
+  Megaphone,
+  Mail,
+} from "lucide-react";
 import DashboardShell, { NavItem } from "@/components/DashboardShell";
 import Image from "next/image";
 
@@ -10,21 +20,21 @@ type Role = "admin" | "teacher";
 function getSidebarItems(role: Role): NavItem[] {
   if (role === "admin") {
     return [
-      { label: "Overview", icon: LayoutDashboard, href: "/dashboard/admin" },
+      { label: "Overview", icon: ChartColumn, href: "/dashboard/admin" },
       { label: "User Management", icon: Users, href: "/dashboard/admin/users" },
       {
         label: "Curricular Area",
-        icon: FileText,
+        icon: Globe,
         href: "/dashboard/admin/curricular-area-management",
       },
       {
         label: "Announcements",
-        icon: Settings,
+        icon: Megaphone,
         href: "/dashboard/announcements",
       },
       {
         label: "Support Messages",
-        icon: Settings,
+        icon: Mail,
         href: "/dashboard/support-messages",
       },
       { label: "App Settings", icon: Settings, href: "/dashboard/settings" },
@@ -62,7 +72,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
             />
           </div>
 
-          <div className="flex flex-col gap-[5px] border border-red">
+          <div className="flex flex-col gap-[5px] ">
             <span className="font-base font-medium text-[#0C0C0C] ">
               Admin user
             </span>
