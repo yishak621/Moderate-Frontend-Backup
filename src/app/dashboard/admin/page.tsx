@@ -1,6 +1,16 @@
 "use client";
 
+import DashboardNotificationItem from "@/modules/dashboard/admin/DashboardNotificationItem";
+import RevenueChart from "@/modules/dashboard/admin/RevenueChart";
 import StatsCard from "@/modules/dashboard/StatsCards";
+import {
+  ArrowBigDown,
+  ArrowDown,
+  ArrowDown01,
+  ChevronDown,
+  Circle,
+  Download,
+} from "lucide-react";
 
 type StatsCardProps = {
   title: string;
@@ -25,12 +35,25 @@ const statsData: StatsCardProps[] = [
     description: "+12% from last month",
   },
 ];
+
+const notifications = [
+  {
+    statusColor: "bg-green-500",
+    title: "New teacher registered: john.doe@westfield.edu",
+    time: "2 minutes ago",
+  },
+  {
+    statusColor: "bg-yellow-500",
+    title: "Assignment pending approval: math101",
+    time: "10 minutes ago",
+  },
+];
 //--------------------------OVERVIEW DASHBOARD
 export default function AdminPage() {
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col ">
       {/* first section */}
-      <div className="flex flex-row gap-6 mb-5.5 rounded-[37px] 3xl:gap-12 justify-between bg-[#FDFDFD]  max-h-[285px] p-7">
+      <div className="flex flex-row gap-6 mb-5.5 rounded-[37px] 3xl:gap-12 justify-between bg-[#FDFDFD]  max-h-[285px] p-7 ">
         {statsData.map((stat) => {
           return (
             <StatsCard
@@ -43,9 +66,65 @@ export default function AdminPage() {
         })}
       </div>
       {/* second section */}
-      <div className="h-screen w-full rounded-[37px] bg-[#FDFDFD]  p-6 grid grid-cols-[74%_26%] gap-6 md:grid-cols-[65%_35%] sm:grid-cols-1">
-          <div className="bg-blue-200 p-6">Left Content</div>
-  <div className="bg-green-200 p-6">Right Content</div>
+      <div
+        className="h-screen rounded-[37px] bg-[#FDFDFD] p-6 max-w-full overflow-hidden 
+    grid gap-6 
+    md:grid-cols-[65%_35%] 
+    grid-cols-1"
+      >
+        {/* left side */}
+        <div className="p-6 w-full">
+          {/* left top */}
+          <div className="flex flex-row justify-between mb-5 flex-wrap">
+            <div className="flex flex-col">
+              <p className="text-xl font-medium text-[#0C0C0C]">
+                Annual Revenue(2500$)
+              </p>
+              <p className="text-base font-normal text-[#717171]">
+                Latest system events and user actions
+              </p>
+            </div>
+
+            <div className="flex flex-row gap-5 text-[#0C0C0C] text-base font-normal flex-wrap">
+              <button className="flex flex-row gap-1 justify-center items-center rounded-[24.5px] py-3.5 px-4.5 border border-[#DBDBDB]">
+                Export <Download width={22} height={22} />
+              </button>
+              <button className="flex flex-row gap-1 justify-center items-center rounded-[24.5px] py-3.5 px-4.5 border border-[#DBDBDB]">
+                2025 <ChevronDown width={22} height={22} />
+              </button>
+            </div>
+          </div>
+
+          {/* left bottom */}
+          <div className="w-full overflow-x-auto">
+            <RevenueChart />
+          </div>
+        </div>
+
+        {/* right side */}
+        <div className="flex flex-col gap-8 w-full">
+          {/* right title block */}
+          <div className="flex flex-col gap-2 border border-red-500">
+            <p className="text-[#0C0C0C] text-xl font-medium">
+              Recent Activity
+            </p>
+            <p className="text-[#717171] font-normal text-base">
+              Latest system events and user actions
+            </p>
+          </div>
+
+          {/* right bottom */}
+          <div className="flex flex-col gap-6 border border-amber-600 overflow-hidden">
+            {notifications.map((item, idx) => (
+              <DashboardNotificationItem
+                key={idx}
+                statusColor={item.statusColor}
+                title={item.title}
+                time={item.time}
+              />
+            ))}
+          </div>
+        </div>
       </div>
     </div>
   );

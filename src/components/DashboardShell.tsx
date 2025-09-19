@@ -91,7 +91,7 @@ export default function DashboardShell({
           isExpanded ? "w-64" : "w-20"
         )}
       >
-        <div className="flex items-center justify-between pt-6 2xl:pt-11 p-4 px-7.5  ">
+        <div className="flex items-center justify-between pt-6 2xl:pt-11 p-4 2xl:px-7.5 px-2  ">
           {isExpanded && (
             <div className=" flex flex-col gap-1">
               <span className="font-medium text-lg text-dark ">Moderate</span>
@@ -119,7 +119,7 @@ export default function DashboardShell({
         <nav
           className={clsx(
             "mt-6 flex flex-col space-y-2 h-full",
-            isExpanded ? "px-7.5" : "px-0"
+            isExpanded ? " 2xl:px-7.5 px-2" : "px-0"
           )}
         >
           {sidebarItems.map(({ label, icon: Icon, href }) => {
@@ -249,7 +249,9 @@ export default function DashboardShell({
           </div>
         </header>
 
-        <section className="flex-1 overflow-y-auto p-6">{children}</section>
+        <section className="flex-1 overflow-y-auto p-6 scrollbar-hide">
+          {children}
+        </section>
       </main>
     </div>
   );
