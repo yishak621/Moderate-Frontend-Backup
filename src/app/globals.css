@@ -35,3 +35,12 @@
 .scrollbar-hide::-webkit-scrollbar {
   display: none; /* Chrome/Safari */
 }
+
+/* .my-card {
+  width: 300px;
+  height: 180px;
+  background: linear-gradient(135deg, #368fff 0%, #63a8ff 100%);
+  clip-path: path(
+    "M20 0 H240 Q280 0 280 40 V60 H300 V180 H20 Q0 180 0 160 V20 Q0 0 20 0 Z"
+  );
+} */

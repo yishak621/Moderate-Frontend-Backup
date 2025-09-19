@@ -12,7 +12,7 @@ import clsx from "clsx";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import Input from "./ui/Input";
-import { LogOut } from "lucide-react";
+import { ArrowLeftToLine, ArrowRightToLine, LogOut } from "lucide-react";
 // theme icons removed since theme toggle is disabled
 
 export type NavItem = {
@@ -103,10 +103,14 @@ export default function DashboardShell({
 
           <button
             onClick={() => setIsExpanded((v) => !v)}
-            className="text-gray-500 dark:text-gray-300"
+            className="text-dark dark:text-gray-300"
             aria-label="Toggle sidebar"
           >
-            {isExpanded ? "<" : ">"}
+            {isExpanded ? (
+              <ArrowLeftToLine size={18} />
+            ) : (
+              <ArrowRightToLine size={18} />
+            )}
           </button>
         </div>
         {/* 
@@ -114,7 +118,7 @@ export default function DashboardShell({
               */}
         <nav
           className={clsx(
-            "mt-6 flex flex-col space-y-2",
+            "mt-6 flex flex-col space-y-2 h-full",
             isExpanded ? "px-7.5" : "px-0"
           )}
         >

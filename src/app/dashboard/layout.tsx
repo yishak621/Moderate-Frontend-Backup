@@ -56,13 +56,19 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   const adminRightContent = () => {
     return (
       <div className="flex flex-row gap-4 ">
-        <div className=" flex justify-center items-center w-[44px] h-[44px] rounded-full bg-white relative">
+        {/* 
+            NOTIFICATION
+            */}
+        <div className=" flex justify-center items-center cursor-pointer w-[44px] h-[44px] rounded-full bg-white relative">
           <Bell className="w-5.5 h-5.5 text-[#0C0C0C]" />
           <div className=" absolute bottom-0 right-0 w-[15px] h-[15px] bg-[#368FFF] rounded-full"></div>
         </div>
 
         <div className=" flex flex-row gap-2">
-          <div className=" flex flex-col justify-center items-center w-[51px] h-[51px] rounded-full bg-white">
+          {/* 
+           USER PROFILE
+            */}
+          <div className=" flex flex-col justify-center items-center cursor-pointer w-[51px] h-[51px] rounded-full bg-white">
             <Image
               className="w-11 h-11 rounded-full  border-2 border-[#368FFF] object-cover"
               src="/images/sample-user.png"
