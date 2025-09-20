@@ -31,6 +31,13 @@ type DashboardShellProps = {
   place?: string;
 };
 
+function checkIsActive(pathname: string, href: string) {
+  const pathAfterDashboard = pathname.replace("/dashboard", "");
+  const hrefAfterDashboard = href.replace("/dashboard", "");
+
+  return pathAfterDashboard === hrefAfterDashboard;
+}
+
 export default function DashboardShell({
   children,
   sidebarItems,
@@ -123,7 +130,8 @@ export default function DashboardShell({
           )}
         >
           {sidebarItems.map(({ label, icon: Icon, href }) => {
-            const isActive = activeSet.has(href) || pathname?.startsWith(href);
+            const isActive = checkIsActive(pathname, href);
+
             return (
               <Link
                 key={href}

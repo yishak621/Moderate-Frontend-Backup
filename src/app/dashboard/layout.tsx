@@ -20,7 +20,11 @@ type Role = "admin" | "teacher";
 function getSidebarItems(role: Role): NavItem[] {
   if (role === "admin") {
     return [
-      { label: "Overview", icon: ChartColumn, href: "/dashboard/admin" },
+      {
+        label: "Overview",
+        icon: ChartColumn,
+        href: "/dashboard/admin",
+      },
       { label: "User Management", icon: Users, href: "/dashboard/admin/users" },
       {
         label: "Curricular Area",
