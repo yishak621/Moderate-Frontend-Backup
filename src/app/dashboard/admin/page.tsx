@@ -1,5 +1,7 @@
 "use client";
 
+import Modal from "@/components/ui/Modal";
+import AddTeacherModal from "@/modules/dashboard/admin/AddTeacherModal";
 import DashboardNotificationItem from "@/modules/dashboard/admin/DashboardNotificationItem";
 import RevenueChart from "@/modules/dashboard/admin/RevenueChart";
 import DashboardButton from "@/modules/dashboard/DashboardButton";
@@ -14,6 +16,7 @@ import {
   Settings,
   UserPlus,
 } from "lucide-react";
+import { useState } from "react";
 
 type StatsCardProps = {
   title: string;
@@ -53,13 +56,26 @@ const notifications = [
 ];
 
 const buttonData = [
-  { icon: <UserPlus width={23} height={23} />, label: "Add New Teacher" },
+  {
+    icon: <UserPlus width={23} height={23} />,
+    label: "Add New Teacher",
+    component: AddTeacherModal,
+  },
   { icon: <Download width={23} height={23} />, label: "Export Data" },
   { icon: <Settings width={23} height={23} />, label: "Settings" },
   { icon: <Settings width={23} height={23} />, label: "Settings" },
 ];
 //--------------------------OVERVIEW DASHBOARD
 export default function AdminPage() {
+  //MODAL STATES
+  const [open, setOpen] = useState(false);
+  const [ModalComponent, setModalComponent] = useState<React.FC | null>(null);
+
+  const handleOpenModal = (Component: React.FC) => {
+    setModalComponent(() => Component); // store the component to render
+    setOpen(true);
+  };
+
   return (
     <div className="flex flex-col ">
       {/* first section */}
@@ -77,12 +93,7 @@ export default function AdminPage() {
       </div>
 
       <div className="h-screen rounded-[37px] bg-[#FDFDFD] p-6 max-w-full overflow-hidden ">
-        <div
-          className="   
-    grid gap-6 
-    md:grid-cols-[65%_35%] 
-    grid-cols-1"
-        >
+        <div className="grid gap-6 md:grid-cols-[65%_35%] grid-cols-1">
           {/* left side */}
           <div className="p-6 w-full">
             {/* left top */}
@@ -141,8 +152,20 @@ export default function AdminPage() {
         {/* BOOTM */}
         <div className="pt-15 flex flex-row justify-between">
           {buttonData.map((btn, idx) => (
-            <DashboardButton key={idx} icon={btn.icon} label={btn.label} />
+            <DashboardButton
+              key={idx}
+              icon={btn.icon}
+              label={btn.label}
+              onClick={() => handleOpenModal(btn.component!)}
+            />
           ))}
+          {/* VERY IMPORTANT */}
+          <Modal isOpen={open} onOpenChange={setOpen}>
+            <Modal.Content>
+              {ModalComponent && <ModalComponent />}{" "}
+              {/* render dynamic component */}
+            </Modal.Content>
+          </Modal>
         </div>
       </div>
     </div>

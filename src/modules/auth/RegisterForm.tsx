@@ -1,5 +1,4 @@
 "use client";
-import Select from "react-select";
 import makeAnimated from "react-select/animated";
 
 import CheckboxWithLabel from "@/components/CheckboxWithLabel";
@@ -7,14 +6,18 @@ import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
 import TextLink from "@/components/ui/Link";
 import Link from "next/link";
+import { CustomMultiSelect } from "@/components/ui/MultiSelectInput";
 
 const options = [
   { value: "chocolate", label: "Chocolate" },
   { value: "strawberry", label: "Strawberry" },
   { value: "vanilla", label: "Vanilla" },
 ];
-const animatedComponents = makeAnimated();
 export default function RegisterForm() {
+  const handleSelected = (values: { value: string; label: string }[]) => {
+    console.log("Selected values:", values);
+    // you can use these in real-time (e.g. store in state, send to API, etc.)
+  };
   return (
     <div className="bg-[#fdfdfd] px-4 py-6 sm:px-6 sm:py-8 md:px-8 md:py-10 2xl:px-12 2xl:py-14 rounded-[24px] w-full max-w-lg mx-auto  flex flex-col gap-6 max-h-screen overflow-scroll scrollbar-hide">
       {/* Header */}
@@ -38,12 +41,10 @@ export default function RegisterForm() {
           <p className="text-[#0c0c0c] text-base font-normal mb-1">
             Subject Domains
           </p>
-          <Select
+          <CustomMultiSelect
             options={options}
-            closeMenuOnSelect={false}
             defaultValue={[options[0], options[1]]}
-            isMulti
-            components={animatedComponents}
+            onChange={handleSelected}
           />
         </div>
       </div>
