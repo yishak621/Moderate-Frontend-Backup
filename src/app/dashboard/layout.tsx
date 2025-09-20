@@ -25,19 +25,23 @@ function getSidebarItems(role: Role): NavItem[] {
       {
         label: "Curricular Area",
         icon: Globe,
-        href: "/dashboard/admin/curricular-area-management",
+        href: "/dashboard/admin/curricular",
       },
       {
         label: "Announcements",
         icon: Megaphone,
-        href: "/dashboard/announcements",
+        href: "/dashboard/admin/announcements",
       },
       {
         label: "Support Messages",
         icon: Mail,
-        href: "/dashboard/support-messages",
+        href: "/dashboard/admin/support-messages",
       },
-      { label: "App Settings", icon: Settings, href: "/dashboard/settings" },
+      {
+        label: "App Settings",
+        icon: Settings,
+        href: "/dashboard/admin/settings",
+      },
     ];
   }
   return [

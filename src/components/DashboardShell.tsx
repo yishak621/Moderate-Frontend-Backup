@@ -162,7 +162,7 @@ export default function DashboardShell({
               */}
           <div
             className={clsx(
-              "mt-auto", // Added mt-auto to push it to the bottom of its parent container
+              "mt-auto",
               isExpanded ? "py-5 px-5.5" : "p-5 justify-center",
               "text-base font-medium text-[#717171] flex flex-row gap-3 cursor-pointer"
             )}
