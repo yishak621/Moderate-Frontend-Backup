@@ -1,9 +1,12 @@
+"use client";
 import Input from "@/components/ui/Input";
 import { useModal } from "@/components/ui/Modal";
 import { X } from "lucide-react";
 import { CustomMultiSelect } from "@/components/ui/MultiSelectInput";
 import Button from "@/components/ui/Button";
 import Textarea from "@/components/ui/Textarea";
+import DatePickerInput from "@/components/ui/DatePickerInput";
+import { useState } from "react";
 
 const options = [
   { value: "chocolate", label: "Chocolate" },
@@ -17,8 +20,11 @@ export default function CreateNewAnnouncementModal() {
     console.log("Selected values:", values);
     // you can use these in real-time (e.g. store in state, send to API, etc.)
   };
+  const [startDate, setStartDate] = useState<Date | null>(null);
+  const [expireDate, setExpireDate] = useState<Date | null>(null);
+
   return (
-    <div className=" bg-[#FDFDFD] min-w-[551px] p-10 rounded-[27px] flex flex-col">
+    <div className=" bg-[#FDFDFD] min-w-[551px] max-h-[95vh] overflow-y-scroll scrollbar-hide p-10 rounded-[27px] flex flex-col">
       {/* Header */}
       <div className="flex flex-row justify-between">
         <div className=" flex flex-col gap-1.5">
@@ -61,6 +67,30 @@ export default function CreateNewAnnouncementModal() {
               placeholder="Select Priority"
               onChange={handleSelected}
             />
+          </div>
+        </div>
+        {/* date */}
+        <div className=" flex flex-row gap-3.5 ">
+          <div className="flex-1   ">
+            <DatePickerInput
+              label="Start Date"
+              placeholder="Pick a date"
+              onChange={setStartDate}
+            />
+            <p className="mt-4 text-gray-700">
+              Selected date: {startDate ? startDate.toDateString() : "None"}
+            </p>
+          </div>
+
+          <div className="flex-1   ">
+            <DatePickerInput
+              label="Expire Date"
+              placeholder="Pick a date"
+              onChange={setExpireDate}
+            />
+            <p className="mt-4 text-gray-700">
+              Selected date: {expireDate ? expireDate.toDateString() : "None"}
+            </p>
           </div>
         </div>
 

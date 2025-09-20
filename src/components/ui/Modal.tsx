@@ -200,13 +200,7 @@ Modal.Content = function Content({
           ref={panelRef}
           tabIndex={-1}
           className={`relative z-10 ${width}  mx-auto
-            transform transition-all duration-300 ease-out
-            
-            ${panelClassName}
-             
-         
-           
-            ${className}`}
+            transform transition-all duration-300 ease-out ${panelClassName}${className}`}
         >
           {children}
         </div>
