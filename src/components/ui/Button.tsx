@@ -16,16 +16,17 @@ const Button: React.FC<ButtonProps> = ({
   ...props
 }) => {
   const baseStyles =
-    "inline-flex  items-center gap-2 px-4 py-4.5 rounded-md font-medium transition-colors duration-200";
+    "inline-flex justify-center  items-center gap-2 px-4 py-4.5 rounded-md font-medium text-base transition-colors duration-200 cursor-pointer";
 
   const variantStyles = {
-    primary: "bg-blue-600 text-white hover:bg-blue-700",
-    secondary: "bg-gray-200 text-gray-800 hover:bg-gray-300",
+    primary: "bg-[#368FFF] text-[#FDFDFD] hover:bg-[#2574db]  ", // deeper blue
+    secondary:
+      "bg-[#FDFDFD] text-gray-800 hover:bg-[#e5e5e5]  border border-[#DBDBDB]  text-[#0C0C0C]", // soft gray
   };
 
   return (
     <button
-      className={`${baseStyles} ${variantStyles[variant]} ${className}`}
+      className={`${baseStyles} ${variantStyles[variant]} ${className} `}
       {...props}
     >
       {icon && <span className="flex items-center">{icon}</span>}

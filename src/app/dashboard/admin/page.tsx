@@ -1,7 +1,7 @@
 "use client";
 
 import Modal from "@/components/ui/Modal";
-import AddTeacherModal from "@/modules/dashboard/admin/AddTeacherModal";
+import AddTeacherModal from "@/modules/dashboard/admin/modal/AddTeacherModal";
 import DashboardNotificationItem from "@/modules/dashboard/admin/DashboardNotificationItem";
 import RevenueChart from "@/modules/dashboard/admin/RevenueChart";
 import DashboardButton from "@/modules/dashboard/DashboardButton";
@@ -13,10 +13,12 @@ import {
   ChevronDown,
   Circle,
   Download,
+  Megaphone,
   Settings,
   UserPlus,
 } from "lucide-react";
 import { useState } from "react";
+import CreateNewAnnouncementModal from "@/modules/dashboard/admin/modal/CreateNewAnnouncementModal";
 
 type StatsCardProps = {
   title: string;
@@ -61,9 +63,21 @@ const buttonData = [
     label: "Add New Teacher",
     component: AddTeacherModal,
   },
-  { icon: <Download width={23} height={23} />, label: "Export Data" },
-  { icon: <Settings width={23} height={23} />, label: "Settings" },
-  { icon: <Settings width={23} height={23} />, label: "Settings" },
+  {
+    icon: <Download width={23} height={23} />,
+    label: "Export Data",
+    component: AddTeacherModal,
+  },
+  {
+    icon: <Megaphone width={23} height={23} />,
+    label: "Create Announcement",
+    component: CreateNewAnnouncementModal,
+  },
+  {
+    icon: <Settings width={23} height={23} />,
+    label: "Settings",
+    component: AddTeacherModal,
+  },
 ];
 //--------------------------OVERVIEW DASHBOARD
 export default function AdminPage() {

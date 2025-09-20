@@ -13,12 +13,14 @@ interface CustomMultiSelectProps {
   options: Option[];
   defaultValue?: Option[];
   onChange?: (selected: Option[]) => void;
+  placeholder?:string
 }
 
 export function CustomMultiSelect({
   options,
   defaultValue,
   onChange,
+  placeholder
 }: CustomMultiSelectProps) {
   const [selected, setSelected] = useState<Option[]>(defaultValue || []);
 
@@ -36,6 +38,8 @@ export function CustomMultiSelect({
       defaultValue={defaultValue}
       value={selected}
       onChange={handleChange}
+      placeholder={placeholder}
+      
     />
   );
 }

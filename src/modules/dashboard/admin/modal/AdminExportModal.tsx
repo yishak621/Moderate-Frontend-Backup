@@ -2,6 +2,7 @@ import Input from "@/components/ui/Input";
 import { useModal } from "@/components/ui/Modal";
 import { X } from "lucide-react";
 import { CustomMultiSelect } from "@/components/ui/MultiSelectInput";
+import Button from "@/components/ui/Button";
 
 const options = [
   { value: "chocolate", label: "Chocolate" },
@@ -27,13 +28,17 @@ export default function AddTeacherModal() {
         </div>
 
         <div onClick={close}>
-          <X width={22} height={22} className="text-[#000000]" />
+          <X width={22} height={22} className="text-[#000000] cursor-pointer" />
         </div>
       </div>
       {/* main section */}
-      <div className="flex flex-col gap-7 mt-10.5">
-        <Input label="Email" type="email" placeholder="you@example.com" />
-        <Input label="Email" type="email" placeholder="you@example.com" />
+      <div className="flex flex-col gap-7 mt-10.5 mb-6.5">
+        <Input label="Full Name" type="text" placeholder="jon doe" />
+        <Input
+          label="Email Address"
+          type="email"
+          placeholder="you@example.com"
+        />
         <div>
           <p className="text-[#0c0c0c] text-base font-normal mb-1">
             Subject Domains
@@ -43,6 +48,20 @@ export default function AddTeacherModal() {
             defaultValue={[options[0], options[1]]}
             onChange={handleSelected}
           />
+        </div>
+      </div>
+
+      <div className=" flex justify-center gap-3 items-center w-full ">
+        <div className="w-1/3 ">
+          <Button className="w-full" variant="secondary">
+            Cancel
+          </Button>
+        </div>
+        <div className="w-2/3">
+          {" "}
+          <Button className="w-full" variant="primary">
+            Create Teacher
+          </Button>
         </div>
       </div>
     </div>
