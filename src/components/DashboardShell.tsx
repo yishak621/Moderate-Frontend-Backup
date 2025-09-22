@@ -13,6 +13,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import Input from "./ui/Input";
 import { ArrowLeftToLine, ArrowRightToLine, LogOut } from "lucide-react";
+
 // theme icons removed since theme toggle is disabled
 
 export type NavItem = {

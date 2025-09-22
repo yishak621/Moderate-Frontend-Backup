@@ -91,9 +91,9 @@ export default function AdminPage() {
   };
 
   return (
-    <div className="flex flex-col ">
+    <div className="flex flex-col gap-5.5">
       {/* first section */}
-      <div className="flex flex-row gap-6 mb-5.5 rounded-[37px] 3xl:gap-12 justify-between bg-[#FDFDFD]  max-h-[285px] p-7 ">
+      <div className="flex flex-row gap-6  rounded-[37px] 3xl:gap-12 justify-between bg-[#FDFDFD]  max-h-[285px] p-7 ">
         {statsData.map((stat) => {
           return (
             <StatsCard

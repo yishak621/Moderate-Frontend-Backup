@@ -42,7 +42,7 @@ export function CustomMultiSelect({
       styles={{
         control: (base, state) => ({
           ...base,
-          minHeight: "48px", // match your input height
+          minHeight: "60px", // match your input height
           borderRadius: "0.5rem",
           borderColor: state.isFocused ? "#3b82f6" : "#d1d5db", // focus vs normal
           boxShadow: state.isFocused ? "0 0 0 2px #3b82f6" : "none",

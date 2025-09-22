@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import DashboardShell, { NavItem } from "@/components/DashboardShell";
 import Image from "next/image";
+import { usePathname } from "next/navigation";
 
 type Role = "admin" | "teacher";
 
@@ -55,11 +56,32 @@ function getSidebarItems(role: Role): NavItem[] {
   ];
 }
 
+function getDashboardTitle(
+  pathname: string,
+  role: Role,
+  sidebarItems: NavItem[]
+) {
+  // Find the exact match in sidebar items
+  const match = sidebarItems.find((item) => item.href === pathname);
+  if (match) return match.label;
+
+  // fallback: if nested route, find parent match
+  const parentMatch = sidebarItems.find((item) =>
+    pathname.startsWith(item.href + "/")
+  );
+  if (parentMatch) return parentMatch.label;
+
+  // default title
+  return "Dashboard";
+}
+
 export default function DashboardLayout({ children }: { children: ReactNode }) {
   // TODO: replace with real role from auth/user state
   const role: Role = "admin";
 
   const sidebarItems = useMemo(() => getSidebarItems(role), [role]);
+  const pathname = usePathname();
+  const title = getDashboardTitle(pathname, role, sidebarItems);
 
   const adminRightContent = () => {
     return (
@@ -101,7 +123,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
 
   return (
     <DashboardShell
-      title="Dashboard"
+      title={title}
       sidebarItems={sidebarItems}
       onSearchChange={() => {}}
       rightContent={role === "admin" ? adminRightContent() : "dasda"}

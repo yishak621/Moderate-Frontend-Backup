@@ -26,7 +26,7 @@ const Button: React.FC<ButtonProps> = ({
 
   return (
     <button
-      className={`${baseStyles} ${variantStyles[variant]} ${className} `}
+      className={`${baseStyles} ${variantStyles[variant]} ${className}`}
       {...props}
     >
       {icon && <span className="flex items-center">{icon}</span>}
