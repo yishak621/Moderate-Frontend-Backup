@@ -4,18 +4,19 @@ import DataTable from "@/components/table/Table";
 import Button from "@/components/ui/Button";
 import { CustomMultiSelect } from "@/components/ui/MultiSelectInput";
 import SearchInput from "@/components/ui/SearchInput";
-import { ColumnDef } from "@tanstack/react-table";
+
+import { userColumns } from "./columns";
+import { User } from "./columns";
 
 import { Eye, Pencil, Settings, Trash2, UserPlus } from "lucide-react";
-import { useState } from "react";
 
-interface User {
-  id: string;
-  name: string;
-  role?: string;
-  status?: string;
-  email: string;
-}
+// interface User {
+//   id: string;
+//   name: string;
+//   role?: string;
+//   status?: string;
+//   email: string;
+// }
 
 const options = [
   { value: "chocolate", label: "Chocolate" },
@@ -23,39 +24,28 @@ const options = [
   { value: "vanilla", label: "Vanilla" },
 ];
 
+const users: User[] = [
+  {
+    id: "sdfs",
+    name: "John Doe",
+    email: "john@school.com",
+    curricular: "Mathematics",
+    status: "Active",
+    subscription: "Monthly",
+    lastActive: "2025-09-18",
+  },
+  {
+    id: "fsfsd",
+    name: "Jane Smith",
+    email: "jane@school.com",
+    curricular: "Science",
+    status: "Inactive",
+    subscription: "free",
+    lastActive: "2025-09-15",
+  },
+];
+
 export default function Users() {
-  const [users] = useState<User[]>([
-    { id: "hhfgc", name: "John Doe", email: "john@example.com" },
-    { id: "gggf", name: "Jane Smith", email: "jane@example.com" },
-    { id: "gdgfdg", name: "Alice Brown", email: "alice@example.com" },
-  ]);
-
-  const columns: ColumnDef<User>[] = [
-    { accessorKey: "id", header: "ID" },
-    { accessorKey: "name", header: "Name" },
-    { accessorKey: "email", header: "Email" },
-    {
-      id: "actions",
-      header: "Actions",
-      cell: ({ row }) => (
-        <div className="flex gap-2">
-          <button className="p-1 text-blue-500 hover:bg-blue-50 rounded">
-            <Eye size={16} />
-          </button>
-          <button className="p-1 text-green-500 hover:bg-green-50 rounded">
-            <Pencil size={16} />
-          </button>
-          <button className="p-1 text-red-500 hover:bg-red-50 rounded">
-            <Trash2 size={16} />
-          </button>
-          <button className="p-1 text-gray-500 hover:bg-gray-50 rounded">
-            <Settings size={16} />
-          </button>
-        </div>
-      ),
-    },
-  ];
-
   const handleSelected = (values: { value: string; label: string }[]) => {
     console.log("Selected values:", values);
     // you can use these in real-time (e.g. store in state, send to API, etc.)
@@ -102,8 +92,8 @@ export default function Users() {
         </div>
 
         {/* table */}
-        <div className="p-6">
-          <DataTable<User> data={users} columns={columns} />
+        <div className="px-0 p-6">
+          <DataTable<User> data={users} columns={userColumns} />
         </div>
       </div>
     </div>
