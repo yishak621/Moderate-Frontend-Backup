@@ -4,7 +4,7 @@ import { ReactNode, ButtonHTMLAttributes } from "react";
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   children: ReactNode;
   icon?: ReactNode;
-  variant?: "primary" | "secondary";
+  variant?: "primary" | "secondary" | "red";
   className?: string;
 }
 
@@ -20,6 +20,7 @@ const Button: React.FC<ButtonProps> = ({
 
   const variantStyles = {
     primary: "bg-[#368FFF] text-[#FDFDFD] hover:bg-[#2574db]  ", // deeper blue
+    red: "bg-[#F25555] text-[#FDFDFD] hover:bg-[#D94444]  ",
     secondary:
       "bg-[#FDFDFD] text-gray-800 hover:bg-[#e5e5e5]  border border-[#DBDBDB]  text-[#0C0C0C]", // soft gray
   };

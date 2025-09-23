@@ -13,7 +13,7 @@ import { Eye, Pencil, Trash2, Settings, Mail } from "lucide-react";
 import ViewUserModal from "@/modules/dashboard/admin/modal/users/ViewUserModal";
 import EditUserModal from "@/modules/dashboard/admin/modal/users/EditUserModal";
 import DeleteUserModal from "@/modules/dashboard/admin/modal/users/DeleteUserModal";
-import SettingsUserModal from "@/modules/dashboard/admin/modal/users/SettingsUserModal";
+import SettingsUserModal from "@/modules/dashboard/admin/modal/users/MessageUserModal";
 
 export function getUserColumns(
   handleOpenModal: (component: React.FC<any>, props?: any) => void

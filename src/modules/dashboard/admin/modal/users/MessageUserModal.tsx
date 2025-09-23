@@ -1,8 +1,9 @@
 import Input from "@/components/ui/Input";
 import { useModal } from "@/components/ui/Modal";
-import { X } from "lucide-react";
+import { Send, X } from "lucide-react";
 import { CustomMultiSelect } from "@/components/ui/MultiSelectInput";
 import Button from "@/components/ui/Button";
+import Textarea from "@/components/ui/Textarea";
 
 const options = [
   { value: "chocolate", label: "Chocolate" },
@@ -10,7 +11,7 @@ const options = [
   { value: "vanilla", label: "Vanilla" },
 ];
 
-export default function DeleteUserModal() {
+export default function MessageUserModal() {
   const { close } = useModal();
   const handleSelected = (values: { value: string; label: string }[]) => {
     console.log("Selected values:", values);
@@ -21,9 +22,11 @@ export default function DeleteUserModal() {
       {/* Header */}
       <div className="flex flex-row justify-between">
         <div className=" flex flex-col gap-1.5">
-          <p className=" text-xl text-[#0c0c0c] font-medium">Delete Teacher</p>
-          <p className=" text-base font-normal text-[#717171] max-w-[303px]">
-            Are you sure to delete teacher account from your platform
+          <p className=" text-xl text-[#0c0c0c] font-medium">
+            Send Support Message
+          </p>
+          <p className=" text-base font-normal text-[#717171]">
+            Send a direct message to a user
           </p>
         </div>
 
@@ -31,8 +34,25 @@ export default function DeleteUserModal() {
           <X width={22} height={22} className="text-[#000000] cursor-pointer" />
         </div>
       </div>
+      {/* main section */}
+      <div className="flex flex-col gap-7 mt-10.5 mb-6.5">
+        <Input
+          label="Subject"
+          type="text"
+          placeholder="Enter message subject"
+        />
+        <Textarea label="Message" placeholder="Type your message here" />
+        <div>
+          <p className="text-[#0c0c0c] text-base font-normal mb-1">Priority</p>
+          <CustomMultiSelect
+            options={options}
+            defaultValue={[options[0], options[1]]}
+            onChange={handleSelected}
+          />
+        </div>
+      </div>
 
-      <div className=" flex justify-center gap-3 items-center w-full mt-12">
+      <div className=" flex justify-center gap-3 items-center w-full ">
         <div className="w-1/3 ">
           <Button className="w-full" variant="secondary" onClick={close}>
             Cancel
@@ -40,8 +60,12 @@ export default function DeleteUserModal() {
         </div>
         <div className="w-2/3">
           {" "}
-          <Button className="w-full" variant="red">
-            Delete Teacher
+          <Button
+            className="w-full"
+            variant="primary"
+            icon={<Send size={20} />}
+          >
+            Send Message
           </Button>
         </div>
       </div>
