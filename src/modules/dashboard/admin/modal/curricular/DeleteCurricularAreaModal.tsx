@@ -2,7 +2,11 @@ import { useModal } from "@/components/ui/Modal";
 import { X } from "lucide-react";
 import Button from "@/components/ui/Button";
 
-export default function DeleteUserModal() {
+export default function DeleteCurricularAreaModal({
+  Curricular,
+}: {
+  Curricular: string;
+}) {
   const { close } = useModal();
 
   return (
@@ -12,7 +16,7 @@ export default function DeleteUserModal() {
         <div className=" flex flex-col gap-1.5">
           <p className=" text-xl text-[#0c0c0c] font-medium">Delete Teacher</p>
           <p className=" text-base font-normal text-[#717171] max-w-[303px]">
-            Are you sure to delete teacher account from your platform
+            Are you sure to delete `<b>{Curricular}</b> `from your platform
           </p>
         </div>
 
@@ -30,7 +34,7 @@ export default function DeleteUserModal() {
         <div className="w-2/3">
           {" "}
           <Button className="w-full" variant="red">
-            Delete Teacher
+            Delete Curricular
           </Button>
         </div>
       </div>

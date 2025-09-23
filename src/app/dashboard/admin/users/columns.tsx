@@ -1,22 +1,14 @@
-export type User = {
-  id: string;
-  name: string;
-  email: string;
-  curricular: string;
-  status: "Active" | "Suspended" | "Inactive";
-  subscription: "free" | "Monthly" | "Yearly";
-  lastActive: string;
-};
-
 import { ColumnDef } from "@tanstack/react-table";
-import { Eye, Pencil, Trash2, Settings, Mail } from "lucide-react";
+import { Eye, Pencil, Trash2, Mail } from "lucide-react";
+import type { ComponentType } from "react";
 import ViewUserModal from "@/modules/dashboard/admin/modal/users/ViewUserModal";
 import EditUserModal from "@/modules/dashboard/admin/modal/users/EditUserModal";
 import DeleteUserModal from "@/modules/dashboard/admin/modal/users/DeleteUserModal";
 import SettingsUserModal from "@/modules/dashboard/admin/modal/users/MessageUserModal";
+import { User } from "@/app/types/user";
 
 export function getUserColumns(
-  handleOpenModal: (component: React.FC<any>, props?: any) => void
+  handleOpenModal: <P>(component: ComponentType<P>, props?: P) => void
 ): ColumnDef<User>[] {
   return [
     {

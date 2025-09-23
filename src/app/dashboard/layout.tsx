@@ -28,7 +28,7 @@ function getSidebarItems(role: Role): NavItem[] {
       },
       { label: "User Management", icon: Users, href: "/dashboard/admin/users" },
       {
-        label: "Curricular Area",
+        label: "Curricular Area Management",
         icon: Globe,
         href: "/dashboard/admin/curricular",
       },

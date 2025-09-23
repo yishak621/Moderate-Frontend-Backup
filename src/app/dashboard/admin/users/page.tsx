@@ -7,11 +7,11 @@ import SearchInput from "@/components/ui/SearchInput";
 
 import { getUserColumns } from "./columns";
 import Modal from "@/components/ui/Modal";
-import { User } from "./columns";
 
 import { Eye, Pencil, Settings, Trash2, UserPlus } from "lucide-react";
 import { useState } from "react";
 import AddTeacherModal from "@/modules/dashboard/admin/modal/AddTeacherModal";
+import { User } from "@/app/types/user";
 
 // interface User {
 //   id: string;
