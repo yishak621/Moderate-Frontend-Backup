@@ -2,7 +2,7 @@ import { useModal } from "@/components/ui/Modal";
 import { X } from "lucide-react";
 import Button from "@/components/ui/Button";
 
-export default function DeleteEmailDomainModal({
+export default function DeleteCurricularAreaModal({
   Curricular,
 }: {
   Curricular: string;
@@ -14,9 +14,7 @@ export default function DeleteEmailDomainModal({
       {/* Header */}
       <div className="flex flex-row justify-between">
         <div className=" flex flex-col gap-1.5">
-          <p className=" text-xl text-[#0c0c0c] font-medium">
-            Delete Email Domain
-          </p>
+          <p className=" text-xl text-[#0c0c0c] font-medium">Delete Teacher</p>
           <p className=" text-base font-normal text-[#717171] max-w-[303px]">
             Are you sure to delete `<b>{Curricular}</b> `from your platform
           </p>

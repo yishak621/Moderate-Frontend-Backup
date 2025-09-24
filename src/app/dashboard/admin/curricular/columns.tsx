@@ -5,6 +5,8 @@ import { Curricular } from "@/app/types/curricular";
 import EditCurricularAreaModal from "@/modules/dashboard/admin/modal/curricular/EditCurricularAreaModal";
 import DeleteCurricularAreaModal from "@/modules/dashboard/admin/modal/curricular/DeleteCurricularAreaModal";
 import { EmailDomains } from "@/app/types/emailDomains";
+import EditEmailDomainModal from "@/modules/dashboard/admin/modal/emailDomain/EditEmailDomainModal";
+import DeleteEmailDomainModal from "@/modules/dashboard/admin/modal/emailDomain/DeleteEmailDomainModal";
 
 export function getCurricularColumns(
   handleOpenModal: <P>(component: ComponentType<P>, props?: P) => void
@@ -161,7 +163,7 @@ export function getEmailDomainsColumns(
         return (
           <div className="flex gap-2">
             <button
-              onClick={() => handleOpenModal(EditCurricularAreaModal)}
+              onClick={() => handleOpenModal(EditEmailDomainModal)}
               className="p-1 text-green-500 hover:bg-green-50 rounded"
             >
               <Pencil size={16} />
@@ -169,8 +171,8 @@ export function getEmailDomainsColumns(
 
             <button
               onClick={() =>
-                handleOpenModal(DeleteCurricularAreaModal, {
-                  Curricular: row.original.name,
+                handleOpenModal(DeleteEmailDomainModal, {
+                  Curricular: row.original.emailDomain,
                 })
               }
               className="p-1 text-red-500 hover:bg-red-50 rounded"

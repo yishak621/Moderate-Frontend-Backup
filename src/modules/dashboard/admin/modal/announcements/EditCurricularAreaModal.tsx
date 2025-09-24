@@ -10,7 +10,7 @@ const options = [
   { value: "vanilla", label: "Vanilla" },
 ];
 
-export default function EditEmailDomainModal() {
+export default function EditCurricularAreaModal() {
   const { close } = useModal();
   const handleSelected = (values: { value: string; label: string }[]) => {
     console.log("Selected values:", values);
@@ -22,10 +22,10 @@ export default function EditEmailDomainModal() {
       <div className="flex flex-row justify-between">
         <div className=" flex flex-col gap-1.5">
           <p className=" text-xl text-[#0c0c0c] font-medium">
-            Update Allowed Email Domain
+            Update Curricular Area Data
           </p>
           <p className=" text-base font-normal text-[#717171]">
-            Edit school email domain to allow teacher registrations
+            Edit a teacher account
           </p>
         </div>
 
@@ -35,19 +35,22 @@ export default function EditEmailDomainModal() {
       </div>
       {/* main section */}
       <div className="flex flex-col gap-7 mt-10.5 mb-6.5">
-        <Input label="School Name" type="text" placeholder="Full School Name" />
+        <Input label="Full Name" type="text" placeholder="jon doe" />
         <Input
-          label="Catagory"
-          type="text"
-          placeholder="Schools - Community Schools"
+          label="Email Address"
+          type="email"
+          placeholder="you@example.com"
         />
-        <Input
-          label="Email Domain"
-          type="text"
-          placeholder="e.g. archi.edu.uk "
-        />
-
-        <Input label="Website" type="text" placeholder="Full School Name" />
+        <div>
+          <p className="text-[#0c0c0c] text-base font-normal mb-1">
+            Subject Domains
+          </p>
+          <CustomMultiSelect
+            options={options}
+            defaultValue={[options[0], options[1]]}
+            onChange={handleSelected}
+          />
+        </div>
       </div>
 
       <div className=" flex justify-center gap-3 items-center w-full ">
@@ -59,7 +62,7 @@ export default function EditEmailDomainModal() {
         <div className="w-2/3">
           {" "}
           <Button className="w-full" variant="primary">
-            Update Email Domain
+            Update Teacher
           </Button>
         </div>
       </div>
