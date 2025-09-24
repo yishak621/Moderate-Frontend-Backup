@@ -1,6 +1,6 @@
 "use client";
 
-import { ReactNode, useMemo } from "react";
+import { ReactNode, useMemo, useState } from "react";
 import {
   LayoutDashboard,
   Settings,
@@ -15,8 +15,9 @@ import {
 import DashboardShell, { NavItem } from "@/components/DashboardShell";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
+import SearchInputTeacher from "@/modules/dashboard/teacher/SearchInputTeacher";
 
-type Role = "admin" | "teacher";
+type Role = "admin" | "user";
 
 function getSidebarItems(role: Role): NavItem[] {
   if (role === "admin") {
@@ -77,11 +78,18 @@ function getDashboardTitle(
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
   // TODO: replace with real role from auth/user state
-  const role: Role = "admin";
+  const [role] = useState<Role>("user");
 
   const sidebarItems = useMemo(() => getSidebarItems(role), [role]);
   const pathname = usePathname();
   const title = getDashboardTitle(pathname, role, sidebarItems);
+
+  const [query, setQuery] = useState("");
+
+  const handleSearch = () => {
+    console.log("Searching for:", query);
+    // Call API or filter list
+  };
 
   const adminRightContent = () => {
     return (
@@ -121,13 +129,58 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
     );
   };
 
+  const userRightContent = () => {
+    return (
+      <div className="border border-red-500 flex flex-row items-center gap-4 ">
+        <div>
+          <SearchInputTeacher
+            value={query}
+            onChange={setQuery}
+            onSearch={handleSearch}
+            placeholder="Search users..."
+          />
+        </div>
+        {/* 
+            NOTIFICATION
+            */}
+        <div className=" flex justify-center items-center cursor-pointer w-[44px] h-[44px] rounded-full bg-white relative">
+          <Bell className="w-5.5 h-5.5 text-[#0C0C0C]" />
+          <div className=" absolute bottom-0 right-0 w-[15px] h-[15px] bg-[#368FFF] rounded-full"></div>
+        </div>
+
+        <div className=" flex flex-row gap-2">
+          {/* 
+           USER PROFILE
+            */}
+          <div className=" flex flex-col justify-center items-center cursor-pointer w-[51px] h-[51px] rounded-full bg-white">
+            <Image
+              className="w-11 h-11 rounded-full  border-2 border-[#368FFF] object-cover"
+              src="/images/sample-user.png"
+              alt="sample user image"
+              width={44}
+              height={44}
+            />
+          </div>
+
+          <div className="flex flex-col gap-[5px] ">
+            <span className="font-base font-medium text-[#0C0C0C] ">
+              Admin user
+            </span>
+            <span className="text-sm font-normal text-[#717171]">
+              admin@school.com
+            </span>
+          </div>
+        </div>
+      </div>
+    );
+  };
   return (
     <DashboardShell
       title={title}
       sidebarItems={sidebarItems}
       onSearchChange={() => {}}
-      rightContent={role === "admin" ? adminRightContent() : "dasda"}
-      place={role === "admin" ? "admin" : "teacher"}
+      rightContent={role === "admin" ? adminRightContent() : userRightContent()}
+      place={role === "admin" ? "admin" : "user"}
     >
       {children}
     </DashboardShell>
