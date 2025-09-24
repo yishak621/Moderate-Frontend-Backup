@@ -11,6 +11,10 @@ import {
   Globe,
   Megaphone,
   Mail,
+  Star,
+  MessageSquare,
+  History,
+  CircleQuestionMark,
 } from "lucide-react";
 import DashboardShell, { NavItem } from "@/components/DashboardShell";
 import Image from "next/image";
@@ -52,8 +56,27 @@ function getSidebarItems(role: Role): NavItem[] {
   }
   return [
     { label: "Overview", icon: LayoutDashboard, href: "/dashboard/teacher" },
-    { label: "Grades", icon: FileText, href: "/dashboard/teacher/grades" },
-    { label: "Settings", icon: Settings, href: "/dashboard/settings" },
+    { label: "Posts", icon: FileText, href: "/dashboard/teacher/posts" },
+    { label: "Grading", icon: Star, href: "/dashboard/teacher/grading" },
+    {
+      label: "Messages",
+      icon: MessageSquare,
+      href: "/dashboard/teacher/messages",
+    },
+
+    {
+      label: "Announcements",
+      icon: Megaphone,
+      href: "/dashboard/teacher/announcements",
+    },
+    { label: "History", icon: History, href: "/dashboard/teacher/history" },
+    {
+      label: "Support",
+      icon: CircleQuestionMark,
+      href: "/dashboard/teacher/support",
+    },
+
+    { label: "Settings", icon: Settings, href: "/dashboard/teacher/settings" },
   ];
 }
 

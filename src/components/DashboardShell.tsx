@@ -138,26 +138,33 @@ export default function DashboardShell({
                 key={href}
                 href={href}
                 className={clsx(
-                  "text-base font-medium  flex items-center gap-3 rounded-[41px] text-dark ",
+                  "text-base font-medium flex items-center gap-3 rounded-[41px] text-dark",
                   isExpanded ? "py-5 px-5.5" : "p-5 justify-center",
-                  isActive && "bg-[#FDFDFD] "
+                  isActive && "bg-[#FDFDFD]"
                 )}
               >
+                {/* Icon wrapper with fixed width */}
                 {Icon && (
-                  <Icon
-                    size={22}
-                    className={`${
-                      isActive ? "text-[#0C0C0C]" : "text-[#717171]"
-                    }`}
-                  />
+                  <span className="flex-shrink-0 w-6 h-6 flex items-center justify-center">
+                    <Icon
+                      size={22}
+                      className={`${
+                        isActive ? "text-[#0C0C0C]" : "text-[#717171]"
+                      }`}
+                    />
+                  </span>
                 )}
+
+                {/* Truncated text */}
                 {isExpanded && (
                   <span
-                    className={`${
+                    className={clsx(
+                      "truncate max-w-[150px]", // <-- control max label width
                       isActive
                         ? "text-[#0C0C0C] font-medium"
-                        : "text-[#717171] font-normal"
-                    } text-base`}
+                        : "text-[#717171] font-normal",
+                      "text-base"
+                    )}
                   >
                     {label}
                   </span>
