@@ -1,7 +1,7 @@
 // components/ui/DatePickerInput.tsx
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import "./datepicker.css"; // 👈 custom styles
@@ -22,11 +22,16 @@ export default function DatePickerInput({
   onChange,
 }: DatePickerInputProps) {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => setMounted(true), []);
 
   const handleChange = (date: Date | null) => {
     setSelectedDate(date);
     onChange?.(date);
   };
+
+  if (!mounted) return null;
 
   return (
     <div className="w-full">

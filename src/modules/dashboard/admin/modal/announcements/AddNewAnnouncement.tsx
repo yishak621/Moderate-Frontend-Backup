@@ -10,7 +10,7 @@ const options = [
   { value: "vanilla", label: "Vanilla" },
 ];
 
-export default function AddNewCurricularAreaModal() {
+export default function AddNewAnnouncement() {
   const { close } = useModal();
   const handleSelected = (values: { value: string; label: string }[]) => {
     console.log("Selected values:", values);

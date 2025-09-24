@@ -3,7 +3,7 @@
 
 import Select from "react-select";
 import makeAnimated from "react-select/animated";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const animatedComponents = makeAnimated();
 
@@ -23,11 +23,16 @@ export function CustomMultiSelect({
   placeholder,
 }: CustomMultiSelectProps) {
   const [selected, setSelected] = useState<Option[]>(defaultValue || []);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => setMounted(true), []);
 
   const handleChange = (newValue: any) => {
     setSelected(newValue || []);
     onChange?.(newValue || []);
   };
+
+  if (!mounted) return null;
 
   return (
     <Select

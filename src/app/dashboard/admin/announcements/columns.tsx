@@ -1,3 +1,4 @@
+"use client";
 import { ColumnDef } from "@tanstack/react-table";
 import {
   Eye,
@@ -91,7 +92,7 @@ export function getAnnouncementColumns(
         };
         return (
           <div
-            className={`flex flex-row gap-1 items-center justify-center px-0.5 py-2 text-sm font-semibold rounded-full ${colorMap[status]}`}
+            className={`flex flex-row gap-1 items-center justify-center px-1.5 py-2 text-sm font-semibold rounded-full ${colorMap[status]}`}
           >
             <div>
               {status === "Published" ? (

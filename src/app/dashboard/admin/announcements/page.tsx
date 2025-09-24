@@ -1,4 +1,5 @@
 "use client";
+
 import StatsCard from "@/modules/dashboard/StatsCards";
 import DataTable from "@/components/table/Table";
 import Button from "@/components/ui/Button";
@@ -11,6 +12,7 @@ import AddTeacherModal from "@/modules/dashboard/admin/modal/AddTeacherModal";
 import { useState } from "react";
 import type { ComponentType } from "react";
 import { Announcement } from "@/app/types/announcement";
+import CreateNewAnnouncementModal from "@/modules/dashboard/admin/modal/CreateNewAnnouncementModal";
 
 type StatsCardProps = {
   title: string;
@@ -50,9 +52,10 @@ export const sampleData: Announcement[] = [
 ];
 export default function Page() {
   const [open, setOpen] = useState(false);
-  const [ModalComponent, setModalComponent] =
-    useState<ComponentType<unknown> | null>(null);
-  const [modalProps, setModalProps] = useState<object>({});
+  const [ModalComponent, setModalComponent] = useState<React.FC<any> | null>(
+    null
+  );
+  const [modalProps, setModalProps] = useState<any>({});
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
@@ -63,9 +66,12 @@ export default function Page() {
 
   const No_Of_Users = 5;
 
-  const handleOpenModal = <P,>(component: ComponentType<P>, props?: P) => {
-    setModalComponent(component as unknown as ComponentType<unknown>);
-    setModalProps((props as object) ?? {});
+  const handleOpenModal = (
+    component: React.FC<unknown>,
+    props: unknown = {}
+  ) => {
+    setModalComponent(() => component);
+    setModalProps(props);
     setOpen(true);
   };
 
@@ -103,7 +109,7 @@ export default function Page() {
 
           <Button
             icon={<Plus size={23} />}
-            onClick={() => handleOpenModal(AddTeacherModal)}
+            onClick={() => handleOpenModal(CreateNewAnnouncementModal)}
           >
             Create Announcement
           </Button>

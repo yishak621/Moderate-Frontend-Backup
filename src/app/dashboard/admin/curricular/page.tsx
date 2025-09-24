@@ -9,7 +9,7 @@ import { Eye, Pencil, Plus, Settings, Trash2, UserPlus } from "lucide-react";
 import { useState } from "react";
 import { Curricular } from "@/app/types/curricular";
 import AddNewCurricularAreaModal from "@/modules/dashboard/admin/modal/curricular/AddNewCurricularAreaModal";
-import { EmailDomains, emailDomains } from "@/app/types/emailDomains";
+import { EmailDomains } from "@/app/types/emailDomains";
 import AddNewEmailDomainModal from "@/modules/dashboard/admin/modal/emailDomain/AddNewEmailDomainModal";
 
 const curriculars: Curricular[] = [
@@ -39,7 +39,7 @@ const curriculars: Curricular[] = [
   },
 ];
 
-const emailDomains: emailDomains[] = [
+const emailDomains: EmailDomains[] = [
   {
     id: "sdfs",
     emailDomain: "etc.com",
