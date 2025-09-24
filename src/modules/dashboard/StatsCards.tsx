@@ -1,14 +1,11 @@
-type StatusCardProps = {
-  title: string;
-  count: number;
-  description?: string;
-};
+import { StatsCardProps } from "@/types/statusCardProps";
 
 export default function StatsCard({
   title,
   count,
   description,
-}: StatusCardProps) {
+  colored,
+}: StatsCardProps) {
   return (
     <div
       className="
@@ -19,7 +16,7 @@ export default function StatsCard({
     overflow-hidden 
     relative
     mask-image: radial-gradient(circle at top left, transparent 225px, black 226px);
-            mask-repeat: no-repeat; mask-size: 100% 100%
+    mask-repeat: no-repeat; mask-size: 100% 100%
   "
       style={{
         background: "linear-gradient(135deg, #368FFF 0%, #63A8FF 100%)",

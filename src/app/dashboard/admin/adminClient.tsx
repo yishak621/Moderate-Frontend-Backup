@@ -19,28 +19,27 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import CreateNewAnnouncementModal from "@/modules/dashboard/admin/modal/CreateNewAnnouncementModal";
+import { StatsCardProps } from "@/types/statusCardProps";
 
-type StatsCardProps = {
-  title: string;
-  count: number;
-  description: string;
-};
 
 const statsData: StatsCardProps[] = [
   {
     title: "Total Teachers",
     count: 243,
     description: "+12% from last month",
+    colored: true,
   },
   {
     title: "Active Schools",
     count: 45,
     description: "+2 from last month",
+    colored: false,
   },
   {
     title: "Documents Uploaded",
     count: 1847,
     description: "+12% from last month",
+    colored: false,
   },
 ];
 

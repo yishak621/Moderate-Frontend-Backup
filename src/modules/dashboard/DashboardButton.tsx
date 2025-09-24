@@ -24,7 +24,7 @@ const DashboardButton: React.FC<DashboardButtonProps> = ({
     <button
       onClick={onClick}
       className={`
-        flex flex-row justify-center items-center gap-2 py-4 px-10
+       w-full flex flex-row justify-center items-center gap-2 py-4 px-10
         rounded-[10px] border border-[#DBDBDB]
         transition-all duration-300 ease-in-out
         ${bgColor} ${textColor} ${hoverBgColor} ${hoverTextColor}
