@@ -15,6 +15,8 @@ import EditUserModal from "@/modules/dashboard/admin/modal/users/EditUserModal";
 import DeleteUserModal from "@/modules/dashboard/admin/modal/users/DeleteUserModal";
 import SettingsUserModal from "@/modules/dashboard/admin/modal/users/MessageUserModal";
 import { Announcement } from "@/app/types/announcement";
+import EditAnnouncementModal from "@/modules/dashboard/admin/modal/announcements/EditAnnouncement";
+import DeleteAnnouncementModal from "@/modules/dashboard/admin/modal/announcements/DeleteAnnpuncement";
 
 export function getAnnouncementColumns(
   handleOpenModal: <P>(component: ComponentType<P>, props?: P) => void
@@ -135,14 +137,14 @@ export function getAnnouncementColumns(
         return (
           <div className="flex gap-2">
             <button
-              onClick={() => handleOpenModal(EditUserModal, { user })}
+              onClick={() => handleOpenModal(EditAnnouncementModal)}
               className="p-1 text-green-500 hover:bg-green-50 rounded"
             >
               <Pencil size={16} />
             </button>
 
             <button
-              onClick={() => handleOpenModal(DeleteUserModal, { user })}
+              onClick={() => handleOpenModal(DeleteAnnouncementModal)}
               className="p-1 text-red-500 hover:bg-red-50 rounded"
             >
               <Trash2 size={16} />

@@ -11,22 +11,22 @@ const options = [
   { value: "vanilla", label: "Vanilla" },
 ];
 
-export default function EditAnnouncementModal() {
+export default function SupportMessageModal() {
   const { close } = useModal();
   const handleSelected = (values: { value: string; label: string }[]) => {
     console.log("Selected values:", values);
     // you can use these in real-time (e.g. store in state, send to API, etc.)
   };
   return (
-    <div className=" bg-[#FDFDFD] min-w-[551px] p-10 rounded-[27px] flex flex-col">
+    <div className=" bg-[#FDFDFD] h-screen overflow-y-scroll scrollbar-hide min-w-[551px] p-10 rounded-[27px] flex flex-col">
       {/* Header */}
       <div className="flex flex-row justify-between">
         <div className=" flex flex-col gap-1.5">
           <p className=" text-xl text-[#0c0c0c] font-medium">
-            Edit Announcement
+            Send Support Message
           </p>
           <p className=" text-base font-normal text-[#717171]">
-            Update the announcement details
+            Send a direct message to a user or broadcast to multiple users
           </p>
         </div>
 
@@ -36,37 +36,27 @@ export default function EditAnnouncementModal() {
       </div>
       {/* main section */}
       <div className="flex flex-col gap-7 mt-10.5 mb-6.5">
+        <div>
+          <p className="text-[#0c0c0c] text-base font-normal mb-1">Recipient</p>
+          <CustomMultiSelect
+            options={options}
+            placeholder="Select Recipient or type email"
+            onChange={handleSelected}
+          />
+        </div>
         <Input
-          label="Title"
+          label="Subject"
           type="text"
-          placeholder="Announcement Title content here"
-          value={"Platform Maintaincance scheduled"}
+          placeholder="Enter message subject"
         />
-        <Textarea
-          label="Content"
-          placeholder="Announcement body content here"
-          value="We will be performing scheduled maintenance on Sunday, January 21st from 2:00 AM to 4:00 AM EST. During this time, the platform may be temporarily unavailable."
-        />
-        <div className=" flex flex-row gap-3.5">
-          <div>
-            <p className="text-[#0c0c0c] text-base font-normal mb-1">Type</p>
-            <CustomMultiSelect
-              options={options}
-              defaultValue={[options[0], options[1]]}
-              onChange={handleSelected}
-            />
-          </div>
-
-          <div>
-            <p className="text-[#0c0c0c] text-base font-normal mb-1">
-              Priority
-            </p>
-            <CustomMultiSelect
-              options={options}
-              defaultValue={[options[0], options[1]]}
-              onChange={handleSelected}
-            />
-          </div>
+        <Textarea label="Message" placeholder="Type your message here..." />
+        <div>
+          <p className="text-[#0c0c0c] text-base font-normal mb-1">Priority</p>
+          <CustomMultiSelect
+            options={options}
+            placeholder="Select Priority"
+            onChange={handleSelected}
+          />
         </div>
       </div>
 
@@ -79,7 +69,7 @@ export default function EditAnnouncementModal() {
         <div className="w-2/3">
           {" "}
           <Button className="w-full" variant="primary">
-            Update Announcement
+            Send Message
           </Button>
         </div>
       </div>

@@ -1,3 +1,9 @@
-export default function page() {
-  return <div>messages page</div>;
+import SupportClient from "./supportClient";
+
+export default function Page() {
+  return (
+    <>
+      <SupportClient />
+    </>
+  );
 }
