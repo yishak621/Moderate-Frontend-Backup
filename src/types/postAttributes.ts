@@ -1,6 +1,7 @@
 export interface PostAttributes {
   id: string | number;
   name_of_post: string;
+  description?: string;
   posted_by: string;
   uploaded_at: string;
   files: string[];

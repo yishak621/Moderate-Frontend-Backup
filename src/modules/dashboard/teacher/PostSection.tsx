@@ -3,11 +3,13 @@
 import { useRouter } from "next/navigation";
 import { UserPlus } from "lucide-react";
 import { PostAttributes } from "@/types/postAttributes";
+import PostTags from "./PostTags";
 
 export default function Post({ post }: { post: PostAttributes }) {
   const {
     id,
     name_of_post,
+    description,
     posted_by,
     uploaded_at,
     files,
@@ -32,6 +34,7 @@ export default function Post({ post }: { post: PostAttributes }) {
             <p className="text-sm text-gray-500">
               by {posted_by} • {uploaded_at}
             </p>
+            <p className=" mt-2.5 ">{description}</p>
           </div>
         </div>
         <div className="flex flex-row gap-1.5 items-center text-[#368FFF] cursor-pointer">
@@ -104,20 +107,6 @@ export default function Post({ post }: { post: PostAttributes }) {
           <p className="text-sm text-gray-600">Avg: {post_grade_avg}</p>
         </div>
       </div>
-    </div>
-  );
-}
-
-function PostTags({ type, text }: { type?: string; text: string }) {
-  return (
-    <div
-      className={`py-1 px-3 flex flex-row items-center justify-center rounded-[47px] text-sm ${
-        type === "colored"
-          ? "bg-[#368FFF] text-white"
-          : "border border-[#DBDBDB] text-[#717171]"
-      }`}
-    >
-      {text}
     </div>
   );
 }

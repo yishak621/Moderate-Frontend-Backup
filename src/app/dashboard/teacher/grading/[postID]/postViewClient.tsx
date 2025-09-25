@@ -4,10 +4,14 @@ import { useRouter } from "next/navigation";
 import { ChevronLeft, ChevronRight, UserPlus } from "lucide-react";
 import { PostAttributes } from "@/types/postAttributes";
 import { useState } from "react";
+import { FilterButtons } from "@/components/ui/FilterButtons";
+import PostTags from "@/modules/dashboard/teacher/PostTags";
+import GradeGivenSection from "@/modules/dashboard/teacher/GradeGivenSection";
 
 const post = {
   id: "Dd3f32fhfvg3fvb3f",
   name_of_post: "12-Public Speaking Guide",
+  description: "this is a post for grade 8.............",
   posted_by: "Ms. Johnson",
   uploaded_at: "2025-09-15",
   files: [
@@ -22,6 +26,7 @@ const post = {
 export default function PostViewClient() {
   const {
     name_of_post,
+    description,
     posted_by,
     uploaded_at,
     files,
@@ -30,6 +35,8 @@ export default function PostViewClient() {
   } = post;
 
   const [currentFileIndex, setCurrentFileIndex] = useState(0);
+  const filters = ["Grades", "Grade Test"];
+  const [activeFilter, setActiveFilter] = useState("Grades");
 
   const nextFile = () => {
     setCurrentFileIndex((prev) => (prev + 1) % files.length);
@@ -55,6 +62,7 @@ export default function PostViewClient() {
               <p className="text-sm text-gray-500">
                 by {posted_by} • {uploaded_at}
               </p>
+              <p className=" mt-2">{description}</p>
             </div>
           </div>
           <div className="flex flex-row gap-1.5 items-center text-[#368FFF] cursor-pointer">
@@ -95,25 +103,28 @@ export default function PostViewClient() {
             />
           ))}
           <p className="text-sm text-gray-600">Avg: {post_grade_avg}</p>
+          <p className="text-sm text-gray-600">Guven Grade: C</p>
         </div>
       </div>
 
       {/* RIGHT SIDE – File Viewer */}
-      <div className="bg-red-200">right</div>
-    </div>
-  );
-}
-
-function PostTags({ type, text }: { type?: string; text: string }) {
-  return (
-    <div
-      className={`py-1 px-3 flex flex-row items-center justify-center rounded-[47px] text-sm ${
-        type === "colored"
-          ? "bg-[#368FFF] text-white"
-          : "border border-[#DBDBDB] text-[#717171]"
-      }`}
-    >
-      {text}
+      <div className="flex flex-col items-start">
+        {/* filters */}
+        <div>
+          <FilterButtons
+            filters={filters}
+            activeFilter={activeFilter}
+            onFilterChange={setActiveFilter}
+          />
+        </div>
+        {/* grades given */}
+        {activeFilter === "Grades" && (
+          <>
+            <GradeGivenSection />
+          </>
+        )}
+        {activeFilter === "Grade Test" && <div>Grade test</div>}
+      </div>
     </div>
   );
 }

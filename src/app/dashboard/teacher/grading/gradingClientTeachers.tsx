@@ -11,6 +11,7 @@ export const samplePosts: PostAttributes[] = [
   {
     id: "Dd3f32fhfvg3fvb3f",
     name_of_post: "1-Introduction to Algorithms",
+    description: "This is a post for grade 8 ..................",
     posted_by: "Prof. Thomas",
     uploaded_at: "2025-09-25",
     files: [
@@ -24,6 +25,8 @@ export const samplePosts: PostAttributes[] = [
   {
     id: "Dd3f32fhfvg3fvb3f",
     name_of_post: "2-Modern Physics Basics",
+    description: "This is a post for grade 8 ..................",
+
     posted_by: "Dr. Einstein",
     uploaded_at: "2025-09-20",
     files: [
@@ -36,6 +39,8 @@ export const samplePosts: PostAttributes[] = [
   {
     id: "Dd3f32fhfvg3fvb3f",
     name_of_post: "3-Public Speaking Guide",
+    description: "This is a post for grade 8 ..................",
+
     posted_by: "Ms. Johnson",
     uploaded_at: "2025-09-15",
     files: [
@@ -48,6 +53,8 @@ export const samplePosts: PostAttributes[] = [
   {
     id: "Dd3f32fhfvg3fvb3f",
     name_of_post: "4-Introduction to Algorithms",
+    description: "This is a post for grade 8 ..................",
+
     posted_by: "Prof. Thomas",
     uploaded_at: "2025-09-25",
     files: [
@@ -61,6 +68,8 @@ export const samplePosts: PostAttributes[] = [
   {
     id: "Dd3f32fhfvg3fvb3f",
     name_of_post: "5-Modern Physics Basics",
+    description: "This is a post for grade 8 ..................",
+
     posted_by: "Dr. Einstein",
     uploaded_at: "2025-09-20",
     files: [
@@ -73,6 +82,8 @@ export const samplePosts: PostAttributes[] = [
   {
     id: "Dd3f32fhfvg3fvb3f",
     name_of_post: "6-Public Speaking Guide",
+    description: "This is a post for grade 8 ..................",
+
     posted_by: "Ms. Johnson",
     uploaded_at: "2025-09-15",
     files: [
@@ -85,6 +96,8 @@ export const samplePosts: PostAttributes[] = [
   {
     id: "Dd3f32fhfvg3fvb3f",
     name_of_post: "7-Introduction to Algorithms",
+    description: "This is a post for grade 8 ..................",
+
     posted_by: "Prof. Thomas",
     uploaded_at: "2025-09-25",
     files: [
@@ -98,6 +111,8 @@ export const samplePosts: PostAttributes[] = [
   {
     id: "Dd3f32fhfvg3fvb3f",
     name_of_post: "8-Modern Physics Basics",
+    description: "This is a post for grade 8 ..................",
+
     posted_by: "Dr. Einstein",
     uploaded_at: "2025-09-20",
     files: [
@@ -110,6 +125,8 @@ export const samplePosts: PostAttributes[] = [
   {
     id: "Dd3f32fhfvg3fvb3f",
     name_of_post: "9-Public Speaking Guide",
+    description: "This is a post for grade 8 ..................",
+
     posted_by: "Ms. Johnson",
     uploaded_at: "2025-09-15",
     files: [
@@ -122,6 +139,8 @@ export const samplePosts: PostAttributes[] = [
   {
     id: "Dd3f32fhfvg3fvb3f",
     name_of_post: "10-Introduction to Algorithms",
+    description: "This is a post for grade 8 ..................",
+
     posted_by: "Prof. Thomas",
     uploaded_at: "2025-09-25",
     files: [
@@ -135,6 +154,8 @@ export const samplePosts: PostAttributes[] = [
   {
     id: "Dd3f32fhfvg3fvb3f",
     name_of_post: "11-Modern Physics Basics",
+    description: "This is a post for grade 8 ..................",
+
     posted_by: "Dr. Einstein",
     uploaded_at: "2025-09-20",
     files: [
@@ -147,6 +168,8 @@ export const samplePosts: PostAttributes[] = [
   {
     id: "Dd3f32fhfvg3fvb3f",
     name_of_post: "12-Public Speaking Guide",
+    description: "This is a post for grade 8 ..................",
+
     posted_by: "Ms. Johnson",
     uploaded_at: "2025-09-15",
     files: [
