@@ -1,5 +1,5 @@
 "use client";
 
 export default function PostsClientTeachers() {
-  return <>Posts teachers</>;
+  return <>My Posts catalog page</>;
 }

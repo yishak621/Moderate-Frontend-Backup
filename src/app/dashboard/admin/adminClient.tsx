@@ -21,7 +21,6 @@ import { useState } from "react";
 import CreateNewAnnouncementModal from "@/modules/dashboard/admin/modal/CreateNewAnnouncementModal";
 import { StatsCardProps } from "@/types/statusCardProps";
 
-
 const statsData: StatsCardProps[] = [
   {
     title: "Total Teachers",
@@ -163,7 +162,7 @@ export default function AdminPage() {
         </div>
 
         {/* BOOTM */}
-        <div className="pt-15 flex flex-row justify-between">
+        <div className="pt-15 flex flex-row gap-7 justify-between">
           {buttonData.map((btn, idx) => (
             <DashboardButton
               key={idx}

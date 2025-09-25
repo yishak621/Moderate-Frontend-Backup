@@ -56,8 +56,9 @@ function getSidebarItems(role: Role): NavItem[] {
   }
   return [
     { label: "Overview", icon: LayoutDashboard, href: "/dashboard/teacher" },
-    { label: "Posts", icon: FileText, href: "/dashboard/teacher/posts" },
-    { label: "Grading", icon: Star, href: "/dashboard/teacher/grading" },
+    { label: "Grading Feeds", icon: Star, href: "/dashboard/teacher/grading" },
+    { label: "My Posts", icon: FileText, href: "/dashboard/teacher/posts" },
+
     {
       label: "Messages",
       icon: MessageSquare,

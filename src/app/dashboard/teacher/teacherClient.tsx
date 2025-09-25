@@ -3,27 +3,22 @@
 import Modal from "@/components/ui/Modal";
 import AddTeacherModal from "@/modules/dashboard/admin/modal/AddTeacherModal";
 import DashboardNotificationItem from "@/modules/dashboard/admin/DashboardNotificationItem";
-import RevenueChart from "@/modules/dashboard/admin/RevenueChart";
 import DashboardButton from "@/modules/dashboard/DashboardButton";
 import StatsCard from "@/modules/dashboard/StatsCards";
 import {
-  ArrowBigDown,
-  ArrowDown,
-  ArrowDown01,
-  ChevronDown,
-  Circle,
-  Download,
+
   Megaphone,
   MessagesSquare,
   PlusSquare,
-  Settings,
-  UserPlus,
+ 
 } from "lucide-react";
 import { useState } from "react";
 import CreateNewAnnouncementModal from "@/modules/dashboard/admin/modal/CreateNewAnnouncementModal";
 import { StatsCardProps } from "@/types/statusCardProps";
 import SectionHeader from "@/components/SectionHeader";
 import { FilterButtons } from "@/components/ui/FilterButtons";
+import Post from "@/modules/dashboard/teacher/PostSection";
+import { PostAttributes } from "@/types/postAttributes";
 
 const statsData: StatsCardProps[] = [
   {
@@ -76,6 +71,46 @@ const buttonData = [
     component: CreateNewAnnouncementModal,
   },
 ];
+
+export const samplePosts: PostAttributes[] = [
+  {
+    id: "Dd3f32fhfvg3fvb3f",
+    name_of_post: "Introduction to Algorithms",
+    posted_by: "Prof. Thomas",
+    uploaded_at: "2025-09-25",
+    files: [
+      "https://arxiv.org/pdf/2111.01147.pdf", // sample CS research paper
+      "https://www.gutenberg.org/files/84/84-pdf.pdf", // Frankenstein (public domain)
+    ],
+    post_tags: ["Algorithms", "CS", "Education"],
+    post_status: "published",
+    post_grade_avg: 4.5,
+  },
+  {
+    id: "Dd3f32fhfvg3fvb3f",
+    name_of_post: "Modern Physics Basics",
+    posted_by: "Dr. Einstein",
+    uploaded_at: "2025-09-20",
+    files: [
+      "https://arxiv.org/pdf/quant-ph/0410100.pdf", // quantum mechanics paper
+    ],
+    post_tags: ["Physics", "Quantum", "Education"],
+    post_status: "draft",
+    post_grade_avg: 4.2,
+  },
+  {
+    id: "Dd3f32fhfvg3fvb3f",
+    name_of_post: "Public Speaking Guide",
+    posted_by: "Ms. Johnson",
+    uploaded_at: "2025-09-15",
+    files: [
+      "https://www.gutenberg.org/files/16317/16317-pdf.pdf", // Dale Carnegie-like public domain text
+    ],
+    post_tags: ["Soft Skills", "Communication"],
+    post_status: "archived",
+    post_grade_avg: 3.9,
+  },
+];
 //--------------------------OVERVIEW DASHBOARD
 export default function UserClient() {
   //MODAL STATES
@@ -106,7 +141,7 @@ export default function UserClient() {
         })}
       </div>
 
-      <div className="h-screen rounded-[37px] bg-[#FDFDFD] p-6 max-w-full overflow-hidden ">
+      <div className="min-h-screen rounded-[37px] bg-[#FDFDFD] p-6 max-w-full overflow-hidden ">
         <div className="grid gap-6 md:grid-cols-[65%_35%] grid-cols-1">
           {/* left side */}
           <div className="p-6 w-full">
@@ -127,7 +162,11 @@ export default function UserClient() {
             </div>
 
             {/* left bottom */}
-            <div className="w-full overflow-x-auto">adsda</div>
+            <div className="w-full overflow-x-auto">
+              {samplePosts.map((post, idx) => {
+                return <Post post={post} key={idx} />;
+              })}
+            </div>
           </div>
 
           {/* right side */}
