@@ -2,51 +2,104 @@
 
 import { useRouter } from "next/navigation";
 import { ChevronLeft, ChevronRight, UserPlus } from "lucide-react";
-import { PostAttributes } from "@/types/postAttributes";
 import { useState } from "react";
 import { FilterButtons } from "@/components/ui/FilterButtons";
 import PostTags from "@/modules/dashboard/teacher/PostTags";
 import GradeGivenSection from "@/modules/dashboard/teacher/GradeGivenSection";
+import { PostType } from "@/types/Post"; // <-- your post type
 
-const post = {
+const post: PostType = {
   id: "Dd3f32fhfvg3fvb3f",
-  name_of_post: "12-Public Speaking Guide",
-  description: "this is a post for grade 8.............",
-  posted_by: "Ms. Johnson",
-  uploaded_at: "2025-09-15",
-  files: [
-    "https://arxiv.org/pdf/quant-ph/0410100.pdf", // Dale Carnegie-like public domain text
-    "https://arxiv.org/pdf/2111.01147.pdf",
+  title: "12-Public Speaking Guide",
+  description: "This is a post for grade 8.............",
+  createdAt: "2025-09-15",
+  uploads: [
+    {
+      id: "1",
+      fileName: "quantum.pdf",
+      fileUrl: "https://arxiv.org/pdf/quant-ph/0410100.pdf",
+    },
+    {
+      id: "2",
+      fileName: "deep-learning.pdf",
+      fileUrl: "https://arxiv.org/pdf/2111.01147.pdf",
+    },
   ],
-  post_tags: ["Soft Skills", "Communication"],
-  post_status: "archived",
-  post_grade_avg: 3.9,
+  grades: [
+    {
+      id: "grade1",
+      postId: "post1",
+      gradedBy: "user1",
+      grade: "7",
+      createdAt: "2025-09-12T18:18:37.610Z",
+    },
+    {
+      id: "grade2",
+      postId: "post1",
+      gradedBy: "user2",
+      grade: "9",
+      createdAt: "2025-09-12T18:20:37.610Z",
+    },
+  ],
+  comments: [
+    {
+      id: "comment1",
+      postId: "post1",
+      commentedBy: "user1",
+      comment: "This grade reflects clarity and structure in the submission.",
+      createdAt: "2025-09-12T18:19:09.715Z",
+    },
+    {
+      id: "comment2",
+      postId: "post1",
+      commentedBy: "user2",
+      comment: "Excellent work on content, but could improve on formatting.",
+      createdAt: "2025-09-12T18:21:09.715Z",
+    },
+  ],
+  author: {
+    id: "t1",
+    name: "Ms. Johnson",
+  },
+  tags: ["Soft Skills", "Communication"],
+  postStatus: "archived",
+  postGradeAvg: 3.9,
 };
 
+type GroupedGrade = {
+  gradedBy: string;
+  grade: string;
+  comment: string | null;
+};
+
+const groupedGrades: GroupedGrade[] = post.grades.map((grade) => {
+  const comment = post.comments.find((c) => c.commentedBy === grade.gradedBy);
+  return {
+    gradedBy: grade.gradedBy,
+    grade: grade.grade,
+    comment: comment?.comment || null,
+  };
+});
+
+console.log(groupedGrades);
+
 export default function PostViewClient() {
-  const {
-    name_of_post,
-    description,
-    posted_by,
-    uploaded_at,
-    files,
-    post_tags,
-    post_grade_avg,
-  } = post;
+  const { title, description, author, createdAt, uploads, tags, postGradeAvg } =
+    post;
 
   const [currentFileIndex, setCurrentFileIndex] = useState(0);
   const filters = ["Grades", "Grade Test"];
   const [activeFilter, setActiveFilter] = useState("Grades");
 
   const nextFile = () => {
-    setCurrentFileIndex((prev) => (prev + 1) % files.length);
+    setCurrentFileIndex((prev) => (prev + 1) % uploads.length);
   };
 
   const prevFile = () => {
-    setCurrentFileIndex((prev) => (prev - 1 + files.length) % files.length);
+    setCurrentFileIndex((prev) => (prev - 1 + uploads.length) % uploads.length);
   };
 
-  const currentFile = files[currentFileIndex];
+  const currentFile = uploads[currentFileIndex].fileUrl;
   const ext = currentFile.split(".").pop()?.toLowerCase();
 
   return (
@@ -58,11 +111,11 @@ export default function PostViewClient() {
           <div className="flex flex-row gap-3">
             <div className="mt-2 w-2 h-2 rounded-full bg-[#368FFF]"></div>
             <div className="flex flex-col gap-1 items-start">
-              <p className="font-medium">{name_of_post}</p>
+              <p className="font-medium">{title}</p>
               <p className="text-sm text-gray-500">
-                by {posted_by} • {uploaded_at}
+                by {author.name} • {createdAt}
               </p>
-              <p className=" mt-2">{description}</p>
+              <p className="mt-2">{description}</p>
             </div>
           </div>
           <div className="flex flex-row gap-1.5 items-center text-[#368FFF] cursor-pointer">
@@ -70,7 +123,7 @@ export default function PostViewClient() {
             <p>Follow</p>
           </div>
         </div>
-        {/* full file preview  */}
+        {/* full file preview */}
         <div className="relative bg-gray-100 w-full rounded-3xl flex items-center justify-center overflow-hidden">
           {/* Navigation */}
           <button
@@ -95,15 +148,15 @@ export default function PostViewClient() {
         </div>
         {/* Bottom tags */}
         <div className="flex flex-row gap-4 items-center">
-          {post_tags.map((tag, idx) => (
+          {tags?.map((tag, idx) => (
             <PostTags
               key={idx}
               text={tag}
               type={idx % 2 === 1 ? "colored" : undefined}
             />
           ))}
-          <p className="text-sm text-gray-600">Avg: {post_grade_avg}</p>
-          <p className="text-sm text-gray-600">Guven Grade: C</p>
+          <p className="text-sm text-gray-600">Avg: {postGradeAvg}</p>
+          <p className="text-sm text-gray-600">Given Grade: C</p>
         </div>
       </div>
 
@@ -118,11 +171,16 @@ export default function PostViewClient() {
           />
         </div>
         {/* grades given */}
-        {activeFilter === "Grades" && (
-          <>
-            <GradeGivenSection />
-          </>
-        )}
+        {activeFilter === "Grades" &&
+          groupedGrades.map((grader, idx) => (
+            <GradeGivenSection
+              key={idx}
+              grader={grader}
+              date={post.createdAt}
+              authorName={post.author.name}
+            />
+          ))}
+
         {activeFilter === "Grade Test" && <div>Grade test</div>}
       </div>
     </div>
