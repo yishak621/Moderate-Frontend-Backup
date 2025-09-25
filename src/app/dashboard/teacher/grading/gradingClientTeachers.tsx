@@ -5,6 +5,7 @@ import { FilterButtons } from "@/components/ui/FilterButtons";
 import Post from "@/modules/dashboard/teacher/PostSection";
 import { PostAttributes } from "@/types/postAttributes";
 import { useState } from "react";
+import { ChevronUp } from "lucide-react";
 
 export const samplePosts: PostAttributes[] = [
   {
@@ -160,17 +161,27 @@ export const samplePosts: PostAttributes[] = [
 //this page collects all posts
 export default function GradingClientTeachers() {
   const filters = ["All", "Moderated", "Pending"];
-  const [activeFilter, setActiveFilter] = useState("All"); // ✅ default "All"
+  const [activeFilter, setActiveFilter] = useState("Pending"); // ✅ default "All"
   const [visiblePostsCount, setVisiblePostsCount] = useState(5); // Start with 5 posts
 
   const handleLoadMore = () => {
     setVisiblePostsCount((prev) => prev + 5); // Load 5 more posts
   };
 
+  const scrollToTop = () => {
+    const postsContainer = document.getElementById("posts-container");
+    if (postsContainer) {
+      postsContainer.scrollTo({
+        top: 0,
+        behavior: "smooth",
+      });
+    }
+  };
+
   const visiblePosts = samplePosts.slice(0, visiblePostsCount);
   const hasMorePosts = visiblePostsCount < samplePosts.length;
   return (
-    <div className="bg-[#FDFDFD] py-5.5 px-6 flex flex-col gap-5">
+    <div className="bg-[#FDFDFD] py-5.5 px-6 flex flex-col gap-5 rounded-[40px]">
       {/* left side */}
       <div className="p-6 w-full">
         {/* left top */}
@@ -190,7 +201,10 @@ export default function GradingClientTeachers() {
         </div>
 
         {/* left bottom */}
-        <div className="w-full overflow-x-auto">
+        <div
+          className="w-full overflow-x-auto max-h-[600px] overflow-y-auto scrollbar-thin scrollbar-thumb-blue-500 scrollbar-track-blue-100 scrollbar-thumb-rounded-full scrollbar-track-rounded-full"
+          id="posts-container"
+        >
           {visiblePosts.map((post, idx) => {
             return <Post post={post} key={idx} />;
           })}
@@ -208,6 +222,15 @@ export default function GradingClientTeachers() {
           </div>
         )}
       </div>
+
+      {/* Scroll to Top Button */}
+      <button
+        onClick={scrollToTop}
+        className="fixed bottom-6 right-6 bg-blue-500 hover:bg-blue-600 text-white p-3 rounded-full shadow-lg transition-all duration-200 z-50"
+        aria-label="Scroll to top"
+      >
+        <ChevronUp size={24} />
+      </button>
     </div>
   );
 }

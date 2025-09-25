@@ -1,3 +1,9 @@
+import PostViewClient from "./postViewClient";
+
 export default function page() {
-  return <div>specific post page</div>;
+  return (
+    <>
+      <PostViewClient />
+    </>
+  );
 }
