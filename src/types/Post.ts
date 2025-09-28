@@ -26,6 +26,31 @@ export type Author = {
   name: string;
 };
 
+// Grading types
+export type GradingCriterion = {
+  key: string;
+  label: string;
+  maxPoints: number;
+};
+
+export type LetterGradeBand = {
+  letter: string;
+  min: number;
+  max: number;
+};
+
+export type GradingRange = {
+  min: number;
+  max: number;
+};
+
+export type GradingLogic = {
+  type: string; // e.g. "rubric", "numeric", "passFail"
+  criteria?: GradingCriterion[];
+  letterGrades?: LetterGradeBand[];
+  total?: GradingRange;
+};
+
 export type PostType = {
   id: string;
   title: string;
@@ -38,4 +63,5 @@ export type PostType = {
   tags?: string[];
   postGradeAvg?: number;
   postStatus: string;
+  gradingLogic?: GradingLogic;
 };

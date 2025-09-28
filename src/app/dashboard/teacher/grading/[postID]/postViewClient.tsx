@@ -7,6 +7,7 @@ import { FilterButtons } from "@/components/ui/FilterButtons";
 import PostTags from "@/modules/dashboard/teacher/PostTags";
 import GradeGivenSection from "@/modules/dashboard/teacher/GradeGivenSection";
 import { PostType } from "@/types/Post"; // <-- your post type
+import GradeTemplateRubric from "@/modules/dashboard/teacher/GradingLogics/GradeTemplateRubric";
 
 const post: PostType = {
   id: "Dd3f32fhfvg3fvb3f",
@@ -38,7 +39,7 @@ const post: PostType = {
       postId: "post1",
       gradedBy: "user2",
       grade: "9",
-      createdAt: "2025-09-12T18:20:37.610Z",
+      createdAt: "2026-09-12T18:20:37.610Z",
     },
   ],
   comments: [
@@ -54,12 +55,26 @@ const post: PostType = {
       postId: "post1",
       commentedBy: "user2",
       comment: "Excellent work on content, but could improve on formatting.",
-      createdAt: "2025-09-12T18:21:09.715Z",
+      createdAt: "2026-09-12T18:21:09.715Z",
     },
   ],
   author: {
     id: "t1",
     name: "Ms. Johnson",
+  },
+  gradingLogic: {
+    type: "rubric", // could also be "numeric", "passFail", etc.
+    criteria: [
+      { key: "purpose", label: "Purpose", maxPoints: 10 },
+      { key: "accuracy", label: "Accuracy", maxPoints: 10 },
+      { key: "clarity", label: "Clarity", maxPoints: 10 },
+    ],
+    letterGrades: [
+      { letter: "A", min: 25, max: 30 },
+      { letter: "B", min: 15, max: 24 },
+      { letter: "C", min: 3, max: 14 },
+    ],
+    total: { min: 3, max: 30 },
   },
   tags: ["Soft Skills", "Communication"],
   postStatus: "archived",
@@ -70,6 +85,7 @@ type GroupedGrade = {
   gradedBy: string;
   grade: string;
   comment: string | null;
+  createdAt: string;
 };
 
 const groupedGrades: GroupedGrade[] = post.grades.map((grade) => {
@@ -77,6 +93,7 @@ const groupedGrades: GroupedGrade[] = post.grades.map((grade) => {
   return {
     gradedBy: grade.gradedBy,
     grade: grade.grade,
+    createdAt: grade.createdAt,
     comment: comment?.comment || null,
   };
 });
@@ -171,17 +188,28 @@ export default function PostViewClient() {
           />
         </div>
         {/* grades given */}
-        {activeFilter === "Grades" &&
-          groupedGrades.map((grader, idx) => (
-            <GradeGivenSection
-              key={idx}
-              grader={grader}
-              date={post.createdAt}
-              authorName={post.author.name}
-            />
-          ))}
+        <div className="  max-h-screen overflow-y-scroll scrollbar-hide">
+          {activeFilter === "Grades" &&
+            groupedGrades.map((grader, idx) => (
+              <GradeGivenSection
+                key={idx}
+                grader={grader}
+                date={post.createdAt}
+                authorName={post.author.name}
+              />
+            ))}
+        </div>
 
-        {activeFilter === "Grade Test" && <div>Grade test</div>}
+        {activeFilter === "Grade Test" && (
+          <div className=" mt-8 flex flex-col items-start">
+            {post?.gradingLogic?.type === "rubric" && (
+              <GradeTemplateRubric
+                criteria={post.gradingLogic.criteria}
+                totalRange={post.gradingLogic.total}
+              />
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

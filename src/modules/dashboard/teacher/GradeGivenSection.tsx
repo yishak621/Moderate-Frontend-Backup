@@ -5,6 +5,7 @@ type GroupedGrade = {
   gradedBy: string;
   grade: string;
   comment: string | null;
+  createdAt: string;
 };
 
 type GradeGivenSectionProps = {
@@ -29,9 +30,11 @@ export default function GradeGivenSection({
       <div className="flex flex-row gap-2.5">
         <div className="w-[38px] h-[38px] rounded-full bg-amber-300" />
         <div className="flex flex-col gap-2 mb-7.5">
-          <p className="text-[#0C0C0C] text-base font-normal">{authorName}</p>
+          <p className="text-[#0C0C0C] text-base font-normal">
+            {grader.gradedBy}
+          </p>
           <p className="text-[14px] font-normal text-[#717171]">
-            {new Date(date).toLocaleDateString()}
+            {grader.createdAt}
           </p>
         </div>
       </div>
