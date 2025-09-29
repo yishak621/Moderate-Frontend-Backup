@@ -1,5 +1,6 @@
 "use client";
 import SupportPageToggleItem from "@/modules/dashboard/teacher/SupportPageToggleItem";
+import Link from "next/link";
 import { useState } from "react";
 
 interface SupportClientTeachersProps {
@@ -50,9 +51,12 @@ export default function SupportClientTeachers() {
             />
           ))}
         </div>
-        <p className="mt-auto text-[#368FFF] text-base font-normal cursor-pointer">
+        <Link
+          href={"/dashboard/teacher/guide"}
+          className="mt-auto text-[#368FFF] text-base font-normal cursor-pointer"
+        >
           Learn More
-        </p>
+        </Link>
       </div>
 
       {/* right side */}
