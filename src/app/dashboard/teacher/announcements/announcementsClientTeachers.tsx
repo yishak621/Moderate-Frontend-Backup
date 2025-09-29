@@ -64,7 +64,7 @@ export default function AnnouncementsClientTeachers() {
   return (
     <div className="grid grid-cols-1 md:grid-cols-[35%_65%] gap-4">
       {/* Sidebar */}
-      <div className="bg-[#FDFDFD] rounded-[22px] py-6 px-7 min-h-screen flex flex-col">
+      <div className="bg-[#FDFDFD] rounded-[22px] py-6 px-7 min-h-screen overflow-y-scroll scrollbar-hide flex flex-col">
         <h4 className="text-[#0C0C0C] text-xl font-medium mb-5">
           Announcement Board
         </h4>
