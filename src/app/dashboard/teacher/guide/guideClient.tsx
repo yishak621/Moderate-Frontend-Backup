@@ -45,9 +45,9 @@ export default function GuideClient() {
   const [selected, setSelected] = useState<GuideItem | null>(guideItems[0]);
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-[35%_65%] gap-6">
+    <div className="grid grid-cols-1 md:grid-cols-[35%_65%] gap-2">
       {/* Left sidebar */}
-      <div className="bg-[#FDFDFD] flex flex-col rounded-2xl p-6 shadow-sm min-h-screen">
+      <div className="bg-[#FDFDFD] flex flex-col rounded-tl-2xl rounded-bl-2xl rounded-tr-sm rounded-br-sm p-6 shadow-sm min-h-screen">
         <Link
           href={"/dashboard/teacher/support"}
           className="text-[#0C0C0C] text-xl font-medium flex flex-row items-center gap-2.5 mb-8 hover:text-[#368FFF] transition"
@@ -60,7 +60,7 @@ export default function GuideClient() {
             <button
               key={item.id}
               onClick={() => setSelected(item)}
-              className={` flex flex-row items-center text-left gap-2.5 font-normal px-4 py-3 rounded-xl transition-all cursor-pointer ${
+              className={` flex flex-row items-center text-left gap-2 font-normal px-4 py-3 rounded-xl transition-all cursor-pointer ${
                 selected?.id === item.id
                   ? "bg-[#368FFF] text-white"
                   : "hover:bg-[#EDEDED] text-[#717171]"
@@ -76,7 +76,7 @@ export default function GuideClient() {
       </div>
 
       {/* Right content area */}
-      <div className="bg-[#FDFDFD] rounded-2xl p-6 shadow-sm">
+      <div className="bg-[#FDFDFD] rounded-tl-sm rounded-bl-sm rounded-tr-2xl rounded-br-2xl p-6 shadow-sm">
         {selected ? (
           <div className="flex flex-col gap-6 animate-fadeIn">
             <h2 className="text-2xl font-semibold text-[#0C0C0C]">
