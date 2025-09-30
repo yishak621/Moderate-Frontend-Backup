@@ -20,6 +20,9 @@ import DashboardShell, { NavItem } from "@/components/DashboardShell";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import SearchInputTeacher from "@/modules/dashboard/teacher/SearchInputTeacher";
+import { removeToken } from "@/services/tokenService";
+import { useRouter } from "next/navigation";
+import { AnimatePresence, motion } from "framer-motion";
 
 type Role = "admin" | "user";
 
@@ -101,14 +104,27 @@ function getDashboardTitle(
 }
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
+  const [open, setOpen] = useState(false);
+  const [query, setQuery] = useState("");
   // TODO: replace with real role from auth/user state
   const [role] = useState<Role>("user");
+
+  const router = useRouter();
+
+  const handleLogout = () => {
+    removeToken();
+    router.push("/auth/login");
+  };
+
+  const menuItems = [
+    { label: "Profile", onClick: () => router.push("/profile") },
+    { label: "Settings", onClick: () => router.push("/settings") },
+    { label: "Logout", onClick: handleLogout },
+  ];
 
   const sidebarItems = useMemo(() => getSidebarItems(role), [role]);
   const pathname = usePathname();
   const title = getDashboardTitle(pathname, role, sidebarItems);
-
-  const [query, setQuery] = useState("");
 
   const handleSearch = () => {
     console.log("Searching for:", query);
@@ -125,12 +141,14 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
           <Bell className="w-5.5 h-5.5 text-[#0C0C0C]" />
           <div className=" absolute bottom-0 right-0 w-[15px] h-[15px] bg-[#368FFF] rounded-full"></div>
         </div>
-
-        <div className=" flex flex-row gap-2">
+        <div
+          className=" flex flex-row gap-2 cursor-pointer"
+          onClick={() => setOpen(!open)}
+        >
           {/* 
            USER PROFILE
             */}
-          <div className=" flex flex-col justify-center items-center cursor-pointer w-[51px] h-[51px] rounded-full bg-white">
+          <div className=" flex flex-col justify-center items-center  w-[51px] h-[51px] rounded-full bg-white">
             <Image
               className="w-11 h-11 rounded-full  border-2 border-[#368FFF] object-cover"
               src="/images/sample-user.png"
@@ -148,14 +166,41 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
               admin@school.com
             </span>
           </div>
-        </div>
+        </div>{" "}
+        {/* Dropdown card */}
+        <AnimatePresence>
+          {open && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.2 }}
+              className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-50"
+            >
+              <div className="flex flex-col py-2">
+                {menuItems.map((item, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => {
+                      item.onClick();
+                      setOpen(false); // close dropdown after click
+                    }}
+                    className="px-4 py-2 text-left hover:bg-gray-100 text-sm text-gray-800 w-full"
+                  >
+                    {item.label}
+                  </button>
+                ))}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     );
   };
 
   const userRightContent = () => {
     return (
-      <div className="border border-red-500 flex flex-row items-center gap-4 ">
+      <div className=" flex flex-row items-center gap-4 ">
         <div>
           <SearchInputTeacher
             value={query}
@@ -172,7 +217,10 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
           <div className=" absolute bottom-0 right-0 w-[15px] h-[15px] bg-[#368FFF] rounded-full"></div>
         </div>
 
-        <div className=" flex flex-row gap-2">
+        <div
+          className="relative flex flex-row gap-2 cursor-pointer"
+          onClick={() => setOpen(!open)}
+        >
           {/* 
            USER PROFILE
             */}
@@ -194,6 +242,33 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
               admin@school.com
             </span>
           </div>
+          {/* Dropdown card */}
+          <AnimatePresence>
+            {open && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.2 }}
+                className="absolute right-0 top-[45px] mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-50"
+              >
+                <div className="flex flex-col py-2">
+                  {menuItems.map((item, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => {
+                        item.onClick();
+                        setOpen(false); // close dropdown after click
+                      }}
+                      className="px-4 py-2 text-left hover:bg-gray-100 text-sm text-gray-800 w-full"
+                    >
+                      {item.label}
+                    </button>
+                  ))}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </div>
     );

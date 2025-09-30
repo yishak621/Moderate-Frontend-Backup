@@ -12,7 +12,13 @@ import clsx from "clsx";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import Input from "./ui/Input";
-import { ArrowLeftToLine, ArrowRightToLine, LogOut } from "lucide-react";
+import {
+  ArrowLeftToLine,
+  ArrowRightToLine,
+  LogOut,
+  PanelLeftClose,
+  PanelLeftOpen,
+} from "lucide-react";
 
 // theme icons removed since theme toggle is disabled
 
@@ -111,13 +117,13 @@ export default function DashboardShell({
 
           <button
             onClick={() => setIsExpanded((v) => !v)}
-            className="text-dark dark:text-gray-300"
+            className="text-[#0C0C0C] cursor-pointer"
             aria-label="Toggle sidebar"
           >
             {isExpanded ? (
-              <ArrowLeftToLine size={18} />
+              <PanelLeftClose size={18} />
             ) : (
-              <ArrowRightToLine size={18} />
+              <PanelLeftOpen size={18} />
             )}
           </button>
         </div>

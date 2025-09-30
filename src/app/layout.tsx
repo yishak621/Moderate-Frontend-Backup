@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Outfit } from "next/font/google";
 import "./globals.css";
+import ReactQueryProvider from "@/lib/ReactQueryProvider";
+import { Toaster } from "react-hot-toast";
 
 export const metadata: Metadata = {
   title: "Moderate Tech",
@@ -26,7 +28,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${outfit.className} antialiased`}>
-        <div className="max-w-[1840px] mx-auto ">{children}</div>
+        <ReactQueryProvider>
+          <div className="max-w-[1840px] mx-auto ">{children}</div>
+          <Toaster position="top-center" />
+        </ReactQueryProvider>
       </body>
     </html>
   );
