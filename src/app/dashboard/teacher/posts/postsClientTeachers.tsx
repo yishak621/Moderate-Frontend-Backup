@@ -5,6 +5,10 @@ import { FilterButtons } from "@/components/ui/FilterButtons";
 import Post from "@/modules/dashboard/teacher/PostSection";
 import { PostAttributes } from "@/types/postAttributes";
 import { useState } from "react";
+import Modal from "@/components/ui/Modal";
+import CreatPostModal from "@/modules/dashboard/teacher/post/CreatPostModal";
+import Button from "@/components/ui/Button";
+import { Plus } from "lucide-react";
 
 const options = [
   { value: "all", label: "All" },
@@ -137,6 +141,8 @@ export default function PostsClientTeachers() {
   const filters = ["All", "Moderated", "Pending"];
   const [activeFilter, setActiveFilter] = useState("Pending"); // ✅ default "All"
   const [visiblePostsCount, setVisiblePostsCount] = useState(5); // Start with 5 posts
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [open, setOpen] = useState(false);
 
   const handleSelect = (selected: { value: string; label: string } | null) => {
     console.log("Selected option:", selected);
@@ -181,6 +187,33 @@ export default function PostsClientTeachers() {
           </div>
         </div>
       </div>
+
+      {/* Create New Post Section */}
+      <div className="mt-6 mb-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-100">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-blue-100 rounded-lg">
+              <Plus className="w-5 h-5 text-blue-600" />
+            </div>
+            <div>
+              <h3 className="text-lg font-medium text-[#0C0C0C]">
+                Create New Post
+              </h3>
+              <p className="text-sm text-[#717171]">
+                Share updates, announcements, or resources with your students
+              </p>
+            </div>
+          </div>
+          <Button
+            variant="primary"
+            onClick={() => setOpen(true)}
+            className="flex items-center gap-2"
+          >
+            <Plus className="w-4 h-4" />
+            New Post
+          </Button>
+        </div>
+      </div>
       {/* main sectioon */}
       <div className="scrollbar-hide ">
         <div
@@ -204,6 +237,15 @@ export default function PostsClientTeachers() {
           </div>
         )}
       </div>
+
+      {/* Create Post Modal */}
+      {/* VERY IMPORTANT */}
+      <Modal isOpen={open} onOpenChange={setOpen}>
+        <Modal.Content>
+          <CreatPostModal />
+          {/* render dynamic component */}
+        </Modal.Content>
+      </Modal>
     </div>
   );
 }

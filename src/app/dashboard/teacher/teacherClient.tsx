@@ -5,13 +5,7 @@ import AddTeacherModal from "@/modules/dashboard/admin/modal/AddTeacherModal";
 import DashboardNotificationItem from "@/modules/dashboard/admin/DashboardNotificationItem";
 import DashboardButton from "@/modules/dashboard/DashboardButton";
 import StatsCard from "@/modules/dashboard/StatsCards";
-import {
-
-  Megaphone,
-  MessagesSquare,
-  PlusSquare,
- 
-} from "lucide-react";
+import { Megaphone, MessagesSquare, PlusSquare } from "lucide-react";
 import { useState } from "react";
 import CreateNewAnnouncementModal from "@/modules/dashboard/admin/modal/CreateNewAnnouncementModal";
 import { StatsCardProps } from "@/types/statusCardProps";
@@ -19,6 +13,7 @@ import SectionHeader from "@/components/SectionHeader";
 import { FilterButtons } from "@/components/ui/FilterButtons";
 import Post from "@/modules/dashboard/teacher/PostSection";
 import { PostAttributes } from "@/types/postAttributes";
+import CreatPostModal from "@/modules/dashboard/teacher/post/CreatPostModal";
 
 const statsData: StatsCardProps[] = [
   {
@@ -58,7 +53,7 @@ const buttonData = [
   {
     icon: <PlusSquare width={23} height={23} />,
     label: "New Post",
-    component: AddTeacherModal,
+    component: CreatPostModal,
   },
   {
     icon: <MessagesSquare width={23} height={23} />,
