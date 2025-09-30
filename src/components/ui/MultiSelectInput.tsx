@@ -14,6 +14,7 @@ interface CustomMultiSelectProps {
   defaultValue?: Option[];
   onChange?: (selected: Option[]) => void;
   placeholder?: string;
+  isSearchable?: boolean;
 }
 
 export function CustomMultiSelect({
@@ -21,6 +22,7 @@ export function CustomMultiSelect({
   defaultValue,
   onChange,
   placeholder,
+  isSearchable,
 }: CustomMultiSelectProps) {
   const [selected, setSelected] = useState<Option[]>(defaultValue || []);
   const [mounted, setMounted] = useState(false);
@@ -44,6 +46,7 @@ export function CustomMultiSelect({
       value={selected}
       onChange={handleChange}
       placeholder={placeholder}
+      isSearchable={isSearchable}
       styles={{
         control: (base, state) => ({
           ...base,

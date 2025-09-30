@@ -35,15 +35,16 @@ export default function LoginForm() {
 
       // Show success toast if login succeeded
       if (res?.token) {
-        toast.success("Logged in successfully!");
+        toast.success("Registered successfully!");
       } else {
-        toast.error("Login failed! No token returned.");
+        toast.error("Regiseration Failed! Try Again!");
       }
     } catch (err: any) {
       // Show error toast
       toast.error(err?.response?.data?.message || "Login failed!");
     }
   };
+
   useEffect(() => {
     if (isSuccess && user && user.role === "TEACHER") {
       router.push("/dashboard/teacher");

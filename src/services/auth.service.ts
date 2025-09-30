@@ -26,7 +26,7 @@ export const login = async (data: loginData) => {
 
 export const signup = async (data: loginData) => {
   try {
-    const res = await axiosInstance.post("/api/auth/login", data);
+    const res = await axiosInstance.post("/api/auth/register", data);
 
     if (!res) {
       console.log("error");

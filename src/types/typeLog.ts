@@ -13,3 +13,10 @@ export interface UserAuditLog {
   description: string;
   createdAt: string; // ISO timestamp
 }
+
+export interface SubjectDomain {
+  id: string;
+  name: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
