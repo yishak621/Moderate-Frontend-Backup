@@ -2,6 +2,8 @@ import { axiosInstance } from "@/lib/axiosInstance";
 import {
   forgotPasswordFormDataTypes,
   loginFormDataTypes,
+  ResetPasswordFormDataTypes,
+  ResetPasswordPropsTypes,
   SignupFormDataTypes,
 } from "@/types/authData.type";
 import { setToken } from "./tokenService";
@@ -68,6 +70,40 @@ export const signup = async (data: SignupFormDataTypes) => {
 export const forgotPassword = async (data: forgotPasswordFormDataTypes) => {
   try {
     const res = await axiosInstance.post("/api/auth/forgotPassword", data);
+
+    if (!res) {
+      console.log("error");
+    }
+    console.log(res.data);
+    return res.data;
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error(error);
+      throw new Error(
+        // @ts-expect-error: might be Axios error with response
+        error?.response?.data?.message ||
+          error.message ||
+          "Something went wrong"
+      );
+    } else {
+      console.error("Unknown error", error);
+      throw new Error("Something went wrong");
+    }
+  }
+};
+
+//-------------------RESET PASSWORD
+
+export const resetPassword = async ({
+  data,
+  resetToken,
+}: ResetPasswordPropsTypes) => {
+  try {
+    console.log(resetToken, "reset token");
+    const res = await axiosInstance.post(
+      `/api/auth/resetPassword/${resetToken}`,
+      data
+    );
 
     if (!res) {
       console.log("error");

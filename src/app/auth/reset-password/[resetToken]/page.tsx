@@ -1,6 +1,5 @@
 "use client";
 
-import LoginScreen from "@/modules/auth/LoginScreen";
 import ResetPasswordForm from "@/modules/auth/ResetPasswordForm";
 
 export default function ResetPasswordPage() {

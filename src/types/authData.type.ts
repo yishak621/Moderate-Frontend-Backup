@@ -14,3 +14,13 @@ export interface SignupFormDataTypes {
 export interface forgotPasswordFormDataTypes {
   email: string;
 }
+
+export interface ResetPasswordFormDataTypes {
+  password: string;
+  confirmPassword: string;
+}
+
+export interface ResetPasswordPropsTypes {
+  data: ResetPasswordFormDataTypes;
+  resetToken: string;
+}
