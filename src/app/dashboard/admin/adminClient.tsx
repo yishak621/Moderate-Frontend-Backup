@@ -20,27 +20,8 @@ import {
 import { useState } from "react";
 import CreateNewAnnouncementModal from "@/modules/dashboard/admin/modal/CreateNewAnnouncementModal";
 import { StatsCardProps } from "@/types/statusCardProps";
-
-const statsData: StatsCardProps[] = [
-  {
-    title: "Total Teachers",
-    count: 243,
-    description: "+12% from last month",
-    colored: true,
-  },
-  {
-    title: "Active Schools",
-    count: 45,
-    description: "+2 from last month",
-    colored: false,
-  },
-  {
-    title: "Documents Uploaded",
-    count: 1847,
-    description: "+12% from last month",
-    colored: false,
-  },
-];
+import { useAdminOverviewData } from "@/hooks/UseAdminRoutes";
+import { ApiRevenueItem } from "@/types/admin.type";
 
 const notifications = [
   {
@@ -79,6 +60,78 @@ const buttonData = [
 ];
 //--------------------------OVERVIEW DASHBOARD
 export default function AdminPage() {
+  const {
+    overview,
+    isLoading: isOverviewLoading,
+    isSuccess: isOverviewSuccess,
+    isError: isOverviewError,
+    error: overviewError,
+  } = useAdminOverviewData();
+  // Map revenueByMonth to chart-friendly format
+  const months = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ];
+
+  // Map API data to a Map
+  const revenueMap = new Map<number, number>(
+    overview?.revenueByMonth.map(
+      (item: { month: string; totalRevenue: string }) => [
+        new Date(item.month).getMonth(),
+        Number(item.totalRevenue) / 100, // convert cents to USD
+      ]
+    )
+  );
+
+  // Map to chart-ready array
+  const revenueChartData: ApiRevenueItem[] = months.map((month, idx) => {
+    // Find revenue for this month
+    const revenueEntry = overview?.revenueByMonth.find(
+      (item) => new Date(item.month).getMonth() === idx
+    );
+    return {
+      month,
+      totalRevenue: revenueEntry ? Number(revenueEntry.totalRevenue) / 100 : 0,
+    };
+  });
+
+  console.log(revenueChartData, revenueMap);
+  // Calculate annual revenue
+  const annualRevenue = revenueChartData.reduce(
+    (acc: number, item: ApiRevenueItem) => acc + item.totalRevenue,
+    0
+  );
+
+  const statsData: StatsCardProps[] = [
+    {
+      title: "Total Teachers",
+      count: overview?.totalTeachers,
+      description: "+12% from last month",
+      colored: true,
+    },
+    {
+      title: "Active Schools",
+      count: overview?.activeSchools,
+      description: "+2 from last month",
+      colored: false,
+    },
+    {
+      title: "Documents Uploaded",
+      count: overview?.postsCreated,
+      description: "+12% from last month",
+      colored: false,
+    },
+  ];
   //MODAL STATES
   const [open, setOpen] = useState(false);
   const [ModalComponent, setModalComponent] = useState<React.FC | null>(null);
@@ -112,7 +165,7 @@ export default function AdminPage() {
             <div className="flex flex-row justify-between mb-5 flex-wrap">
               <div className="flex flex-col">
                 <p className="text-xl font-medium text-[#0C0C0C]">
-                  Annual Revenue(2500$)
+                  Annual Revenue{`(${annualRevenue}$)`}
                 </p>
                 <p className="text-base font-normal text-[#717171]">
                   Latest system events and user actions
@@ -131,7 +184,7 @@ export default function AdminPage() {
 
             {/* left bottom */}
             <div className="w-full overflow-x-auto">
-              <RevenueChart />
+              <RevenueChart data={revenueChartData} />
             </div>
           </div>
 

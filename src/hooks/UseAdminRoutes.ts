@@ -1,15 +1,16 @@
-import { userData } from "@/services/user.service";
+//AdminOverview
+import { AdminOverview } from "@/services/user.service";
 import { useQuery } from "@tanstack/react-query";
 
-export function useUserData() {
+export function useAdminOverviewData() {
   const { data, isPending, isSuccess, isError, error } = useQuery({
-    queryKey: ["me"],
-    queryFn: userData,
+    queryKey: ["overview"],
+    queryFn: AdminOverview,
     staleTime: 5 * 60 * 1000,
   });
 
   return {
-    user: data,
+    overview: data,
     isLoading: isPending,
     isSuccess,
     isError,

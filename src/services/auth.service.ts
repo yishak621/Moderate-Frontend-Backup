@@ -6,7 +6,7 @@ import {
   ResetPasswordPropsTypes,
   SignupFormDataTypes,
 } from "@/types/authData.type";
-import { setToken } from "./tokenService";
+import { setRole, setToken } from "./tokenService";
 
 //-------------------LOGIN
 
@@ -20,6 +20,7 @@ export const login = async (data: loginFormDataTypes) => {
     //set token
     if (res.data?.token) {
       setToken(res.data.token);
+      setRole(res.data.user.role);
     }
     return res.data.user;
   } catch (error) {

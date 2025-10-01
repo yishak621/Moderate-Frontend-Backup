@@ -20,14 +20,16 @@ import DashboardShell, { NavItem } from "@/components/DashboardShell";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import SearchInputTeacher from "@/modules/dashboard/teacher/SearchInputTeacher";
-import { removeToken } from "@/services/tokenService";
+import { getRole, removeToken } from "@/services/tokenService";
 import { useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 
-type Role = "admin" | "user";
+import { useUserData } from "@/hooks/useUser";
+
+type Role = "SYSTEM_ADMIN" | "TEACHER";
 
 function getSidebarItems(role: Role): NavItem[] {
-  if (role === "admin") {
+  if (role === "SYSTEM_ADMIN") {
     return [
       {
         label: "Overview",
@@ -106,18 +108,19 @@ function getDashboardTitle(
 export default function DashboardLayout({ children }: { children: ReactNode }) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
-  // TODO: replace with real role from auth/user state
-  const [role] = useState<Role>("user");
+  const role = getRole() as Role;
 
   const router = useRouter();
+  const { user, isLoading, isSuccess, isError, error } = useUserData();
 
+  console.log("user", user);
   const handleLogout = () => {
     removeToken();
     router.push("/auth/login");
   };
 
   const menuItems = [
-    { label: "Profile", onClick: () => router.push("/profile") },
+    // { label: "Profile", onClick: () => router.push("/profile") },
     { label: "Settings", onClick: () => router.push("/settings") },
     { label: "Logout", onClick: handleLogout },
   ];
@@ -160,10 +163,10 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
 
           <div className="flex flex-col gap-[5px] ">
             <span className="font-base font-medium text-[#0C0C0C] ">
-              Admin user
+              {user?.name}
             </span>
             <span className="text-sm font-normal text-[#717171]">
-              admin@school.com
+              {user?.email}
             </span>
           </div>
         </div>{" "}
@@ -175,7 +178,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.2 }}
-              className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-50"
+              className="absolute right-0 top-[45px] mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-50"
             >
               <div className="flex flex-col py-2">
                 {menuItems.map((item, idx) => (
@@ -236,10 +239,10 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
 
           <div className="flex flex-col gap-[5px] ">
             <span className="font-base font-medium text-[#0C0C0C] ">
-              Admin user
+              {user?.name}
             </span>
             <span className="text-sm font-normal text-[#717171]">
-              admin@school.com
+              {user?.email}
             </span>
           </div>
           {/* Dropdown card */}
@@ -278,8 +281,10 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
       title={title}
       sidebarItems={sidebarItems}
       onSearchChange={() => {}}
-      rightContent={role === "admin" ? adminRightContent() : userRightContent()}
-      place={role === "admin" ? "admin" : "user"}
+      rightContent={
+        role === "SYSTEM_ADMIN" ? adminRightContent() : userRightContent()
+      }
+      place={role === "SYSTEM_ADMIN" ? "SYSTEM_ADMIN" : "TEACHER"}
     >
       {children}
     </DashboardShell>

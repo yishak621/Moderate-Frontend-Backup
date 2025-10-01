@@ -18,6 +18,7 @@ interface LoginFormDataTypes {
 
 export default function LoginForm() {
   const router = useRouter();
+
   //react hook form
   const {
     register,
@@ -30,8 +31,7 @@ export default function LoginForm() {
 
   const onSubmit = async (data: LoginFormDataTypes) => {
     try {
-      // Await the login mutation
-      const res = await loginAsync(data); // if using react-query mutateAsync
+      const res = await loginAsync(data);
     } catch (err) {
       if (err instanceof Error) {
         console.error(err.message);

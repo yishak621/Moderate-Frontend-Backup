@@ -27,7 +27,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" className="bg-[#F1F1F1]">
       <body className={`${outfit.className} antialiased`}>
         <ReactQueryProvider>
           <div className="max-w-[1840px] mx-auto ">{children}</div>
