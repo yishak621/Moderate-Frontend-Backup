@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Outfit } from "next/font/google";
 import "./globals.css";
 import ReactQueryProvider from "@/lib/ReactQueryProvider";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { Toaster } from "react-hot-toast";
 
 export const metadata: Metadata = {
@@ -31,6 +32,7 @@ export default function RootLayout({
         <ReactQueryProvider>
           <div className="max-w-[1840px] mx-auto ">{children}</div>
           <Toaster position="top-center" />
+          <ReactQueryDevtools initialIsOpen={false} />;
         </ReactQueryProvider>
       </body>
     </html>

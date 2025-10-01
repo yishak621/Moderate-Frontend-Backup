@@ -1,10 +1,14 @@
 import { axiosInstance } from "@/lib/axiosInstance";
-import { loginData } from "@/types/authData";
+import {
+  forgotPasswordFormDataTypes,
+  loginFormDataTypes,
+  SignupFormDataTypes,
+} from "@/types/authData.type";
 import { setToken } from "./tokenService";
 
 //-------------------LOGIN
 
-export const login = async (data: loginData) => {
+export const login = async (data: loginFormDataTypes) => {
   try {
     const res = await axiosInstance.post("/api/auth/login", data);
 
@@ -16,15 +20,25 @@ export const login = async (data: loginData) => {
       setToken(res.data.token);
     }
     return res.data.user;
-  } catch (error: any) {
-    console.error(error);
-    throw new Error(error?.response?.data?.message || "Something went wrong");
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error(error);
+      throw new Error(
+        // @ts-expect-error: might be Axios error with response
+        error?.response?.data?.message ||
+          error.message ||
+          "Something went wrong"
+      );
+    } else {
+      console.error("Unknown error", error);
+      throw new Error("Something went wrong");
+    }
   }
 };
 
 //-------------------SIGNUP
 
-export const signup = async (data: loginData) => {
+export const signup = async (data: SignupFormDataTypes) => {
   try {
     const res = await axiosInstance.post("/api/auth/register", data);
 
@@ -33,8 +47,45 @@ export const signup = async (data: loginData) => {
     }
     console.log(res.data);
     return res.data;
-  } catch (error: any) {
-    console.error(error);
-    throw new Error(error?.response?.data?.message || "Something went wrong");
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error(error);
+      throw new Error(
+        // @ts-expect-error: might be Axios error with response
+        error?.response?.data?.message ||
+          error.message ||
+          "Something went wrong"
+      );
+    } else {
+      console.error("Unknown error", error);
+      throw new Error("Something went wrong");
+    }
+  }
+};
+
+//-------------------FORGOT PASSWORD
+
+export const forgotPassword = async (data: forgotPasswordFormDataTypes) => {
+  try {
+    const res = await axiosInstance.post("/api/auth/forgotPassword", data);
+
+    if (!res) {
+      console.log("error");
+    }
+    console.log(res.data);
+    return res.data;
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error(error);
+      throw new Error(
+        // @ts-expect-error: might be Axios error with response
+        error?.response?.data?.message ||
+          error.message ||
+          "Something went wrong"
+      );
+    } else {
+      console.error("Unknown error", error);
+      throw new Error("Something went wrong");
+    }
   }
 };

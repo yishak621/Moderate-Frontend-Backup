@@ -25,23 +25,21 @@ export default function LoginForm() {
     formState: { errors },
   } = useForm<LoginFormDataTypes>();
   //HOOKS
-  const { login, loginAsync, user, isLoading, isSuccess, isError } = useLogin();
+  const { login, loginAsync, user, isLoading, isSuccess, isError, error } =
+    useLogin();
 
   const onSubmit = async (data: LoginFormDataTypes) => {
     try {
       // Await the login mutation
       const res = await loginAsync(data); // if using react-query mutateAsync
-      console.log("Login response:", res);
-
-      // Show success toast if login succeeded
-      if (res?.token) {
-        toast.success("Registered successfully!");
+    } catch (err) {
+      if (err instanceof Error) {
+        console.error(err.message);
+        toast.error(err.message);
       } else {
-        toast.error("Regiseration Failed! Try Again!");
+        console.error("Unknown error", err);
+        toast.error("Something went wrong");
       }
-    } catch (err: any) {
-      // Show error toast
-      toast.error(err?.response?.data?.message || "Login failed!");
     }
   };
 
@@ -52,6 +50,12 @@ export default function LoginForm() {
       router.push("/dashboard/admin");
     }
   }, [isSuccess, user, router]);
+
+  useEffect(() => {
+    if (isError && error instanceof Error) {
+      toast.error(error.message);
+    }
+  }, [error, isError]);
 
   return (
     <form

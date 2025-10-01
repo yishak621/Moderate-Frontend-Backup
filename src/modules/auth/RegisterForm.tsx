@@ -13,14 +13,8 @@ import { useSignup } from "@/hooks/useAuth";
 import toast from "react-hot-toast";
 import { useSubjectDomains } from "@/hooks/usePublicRoutes";
 import { SubjectDomain } from "@/types/typeLog";
-
-interface SignupFormDataTypes {
-  name: string;
-  email: string;
-  password: string;
-  confirmPassword: string;
-  subjectDomains: string[];
-}
+import { useEffect } from "react";
+import { SignupFormDataTypes } from "@/types/authData.type";
 
 export default function RegisterForm() {
   const handleSelected = (values: { value: string; label: string }[]) => {
@@ -53,26 +47,47 @@ export default function RegisterForm() {
     };
   });
 
-  const { signup, signupAsync, user, isLoading, isSuccess, isError } =
-    useSignup();
+  const {
+    signup,
+    signupAsync,
+    user,
+    isLoading,
+    isSuccess,
+    isError,
+    error: signupError,
+  } = useSignup();
 
   const onSubmit = async (data: SignupFormDataTypes) => {
     try {
       // Await the login mutation
-      const res = await signupAsync(data); // if using react-query mutateAsync
-      console.log("Login response:", res);
+      const res = await signupAsync(data);
 
       // Show success toast if login succeeded
-      if (res?.token) {
-        toast.success("Logged in successfully!");
-      } else {
-        toast.error("Login failed! No token returned.");
+      if (isSuccess) {
+        toast.success("Registered successfully!");
       }
-    } catch (err: any) {
-      // Show error toast
-      toast.error(err?.response?.data?.message || "Login failed!");
+    } catch (err) {
+      if (err instanceof Error) {
+        console.error(err.message);
+        toast.error(err.message);
+      } else {
+        console.error("Unknown error", err);
+        toast.error("Something went wrong");
+      }
     }
   };
+
+  useEffect(() => {
+    if (isSuccess) {
+      router.push("/auth/verify-email");
+    }
+  }, [isSuccess, router]);
+
+  useEffect(() => {
+    if (isError && signupError instanceof Error) {
+      toast.error(signupError.message);
+    }
+  }, [signupError, isError]);
 
   return (
     <form
@@ -108,12 +123,14 @@ export default function RegisterForm() {
           label="Password"
           type="password"
           placeholder="*********"
+          error={errors?.password?.message}
           {...register("password", { required: "Password is required" })}
         />
         <Input
           label="Confirm Password"
           type="password"
           placeholder="*********"
+          error={errors?.confirmPassword?.message}
           {...register("confirmPassword", {
             required: "Password is required",
             validate: (value) =>

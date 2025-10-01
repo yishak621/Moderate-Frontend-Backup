@@ -1,11 +1,15 @@
-import { login, signup } from "@/services/auth.service";
-import { loginData } from "@/types/authData";
+import { forgotPassword, login, signup } from "@/services/auth.service";
+import {
+  forgotPasswordFormDataTypes,
+  loginFormDataTypes,
+  SignupFormDataTypes,
+} from "@/types/authData.type";
 import { useMutation } from "@tanstack/react-query";
 
 export function useLogin() {
   const { mutate, mutateAsync, data, isPending, isSuccess, isError, error } =
     useMutation({
-      mutationFn: (data: loginData) => login(data),
+      mutationFn: (data: loginFormDataTypes) => login(data),
     });
 
   return {
@@ -15,13 +19,14 @@ export function useLogin() {
     isLoading: isPending,
     isSuccess,
     isError,
+    error,
   };
 }
 
 export function useSignup() {
   const { mutate, mutateAsync, data, isPending, isSuccess, isError, error } =
     useMutation({
-      mutationFn: (data: loginData) => signup(data),
+      mutationFn: (data: SignupFormDataTypes) => signup(data),
     });
 
   return {
@@ -31,5 +36,23 @@ export function useSignup() {
     isLoading: isPending,
     isSuccess,
     isError,
+    error,
+  };
+}
+
+export function useForgotPassword() {
+  const { mutate, mutateAsync, data, isPending, isSuccess, isError, error } =
+    useMutation({
+      mutationFn: (data: forgotPasswordFormDataTypes) => forgotPassword(data),
+    });
+
+  return {
+    forgotPassword: mutate,
+    forgotPasswordAsync: mutateAsync,
+    user: data,
+    isLoading: isPending,
+    isSuccess,
+    isError,
+    error,
   };
 }

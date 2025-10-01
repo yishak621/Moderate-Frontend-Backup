@@ -1,5 +1,4 @@
 import { axiosInstance } from "@/lib/axiosInstance";
-import { loginData } from "@/types/authData";
 import { setToken } from "./tokenService";
 
 //-------------------LOGIN
@@ -17,8 +16,18 @@ export const subjectDomains = async () => {
     }
 
     return res.data.data; // 👈 if this doesn't exist, you return undefined
-  } catch (error: any) {
-    console.error(error);
-    throw new Error(error?.response?.data?.message || "Something went wrong");
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error(error);
+      throw new Error(
+        // @ts-expect-error: might be Axios error with response
+        error?.response?.data?.message ||
+          error.message ||
+          "Something went wrong"
+      );
+    } else {
+      console.error("Unknown error", error);
+      throw new Error("Something went wrong");
+    }
   }
 };
