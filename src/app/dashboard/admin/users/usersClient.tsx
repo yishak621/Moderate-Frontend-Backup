@@ -8,81 +8,75 @@ import SearchInput from "@/components/ui/SearchInput";
 import { getUserColumns } from "./columns";
 import Modal from "@/components/ui/Modal";
 
-import { Eye, Pencil, Settings, Trash2, UserPlus } from "lucide-react";
-import { useState } from "react";
+import { Eye, Loader, Pencil, Settings, Trash2, UserPlus } from "lucide-react";
+import { useEffect, useState } from "react";
 import AddTeacherModal from "@/modules/dashboard/admin/modal/AddTeacherModal";
 import { User } from "@/app/types/user";
-
-const options = [
-  { value: "chocolate", label: "Chocolate" },
-  { value: "strawberry", label: "Strawberry" },
-  { value: "vanilla", label: "Vanilla" },
-];
-
-const users: User[] = [
-  {
-    id: "sdfs",
-    name: "John Doe",
-    email: "john@school.com",
-    curricular: "Mathematics",
-    status: "Active",
-    subscription: "Monthly",
-    lastActive: "2025-09-18",
-  },
-  {
-    id: "fsfsd",
-    name: "Jane Smith",
-    email: "jane@school.com",
-    curricular: "Science",
-    status: "Inactive",
-    subscription: "free",
-    lastActive: "2025-09-15",
-  },
-  {
-    id: "fsfsd",
-    name: "Jane Smith",
-    email: "jane@school.com",
-    curricular: "Science",
-    status: "Inactive",
-    subscription: "free",
-    lastActive: "2025-09-15",
-  },
-  {
-    id: "fsfsd",
-    name: "Jane Smith",
-    email: "jane@school.com",
-    curricular: "Science",
-    status: "Inactive",
-    subscription: "free",
-    lastActive: "2025-09-15",
-  },
-];
+import { useAdminUsersData } from "@/hooks/UseAdminRoutes";
+import { useSubjectDomains } from "@/hooks/usePublicRoutes";
+import { SubjectDomain } from "@/types/typeLog";
+import { Controller, useForm } from "react-hook-form";
+import { CustomSelect } from "@/components/ui/CustomSelect";
 
 export default function UsersClient() {
   const [open, setOpen] = useState(false);
-  const [ModalComponent, setModalComponent] = useState<React.FC<any> | null>(
-    null
-  );
-  const [modalProps, setModalProps] = useState<any>({});
+  const [ModalComponent, setModalComponent] =
+    useState<React.ComponentType<any> | null>(null);
+
+  const [modalProps, setModalProps] = useState<Record<string, any>>({});
+
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+
+  //HOOKS
+  //react hook form
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    watch,
+    control,
+  } = useForm();
+  //HOOKS
+  const {
+    subjectDomains,
+    isLoading: issubjectDomainsLoading,
+    isSuccess: issubjectDomainsSuccess,
+    isError: issubjectDomainsError,
+    error: subjectDomainError,
+  } = useSubjectDomains();
+
+  const optionsSubjectDomains = subjectDomains?.map((item: SubjectDomain) => {
+    return {
+      value: item.id,
+      label: item.name,
+    };
+  });
+  const { allUsers, isUsersLoading, isSuccess, isError, error } =
+    useAdminUsersData(page);
+
+  console.log("all users", allUsers);
 
   const handleSelected = (values: { value: string; label: string }[]) => {
     console.log("Selected values:", values);
     // you can use these in real-time (e.g. store in state, send to API, etc.)
   };
-  const No_Of_Users = 5;
+  const No_Of_Users = allUsers?.meta?.total;
 
-  const handleOpenModal = (
-    component: React.FC<unknown>,
-    props: unknown = {}
+  const handleOpenModal = <P,>(
+    component: React.ComponentType<P>,
+    props?: P
   ) => {
     setModalComponent(() => component);
-    setModalProps(props);
+    setModalProps(props || {});
     setOpen(true);
   };
 
   const columns = getUserColumns(handleOpenModal);
+
+  useEffect(() => {
+    setTotalPages(allUsers?.meta.lastPage);
+  }, [isSuccess]);
 
   return (
     <div className="flex flex-col gap-5.5  ">
@@ -97,14 +91,30 @@ export default function UsersClient() {
           />
         </div>
         <div className="basis-1/4 ">
-          <div>
+          {/* <div>
             <p className="text-[#0c0c0c] text-base font-normal mb-1">
               Filter by Curricular Area
             </p>{" "}
             <CustomMultiSelect
               placeholder="All Curricular Area"
-              options={options}
+              options={optionsSubjectDomains}
               onChange={handleSelected}
+            />
+          </div> */}
+          <div>
+            <p className="text-[#0c0c0c] text-base font-normal mb-1">
+              Filter by Curricular Area
+            </p>
+            <Controller
+              name="subjectDomains"
+              control={control}
+              render={({ field }) => (
+                <CustomSelect
+                  options={optionsSubjectDomains}
+                  onChange={field.onChange}
+                  placeholder="Select Curricular..."
+                />
+              )}
             />
           </div>
         </div>
@@ -130,7 +140,21 @@ export default function UsersClient() {
 
         {/* table */}
         <div className="px-0 p-6">
-          <DataTable<User> data={users} columns={columns} />
+          {/* {allUsers ? (
+            <DataTable<User> data={users} columns={columns} />
+          ) : (
+            <div className="flex justify-center items-center h-64">
+              <Loader />
+            </div>
+          )} */}
+
+          {isUsersLoading ? (
+            <div className="flex justify-center items-center h-64">
+              <Loader className="animate-spin" size={32} />
+            </div>
+          ) : (
+            <DataTable<User> data={allUsers?.users || []} columns={columns} />
+          )}
           <Modal isOpen={open} onOpenChange={setOpen}>
             <Modal.Content>
               {ModalComponent && <ModalComponent {...modalProps} />}
@@ -139,13 +163,13 @@ export default function UsersClient() {
         </div>
 
         {/* pagination buttons */}
-        <div className=" flex flex-row gap-2 border border-red-500 absolute bottom-0 right-0">
+        <div className=" flex flex-row gap-2 justify-self-end">
           {/* Pagination */}
           <div className="flex gap-2 mt-4">
             <button
               disabled={page === 1}
               onClick={() => setPage((p) => p - 1)}
-              className="px-3 py-1 border rounded disabled:opacity-50"
+              className="px-3 py-1 border-0 text-[#717171] disabled:opacity-50 transition-colors duration-300 hover:text-blue-500 cursor-pointer"
             >
               Back
             </button>
@@ -167,7 +191,7 @@ export default function UsersClient() {
             <button
               disabled={page === totalPages}
               onClick={() => setPage((p) => p + 1)}
-              className="px-3 py-1 border rounded disabled:opacity-50"
+              className="px-3 py-1 border-0 text-[#717171] disabled:opacity-50 transition-colors duration-300 hover:text-blue-500 cursor-pointer"
             >
               Next
             </button>

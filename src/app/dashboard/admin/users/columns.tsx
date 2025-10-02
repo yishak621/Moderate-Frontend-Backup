@@ -1,3 +1,4 @@
+"use client";
 import { ColumnDef } from "@tanstack/react-table";
 import { Eye, Pencil, Trash2, Mail } from "lucide-react";
 import type { ComponentType } from "react";
@@ -27,24 +28,26 @@ export function getUserColumns(
       accessorKey: "curricular",
       header: "Curricular Area",
       cell: ({ row }) => (
-        <span className="text-[#0C0C0C]">{row.original.curricular}</span>
+        <span className="text-[#0C0C0C]">
+          {row.original.domains?.map((d) => d.name).join(", ") || "—"}
+        </span>
       ),
     },
     {
       accessorKey: "status",
       header: "Status",
       cell: ({ row }) => {
-        const status = row.original.status;
+        const status = row.original.verificationStatus || "inactive";
         const colorMap: Record<string, string> = {
-          Active: "bg-green-100 text-green-700",
-          Inactive: "bg-red-100 text-red-700",
-          pending: "bg-yellow-100 text-yellow-700",
+          active: "bg-green-100 text-green-700",
+          suspended: "bg-red-100 text-red-700",
+          inactive: "bg-gray-100 text-gray-700",
         };
         return (
           <span
             className={`px-4.5 py-2 text-sm font-semibold rounded-full ${colorMap[status]}`}
           >
-            {status}
+            {status.charAt(0).toUpperCase() + status.slice(1)}
           </span>
         );
       },
@@ -53,17 +56,17 @@ export function getUserColumns(
       accessorKey: "subscription",
       header: "Subscription",
       cell: ({ row }) => {
-        const plan = row.original.subscription;
+        const plan = row.original.subscriptionStatus || "free";
         const colorMap: Record<string, string> = {
           free: "bg-gray-100 text-gray-700",
-          Monthly: "bg-blue-100 text-blue-700",
-          Yearly: "bg-purple-100 text-purple-700",
+          monthly: "bg-blue-100 text-blue-700",
+          yearly: "bg-purple-100 text-purple-700",
         };
         return (
           <span
             className={`px-4.5 py-2 text-sm font-semibold rounded-full ${colorMap[plan]}`}
           >
-            {plan}
+            {plan.charAt(0).toUpperCase() + plan.slice(1)}
           </span>
         );
       },
@@ -72,7 +75,7 @@ export function getUserColumns(
       accessorKey: "lastActive",
       header: "Last Active",
       cell: ({ row }) => (
-        <span className="text-gray-700">{row.original.lastActive}</span>
+        <span className="text-gray-700">{row.original.lastSeen || "—"}</span>
       ),
     },
     {
