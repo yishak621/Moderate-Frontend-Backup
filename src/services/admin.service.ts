@@ -3,9 +3,19 @@ import { setToken } from "./tokenService";
 
 //-------------------GET ALL USERS
 
-export const getAllUsers = async (page: number) => {
+export const getAllUsers = async (
+  page: number,
+  curricular: string,
+  search: string
+) => {
   try {
-    const res = await axiosInstance.get(`/api/system/users?page=${page}`);
+    const params = new URLSearchParams({ page: page.toString() });
+    if (curricular) params.append("curricular", curricular);
+    if (search) params.append("search", search);
+
+    const res = await axiosInstance.get(
+      `/api/system/users?${params.toString()}`
+    );
 
     if (!res) {
       throw new Error("No response from server");

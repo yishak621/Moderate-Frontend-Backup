@@ -8,21 +8,23 @@ interface SearchInputProps {
   label?: string;
   placeholder?: string;
   onSearch: (value: string) => void;
+  onChange?: (value: string) => void;
   className?: string;
   error?: string;
+  value?: string;
 }
 
 export default function SearchInput({
   label,
   placeholder = "Search...",
+  value, // ✅ now defined
   onSearch,
+  onChange,
   className,
   error,
 }: SearchInputProps) {
-  const [value, setValue] = useState("");
-
   const handleSearch = () => {
-    onSearch(value);
+    onSearch(value || ""); // or just onSearch(value) since value is always string now
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -45,7 +47,6 @@ export default function SearchInput({
           className
         )}
       >
-        {" "}
         <button
           type="button"
           onClick={handleSearch}
@@ -55,8 +56,8 @@ export default function SearchInput({
         </button>
         <input
           type="text"
-          value={value}
-          onChange={(e) => setValue(e.target.value)}
+          value={value} // ✅ stays in sync with parent
+          onChange={(e) => onChange?.(e.target.value)}
           onKeyDown={handleKeyDown}
           placeholder={placeholder}
           className={clsx(

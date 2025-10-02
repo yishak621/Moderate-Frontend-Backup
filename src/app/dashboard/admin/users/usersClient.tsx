@@ -20,6 +20,7 @@ import { CustomSelect } from "@/components/ui/CustomSelect";
 
 export default function UsersClient() {
   const [open, setOpen] = useState(false);
+
   const [ModalComponent, setModalComponent] =
     useState<React.ComponentType<any> | null>(null);
 
@@ -27,6 +28,12 @@ export default function UsersClient() {
 
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [selectedCurricular, setSelectedCurricular] = useState<string | null>(
+    null
+  );
+  const [search, setSearch] = useState("");
+
+  const [debouncedSearch, setDebouncedSearch] = useState(search);
 
   //HOOKS
   //react hook form
@@ -52,8 +59,10 @@ export default function UsersClient() {
       label: item.name,
     };
   });
+
+  // Pass debouncedSearch to your query hook
   const { allUsers, isUsersLoading, isSuccess, isError, error } =
-    useAdminUsersData(page);
+    useAdminUsersData(page, selectedCurricular || "", debouncedSearch);
 
   console.log("all users", allUsers);
 
@@ -76,7 +85,16 @@ export default function UsersClient() {
 
   useEffect(() => {
     setTotalPages(allUsers?.meta.lastPage);
-  }, [isSuccess]);
+  }, [isSuccess, allUsers]);
+
+  // Debounce effect: update debouncedSearch 2 seconds after typing stops
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearch(search);
+    }, 2000); // 2 seconds
+
+    return () => clearTimeout(handler); // cleanup if user types again
+  }, [search]);
 
   return (
     <div className="flex flex-col gap-5.5  ">
@@ -85,22 +103,13 @@ export default function UsersClient() {
         <div className="basis-3/4 ">
           <SearchInput
             label="Search Users"
-            placeholder="search by name and email"
-            onSearch={(val) => console.log("Searching:", val)}
-            error=""
+            placeholder="Search by name or email"
+            onChange={(val) => setSearch(val)}
+            onSearch={(val) => setSearch(val)}
+            value={search}
           />
         </div>
         <div className="basis-1/4 ">
-          {/* <div>
-            <p className="text-[#0c0c0c] text-base font-normal mb-1">
-              Filter by Curricular Area
-            </p>{" "}
-            <CustomMultiSelect
-              placeholder="All Curricular Area"
-              options={optionsSubjectDomains}
-              onChange={handleSelected}
-            />
-          </div> */}
           <div>
             <p className="text-[#0c0c0c] text-base font-normal mb-1">
               Filter by Curricular Area
@@ -111,7 +120,10 @@ export default function UsersClient() {
               render={({ field }) => (
                 <CustomSelect
                   options={optionsSubjectDomains}
-                  onChange={field.onChange}
+                  onChange={(val) => {
+                    field.onChange(val);
+                    setSelectedCurricular(val?.value || null);
+                  }}
                   placeholder="Select Curricular..."
                 />
               )}

@@ -2,7 +2,7 @@
 import { getAllUsers } from "@/services/admin.service";
 import { AdminOverview } from "@/services/user.service";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 //ADMIN OVERVIEW STAT DATA
 export function useAdminOverviewData() {
@@ -23,30 +23,42 @@ export function useAdminOverviewData() {
 
 //ADMIN USERS DATA
 
-export function useAdminUsersData(page: number) {
+export function useAdminUsersData(
+  page: number,
+  curricular?: string,
+  search?: string
+) {
   const queryClient = useQueryClient();
 
+  // Debounced search
+  const [debouncedSearch, setDebouncedSearch] = useState(search || "");
+
+  useEffect(() => {
+    const handler = setTimeout(() => setDebouncedSearch(search || ""), 2000);
+    return () => clearTimeout(handler);
+  }, [search]);
+
   const query = useQuery({
-    queryKey: ["allUsers", page],
-    queryFn: () => getAllUsers(page),
+    queryKey: ["allUsers", page, curricular, debouncedSearch],
+    queryFn: () => getAllUsers(page, curricular || "", debouncedSearch),
     placeholderData: (prev) => prev,
     staleTime: 5 * 60 * 1000,
   });
 
-  // Prefetch next page
+  // Prefetch next and previous pages
   useEffect(() => {
     queryClient.prefetchQuery({
-      queryKey: ["allUsers", page + 1],
-      queryFn: () => getAllUsers(page + 1),
+      queryKey: ["allUsers", page + 1, curricular, debouncedSearch],
+      queryFn: () => getAllUsers(page + 1, curricular || "", debouncedSearch),
     });
 
     if (page > 1) {
       queryClient.prefetchQuery({
-        queryKey: ["allUsers", page - 1],
-        queryFn: () => getAllUsers(page - 1),
+        queryKey: ["allUsers", page - 1, curricular, debouncedSearch],
+        queryFn: () => getAllUsers(page - 1, curricular || "", debouncedSearch),
       });
     }
-  }, [page, queryClient]);
+  }, [page, curricular, debouncedSearch, queryClient]);
 
   return {
     allUsers: query.data,
