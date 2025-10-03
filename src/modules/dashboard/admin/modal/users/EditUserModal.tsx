@@ -133,7 +133,7 @@ export default function EditUserModal({ user }: { user: User }) {
           {/* Update Button */}
           <Button
             type="submit"
-            className={`justify-center mt-2.5 sm:mt-4 text-base cursor-pointer w-full transition 
+            className={`justify-center text-base cursor-pointer w-full transition 
         ${
           isEditingDataLoading
             ? "opacity-70 cursor-not-allowed"

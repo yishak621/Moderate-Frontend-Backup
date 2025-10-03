@@ -2,6 +2,7 @@
 import { User } from "@/app/types/user";
 import {
   AdminOverview,
+  createNewUser,
   deleteUserData,
   editUserData,
   getAllUsers,
@@ -11,6 +12,7 @@ import {
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { queryClient } from "@/lib/queryClient";
+import { SignupFormDataTypes } from "@/types/authData.type";
 
 //ADMIN OVERVIEW STAT DATA
 export function useAdminOverviewData() {
@@ -105,6 +107,9 @@ export function useAdminUserEditData(id: string) {
     error,
   } = useMutation({
     mutationFn: (data: User) => editUserData(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["allUsers"], exact: false });
+    },
   });
 
   return {
@@ -118,6 +123,33 @@ export function useAdminUserEditData(id: string) {
   };
 }
 
+//ADMIN CREATE NEW USER
+export function useAdminUserCreateData() {
+  const {
+    mutate,
+    mutateAsync,
+    data: createdNewUserData,
+    isPending,
+    isSuccess,
+    isError,
+    error,
+  } = useMutation({
+    mutationFn: (data: SignupFormDataTypes) => createNewUser(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["allUsers"], exact: false });
+    },
+  });
+
+  return {
+    createNewUserData: mutate,
+    createNewUserDataAsync: mutateAsync,
+    data: createdNewUserData,
+    isCreatingNewUserDataLoading: isPending,
+    isCreatingNewUserDataSuccess: isSuccess,
+    isCreatingNewUserDataError: isError,
+    creatingNewUserDataError: error,
+  };
+}
 //ADMIN USER DELETE DATA
 export function useAdminUserDeleteData(id: string) {
   const {

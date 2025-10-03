@@ -9,6 +9,7 @@ export interface SignupFormDataTypes {
   password: string;
   confirmPassword: string;
   subjectDomains: string[];
+  role?: string;
 }
 
 export interface forgotPasswordFormDataTypes {

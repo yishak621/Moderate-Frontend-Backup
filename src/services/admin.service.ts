@@ -1,6 +1,7 @@
 import { axiosInstance } from "@/lib/axiosInstance";
 import { setToken } from "./tokenService";
 import { User } from "@/app/types/user";
+import { SignupFormDataTypes } from "@/types/authData.type";
 
 //-------------------ADMIN ONLY ROUTES
 export const AdminOverview = async () => {
@@ -65,6 +66,31 @@ export const getAllUsers = async (
   }
 };
 
+//-------------------CREATE NEW USER
+export const createNewUser = async (data: SignupFormDataTypes) => {
+  try {
+    const res = await axiosInstance.post(`/api/system/users`, data);
+
+    if (!res) {
+      console.log("error");
+    }
+
+    return res.data;
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error(error);
+      throw new Error(
+        // @ts-expect-error: might be Axios error with response
+        error?.response?.data?.message ||
+          error.message ||
+          "Something went wrong"
+      );
+    } else {
+      console.error("Unknown error", error);
+      throw new Error("Something went wrong");
+    }
+  }
+};
 //-------------------ADMIN ONLY ROUTES
 export const viewUserData = async (id: string) => {
   try {

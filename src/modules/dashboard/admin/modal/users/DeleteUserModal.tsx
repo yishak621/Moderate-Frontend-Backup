@@ -63,7 +63,7 @@ export default function DeleteUserModal({ user }: { user: User }) {
           {/* Update Button */}
           <Button
             variant="red"
-            className={`justify-center mt-2.5 sm:mt-4 text-base cursor-pointer w-full transition 
+            className={`justify-center  text-base cursor-pointer w-full transition 
         ${isDeletingUserDataLoading && "opacity-70 cursor-not-allowed"}`}
             disabled={isDeletingUserDataLoading}
             onClick={() => {
