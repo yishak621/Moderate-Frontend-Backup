@@ -120,6 +120,7 @@ export default function UsersClient() {
               render={({ field }) => (
                 <CustomSelect
                   options={optionsSubjectDomains}
+                  isClearable={true}
                   onChange={(val) => {
                     field.onChange(val);
                     setSelectedCurricular(val?.value || null);

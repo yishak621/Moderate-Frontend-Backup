@@ -14,6 +14,7 @@ interface CustomSelectProps {
   defaultValue?: Option;
   onChange?: (selected: Option | null) => void;
   placeholder?: string;
+  isClearable?: boolean;
 }
 
 export function CustomSelect({
@@ -21,13 +22,14 @@ export function CustomSelect({
   defaultValue,
   onChange,
   placeholder,
+  isClearable,
 }: CustomSelectProps) {
   const [selected, setSelected] = useState<Option | null>(defaultValue || null);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => setMounted(true), []);
 
-  const handleChange = (newValue: any) => {
+  const handleChange = (newValue: Option | null) => {
     setSelected(newValue || null);
     onChange?.(newValue || null);
   };
@@ -44,6 +46,7 @@ export function CustomSelect({
       value={selected}
       onChange={handleChange}
       placeholder={placeholder}
+      isClearable={isClearable}
       styles={{
         control: (base, state) => ({
           ...base,

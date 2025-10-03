@@ -4,6 +4,7 @@ import "./globals.css";
 import ReactQueryProvider from "@/lib/ReactQueryProvider";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { Toaster } from "react-hot-toast";
+// import { queryClient } from "@/lib/queryClient";
 
 export const metadata: Metadata = {
   title: "Moderate Tech",
