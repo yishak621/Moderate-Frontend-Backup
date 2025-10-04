@@ -130,6 +130,13 @@ export function getEmailDomainsColumns(
       ),
     },
     {
+      accessorKey: "Category",
+      header: "Category",
+      cell: ({ row }) => (
+        <span className="text-[#0C0C0C]">{row.original.category}</span>
+      ),
+    },
+    {
       accessorKey: "Teachers",
       header: "Teachers",
       cell: ({ row }) => (
@@ -173,7 +180,9 @@ export function getEmailDomainsColumns(
           <div className="flex gap-2">
             <button
               onClick={() =>
-                handleOpenModal(EditEmailDomainModal, row.original)
+                handleOpenModal(EditEmailDomainModal, {
+                  EmailDomain: row.original,
+                })
               }
               className="p-1 text-green-500 hover:bg-green-50 rounded"
             >

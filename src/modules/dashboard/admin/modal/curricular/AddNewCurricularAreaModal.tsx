@@ -37,7 +37,7 @@ export default function AddNewCurricularAreaModal() {
     try {
       await createCurricularAreaAsync(data);
 
-      toast.success("User updated successfully");
+      toast.success("Curricular area data updated successfully");
       close();
     } catch (err) {
       if (err instanceof Error) {
@@ -49,6 +49,7 @@ export default function AddNewCurricularAreaModal() {
       }
     }
   };
+
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
@@ -78,6 +79,7 @@ export default function AddNewCurricularAreaModal() {
           {...register("name", {
             required: "Name is required!",
           })}
+          error={errors?.name?.message}
         />
       </div>
 
@@ -117,10 +119,10 @@ export default function AddNewCurricularAreaModal() {
                     d="M4 12a8 8 0 018-8v4l3-3-3-3v4a12 12 0 00-12 12h4z"
                   ></path>
                 </svg>
-                Creating
+                Creating...
               </>
             ) : (
-              "Create"
+              "Create New Currcular"
             )}
           </Button>
         </div>

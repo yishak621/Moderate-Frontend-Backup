@@ -34,7 +34,9 @@ export default function DeleteCurricularAreaModal({
       {/* Header */}
       <div className="flex flex-row justify-between">
         <div className=" flex flex-col gap-1.5">
-          <p className=" text-xl text-[#0c0c0c] font-medium">Delete Curricular Area</p>
+          <p className=" text-xl text-[#0c0c0c] font-medium">
+            Delete Curricular Area
+          </p>
           <p className=" text-base font-normal text-[#717171] max-w-[303px]">
             Are you sure to delete <b>{Curricular?.name}</b> from your platform?
           </p>
