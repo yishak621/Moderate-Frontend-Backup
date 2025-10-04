@@ -1,3 +1,5 @@
+"use client";
+
 import { ColumnDef } from "@tanstack/react-table";
 import { Pencil, Trash2, Users } from "lucide-react";
 import type { ComponentType } from "react";
@@ -23,13 +25,7 @@ export function getCurricularColumns(
         </div>
       ),
     },
-    {
-      accessorKey: "Description",
-      header: "Description",
-      cell: ({ row }) => (
-        <span className="text-[#0C0C0C]">{row.original.description}</span>
-      ),
-    },
+
     {
       accessorKey: "Teachers",
       header: "Teachers",
@@ -41,8 +37,8 @@ export function getCurricularColumns(
       ),
     },
     {
-      accessorKey: "Documents",
-      header: "Documents",
+      accessorKey: "Posts",
+      header: "Posts",
       cell: ({ row }) => (
         <span className="text-[#0C0C0C]">{row.original.posts}</span>
       ),
@@ -52,17 +48,16 @@ export function getCurricularColumns(
       accessorKey: "Status",
       header: "Status",
       cell: ({ row }) => {
-        const status = row.original.status;
+        const status = row.original.status || "active";
         const colorMap: Record<string, string> = {
-          Active: "bg-green-100 text-green-700",
-          Inactive: "bg-red-100 text-red-700",
-          pending: "bg-yellow-100 text-yellow-700",
+          active: "bg-green-100 text-green-700",
+          inactive: "bg-red-100 text-red-700",
         };
         return (
           <span
             className={`px-4.5 py-2 text-sm font-semibold rounded-full ${colorMap[status]}`}
           >
-            {status}
+            {status || "active"}
           </span>
         );
       },
@@ -74,7 +69,11 @@ export function getCurricularColumns(
         return (
           <div className="flex gap-2">
             <button
-              onClick={() => handleOpenModal(EditCurricularAreaModal)}
+              onClick={() =>
+                handleOpenModal(EditCurricularAreaModal, {
+                  Curricular: row.original,
+                })
+              }
               className="p-1 text-green-500 hover:bg-green-50 rounded"
             >
               <Pencil size={16} />
@@ -83,7 +82,7 @@ export function getCurricularColumns(
             <button
               onClick={() =>
                 handleOpenModal(DeleteCurricularAreaModal, {
-                  Curricular: row.original.name,
+                  Curricular: row.original,
                 })
               }
               className="p-1 text-red-500 hover:bg-red-50 rounded"

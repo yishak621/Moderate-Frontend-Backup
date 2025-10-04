@@ -51,16 +51,7 @@ export default function DeleteUserModal({ user }: { user: User }) {
         </div>
         <div className="w-2/3">
           {" "}
-          {/* <Button className="w-full" variant="red" 
-          onClick={() => {
-            deleteUserDataAsync();
-            if (isDeletingUserDataSuccess) {
-              toast.success("User deleted successfully");
-            }
-          }}>
-            Delete Teacher
-          </Button> */}
-          {/* Update Button */}
+        
           <Button
             variant="red"
             className={`justify-center  text-base cursor-pointer w-full transition 

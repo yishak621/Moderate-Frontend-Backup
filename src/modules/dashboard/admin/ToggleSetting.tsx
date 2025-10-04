@@ -5,9 +5,9 @@ import { useState } from "react";
 interface ToggleSettingProps {
   title: string;
   description: string;
-  field: string; // e.g. "registration"
+  field?: string; // optional if you don’t need a name
   defaultValue?: boolean;
-  onChange: (value: Record<string, boolean>) => void;
+  onChange: (value: boolean, field?: string) => void; // return clean boolean
 }
 
 const ToggleSetting: React.FC<ToggleSettingProps> = ({
@@ -22,7 +22,7 @@ const ToggleSetting: React.FC<ToggleSettingProps> = ({
   const handleToggle = () => {
     const newValue = !enabled;
     setEnabled(newValue);
-    onChange({ [field]: newValue });
+    onChange(newValue, field); // pass just boolean + field if needed
   };
 
   return (
@@ -35,6 +35,7 @@ const ToggleSetting: React.FC<ToggleSettingProps> = ({
 
       {/* Toggle */}
       <button
+        type="button"
         onClick={handleToggle}
         className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
           enabled ? "bg-blue-500" : "bg-gray-300"

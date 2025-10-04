@@ -2,6 +2,7 @@ import { axiosInstance } from "@/lib/axiosInstance";
 import { setToken } from "./tokenService";
 import { User } from "@/app/types/user";
 import { SignupFormDataTypes } from "@/types/authData.type";
+import { Curricular } from "@/app/types/curricular";
 
 //-------------------ADMIN ONLY ROUTES
 export const AdminOverview = async () => {
@@ -145,6 +146,225 @@ export const editUserData = async (id: string, data: User) => {
 export const deleteUserData = async (id: string) => {
   try {
     const res = await axiosInstance.delete(`/api/system/users/${id}`);
+
+    if (!res) {
+      console.log("error");
+    }
+
+    return res.data;
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error(error);
+      throw new Error(
+        // @ts-expect-error: might be Axios error with response
+        error?.response?.data?.message ||
+          error.message ||
+          "Something went wrong"
+      );
+    } else {
+      console.error("Unknown error", error);
+      throw new Error("Something went wrong");
+    }
+  }
+};
+
+//-------------------GET ALL CURRICULAR AREAS
+export const getAllCurricularAreas = async (page: number) => {
+  try {
+    const res = await axiosInstance.get(
+      `/api/system/subject-domains/admin?page=${page}`
+    );
+
+    if (!res) {
+      console.log("error");
+    }
+
+    return res.data;
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error(error);
+      throw new Error(
+        // @ts-expect-error: might be Axios error with response
+        error?.response?.data?.message ||
+          error.message ||
+          "Something went wrong"
+      );
+    } else {
+      console.error("Unknown error", error);
+      throw new Error("Something went wrong");
+    }
+  }
+};
+
+//-------------------CREATE NEW CURRICULAR AREA
+export const createNewCurricularArea = async (data: Curricular) => {
+  try {
+    const res = await axiosInstance.post(`/api/system/subject-domains`, data);
+
+    if (!res) {
+      console.log("error");
+    }
+
+    return res.data;
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error(error);
+      throw new Error(
+        // @ts-expect-error: might be Axios error with response
+        error?.response?.data?.message ||
+          error.message ||
+          "Something went wrong"
+      );
+    } else {
+      console.error("Unknown error", error);
+      throw new Error("Something went wrong");
+    }
+  }
+};
+
+//-------------------UPDATE CURRICULAR AREA
+export const updateCurricularArea = async (id: string, data: Curricular) => {
+  try {
+    const res = await axiosInstance.patch(
+      `/api/system/subject-domains/${id}`,
+      data
+    );
+
+    if (!res) {
+      console.log("error");
+    }
+
+    return res.data;
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error(error);
+      throw new Error(
+        // @ts-expect-error: might be Axios error with response
+        error?.response?.data?.message ||
+          error.message ||
+          "Something went wrong"
+      );
+    } else {
+      console.error("Unknown error", error);
+      throw new Error("Something went wrong");
+    }
+  }
+};
+
+//-------------------DELETE CURRICULAR AREA
+export const deleteCurricularArea = async (id: string) => {
+  try {
+    const res = await axiosInstance.delete(`/api/system/subject-domains/${id}`);
+
+    if (!res) {
+      console.log("error");
+    }
+
+    return res.data;
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error(error);
+      throw new Error(
+        // @ts-expect-error: might be Axios error with response
+        error?.response?.data?.message ||
+          error.message ||
+          "Something went wrong"
+      );
+    } else {
+      console.error("Unknown error", error);
+      throw new Error("Something went wrong");
+    }
+  }
+};
+
+//-------------------GET ALL CURRICULAR AREAS
+export const getAllEmailDomains = async () => {
+  try {
+    const res = await axiosInstance.get(`/api/system/allowed-domains`);
+
+    if (!res) {
+      console.log("error");
+    }
+
+    return res.data;
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error(error);
+      throw new Error(
+        // @ts-expect-error: might be Axios error with response
+        error?.response?.data?.message ||
+          error.message ||
+          "Something went wrong"
+      );
+    } else {
+      console.error("Unknown error", error);
+      throw new Error("Something went wrong");
+    }
+  }
+};
+
+//-------------------CREATE NEW CURRICULAR AREA
+export const createNewEmailDomain = async (data: SignupFormDataTypes) => {
+  try {
+    const res = await axiosInstance.post(`/api/system/allowed-domains`, data);
+
+    if (!res) {
+      console.log("error");
+    }
+
+    return res.data;
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error(error);
+      throw new Error(
+        // @ts-expect-error: might be Axios error with response
+        error?.response?.data?.message ||
+          error.message ||
+          "Something went wrong"
+      );
+    } else {
+      console.error("Unknown error", error);
+      throw new Error("Something went wrong");
+    }
+  }
+};
+
+//-------------------UPDATE CURRICULAR AREA
+export const updateEmailDomain = async (
+  id: string,
+  data: SignupFormDataTypes
+) => {
+  try {
+    const res = await axiosInstance.patch(
+      `/api/system/allowed-domains/${id}`,
+      data
+    );
+
+    if (!res) {
+      console.log("error");
+    }
+
+    return res.data;
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error(error);
+      throw new Error(
+        // @ts-expect-error: might be Axios error with response
+        error?.response?.data?.message ||
+          error.message ||
+          "Something went wrong"
+      );
+    } else {
+      console.error("Unknown error", error);
+      throw new Error("Something went wrong");
+    }
+  }
+};
+
+//-------------------DELETE CURRICULAR AREA
+export const deleteEmailDomain = async (id: string) => {
+  try {
+    const res = await axiosInstance.delete(`/api/system/allowed-domains/${id}`);
 
     if (!res) {
       console.log("error");

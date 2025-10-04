@@ -2,10 +2,14 @@
 import { User } from "@/app/types/user";
 import {
   AdminOverview,
+  createNewCurricularArea,
   createNewUser,
+  deleteCurricularArea,
   deleteUserData,
   editUserData,
+  getAllCurricularAreas,
   getAllUsers,
+  updateCurricularArea,
   viewUserData,
 } from "@/services/admin.service";
 
@@ -13,6 +17,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { queryClient } from "@/lib/queryClient";
 import { SignupFormDataTypes } from "@/types/authData.type";
+import { Curricular } from "@/app/types/curricular";
 
 //ADMIN OVERVIEW STAT DATA
 export function useAdminOverviewData() {
@@ -175,5 +180,117 @@ export function useAdminUserDeleteData(id: string) {
     isDeletingUserDataSuccess: isSuccess,
     isDeletingUserDataError: isError,
     deletingUserDataError: error,
+  };
+}
+
+// ADMIN CURRICULAR AREAS DATA
+export function useAdminCurricularAreasData(page: number) {
+  const query = useQuery({
+    queryKey: ["allCurricularAreas", page],
+    queryFn: () => getAllCurricularAreas(page),
+    placeholderData: (prev) => prev,
+    staleTime: 5 * 60 * 1000,
+  });
+
+  // Prefetch next and previous pages
+  useEffect(() => {
+    queryClient.prefetchQuery({
+      queryKey: ["allCurricularAreas", page + 1],
+      queryFn: () => getAllCurricularAreas(page + 1),
+    });
+
+    if (page > 1) {
+      queryClient.prefetchQuery({
+        queryKey: ["allCurricularAreas", page - 1],
+        queryFn: () => getAllCurricularAreas(page - 1),
+      });
+    }
+  }, [page]);
+
+  return {
+    allCurricularAreas: query.data,
+    isCurricularAreasLoading: query.isPending,
+    isCurricularAreasSuccess: query.isSuccess,
+    isCurricularAreasError: query.isError,
+    curricularAreasError: query.error,
+  };
+}
+
+//ADMIN CURRICULAR AREA CREATE DATA
+export const useAdminCurricularAreaCreateData = () => {
+  const { mutate, mutateAsync, data, isPending, isSuccess, isError, error } =
+    useMutation({
+      mutationFn: (data: Curricular) => createNewCurricularArea(data),
+      onSuccess: () => {
+        queryClient.invalidateQueries({
+          queryKey: ["allCurricularAreas"],
+          exact: false,
+        });
+      },
+    });
+
+  return {
+    createCurricularArea: mutate,
+    createCurricularAreaAsync: mutateAsync,
+    data,
+    isCreatingCurricularAreaLoading: isPending,
+    isCreatingCurricularAreaSuccess: isSuccess,
+    isCreatingCurricularAreaError: isError,
+    creatingCurricularAreaError: error,
+  };
+};
+
+//ADMIN CURRICULAR AREA EDIT DATA
+export const useAdminCurricularAreaEditData = (id: string) => {
+  const { mutate, mutateAsync, data, isPending, isSuccess, isError, error } =
+    useMutation({
+      mutationFn: (data: Curricular) => updateCurricularArea(id, data),
+      onSuccess: () => {
+        queryClient.invalidateQueries({
+          queryKey: ["allCurricularAreas"],
+          exact: false,
+        });
+      },
+    });
+
+  return {
+    editCurricularArea: mutate,
+    editCurricularAreaAsync: mutateAsync,
+    data,
+    isEditingCurricularAreaLoading: isPending,
+    isEditingCurricularAreaSuccess: isSuccess,
+    isEditingCurricularAreaError: isError,
+    editingCurricularAreaError: error,
+  };
+};
+
+//ADMIN USER DELETE DATA
+export function useAdminCurricularAreaDeleteData(id: string) {
+  const {
+    mutate,
+    mutateAsync,
+    data: deletedData,
+    isPending,
+    isSuccess,
+    isError,
+    error,
+  } = useMutation({
+    mutationFn: () => deleteCurricularArea(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["allCurricularAreas"],
+        exact: false,
+      });
+    },
+  });
+
+  return {
+    deleteCurricularData: mutate,
+    deleteCurricularDataAsync: mutateAsync,
+    data: deletedData,
+    isDeletingCurricularDataLoading: isPending,
+    isDeletingCurricularDataSuccess: isSuccess,
+    isDeletingCurricularDataError: isError,
+    deletingCurricularDataError: error,
   };
 }

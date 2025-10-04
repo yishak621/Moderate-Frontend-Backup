@@ -5,39 +5,21 @@ import Button from "@/components/ui/Button";
 
 import { getCurricularColumns, getEmailDomainsColumns } from "./columns";
 import Modal from "@/components/ui/Modal";
-import { Eye, Pencil, Plus, Settings, Trash2, UserPlus } from "lucide-react";
-import { useState } from "react";
+import {
+  Eye,
+  Loader,
+  Pencil,
+  Plus,
+  Settings,
+  Trash2,
+  UserPlus,
+} from "lucide-react";
+import { useEffect, useState } from "react";
 import { Curricular } from "@/app/types/curricular";
 import AddNewCurricularAreaModal from "@/modules/dashboard/admin/modal/curricular/AddNewCurricularAreaModal";
 import { EmailDomains } from "@/app/types/emailDomains";
 import AddNewEmailDomainModal from "@/modules/dashboard/admin/modal/emailDomain/AddNewEmailDomainModal";
-
-const curriculars: Curricular[] = [
-  {
-    id: "sdfs",
-    name: "Mathematics",
-    teachers: 4534,
-    posts: 4234,
-    description: "thish sdjha",
-    status: "Active",
-  },
-  {
-    id: "sdfs",
-    name: "Mathematics",
-    teachers: 4534,
-    posts: 4234,
-    description: "thish sdjha",
-    status: "Inactive",
-  },
-  {
-    id: "sdfs",
-    name: "Mathematics",
-    teachers: 4534,
-    posts: 4234,
-    description: "thish sdjha",
-    status: "Active",
-  },
-];
+import { useAdminCurricularAreasData } from "@/hooks/UseAdminRoutes";
 
 const emailDomains: EmailDomains[] = [
   {
@@ -68,34 +50,41 @@ const emailDomains: EmailDomains[] = [
 
 export default function CurricularClient() {
   const [open, setOpen] = useState(false);
-  const [ModalComponent, setModalComponent] = useState<React.FC<any> | null>(
-    null
-  );
-  const [modalProps, setModalProps] = useState<any>({});
+  const [ModalComponent, setModalComponent] =
+    useState<React.ComponentType<any> | null>(null);
+
+  const [modalProps, setModalProps] = useState<Record<string, any>>({});
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const {
+    allCurricularAreas,
+    isCurricularAreasLoading,
+    isCurricularAreasSuccess,
+    isCurricularAreasError,
+    curricularAreasError,
+  } = useAdminCurricularAreasData(page);
 
-  const handleSelected = (values: { value: string; label: string }[]) => {
-    console.log("Selected values:", values);
-    // you can use these in real-time (e.g. store in state, send to API, etc.)
-  };
-
-  const handleOpenModal = (
-    component: React.FC<unknown>,
-    props: unknown = {}
+  const handleOpenModal = <P,>(
+    component: React.ComponentType<P>,
+    props?: P
   ) => {
     setModalComponent(() => component);
-    setModalProps(props);
+    setModalProps(props || {});
     setOpen(true);
   };
 
   const curricularColumns = getCurricularColumns(handleOpenModal);
   const emailDomainColumns = getEmailDomainsColumns(handleOpenModal);
+  console.log("all curricular areas", allCurricularAreas?.data);
+
+  useEffect(() => {
+    setTotalPages(allCurricularAreas?.meta.lastPage);
+  }, [isCurricularAreasSuccess, allCurricularAreas]);
 
   return (
     <div className="flex flex-col gap-5.5  ">
       {/* first section */}
-      <div className="relative py-9 px-11 bg-[#FDFDFD] rounded-[22px]  overflow-scroll">
+      <div className="relative py-9 px-11 bg-[#FDFDFD] rounded-[22px]  overflow-scroll max-h-[50vh] scrollbar-hide">
         {/* table header */}
         <div className=" flex flex-row justify-between">
           <div className="flex flex-col gap-1">
@@ -117,10 +106,16 @@ export default function CurricularClient() {
 
         {/* table */}
         <div className="px-0 p-6">
-          <DataTable<Curricular>
-            data={curriculars}
-            columns={curricularColumns}
-          />
+          {isCurricularAreasLoading ? (
+            <div className="flex justify-center items-center h-64">
+              <Loader className="animate-spin" size={32} />
+            </div>
+          ) : (
+            <DataTable<Curricular>
+              data={allCurricularAreas?.data || []}
+              columns={curricularColumns}
+            />
+          )}
           <Modal isOpen={open} onOpenChange={setOpen}>
             <Modal.Content>
               {ModalComponent && <ModalComponent {...modalProps} />}
@@ -129,13 +124,13 @@ export default function CurricularClient() {
         </div>
 
         {/* pagination buttons */}
-        <div className=" flex flex-row gap-2 border border-red-500 absolute bottom-0 right-0">
+        <div className=" flex flex-row gap-2 justify-self-end">
           {/* Pagination */}
           <div className="flex gap-2 mt-4">
             <button
               disabled={page === 1}
               onClick={() => setPage((p) => p - 1)}
-              className="px-3 py-1 border rounded disabled:opacity-50"
+              className="px-3 py-1 border-0 text-[#717171] disabled:opacity-50 transition-colors duration-300 hover:text-blue-500 cursor-pointer"
             >
               Back
             </button>
@@ -157,7 +152,7 @@ export default function CurricularClient() {
             <button
               disabled={page === totalPages}
               onClick={() => setPage((p) => p + 1)}
-              className="px-3 py-1 border rounded disabled:opacity-50"
+              className="px-3 py-1 border-0 text-[#717171] disabled:opacity-50 transition-colors duration-300 hover:text-blue-500 cursor-pointer"
             >
               Next
             </button>
@@ -165,7 +160,7 @@ export default function CurricularClient() {
         </div>
       </div>
       {/* second section */}
-      <div className="relative py-9 px-11 bg-[#FDFDFD] rounded-[22px]  overflow-scroll">
+      <div className="relative py-9 px-11 bg-[#FDFDFD] rounded-[22px]  overflow-scroll max-h-[50vh] scrollbar-hide">
         {/* table header */}
         <div className=" flex flex-row justify-between">
           <div className="flex flex-col gap-1">
@@ -199,13 +194,13 @@ export default function CurricularClient() {
         </div>
 
         {/* pagination buttons */}
-        <div className=" flex flex-row gap-2 border border-red-500 absolute bottom-0 right-0">
+        <div className=" flex flex-row gap-2 justify-self-end">
           {/* Pagination */}
           <div className="flex gap-2 mt-4">
             <button
               disabled={page === 1}
               onClick={() => setPage((p) => p - 1)}
-              className="px-3 py-1 border rounded disabled:opacity-50"
+              className="px-3 py-1 border-0 text-[#717171] disabled:opacity-50 transition-colors duration-300 hover:text-blue-500 cursor-pointer"
             >
               Back
             </button>
@@ -227,7 +222,7 @@ export default function CurricularClient() {
             <button
               disabled={page === totalPages}
               onClick={() => setPage((p) => p + 1)}
-              className="px-3 py-1 border rounded disabled:opacity-50"
+              className="px-3 py-1 border-0 text-[#717171] disabled:opacity-50 transition-colors duration-300 hover:text-blue-500 cursor-pointer"
             >
               Next
             </button>

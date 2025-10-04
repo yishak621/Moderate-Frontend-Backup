@@ -13,10 +13,7 @@ import { SubjectDomain } from "@/types/typeLog";
 
 export default function EditUserModal({ user }: { user: User }) {
   const { close } = useModal();
-  const handleSelected = (values: { value: string; label: string }[]) => {
-    console.log("Selected values:", values);
-    // you can use these in real-time (e.g. store in state, send to API, etc.)
-  };
+
   //HOOKS
   const {
     subjectDomains,
@@ -55,10 +52,10 @@ export default function EditUserModal({ user }: { user: User }) {
 
   const onSubmit = async (data: SignupFormDataTypes) => {
     try {
-      const res = await editUserDataAsync(data as unknown as User);
-      if (isEditingDataSuccess) {
-        toast.success("User updated successfully");
-      }
+      await editUserDataAsync(data as unknown as User);
+
+      toast.success("User updated successfully");
+      close();
     } catch (err) {
       if (err instanceof Error) {
         console.error(err.message);
@@ -81,7 +78,7 @@ export default function EditUserModal({ user }: { user: User }) {
             Update Teacher Data
           </p>
           <p className=" text-base font-normal text-[#717171]">
-            Edit a teacher account
+            Edit a <b>{user?.name}</b> account
           </p>
         </div>
 
