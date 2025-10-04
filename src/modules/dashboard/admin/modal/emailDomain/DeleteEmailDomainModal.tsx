@@ -1,11 +1,12 @@
 import { useModal } from "@/components/ui/Modal";
 import { X } from "lucide-react";
 import Button from "@/components/ui/Button";
+import { AllowedEmailDomainAttributes } from "@/types/typeLog";
 
 export default function DeleteEmailDomainModal({
-  Curricular,
+  EmailDomain,
 }: {
-  Curricular: string;
+  EmailDomain: AllowedEmailDomainAttributes;
 }) {
   const { close } = useModal();
 
@@ -18,7 +19,7 @@ export default function DeleteEmailDomainModal({
             Delete Email Domain
           </p>
           <p className=" text-base font-normal text-[#717171] max-w-[303px]">
-            Are you sure to delete `<b>{Curricular}</b> `from your platform
+            Are you sure to delete `<b>{EmailDomain.emailDomain}</b> `from your platform
           </p>
         </div>
 

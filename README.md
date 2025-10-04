@@ -14,6 +14,77 @@ pnpm dev
 bun dev
 ```
 
+ {/* pagination buttons */}
+        <div className="flex flex-row gap-2 justify-self-end">
+          <div className="flex gap-2 mt-4 items-center">
+            {/* Back button */}
+            <button
+              disabled={emailDomainpage === 1}
+              onClick={() => setPage((p) => p - 1)}
+              className="px-3 py-1 border-0 text-[#717171] disabled:opacity-50 transition-colors duration-300 hover:text-blue-500 cursor-pointer"
+            >
+              Back
+            </button>
+
+            {(() => {
+              const pages: (number | string)[] = [];
+              const maxVisible = 2; // how many pages before/after current to show
+
+              // Always show first page
+              if (emailDomainpage > 1 + maxVisible) {
+                pages.push(1);
+                if (emailDomainpage > 2 + maxVisible) pages.push("...");
+              }
+
+              // Pages around current
+              for (
+                let p = Math.max(1, emailDomainpage - maxVisible);
+                p <=
+                Math.min(totalEmailDomainPages, emailDomainpage + maxVisible);
+                p++
+              ) {
+                pages.push(p);
+              }
+
+              // Always show last page
+              if (emailDomainpage < totalEmailDomainPages - maxVisible) {
+                if (emailDomainpage < totalEmailDomainPages - maxVisible - 1)
+                  pages.push("...");
+                pages.push(totalEmailDomainPages);
+              }
+
+              return pages.map((p, idx) =>
+                p === "..." ? (
+                  <span key={idx} className="px-3 py-1 text-gray-400">
+                    ...
+                  </span>
+                ) : (
+                  <button
+                    key={p}
+                    onClick={() => setPage(p as number)}
+                    className={`px-3 py-1 border rounded ${
+                      p === emailDomainpage
+                        ? "bg-blue-500 text-white"
+                        : "bg-white text-blue-500 hover:bg-blue-100"
+                    }`}
+                  >
+                    {p}
+                  </button>
+                )
+              );
+            })()}
+
+            {/* Next button */}
+            <button
+              disabled={emailDomainpage === totalEmailDomainPages}
+              onClick={() => setPage((p) => p + 1)}
+              className="px-3 py-1 border-0 text-[#717171] disabled:opacity-50 transition-colors duration-300 hover:text-blue-500 cursor-pointer"
+            >
+              Next
+            </button>
+          </div>
+        </div>
+
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.

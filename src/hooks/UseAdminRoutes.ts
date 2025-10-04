@@ -3,13 +3,17 @@ import { User } from "@/app/types/user";
 import {
   AdminOverview,
   createNewCurricularArea,
+  createNewEmailDomain,
   createNewUser,
   deleteCurricularArea,
+  deleteEmailDomain,
   deleteUserData,
   editUserData,
   getAllCurricularAreas,
+  getAllEmailDomains,
   getAllUsers,
   updateCurricularArea,
+  updateEmailDomain,
   viewUserData,
 } from "@/services/admin.service";
 
@@ -18,6 +22,7 @@ import { useEffect, useState } from "react";
 import { queryClient } from "@/lib/queryClient";
 import { SignupFormDataTypes } from "@/types/authData.type";
 import { Curricular } from "@/app/types/curricular";
+import { AllowedEmailDomainAttributes } from "@/types/typeLog";
 
 //ADMIN OVERVIEW STAT DATA
 export function useAdminOverviewData() {
@@ -291,6 +296,120 @@ export function useAdminCurricularAreaDeleteData(id: string) {
     isDeletingCurricularDataLoading: isPending,
     isDeletingCurricularDataSuccess: isSuccess,
     isDeletingCurricularDataError: isError,
+    deletingCurricularDataError: error,
+  };
+}
+
+// ADMIN CURRICULAR AREAS DATA
+export function useAdminEmailDomainData(page: number) {
+  const query = useQuery({
+    queryKey: ["allEmailDomains", page],
+    queryFn: () => getAllEmailDomains(page),
+    placeholderData: (prev) => prev,
+    staleTime: 5 * 60 * 1000,
+  });
+
+  // Prefetch next and previous pages
+  useEffect(() => {
+    queryClient.prefetchQuery({
+      queryKey: ["allEmailDomains", page + 1],
+      queryFn: () => getAllEmailDomains(page + 1),
+    });
+
+    if (page > 1) {
+      queryClient.prefetchQuery({
+        queryKey: ["allEmailDomains", page - 1],
+        queryFn: () => getAllEmailDomains(page - 1),
+      });
+    }
+  }, [page]);
+
+  return {
+    allEmailDomains: query.data,
+    isEmailDomainsLoading: query.isPending,
+    isEmailDomainsSuccess: query.isSuccess,
+    isEmailDomainsError: query.isError,
+    emailDomainsError: query.error,
+  };
+}
+
+//ADMIN CURRICULAR AREA CREATE DATA
+export const useAdminEmailDomainCreateData = () => {
+  const { mutate, mutateAsync, data, isPending, isSuccess, isError, error } =
+    useMutation({
+      mutationFn: (data: AllowedEmailDomainAttributes) =>
+        createNewEmailDomain(data),
+      onSuccess: () => {
+        queryClient.invalidateQueries({
+          queryKey: ["allEmailDomains"],
+          exact: false,
+        });
+      },
+    });
+
+  return {
+    createEmailDomain: mutate,
+    createEmailDomainAsync: mutateAsync,
+    data,
+    isCreatingEmailDomainLoading: isPending,
+    isCreatingEmailDomainSuccess: isSuccess,
+    isCreatingEmailDomainError: isError,
+    creatingCurricularAreaError: error,
+  };
+};
+
+//ADMIN CURRICULAR AREA EDIT DATA
+export const useAdminEmailDomainEditData = (id: string) => {
+  const { mutate, mutateAsync, data, isPending, isSuccess, isError, error } =
+    useMutation({
+      mutationFn: (data: AllowedEmailDomainAttributes) =>
+        updateEmailDomain(id, data),
+      onSuccess: () => {
+        queryClient.invalidateQueries({
+          queryKey: ["allEmailDomains"],
+          exact: false,
+        });
+      },
+    });
+
+  return {
+    editEmailDomain: mutate,
+    editEmailDomainAsync: mutateAsync,
+    data,
+    isEditingEmailDomainLoading: isPending,
+    isEditingEmailDomainSuccess: isSuccess,
+    isEditingEmailDomainError: isError,
+    editingEmailDomainError: error,
+  };
+};
+
+//ADMIN USER DELETE DATA
+export function useAdminEmailDomainDeleteData(id: string) {
+  const {
+    mutate,
+    mutateAsync,
+    data: deletedData,
+    isPending,
+    isSuccess,
+    isError,
+    error,
+  } = useMutation({
+    mutationFn: () => deleteEmailDomain(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["allEmailDomains"],
+        exact: false,
+      });
+    },
+  });
+
+  return {
+    deleteEmailDomain: mutate,
+    deleteEmailDomainAsync: mutateAsync,
+    data: deletedData,
+    isDeletingEmailDomainLoading: isPending,
+    isDeletingEmailDomainSuccess: isSuccess,
+    isDeletingEmailDomainError: isError,
     deletingCurricularDataError: error,
   };
 }

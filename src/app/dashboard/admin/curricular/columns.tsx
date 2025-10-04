@@ -9,6 +9,7 @@ import DeleteCurricularAreaModal from "@/modules/dashboard/admin/modal/curricula
 import { EmailDomains } from "@/app/types/emailDomains";
 import EditEmailDomainModal from "@/modules/dashboard/admin/modal/emailDomain/EditEmailDomainModal";
 import DeleteEmailDomainModal from "@/modules/dashboard/admin/modal/emailDomain/DeleteEmailDomainModal";
+import { AllowedEmailDomainAttributes } from "@/types/typeLog";
 
 export function getCurricularColumns(
   handleOpenModal: <P>(component: ComponentType<P>, props?: P) => void
@@ -98,7 +99,7 @@ export function getCurricularColumns(
 
 export function getEmailDomainsColumns(
   handleOpenModal: <P>(component: ComponentType<P>, props?: P) => void
-): ColumnDef<EmailDomains>[] {
+): ColumnDef<AllowedEmailDomainAttributes>[] {
   return [
     {
       accessorKey: "Email Domain",
@@ -115,7 +116,17 @@ export function getEmailDomainsColumns(
       accessorKey: "School Name",
       header: "School Name",
       cell: ({ row }) => (
-        <span className="text-[#0C0C0C]">{row.original.schoolName}</span>
+        <div
+          className="
+        text-[#0C0C0C] 
+        block 
+        max-w-[250px] md:max-w-[180px] sm:max-w-[120px] 
+        truncate overflow-hidden text-ellipsis
+      "
+          title={row.original.name} // tooltip for full text
+        >
+          {row.original.name}
+        </div>
       ),
     },
     {
@@ -124,7 +135,7 @@ export function getEmailDomainsColumns(
       cell: ({ row }) => (
         <div className=" flex flex-row gap-2 text-[#0C0C0C]">
           <Users size={18} className="text-[#717171]" />
-          <span>{row.original.teachers}</span>
+          <span>{row.original.teachers || "soon"}</span>
         </div>
       ),
     },
@@ -132,7 +143,7 @@ export function getEmailDomainsColumns(
       accessorKey: "Added Date",
       header: "Added Date",
       cell: ({ row }) => (
-        <span className="text-[#0C0C0C]">{row.original.createdDate}</span>
+        <span className="text-[#0C0C0C]">{row.original.createdAt}</span>
       ),
     },
 
@@ -140,17 +151,16 @@ export function getEmailDomainsColumns(
       accessorKey: "Status",
       header: "Status",
       cell: ({ row }) => {
-        const status = row.original.status;
+        const status = "active";
         const colorMap: Record<string, string> = {
-          Active: "bg-green-100 text-green-700",
-          Inactive: "bg-red-100 text-red-700",
-          pending: "bg-yellow-100 text-yellow-700",
+          active: "bg-green-100 text-green-700",
+          inactive: "bg-red-100 text-red-700",
         };
         return (
           <span
             className={`px-4.5 py-2 text-sm font-semibold rounded-full ${colorMap[status]}`}
           >
-            {status}
+            {status || "active"}
           </span>
         );
       },
@@ -162,7 +172,9 @@ export function getEmailDomainsColumns(
         return (
           <div className="flex gap-2">
             <button
-              onClick={() => handleOpenModal(EditEmailDomainModal)}
+              onClick={() =>
+                handleOpenModal(EditEmailDomainModal, row.original)
+              }
               className="p-1 text-green-500 hover:bg-green-50 rounded"
             >
               <Pencil size={16} />
@@ -171,7 +183,7 @@ export function getEmailDomainsColumns(
             <button
               onClick={() =>
                 handleOpenModal(DeleteEmailDomainModal, {
-                  Curricular: row.original.emailDomain,
+                  EmailDomain: row.original,
                 })
               }
               className="p-1 text-red-500 hover:bg-red-50 rounded"

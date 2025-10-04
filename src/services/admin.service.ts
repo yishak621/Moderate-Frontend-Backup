@@ -3,6 +3,7 @@ import { setToken } from "./tokenService";
 import { User } from "@/app/types/user";
 import { SignupFormDataTypes } from "@/types/authData.type";
 import { Curricular } from "@/app/types/curricular";
+import { AllowedEmailDomainAttributes } from "@/types/typeLog";
 
 //-------------------ADMIN ONLY ROUTES
 export const AdminOverview = async () => {
@@ -277,10 +278,12 @@ export const deleteCurricularArea = async (id: string) => {
   }
 };
 
-//-------------------GET ALL CURRICULAR AREAS
-export const getAllEmailDomains = async () => {
+//-------------------GET ALL EMAIL DOMAINS
+export const getAllEmailDomains = async (page: number) => {
   try {
-    const res = await axiosInstance.get(`/api/system/allowed-domains`);
+    const res = await axiosInstance.get(
+      `/api/system/allowed-domains?page=${page}`
+    );
 
     if (!res) {
       console.log("error");
@@ -303,8 +306,10 @@ export const getAllEmailDomains = async () => {
   }
 };
 
-//-------------------CREATE NEW CURRICULAR AREA
-export const createNewEmailDomain = async (data: SignupFormDataTypes) => {
+//-------------------CREATE NEW EMAIL DOMAINS
+export const createNewEmailDomain = async (
+  data: AllowedEmailDomainAttributes
+) => {
   try {
     const res = await axiosInstance.post(`/api/system/allowed-domains`, data);
 
@@ -329,10 +334,10 @@ export const createNewEmailDomain = async (data: SignupFormDataTypes) => {
   }
 };
 
-//-------------------UPDATE CURRICULAR AREA
+//-------------------UPDATE EMAIL DOMAINS
 export const updateEmailDomain = async (
   id: string,
-  data: SignupFormDataTypes
+  data: AllowedEmailDomainAttributes
 ) => {
   try {
     const res = await axiosInstance.patch(
@@ -361,7 +366,7 @@ export const updateEmailDomain = async (
   }
 };
 
-//-------------------DELETE CURRICULAR AREA
+//-------------------DELETE EMAIL DOMAINS
 export const deleteEmailDomain = async (id: string) => {
   try {
     const res = await axiosInstance.delete(`/api/system/allowed-domains/${id}`);
