@@ -7,49 +7,20 @@ import Button from "@/components/ui/Button";
 import { getAnnouncementColumns } from "./columns";
 import Modal from "@/components/ui/Modal";
 
-import { Plus, UserPlus } from "lucide-react";
+import { Loader, Plus, UserPlus } from "lucide-react";
 import AddTeacherModal from "@/modules/dashboard/admin/modal/AddTeacherModal";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { ComponentType } from "react";
 import { Announcement } from "@/app/types/announcement";
-import CreateNewAnnouncementModal from "@/modules/dashboard/admin/modal/CreateNewAnnouncementModal";
+import CreateNewAnnouncementModal from "@/modules/dashboard/admin/modal/announcements/CreateNewAnnouncementModal";
+import { useAdminAllAnnouncementsData } from "@/hooks/UseAdminRoutes";
 
 type StatsCardProps = {
   title: string;
   count: number;
-  description: string;
+  description?: string;
 };
 
-const statsData: StatsCardProps[] = [
-  {
-    title: "Total Teachers",
-    count: 243,
-    description: "+12% from last month",
-  },
-  {
-    title: "Active Schools",
-    count: 45,
-    description: "+2 from last month",
-  },
-  {
-    title: "Documents Uploaded",
-    count: 1847,
-    description: "+12% from last month",
-  },
-];
-
-export const sampleData: Announcement[] = [
-  {
-    title: "New Feature Release",
-    content: "New Feature Release hdasd in this week",
-    type: "Feature",
-    priority: "High",
-    audience: "All Users",
-    status: "Published",
-    views: 1245,
-    published: "2025-09-10",
-  },
-];
 export default function AnnouncementClient() {
   const [open, setOpen] = useState(false);
   const [ModalComponent, setModalComponent] = useState<React.FC<any> | null>(
@@ -59,12 +30,12 @@ export default function AnnouncementClient() {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
-  const handleSelected = (values: { value: string; label: string }[]) => {
-    console.log("Selected values:", values);
-    // you can use these in real-time (e.g. store in state, send to API, etc.)
-  };
-
-  const No_Of_Users = 5;
+  const {
+    allAnnouncements,
+    isAnnouncementsLoading,
+    isAnnouncementsSuccess,
+    isAnnouncementsError,
+  } = useAdminAllAnnouncementsData(page);
 
   const handleOpenModal = (
     component: React.FC<unknown>,
@@ -79,6 +50,29 @@ export default function AnnouncementClient() {
     handleOpenModal as <P>(component: ComponentType<P>, props?: P) => void
   );
 
+  const totalAnnouncements = allAnnouncements?.meta.total;
+  const publishedAnnouncements = allAnnouncements?.meta.total;
+  const views = allAnnouncements?.meta.total;
+
+  const statsData: StatsCardProps[] = [
+    {
+      title: "Total Announcement",
+      count: totalAnnouncements,
+    },
+    {
+      title: "Published",
+      count: publishedAnnouncements,
+    },
+    {
+      title: "Total Views",
+      count: 1847,
+    },
+  ];
+
+  useEffect(() => {
+    setTotalPages(allAnnouncements?.meta.totalPages);
+  }, [isAnnouncementsSuccess, allAnnouncements]);
+
   return (
     <div className="flex flex-col gap-5.5">
       {/* first section */}
@@ -89,7 +83,7 @@ export default function AnnouncementClient() {
               key={stat.title}
               title={stat.title}
               count={stat.count}
-              description={stat.description}
+              description={stat?.description}
             />
           );
         })}
@@ -117,7 +111,16 @@ export default function AnnouncementClient() {
 
         {/* table */}
         <div className="px-0 p-6">
-          <DataTable<Announcement> data={sampleData} columns={columns} />
+          {isAnnouncementsLoading ? (
+            <div className="flex justify-center items-center h-64">
+              <Loader className="animate-spin" size={32} />
+            </div>
+          ) : (
+            <DataTable<Announcement>
+              data={allAnnouncements?.data || []}
+              columns={columns}
+            />
+          )}
           <Modal isOpen={open} onOpenChange={setOpen}>
             <Modal.Content>
               {ModalComponent && <ModalComponent {...modalProps} />}
@@ -126,13 +129,13 @@ export default function AnnouncementClient() {
         </div>
 
         {/* pagination buttons */}
-        <div className=" flex flex-row gap-2 border border-red-500 absolute bottom-0 right-0">
-          {/* Pagination */}
-          <div className="flex gap-2 mt-4">
+        <div className="flex flex-row gap-2 justify-self-end">
+          <div className="flex gap-2 mt-4 items-center">
+            {/* Back button */}
             <button
               disabled={page === 1}
               onClick={() => setPage((p) => p - 1)}
-              className="px-3 py-1 border rounded disabled:opacity-50"
+              className="px-3 py-1 border-0 text-[#717171] disabled:opacity-50 transition-colors duration-300 hover:text-blue-500 cursor-pointer"
             >
               Back
             </button>
@@ -154,7 +157,7 @@ export default function AnnouncementClient() {
             <button
               disabled={page === totalPages}
               onClick={() => setPage((p) => p + 1)}
-              className="px-3 py-1 border rounded disabled:opacity-50"
+              className="px-3 py-1 border-0 text-[#717171] disabled:opacity-50 transition-colors duration-300 hover:text-blue-500 cursor-pointer"
             >
               Next
             </button>

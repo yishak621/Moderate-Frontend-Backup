@@ -40,11 +40,14 @@ export function getAnnouncementColumns(
       accessorKey: "type",
       header: "Type",
       cell: ({ row }) => {
-        const type = row.original.type;
+        const type = row.original.type || "General";
         const colorMap: Record<string, string> = {
           General: "bg-green-100 text-green-700",
           System: "bg-red-100 text-red-700",
           Feature: "bg-yellow-100 text-yellow-700",
+          Announcement: "bg-blue-100 text-blue-700",
+          Newsletter: "bg-gray-100 text-gray-700",
+          Report: "bg-orange-100 text-orange-700",
         };
         return (
           <span
@@ -59,9 +62,9 @@ export function getAnnouncementColumns(
       accessorKey: "priority",
       header: "Priority",
       cell: ({ row }) => {
-        const priority = row.original.priority;
+        const priority = row.original.priority || "Low";
         const colorMap: Record<string, string> = {
-          Green: "bg-green-100 text-green-700",
+          Medium: "bg-green-100 text-green-700",
           High: "bg-red-100 text-red-700",
           Low: "bg-yellow-100 text-yellow-700",
         };
@@ -77,27 +80,38 @@ export function getAnnouncementColumns(
     {
       accessorKey: "audience",
       header: "Audience",
-      cell: ({ row }) => (
-        <span className="text-[#0C0C0C] font-normal">
-          {row.original.audience}
-        </span>
-      ),
+      cell: ({ row }) => {
+        const domains = row.original.domains;
+
+        return (
+          <div className="flex flex-col gap-1">
+            {domains.map((domain, idx) => {
+              return (
+                <span key={idx} className="text-[#0C0C0C] font-normal">
+                  {domain?.name}
+                </span>
+              );
+            })}
+          </div>
+        );
+      },
     },
     {
       accessorKey: "status",
       header: "Status",
       cell: ({ row }) => {
-        const status = row.original.status;
+        const status = row.original.status || "Published";
         const colorMap: Record<string, string> = {
           Published: "bg-green-100 text-green-700",
-          Failed: "bg-red-100 text-red-700",
+          Archived: "bg-red-100 text-red-700",
+          Draft: "bg-yellow-100 text-yellow-700",
         };
         return (
           <div
             className={`flex flex-row gap-1 items-center justify-center px-1.5 py-2 text-sm font-semibold rounded-full ${colorMap[status]}`}
           >
             <div>
-              {status === "Published" ? (
+              {status === "published" ? (
                 <EyeIcon size={18} />
               ) : (
                 <TriangleAlert size={18} />
@@ -118,17 +132,14 @@ export function getAnnouncementColumns(
             {" "}
             <Users size={18} className="text-[#717171]" />{" "}
           </div>
-          <span className=" text-[#0C0C0C]"> {row.original.views}</span>
+          <span className=" text-[#0C0C0C]">
+            {" "}
+            {row.original.views || "soon"}
+          </span>
         </div>
       ),
     },
-    {
-      accessorKey: "published",
-      header: "Published",
-      cell: ({ row }) => (
-        <span className="text-[#717171]">{row.original.published}</span>
-      ),
-    },
+
     {
       id: "actions",
       header: "Actions",
@@ -136,6 +147,12 @@ export function getAnnouncementColumns(
         const user = row.original;
         return (
           <div className="flex gap-2">
+            <button
+              onClick={() => handleOpenModal(EditAnnouncementModal)}
+              className="p-1 text-blue-500 hover:bg-blue-50 rounded"
+            >
+              <Eye size={16} />
+            </button>
             <button
               onClick={() => handleOpenModal(EditAnnouncementModal)}
               className="p-1 text-green-500 hover:bg-green-50 rounded"

@@ -39,3 +39,19 @@ export interface AllowedEmailDomainAttributes {
   teachers?: string;
   status?: "active" | "inactive";
 }
+
+export enum AnnouncementStatus {
+  Draft = "draft",
+  Published = "published",
+  Archived = "archived",
+}
+
+export interface AnnouncementAttributes {
+  id?: string;
+  title: string;
+  content: string;
+  createdBy?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
+  status?: AnnouncementStatus;
+}

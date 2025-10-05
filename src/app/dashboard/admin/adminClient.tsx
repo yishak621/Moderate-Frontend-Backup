@@ -18,7 +18,7 @@ import {
   UserPlus,
 } from "lucide-react";
 import { useState } from "react";
-import CreateNewAnnouncementModal from "@/modules/dashboard/admin/modal/CreateNewAnnouncementModal";
+import CreateNewAnnouncementModal from "@/modules/dashboard/admin/modal/announcements/CreateNewAnnouncementModal";
 import { StatsCardProps } from "@/types/statusCardProps";
 import { useAdminOverviewData } from "@/hooks/UseAdminRoutes";
 import { ApiRevenueItem } from "@/types/admin.type";

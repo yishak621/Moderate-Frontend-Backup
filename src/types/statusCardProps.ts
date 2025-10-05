@@ -1,6 +1,6 @@
 export interface StatsCardProps {
   title: string;
   count: number;
-  description: string;
+  description?: string;
   colored?: boolean;
 }

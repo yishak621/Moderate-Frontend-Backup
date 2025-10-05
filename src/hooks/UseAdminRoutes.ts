@@ -2,16 +2,20 @@
 import { User } from "@/app/types/user";
 import {
   AdminOverview,
+  createNewAnnouncement,
   createNewCurricularArea,
   createNewEmailDomain,
   createNewUser,
+  deleteAnnouncment,
   deleteCurricularArea,
   deleteEmailDomain,
   deleteUserData,
   editUserData,
+  getAllAnnouncements,
   getAllCurricularAreas,
   getAllEmailDomains,
   getAllUsers,
+  updateAnnouncment,
   updateCurricularArea,
   updateEmailDomain,
   viewUserData,
@@ -23,6 +27,7 @@ import { queryClient } from "@/lib/queryClient";
 import { SignupFormDataTypes } from "@/types/authData.type";
 import { Curricular } from "@/app/types/curricular";
 import { AllowedEmailDomainAttributes } from "@/types/typeLog";
+import { Announcement } from "@/app/types/announcement";
 
 //ADMIN OVERVIEW STAT DATA
 export function useAdminOverviewData() {
@@ -411,5 +416,118 @@ export function useAdminEmailDomainDeleteData(id: string) {
     isDeletingEmailDomainSuccess: isSuccess,
     isDeletingEmailDomainError: isError,
     deletingCurricularDataError: error,
+  };
+}
+
+// ADMIN ANNOUNCMENTS
+export function useAdminAllAnnouncementsData(page: number) {
+  const query = useQuery({
+    queryKey: ["allAnnouncements", page],
+    queryFn: () => getAllAnnouncements(page),
+    placeholderData: (prev) => prev,
+    staleTime: 5 * 60 * 1000,
+  });
+
+  // Prefetch next and previous pages
+  useEffect(() => {
+    queryClient.prefetchQuery({
+      queryKey: ["allAnnouncements", page + 1],
+      queryFn: () => getAllAnnouncements(page + 1),
+    });
+
+    if (page > 1) {
+      queryClient.prefetchQuery({
+        queryKey: ["allAnnouncements", page - 1],
+        queryFn: () => getAllAnnouncements(page - 1),
+      });
+    }
+  }, [page]);
+
+  return {
+    allAnnouncements: query.data,
+    isAnnouncementsLoading: query.isPending,
+    isAnnouncementsSuccess: query.isSuccess,
+    isAnnouncementsError: query.isError,
+    allAnnouncementsError: query.error,
+  };
+}
+
+//ADMIN ANNOUNCMENTS CREATE DATA
+export const useAdminAnnouncementCreateData = () => {
+  const { mutate, mutateAsync, data, isPending, isSuccess, isError, error } =
+    useMutation({
+      mutationFn: (data: Announcement) => createNewAnnouncement(data),
+      onSuccess: () => {
+        queryClient.invalidateQueries({
+          queryKey: ["allAnnouncements"],
+          exact: false,
+        });
+      },
+    });
+
+  return {
+    createAnnouncement: mutate,
+    createAnnouncementAsync: mutateAsync,
+    data,
+    isCreatingAnnouncementLoading: isPending,
+    isCreatingAnnouncementSuccess: isSuccess,
+    isCreatingAnnouncementError: isError,
+    creatingAnnouncementError: error,
+  };
+};
+
+//ADMIN ANNOUNCMENT EDIT DATA
+export const useAdminAnnouncementEditData = (id: string) => {
+  const { mutate, mutateAsync, data, isPending, isSuccess, isError, error } =
+    useMutation({
+      mutationFn: (data: Announcement) => updateAnnouncment(id, data),
+      onSuccess: () => {
+        queryClient.invalidateQueries({
+          queryKey: ["allAnnouncements"],
+          exact: false,
+        });
+      },
+    });
+
+  return {
+    editAnnouncement: mutate,
+    editAnnouncementAsync: mutateAsync,
+    data,
+    isEditingAnnouncementLoading: isPending,
+    isEditingAnnouncementSuccess: isSuccess,
+    isEditingAnnouncementError: isError,
+    editingAnnouncementError: error,
+  };
+};
+
+//ADMIN USER DELETE DATA
+export function useAdminAnnouncementDeleteData(id: string) {
+  const {
+    mutate,
+    mutateAsync,
+    data: deletedData,
+    isPending,
+    isSuccess,
+    isError,
+    error,
+  } = useMutation({
+    mutationFn: () => deleteAnnouncment(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["allAnnouncements"],
+
+        exact: false,
+      });
+    },
+  });
+
+  return {
+    deleteAnnouncement: mutate,
+    deleteAnnouncementAsync: mutateAsync,
+    data: deletedData,
+    isDeletingAnnouncementLoading: isPending,
+    isDeletingAnnouncementSuccess: isSuccess,
+    isDeletingAnnouncementError: isError,
+    deletingAnnouncementError: error,
   };
 }
