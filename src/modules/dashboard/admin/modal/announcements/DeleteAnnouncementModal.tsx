@@ -1,11 +1,13 @@
+"use client";
 import { useModal } from "@/components/ui/Modal";
 import { X } from "lucide-react";
 import Button from "@/components/ui/Button";
+import { Announcement } from "@/app/types/announcement";
 
 export default function DeleteAnnouncementModal({
-  Curricular,
+  announcement,
 }: {
-  Curricular: string;
+  announcement: Announcement;
 }) {
   const { close } = useModal();
 

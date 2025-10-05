@@ -21,6 +21,8 @@ const typeOptions = [
   { value: "System Alert", label: "System Alert" },
   { value: "Marketing", label: "Marketing" },
   { value: "Report", label: "Report" },
+  { value: "General", label: "General" },
+  { value: "Feature", label: "Feature" },
 ];
 
 const priorityOptions = [
@@ -29,13 +31,9 @@ const priorityOptions = [
   { value: "Low", label: "Low" },
 ];
 export default function CreateNewAnnouncementModal() {
-  const [startDate, setStartDate] = useState<Date | null>(null);
-  const [expireDate, setExpireDate] = useState<Date | null>(null);
+ 
   const { close } = useModal();
-  const handleSelected = (values: { value: string; label: string }[]) => {
-    console.log("Selected values:", values);
-    // you can use these in real-time (e.g. store in state, send to API, etc.)
-  };
+
 
   //react hook form
   const {
@@ -170,12 +168,12 @@ export default function CreateNewAnnouncementModal() {
                 <DatePickerInput
                   label="Start Date"
                   placeholder="Pick a date"
-                  onChange={field.onChange} // accepts Date | null ✅
+                  onChange={field.onChange} 
                 />
               )}
             />
             <p className="mt-4 text-gray-700">
-              Start date: {watch("startDate")?.toDateString() ?? "None"}
+              Start date: {watch("startDate")?.toString() ?? "None"}
             </p>
           </div>
 
@@ -187,12 +185,12 @@ export default function CreateNewAnnouncementModal() {
                 <DatePickerInput
                   label="Expire Date"
                   placeholder="Pick a date"
-                  onChange={field.onChange} // ✅ same
+                  onChange={field.onChange} 
                 />
               )}
             />
             <p className="mt-4 text-gray-700">
-              Selected date: {watch("expireDate")?.toDateString() ?? "None"}
+              Selected date: {watch("expireDate")?.toString() ?? "None"}
             </p>
           </div>
         </div>

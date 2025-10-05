@@ -16,7 +16,7 @@ import EditUserModal from "@/modules/dashboard/admin/modal/users/EditUserModal";
 import DeleteUserModal from "@/modules/dashboard/admin/modal/users/DeleteUserModal";
 import SettingsUserModal from "@/modules/dashboard/admin/modal/users/MessageUserModal";
 import EditAnnouncementModal from "@/modules/dashboard/admin/modal/announcements/EditAnnouncement";
-import DeleteAnnouncementModal from "@/modules/dashboard/admin/modal/announcements/DeleteAnnpuncement";
+import DeleteAnnouncementModal from "@/modules/dashboard/admin/modal/announcements/DeleteAnnouncementModal";
 import { Support } from "@/app/types/support";
 
 export function getAnnouncementColumns(

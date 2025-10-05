@@ -13,6 +13,7 @@ interface DatePickerInputProps {
   error?: string;
   placeholder?: string;
   onChange?: (date: Date | null) => void;
+  value?: Date | null;
 }
 
 export default function DatePickerInput({
@@ -20,12 +21,16 @@ export default function DatePickerInput({
   error,
   placeholder = "Select date",
   onChange,
+  value,
 }: DatePickerInputProps) {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => setMounted(true), []);
-
+ useEffect(() => {
+   // ✅ Sync when the value changes externally (e.g. from defaultValue)
+   setSelectedDate(value ?? null);
+ }, [value]);
   const handleChange = (date: Date | null) => {
     setSelectedDate(date);
     onChange?.(date);
@@ -44,6 +49,7 @@ export default function DatePickerInput({
           onChange={handleChange}
           placeholderText={placeholder}
           dateFormat="yyyy-MM-dd"
+         
           //   className={clsx(
           //     "w-full rounded-lg border",
           //     "px-3 py-2 text-sm",

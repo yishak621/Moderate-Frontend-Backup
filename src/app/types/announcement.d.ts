@@ -1,21 +1,23 @@
 import { Domain } from "./user";
 
+export type Priority = "High" | "Medium" | "Low";
+export type AnnouncementStatus = "Draft" | "Scheduled" | "Published";
+
 export interface Announcement {
+  id: string;
   title: string;
   content?: string;
-  type:
-    | "Announcement"
-    | "Newsletter"
-    | "System Alert"
-    | "Marketing"
-    | "Report"
-    | string;
-  priority: "High" | "Medium" | "Low";
+  type?: string[];
+  priority: Priority;
   domainIDs: string;
   domains: Domain[];
-  status: "Draft" | "Scheduled" | "Published" | string;
+  status: AnnouncementStatus | string;
   views: number;
-  published: string | null; // ISO date string or null if not published
-  startDate?: Date | null; // ✅ added
-  expireDate?: Date | null; // ✅ added
+  published?: string | null; // ISO date string or null
+  startDate?: Date | null | undefined; // Keep as string for consistent API serialization
+  expireDate?: Date | null | undefined;
+  createdAt?: Date | null | undefined;
+  updatedAt?: Date | null | undefined;
+
+  createdBy?: string;
 }

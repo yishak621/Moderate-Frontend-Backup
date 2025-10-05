@@ -16,7 +16,8 @@ import DeleteUserModal from "@/modules/dashboard/admin/modal/users/DeleteUserMod
 import SettingsUserModal from "@/modules/dashboard/admin/modal/users/MessageUserModal";
 import { Announcement } from "@/app/types/announcement";
 import EditAnnouncementModal from "@/modules/dashboard/admin/modal/announcements/EditAnnouncement";
-import DeleteAnnouncementModal from "@/modules/dashboard/admin/modal/announcements/DeleteAnnpuncement";
+import DeleteAnnouncementModal from "@/modules/dashboard/admin/modal/announcements/DeleteAnnouncementModal";
+import ViewAnnouncementDetailModal from "@/modules/dashboard/admin/modal/announcements/ViewAnnouncementDetailModal";
 
 export function getAnnouncementColumns(
   handleOpenModal: <P>(component: ComponentType<P>, props?: P) => void
@@ -40,7 +41,7 @@ export function getAnnouncementColumns(
       accessorKey: "type",
       header: "Type",
       cell: ({ row }) => {
-        const type = row.original.type || "General";
+        const type = row.original.type || ["General"];
         const colorMap: Record<string, string> = {
           General: "bg-green-100 text-green-700",
           System: "bg-red-100 text-red-700",
@@ -50,11 +51,18 @@ export function getAnnouncementColumns(
           Report: "bg-orange-100 text-orange-700",
         };
         return (
-          <span
-            className={`px-4.5 py-2 text-sm font-semibold rounded-full ${colorMap[type]}`}
-          >
-            {type}
-          </span>
+          <div className="flex flex-col gap-1 items-center justify-center">
+            {type.map((t, idx) => {
+              return (
+                <span
+                  key={idx}
+                  className={`px-4.5 py-2 text-sm font-semibold rounded-full ${colorMap[t]}`}
+                >
+                  {t}
+                </span>
+              );
+            })}
+          </div>
         );
       },
     },
@@ -144,24 +152,30 @@ export function getAnnouncementColumns(
       id: "actions",
       header: "Actions",
       cell: ({ row }) => {
-        const user = row.original;
+        const announcement = row.original;
         return (
           <div className="flex gap-2">
             <button
-              onClick={() => handleOpenModal(EditAnnouncementModal)}
+              onClick={() =>
+                handleOpenModal(ViewAnnouncementDetailModal, { announcement })
+              }
               className="p-1 text-blue-500 hover:bg-blue-50 rounded"
             >
               <Eye size={16} />
             </button>
             <button
-              onClick={() => handleOpenModal(EditAnnouncementModal)}
+              onClick={() =>
+                handleOpenModal(EditAnnouncementModal, { announcement })
+              }
               className="p-1 text-green-500 hover:bg-green-50 rounded"
             >
               <Pencil size={16} />
             </button>
 
             <button
-              onClick={() => handleOpenModal(DeleteAnnouncementModal)}
+              onClick={() =>
+                handleOpenModal(DeleteAnnouncementModal, { announcement })
+              }
               className="p-1 text-red-500 hover:bg-red-50 rounded"
             >
               <Trash2 size={16} />
