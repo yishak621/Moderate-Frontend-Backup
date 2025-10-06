@@ -154,32 +154,46 @@ export default function DashboardShell({
                 key={href}
                 href={href}
                 className={clsx(
-                  "text-base font-medium flex items-center gap-3 rounded-[41px] ",
+                  "group relative flex items-center gap-3 rounded-[41px] transition-all duration-300 ease-out",
                   isExpanded ? "py-5 px-5.5" : "p-5 justify-center",
-                  isActive && "bg-[#FDFDFD]"
+                  isActive
+                    ? "bg-white shadow-sm ring-1 ring-gray-100"
+                    : "hover:bg-gradient-to-r hover:from-gray-50 hover:to-white hover:shadow-[0_2px_10px_rgba(0,0,0,0.04)]"
                 )}
               >
-                {/* Icon wrapper with fixed width */}
+                {/* Animated background glow */}
+                <span
+                  className={clsx(
+                    "absolute inset-0 rounded-[41px] opacity-0 group-hover:opacity-100 blur-md transition-opacity duration-300",
+                    isActive
+                      ? "bg-[#E3EEFF]"
+                      : "bg-gradient-to-r from-blue-50 to-transparent"
+                  )}
+                />
+
+                {/* Icon */}
                 {Icon && (
-                  <span className="flex-shrink-0 w-6 h-6 flex items-center justify-center">
+                  <span className="relative flex-shrink-0 w-6 h-6 flex items-center justify-center transition-all duration-300">
                     <Icon
                       size={22}
-                      className={`${
-                        isActive ? "text-[#0C0C0C]" : "text-[#717171]"
-                      }`}
+                      className={clsx(
+                        "transition-colors duration-300",
+                        isActive
+                          ? "text-[#0C0C0C]"
+                          : "text-[#717171] group-hover:text-[#0C0C0C]"
+                      )}
                     />
                   </span>
                 )}
 
-                {/* Truncated text */}
+                {/* Label */}
                 {isExpanded && (
                   <span
                     className={clsx(
-                      "truncate max-w-[150px]", // <-- control max label width
+                      "relative truncate max-w-[150px] transition-all duration-300",
                       isActive
-                        ? "text-[#0C0C0C] font-medium"
-                        : "text-[#717171] font-normal",
-                      "text-base"
+                        ? "text-[#0C0C0C] font-semibold"
+                        : "text-[#717171] group-hover:text-[#0C0C0C] font-medium"
                     )}
                   >
                     {label}

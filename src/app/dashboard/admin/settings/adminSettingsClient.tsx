@@ -1,10 +1,12 @@
 "use client";
 
 import SectionHeader from "@/components/SectionHeader";
+import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
 import Textarea from "@/components/ui/Textarea";
+import AdminPaymentSetting from "@/modules/dashboard/admin/AdminPaymentSetting";
 import ToggleSetting from "@/modules/dashboard/admin/ToggleSetting";
-import { Globe, Shield } from "lucide-react";
+import { Globe, Settings, Shield } from "lucide-react";
 
 export default function AdminSettingClient() {
   const siteName = "Moderate Tech";
@@ -24,11 +26,14 @@ export default function AdminSettingClient() {
             icon={Globe}
             subheader="Basic platform configuration and branding"
           />
-          <div className="mt-10">
+          <div className="mt-6 xl:mt-10">
             <Input type="text" placeholder="Site Name" label="Site Name" />
           </div>
-          <div className="mt-10">
+          <div className="mt-6 xl:mt-10">
             <Textarea placeholder="Site Description" label="Site Description" />
+          </div>
+          <div className=" self-end mt-2.5">
+            <Button>Save Changes</Button>
           </div>
         </div>
       </div>
@@ -57,6 +62,10 @@ export default function AdminSettingClient() {
               onChange={handleToggleChange}
             />
           </div>
+
+          <div className=" self-end mt-2.5">
+            <Button>Save Changes</Button>
+          </div>
         </div>
       </div>
 
@@ -68,6 +77,65 @@ export default function AdminSettingClient() {
             icon={Globe}
             subheader="Configure Stripe integration and pricing plans"
           />
+          <AdminPaymentSetting />
+        </div>
+      </div>
+
+      {/* forth section */}
+      <div className=" flex flex-col py-[30px] px-6 rounded-[37px] bg-[#FDFDFD]">
+        <div className="flex flex-col">
+          <SectionHeader
+            title="System Setting"
+            icon={Settings}
+            subheader="System-wide configuration and maintenance options"
+          />
+
+          <div className="flex flex-col mt-10">
+            <ToggleSetting
+              title="Maintenance Mode"
+              description="Temporarily disable access to the platform for maintenance"
+              field="registration"
+              defaultValue={false}
+              onChange={handleToggleChange}
+            />
+          </div>
+
+          <div className=" self-end mt-2.5">
+            <Button>Save Changes</Button>
+          </div>
+        </div>
+      </div>
+      {/* fifth section */}
+      <div className=" flex flex-col py-[30px] px-6 rounded-[37px] bg-[#FDFDFD]">
+        <div className="flex flex-col">
+          <SectionHeader
+            title="Static Pages Content"
+            icon={Globe}
+            subheader="Manage content for Terms of Service, Privacy Policy, and About page"
+          />
+
+          <div className="mt-6 xl:mt-10">
+            <Textarea
+              placeholder="Enter Terms of Service content..."
+              label="Terms of Service"
+            />
+          </div>
+
+          <div className="mt-6 xl:mt-10">
+            <Textarea
+              placeholder="Privacy Policy"
+              label="Enter Privacy Policy content.."
+            />
+          </div>
+          <div className="mt-6 xl:mt-10">
+            <Textarea
+              placeholder="About Page"
+              label="Enter About Page content.."
+            />
+          </div>
+          <div className=" self-end mt-2.5">
+            <Button>Save Changes</Button>
+          </div>
         </div>
       </div>
     </div>

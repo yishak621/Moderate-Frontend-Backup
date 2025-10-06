@@ -4,14 +4,9 @@ import { Send, X } from "lucide-react";
 import { CustomMultiSelect } from "@/components/ui/MultiSelectInput";
 import Button from "@/components/ui/Button";
 import Textarea from "@/components/ui/Textarea";
+import { User } from "@/app/types/user";
 
-const options = [
-  { value: "chocolate", label: "Chocolate" },
-  { value: "strawberry", label: "Strawberry" },
-  { value: "vanilla", label: "Vanilla" },
-];
-
-export default function MessageUserModal() {
+export default function MessageUserModal({ user }: { user: User }) {
   const { close } = useModal();
   const handleSelected = (values: { value: string; label: string }[]) => {
     console.log("Selected values:", values);
@@ -26,7 +21,7 @@ export default function MessageUserModal() {
             Send Support Message
           </p>
           <p className=" text-base font-normal text-[#717171]">
-            Send a direct message to a user
+            Send a direct message to <b>{user?.name}</b>
           </p>
         </div>
 
@@ -42,14 +37,6 @@ export default function MessageUserModal() {
           placeholder="Enter message subject"
         />
         <Textarea label="Message" placeholder="Type your message here" />
-        <div>
-          <p className="text-[#0c0c0c] text-base font-normal mb-1">Priority</p>
-          <CustomMultiSelect
-            options={options}
-            defaultValue={[options[0], options[1]]}
-            onChange={handleSelected}
-          />
-        </div>
       </div>
 
       <div className=" flex justify-center gap-3 items-center w-full ">

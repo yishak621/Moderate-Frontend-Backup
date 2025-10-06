@@ -15,6 +15,7 @@ import { useSubjectDomains } from "@/hooks/usePublicRoutes";
 import { SubjectDomain } from "@/types/typeLog";
 import { useEffect } from "react";
 import { SignupFormDataTypes } from "@/types/authData.type";
+import Image from "next/image";
 
 export default function RegisterForm() {
   const handleSelected = (values: { value: string; label: string }[]) => {
@@ -92,12 +93,29 @@ export default function RegisterForm() {
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
-      className="bg-[#fdfdfd] px-4 py-6 sm:px-6 sm:py-8 md:px-8 md:py-10 2xl:px-12 2xl:py-14 rounded-[24px] w-full max-w-lg mx-auto  flex flex-col gap-6 max-h-screen overflow-scroll scrollbar-hide"
+      className="
+      bg-[#fdfdfd]
+      px-4 py-6                    
+      sm:px-6 sm:py-8             
+      lg:px-8 lg:py-12            
+      rounded-[20px] sm:rounded-[24px]
+      w-full max-w-lg mx-auto
+      flex flex-col gap-5 sm:gap-6
+      max-h-screen overflow-y-scroll scrollbar-hide
+    "
     >
       {/* Header */}
-      <div className="flex flex-col items-center text-center gap-2 pb-2 sm:pb-2 lg:pb-4 ">
-        <h2 className="text-2xl font-semibold ">Moderate</h2>
-        <p className="text-gray-600 text-sm sm:text-base">
+      <div className="flex flex-col items-center text-center gap-1.5 sm:gap-2 pb-4 sm:pb-6 lg:pb-8">
+        <Image
+          src="/images/logo/logo-4.png"
+          alt="Moderate Logo"
+          width={45}
+          height={45}
+          priority
+          className="object-contain select-none"
+        />
+        <h2 className="text-xl sm:text-2xl font-semibold">Moderate</h2>
+        <p className="text-gray-600 text-xs sm:text-sm lg:text-base">
           Teacher Portal System
         </p>
       </div>

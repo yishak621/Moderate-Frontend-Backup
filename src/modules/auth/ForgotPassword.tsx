@@ -5,6 +5,7 @@ import Input from "@/components/ui/Input";
 import { useForgotPassword } from "@/hooks/useAuth";
 import { forgotPasswordFormDataTypes } from "@/types/authData.type";
 import { CheckCircle2 } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
@@ -89,12 +90,29 @@ export default function ForgotPasswordForm() {
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
-      className="bg-[#fdfdfd] px-6 py-8 sm:px-8 sm:py-10 lg:px-10 lg:py-14 rounded-[24px] w-full max-w-lg mx-auto flex flex-col gap-6"
+      className="
+      bg-[#fdfdfd]
+      px-4 py-6                    
+      sm:px-6 sm:py-8             
+      lg:px-8 lg:py-12            
+      rounded-[20px] sm:rounded-[24px]
+      w-full max-w-lg mx-auto
+      flex flex-col gap-5 sm:gap-6
+      max-h-screen overflow-y-scroll scrollbar-hide
+    "
     >
       {/* Header */}
-      <div className="flex flex-col items-center text-center gap-2 pb-6 sm:pb-4 lg:pb-10">
-        <h2 className="text-2xl font-semibold ">Moderate</h2>
-        <p className="text-gray-600 text-sm sm:text-base">
+      <div className="flex flex-col items-center text-center gap-1.5 sm:gap-2 pb-4 sm:pb-6 lg:pb-8">
+        <Image
+          src="/images/logo/logo-4.png"
+          alt="Moderate Logo"
+          width={45}
+          height={45}
+          priority
+          className="object-contain select-none"
+        />
+        <h2 className="text-xl sm:text-2xl font-semibold">Moderate</h2>
+        <p className="text-gray-600 text-xs sm:text-sm lg:text-base">
           Teacher Portal System
         </p>
       </div>

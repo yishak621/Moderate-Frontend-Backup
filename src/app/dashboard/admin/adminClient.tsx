@@ -6,12 +6,14 @@ import DashboardNotificationItem from "@/modules/dashboard/admin/DashboardNotifi
 import RevenueChart from "@/modules/dashboard/admin/RevenueChart";
 import DashboardButton from "@/modules/dashboard/DashboardButton";
 import StatsCard from "@/modules/dashboard/StatsCards";
-import { ChevronDown, Download, Megaphone, UserPlus } from "lucide-react";
+import { ChevronDown, Download, Mail, Megaphone, UserPlus } from "lucide-react";
 import { useState } from "react";
 import CreateNewAnnouncementModal from "@/modules/dashboard/admin/modal/announcements/CreateNewAnnouncementModal";
 import { StatsCardProps } from "@/types/statusCardProps";
 import { useAdminOverviewData } from "@/hooks/UseAdminRoutes";
 import { ApiRevenueItem } from "@/types/admin.type";
+import { AnimatePresence, motion } from "framer-motion";
+import AddNewEmailDomainModal from "@/modules/dashboard/admin/modal/emailDomain/AddNewEmailDomainModal";
 
 const notifications = [
   {
@@ -33,9 +35,9 @@ const buttonData = [
     component: AddTeacherModal,
   },
   {
-    icon: <Download width={23} height={23} />,
-    label: "Export Data",
-    component: AddTeacherModal,
+    icon: <Mail width={23} height={23} />,
+    label: "Add New Domain",
+    component: AddNewEmailDomainModal,
   },
   {
     icon: <Megaphone width={23} height={23} />,
@@ -114,6 +116,32 @@ export default function AdminPage() {
   //MODAL STATES
   const [open, setOpen] = useState(false);
   const [ModalComponent, setModalComponent] = useState<React.FC | null>(null);
+  const [selectedYear, setSelectedYear] = useState<number>(2025);
+  const [openDropdown, setOpenDropdown] = useState(false);
+
+  const years = Array.from(
+    { length: new Date().getFullYear() - 2024 },
+    (_, i) => 2025 + i
+  );
+
+  // Function to export data
+  const handleExport = () => {
+    const csvContent =
+      "data:text/csv;charset=utf-8," +
+      ["Month,Total Revenue (USD)"]
+        .concat(
+          revenueChartData.map((d) => `${d.month},${d.totalRevenue.toFixed(2)}`)
+        )
+        .join("\n");
+
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.href = encodedUri;
+    link.download = `revenue_${selectedYear}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
   const handleOpenModal = (Component: React.FC) => {
     setModalComponent(() => Component); // store the component to render
@@ -151,13 +179,55 @@ export default function AdminPage() {
                 </p>
               </div>
 
-              <div className="flex flex-row gap-5 text-[#0C0C0C] text-base font-normal flex-wrap">
-                <button className="flex flex-row gap-1 justify-center items-center rounded-[24.5px] py-3.5 px-4.5 border border-[#DBDBDB]">
-                  Export <Download width={22} height={22} />
+              <div className="relative flex flex-wrap items-center gap-4 text-[#0C0C0C] text-base font-normal">
+                {/* Export Button */}
+                <button
+                  onClick={handleExport}
+                  className="flex flex-row gap-2 items-center cursor-pointer justify-center rounded-[24.5px] py-3.5 px-5 border border-[#DBDBDB] transition-all duration-200 hover:bg-[#F5F5F5] "
+                >
+                  <Download width={20} height={20} />
+                  Export
                 </button>
-                <button className="flex flex-row gap-1 justify-center items-center rounded-[24.5px] py-3.5 px-4.5 border border-[#DBDBDB]">
-                  2025 <ChevronDown width={22} height={22} />
-                </button>
+
+                {/* Year Dropdown */}
+                <div className="relative">
+                  <button
+                    onClick={() => setOpenDropdown(!openDropdown)}
+                    className="flex flex-row gap-2 items-center justify-center rounded-[24.5px] cursor-pointer py-3.5 px-5 border border-[#DBDBDB] transition-all duration-200 hover:bg-[#F5F5F5]"
+                  >
+                    {selectedYear} <ChevronDown width={20} height={20} />
+                  </button>
+
+                  {/* Dropdown Menu */}
+                  <AnimatePresence>
+                    {openDropdown && (
+                      <motion.div
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        transition={{ duration: 0.2 }}
+                        className="absolute z-50 mt-2 w-full  bg-white border border-[#DBDBDB] rounded-xl shadow-md overflow-hidden"
+                      >
+                        {years.map((year) => (
+                          <button
+                            key={year}
+                            onClick={() => {
+                              setSelectedYear(year);
+                              setOpenDropdown(false);
+                            }}
+                            className={`w-full text-left px-5 py-3 text-sm transition-all ${
+                              selectedYear === year
+                                ? "bg-[#0C0C0C] text-white"
+                                : "hover:bg-gray-100"
+                            }`}
+                          >
+                            {year}
+                          </button>
+                        ))}
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
               </div>
             </div>
 

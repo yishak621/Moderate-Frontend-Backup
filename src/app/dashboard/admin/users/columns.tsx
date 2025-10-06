@@ -5,7 +5,7 @@ import type { ComponentType } from "react";
 import ViewUserModal from "@/modules/dashboard/admin/modal/users/ViewUserModal";
 import EditUserModal from "@/modules/dashboard/admin/modal/users/EditUserModal";
 import DeleteUserModal from "@/modules/dashboard/admin/modal/users/DeleteUserModal";
-import SettingsUserModal from "@/modules/dashboard/admin/modal/users/MessageUserModal";
+import MessageUserModal from "@/modules/dashboard/admin/modal/users/MessageUserModal";
 import { User } from "@/app/types/user";
 
 export function getUserColumns(
@@ -98,7 +98,7 @@ export function getUserColumns(
               <Pencil size={16} />
             </button>
             <button
-              onClick={() => handleOpenModal(SettingsUserModal, { user })}
+              onClick={() => handleOpenModal(MessageUserModal, { user })}
               className="p-1 text-gray-500 hover:bg-gray-50 rounded"
             >
               <Mail size={16} />
