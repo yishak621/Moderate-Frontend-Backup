@@ -6,8 +6,10 @@ import { useResetPassword } from "@/hooks/useAuth";
 import { ResetPasswordFormDataTypes } from "@/types/authData.type";
 import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
+import PasswordResetSuccess from "./PasswordResetSuccess";
 
 export default function ResetPasswordForm() {
   const router = useRouter();
@@ -37,14 +39,14 @@ export default function ResetPasswordForm() {
     const resetToken = Array.isArray(params.resetToken)
       ? params.resetToken[0]!
       : params.resetToken!;
-    console.log(resetToken, params.resetToken);
+    console.log(isSuccess, "is success");
     try {
       // Await the login mutation
-      const res = await resetPasswordAsync({ data, resetToken });
+      await resetPasswordAsync({ data, resetToken });
 
       // Show success toast if login succeeded
       if (isSuccess) {
-        toast.success("Registered successfully!");
+        toast.success("Password updated successfully!");
       }
     } catch (err) {
       if (err instanceof Error) {
@@ -56,6 +58,11 @@ export default function ResetPasswordForm() {
       }
     }
   };
+
+  if (isSuccess) {
+    return <PasswordResetSuccess />;
+  }
+
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
