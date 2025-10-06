@@ -60,26 +60,26 @@ export default function DashboardShell({
   const [search, setSearch] = useState(initialSearch);
   const debounceTimerRef = useRef<number | null>(null);
 
-  const [theme] = useState<"light" | "dark">(() => {
-    if (typeof window === "undefined") return "light";
-    const stored = window.localStorage.getItem("theme");
-    if (stored === "light" || stored === "dark") return stored;
-    const prefersDark =
-      window.matchMedia &&
-      window.matchMedia("(prefers-color-scheme: dark)").matches;
-    return prefersDark ? "dark" : "light";
-  });
+  // const [theme] = useState<"light" | "dark">(() => {
+  //   if (typeof window === "undefined") return "light";
+  //   const stored = window.localStorage.getItem("theme");
+  //   if (stored === "light" || stored === "dark") return stored;
+  //   const prefersDark =
+  //     window.matchMedia &&
+  //     window.matchMedia("(prefers-color-scheme: dark)").matches;
+  //   return prefersDark ? "dark" : "light";
+  // });
 
-  useLayoutEffect(() => {
-    const root = document.documentElement;
-    if (theme === "dark") {
-      root.classList.add("dark");
-    } else {
-      root.classList.remove("dark");
-    }
-    window.localStorage.setItem("theme", theme);
-    root.style.colorScheme = theme;
-  }, [theme]);
+  // useLayoutEffect(() => {
+  //   const root = document.documentElement;
+  //   if (theme === "dark") {
+  //     root.classList.add("dark");
+  //   } else {
+  //     root.classList.remove("dark");
+  //   }
+  //   window.localStorage.setItem("theme", theme);
+  //   root.style.colorScheme = theme;
+  // }, [theme]);
 
   useEffect(() => {
     if (!onSearchChange) return;
@@ -117,7 +117,7 @@ export default function DashboardShell({
                   height={26}
                   className="object-contain"
                 />
-                <span className="font-medium text-2xl text-dark">Moderate</span>
+                <span className="font-medium text-2xl ">Moderate</span>
               </div>
               <span className="text-base font-normal text-[#717171]">
                 Management Portal System
@@ -154,7 +154,7 @@ export default function DashboardShell({
                 key={href}
                 href={href}
                 className={clsx(
-                  "text-base font-medium flex items-center gap-3 rounded-[41px] text-dark",
+                  "text-base font-medium flex items-center gap-3 rounded-[41px] ",
                   isExpanded ? "py-5 px-5.5" : "p-5 justify-center",
                   isActive && "bg-[#FDFDFD]"
                 )}

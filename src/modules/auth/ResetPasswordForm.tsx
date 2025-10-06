@@ -62,7 +62,7 @@ export default function ResetPasswordForm() {
     >
       {/* Header */}
       <div className="flex flex-col items-center text-center gap-2 pb-6 sm:pb-4 lg:pb-10">
-        <h2 className="text-2xl font-semibold text-dark">Moderate</h2>
+        <h2 className="text-2xl font-semibold ">Moderate</h2>
         <p className="text-gray-600 text-sm sm:text-base">
           Teacher Portal System
         </p>
