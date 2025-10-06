@@ -6,7 +6,16 @@ import DashboardNotificationItem from "@/modules/dashboard/admin/DashboardNotifi
 import RevenueChart from "@/modules/dashboard/admin/RevenueChart";
 import DashboardButton from "@/modules/dashboard/DashboardButton";
 import StatsCard from "@/modules/dashboard/StatsCards";
-import { ChevronDown, Download, Mail, Megaphone, UserPlus } from "lucide-react";
+import {
+  ChevronDown,
+  Download,
+  FileText,
+  Home,
+  Mail,
+  Megaphone,
+  User,
+  UserPlus,
+} from "lucide-react";
 import { useState } from "react";
 import CreateNewAnnouncementModal from "@/modules/dashboard/admin/modal/announcements/CreateNewAnnouncementModal";
 import { StatsCardProps } from "@/types/statusCardProps";
@@ -97,20 +106,23 @@ export default function AdminPage() {
     {
       title: "Total Teachers",
       count: overview?.totalTeachers,
-      description: "+12% from last month",
+      description: "+12% from last month",
       colored: true,
+      icon: User,
     },
     {
       title: "Active Schools",
       count: overview?.activeSchools,
-      description: "+2 from last month",
+      description: "+2 from last month",
       colored: false,
+      icon: Home,
     },
     {
-      title: "Documents Uploaded",
+      title: "Posts Created",
       count: overview?.postsCreated,
-      description: "+12% from last month",
+      description: "+12% from last month",
       colored: false,
+      icon: FileText,
     },
   ];
   //MODAL STATES
@@ -159,6 +171,8 @@ export default function AdminPage() {
               title={stat.title}
               count={stat.count}
               description={stat.description}
+              colored={stat.colored}
+              icon={stat.icon}
             />
           );
         })}

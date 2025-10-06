@@ -7,19 +7,21 @@ import Button from "@/components/ui/Button";
 import { getAnnouncementColumns } from "./columns";
 import Modal from "@/components/ui/Modal";
 
-import { Loader, Plus, UserPlus } from "lucide-react";
+import {
+  CheckCircle,
+  Eye,
+  Plus,
+  UserPlus,
+  Megaphone,
+  Loader,
+} from "lucide-react";
 import AddTeacherModal from "@/modules/dashboard/admin/modal/AddTeacherModal";
 import { useEffect, useState } from "react";
 import type { ComponentType } from "react";
 import { Announcement } from "@/app/types/announcement";
 import CreateNewAnnouncementModal from "@/modules/dashboard/admin/modal/announcements/CreateNewAnnouncementModal";
 import { useAdminAllAnnouncementsData } from "@/hooks/UseAdminRoutes";
-
-type StatsCardProps = {
-  title: string;
-  count: number;
-  description?: string;
-};
+import { StatsCardProps } from "@/types/statusCardProps";
 
 export default function AnnouncementClient() {
   const [open, setOpen] = useState(false);
@@ -58,15 +60,11 @@ export default function AnnouncementClient() {
     {
       title: "Total Announcement",
       count: totalAnnouncements,
+      colored: true,
+      icon: Megaphone,
     },
-    {
-      title: "Published",
-      count: publishedAnnouncements,
-    },
-    {
-      title: "Total Views",
-      count: 1847,
-    },
+    { title: "Published", count: publishedAnnouncements, icon: CheckCircle },
+    { title: "Total Views", count: 1847, icon: Eye },
   ];
 
   useEffect(() => {
@@ -84,6 +82,8 @@ export default function AnnouncementClient() {
               title={stat.title}
               count={stat.count}
               description={stat?.description}
+              colored={stat?.colored}
+              icon={stat?.icon}
             />
           );
         })}

@@ -7,7 +7,15 @@ import Button from "@/components/ui/Button";
 import { getAnnouncementColumns } from "./columns";
 import Modal from "@/components/ui/Modal";
 
-import { Plus, Send, UserPlus } from "lucide-react";
+import {
+  Inbox,
+  Plus,
+  Send,
+  UserPlus,
+  RefreshCw,
+  CheckCircle,
+  Ticket,
+} from "lucide-react";
 import { useState } from "react";
 import type { ComponentType } from "react";
 import { Announcement } from "@/app/types/announcement";
@@ -15,34 +23,13 @@ import SearchInput from "@/components/ui/SearchInput";
 import { CustomMultiSelect } from "@/components/ui/MultiSelectInput";
 import { Support } from "@/app/types/support";
 import SupportMessageModal from "@/modules/dashboard/admin/modal/support/SupportMessageModal";
-
-type StatsCardProps = {
-  title: string;
-  count: number;
-  description: string;
-};
+import { StatsCardProps } from "@/types/statusCardProps";
 
 const statsData: StatsCardProps[] = [
-  {
-    title: "Total Tickets",
-    count: 243,
-    description: "",
-  },
-  {
-    title: "Open",
-    count: 45,
-    description: "",
-  },
-  {
-    title: "In Progress",
-    count: 1847,
-    description: "",
-  },
-  {
-    title: "Resolved",
-    count: 1847,
-    description: "",
-  },
+  { title: "Total Tickets", count: 243, colored: true, icon: Ticket },
+  { title: "Open", count: 45, icon: Inbox },
+  { title: "In Progress", count: 1847, icon: RefreshCw },
+  { title: "Resolved", count: 1847, icon: CheckCircle },
 ];
 
 export const sampleData: Support[] = [
@@ -141,6 +128,8 @@ export default function SupportClient() {
               title={stat.title}
               count={stat.count}
               description={stat.description}
+              colored={stat.colored}
+              icon={stat.icon}
             />
           );
         })}
