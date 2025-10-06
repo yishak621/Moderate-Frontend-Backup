@@ -6,17 +6,7 @@ import DashboardNotificationItem from "@/modules/dashboard/admin/DashboardNotifi
 import RevenueChart from "@/modules/dashboard/admin/RevenueChart";
 import DashboardButton from "@/modules/dashboard/DashboardButton";
 import StatsCard from "@/modules/dashboard/StatsCards";
-import {
-  ArrowBigDown,
-  ArrowDown,
-  ArrowDown01,
-  ChevronDown,
-  Circle,
-  Download,
-  Megaphone,
-  Settings,
-  UserPlus,
-} from "lucide-react";
+import { ChevronDown, Download, Megaphone, UserPlus } from "lucide-react";
 import { useState } from "react";
 import CreateNewAnnouncementModal from "@/modules/dashboard/admin/modal/announcements/CreateNewAnnouncementModal";
 import { StatsCardProps } from "@/types/statusCardProps";
@@ -52,21 +42,10 @@ const buttonData = [
     label: "Create Announcement",
     component: CreateNewAnnouncementModal,
   },
-  {
-    icon: <Settings width={23} height={23} />,
-    label: "Settings",
-    component: AddTeacherModal,
-  },
 ];
 //--------------------------OVERVIEW DASHBOARD
 export default function AdminPage() {
-  const {
-    overview,
-    isLoading: isOverviewLoading,
-    isSuccess: isOverviewSuccess,
-    isError: isOverviewError,
-    error: overviewError,
-  } = useAdminOverviewData();
+  const { overview } = useAdminOverviewData();
   // Map revenueByMonth to chart-friendly format
   const months = [
     "Jan",
@@ -97,7 +76,7 @@ export default function AdminPage() {
   const revenueChartData: ApiRevenueItem[] = months.map((month, idx) => {
     // Find revenue for this month
     const revenueEntry = overview?.revenueByMonth.find(
-      (item) => new Date(item.month).getMonth() === idx
+      (item: any) => new Date(item.month).getMonth() === idx
     );
     return {
       month,

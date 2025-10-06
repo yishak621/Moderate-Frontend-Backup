@@ -79,7 +79,7 @@ export default function ViewUserModal({ user }: { user: User }) {
         <div className="flex flex-col">
           <span className="text-gray-500 text-sm">Account Created</span>
           <span className="text-sm mt-1">
-            {new Date(user.createdAt).toLocaleDateString()}
+            {user.createdAt ? new Date(user.createdAt).toLocaleDateString() : "no date"}
           </span>
         </div>
       </div>

@@ -24,7 +24,7 @@ export interface Upload {
 }
 
 export interface User {
-  id: string;
+  id?: string;
   name: string;
   email: string;
   emailDomain?: string;
@@ -43,8 +43,8 @@ export interface User {
   lastSeen?: string | null;
   verificationStatus?: "active" | "suspended" | "inactive";
   resetTokenExpiry?: string | null;
-  createdAt: string;
-  updatedAt: string;
+  createdAt?: string;
+  updatedAt?: string;
   domains?: Domain[];
   uploads?: Upload[];
 }

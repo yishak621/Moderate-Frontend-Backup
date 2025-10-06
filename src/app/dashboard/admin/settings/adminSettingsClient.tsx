@@ -8,9 +8,10 @@ import { Globe, Shield } from "lucide-react";
 
 export default function AdminSettingClient() {
   const siteName = "Moderate Tech";
-  const handleToggleChange = (value: Record<string, boolean>) => {
-    console.log(value);
-    // Example: { registration: true }
+  const handleToggleChange = (value: boolean, field?: string) => {
+    if (!field) return;
+    console.log({ [field]: value });
+    // Example output: { registration: true }
   };
 
   return (

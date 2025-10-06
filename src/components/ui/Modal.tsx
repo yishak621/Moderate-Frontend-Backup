@@ -89,10 +89,13 @@ Modal.Trigger = function Trigger({ children }: { children: ReactNode }) {
   const ctx = useModal();
 
   if (React.isValidElement(children)) {
-    const existingOnClick = children.props.onClick! as
-      | ((e: React.MouseEvent) => void)
-      | undefined;
-    return cloneElement(children, {
+    const child = children as React.ReactElement<{
+      onClick?: (e: React.MouseEvent) => void;
+    }>;
+
+    const existingOnClick = child.props.onClick;
+
+    return cloneElement(child, {
       onClick: (e: React.MouseEvent) => {
         existingOnClick?.(e);
         ctx.setOpen(true);
@@ -192,7 +195,10 @@ Modal.Content = function Content({
         }}
         className="fixed inset-0 z-50 flex items-center justify-center px-4 sm:px-6"
       >
-        <div className="absolute inset-0 bg-black/45 backdrop-blur-sm transition-opacity duration-300" />
+        <div
+          onClick={() => ctx.close()}
+          className="absolute inset-0 bg-black/45 backdrop-blur-sm transition-opacity duration-300"
+        />
 
         <div
           role="dialog"
@@ -214,16 +220,19 @@ Modal.Close = function Close({
   children,
   className = "",
 }: {
-  children?: ReactNode;
+  children?: React.ReactNode;
   className?: string;
 }) {
   const ctx = useModal();
 
+  // Handle children that are React elements
   if (children && React.isValidElement(children)) {
-    const existingOnClick = children.props.onClick as
-      | ((e: React.MouseEvent) => void)
-      | undefined;
-    return cloneElement(children, {
+    const child = children as React.ReactElement<{
+      onClick?: (e: React.MouseEvent) => void;
+    }>;
+    const existingOnClick = child.props.onClick;
+
+    return cloneElement(child, {
       onClick: (e: React.MouseEvent) => {
         existingOnClick?.(e);
         ctx.close();
@@ -231,6 +240,7 @@ Modal.Close = function Close({
     });
   }
 
+  // Default button if no children passed
   return (
     <button
       type="button"

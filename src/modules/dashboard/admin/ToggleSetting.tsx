@@ -5,9 +5,9 @@ import { useState } from "react";
 interface ToggleSettingProps {
   title: string;
   description: string;
-  field?: string; // optional if you don’t need a name
+  field?: string;
   defaultValue?: boolean;
-  onChange: (value: boolean, field?: string) => void; // return clean boolean
+  onChange: (value: boolean, field?: string) => void; // ✅ fixed type
 }
 
 const ToggleSetting: React.FC<ToggleSettingProps> = ({
@@ -22,7 +22,7 @@ const ToggleSetting: React.FC<ToggleSettingProps> = ({
   const handleToggle = () => {
     const newValue = !enabled;
     setEnabled(newValue);
-    onChange(newValue, field); // pass just boolean + field if needed
+    onChange(newValue, field); // ✅ matches (boolean, field?)
   };
 
   return (

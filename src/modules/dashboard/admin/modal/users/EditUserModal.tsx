@@ -46,7 +46,7 @@ export default function EditUserModal({ user }: { user: User }) {
     isEditingDataSuccess,
     isEditingDataError,
     editingDataError,
-  } = useAdminUserEditData(user.id);
+  } = useAdminUserEditData(user?.id ?? "");
 
   if (!user) return null;
 

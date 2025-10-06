@@ -3,13 +3,32 @@ import { useModal } from "@/components/ui/Modal";
 import { X } from "lucide-react";
 import Button from "@/components/ui/Button";
 import { Announcement } from "@/app/types/announcement";
+import { useEffect } from "react";
+import toast from "react-hot-toast";
+import { useAdminAnnouncementDeleteData } from "@/hooks/UseAdminRoutes";
 
 export default function DeleteAnnouncementModal({
   announcement,
 }: {
   announcement: Announcement;
 }) {
+  const {
+    deleteAnnouncement,
+    deleteAnnouncementAsync,
+    data,
+    isDeletingAnnouncementLoading,
+    isDeletingAnnouncementSuccess,
+    isDeletingAnnouncementError,
+    deletingAnnouncementError,
+  } = useAdminAnnouncementDeleteData(announcement?.id ?? "");
   const { close } = useModal();
+
+  useEffect(() => {
+    if (isDeletingAnnouncementSuccess) {
+      toast.success("User deleted successfully");
+      close();
+    }
+  }, [isDeletingAnnouncementSuccess, close]);
 
   return (
     <div className=" bg-[#FDFDFD] min-w-[551px] p-10 rounded-[27px] flex flex-col">
@@ -35,9 +54,43 @@ export default function DeleteAnnouncementModal({
         </div>
         <div className="w-2/3">
           {" "}
-          <Button className="w-full" variant="red">
-            Delete Announcement
-          </Button>
+          <Button
+            variant="red"
+            className={`justify-center  text-base cursor-pointer w-full transition 
+        ${isDeletingAnnouncementLoading && "opacity-70 cursor-not-allowed"}`}
+            disabled={isDeletingAnnouncementLoading}
+            onClick={() => {
+              deleteAnnouncementAsync();
+            }}
+          >
+            {isDeletingAnnouncementLoading ? (
+              <>
+                <svg
+                  className="h-5 w-5 animate-spin text-white"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  ></circle>
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8v4l3-3-3-3v4a12 12 0 00-12 12h4z"
+                  ></path>
+                </svg>
+                Deleting...
+              </>
+            ) : (
+              "Delete Announcement"
+            )}
+          </Button>{" "}
         </div>
       </div>
     </div>

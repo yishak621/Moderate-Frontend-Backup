@@ -1,5 +1,10 @@
 "use client";
-import { AnnouncementBoxProps } from "@/types/announcement.type";
+import { Announcement } from "@/app/types/announcement";
+
+export interface AnnouncementBoxProps {
+  announcement: Announcement;
+  onClick?: () => void;
+}
 
 export default function AnnouncementBox({
   announcement,
@@ -22,10 +27,10 @@ export default function AnnouncementBox({
             </p>
           </div>
           <span className="pl-[14px] text-[13px] font-normal text-[#717171]">
-            {createdAt}
+            {createdAt ? new Date(createdAt).toLocaleDateString() : "No Date"}
           </span>
         </div>
-        <AnnouncementPriority priority={priority} />
+        <AnnouncementPriority priority={priority!} />
       </div>
 
       {/* Preview content */}

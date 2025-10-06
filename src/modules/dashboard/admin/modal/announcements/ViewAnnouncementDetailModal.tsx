@@ -103,7 +103,7 @@ export default function ViewAnnouncementDetailModal({
           Target Domains
         </h3>
         <div className="flex flex-wrap gap-2">
-          {data.domains.map((d: Domain) => (
+          {data?.domains?.map((d: Domain) => (
             <span
               key={d.id}
               className="px-4 py-1.5 text-sm bg-gray-100 text-gray-700 rounded-full border border-gray-200"

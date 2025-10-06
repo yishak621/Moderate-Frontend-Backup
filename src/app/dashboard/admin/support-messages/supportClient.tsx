@@ -54,7 +54,6 @@ export const sampleData: Support[] = [
       email: "zara@asdas.com",
       name: "Alice Johnson",
       role: "Student",
-      status: "Active",
     },
     type: "System",
     status: "Opened",
@@ -71,7 +70,6 @@ export const sampleData: Support[] = [
 
       name: "Mark Thompson",
       role: "Teacher",
-      status: "Active",
     },
     type: "Feature",
     status: "In_progress",
@@ -88,7 +86,6 @@ export const sampleData: Support[] = [
 
       name: "Sophia Lee",
       role: "Admin",
-      status: "Active",
     },
     type: "General",
     status: "Resolved",

@@ -74,7 +74,7 @@ export default function EditAnnouncementModal({
     isEditingAnnouncementLoading,
     isEditingAnnouncementSuccess,
     isEditingAnnouncementError,
-  } = useAdminAnnouncementEditData(announcement?.id);
+  } = useAdminAnnouncementEditData(announcement?.id ?? "");
 
   if (!announcement) return null;
 
@@ -167,8 +167,8 @@ export default function EditAnnouncementModal({
                 <CustomSelect
                   options={priorityOptions}
                   defaultValue={{
-                    label: announcement?.priority,
-                    value: announcement?.priority,
+                    label: announcement?.priority || "",
+                    value: announcement?.priority || "",
                   }}
                   placeholder="Select Priority"
                   onChange={field.onChange}

@@ -14,7 +14,7 @@ export default function DeleteUserModal({ user }: { user: User }) {
     isDeletingUserDataSuccess,
     isDeletingUserDataError,
     deletingUserDataError,
-  } = useAdminUserDeleteData(user.id);
+  } = useAdminUserDeleteData(user?.id ?? "");
   const { close } = useModal();
 
   useEffect(() => {
@@ -51,7 +51,6 @@ export default function DeleteUserModal({ user }: { user: User }) {
         </div>
         <div className="w-2/3">
           {" "}
-        
           <Button
             variant="red"
             className={`justify-center  text-base cursor-pointer w-full transition 

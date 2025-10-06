@@ -57,7 +57,7 @@ export function useAdminUsersData(
   const [debouncedSearch, setDebouncedSearch] = useState(search || "");
 
   useEffect(() => {
-    const handler = setTimeout(() => setDebouncedSearch(search || ""), 2000);
+    const handler = setTimeout(() => setDebouncedSearch(search || ""), 1000);
     return () => clearTimeout(handler);
   }, [search]);
 

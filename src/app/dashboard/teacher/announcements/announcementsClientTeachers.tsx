@@ -1,66 +1,68 @@
 "use client";
 
+import { Announcement } from "@/app/types/announcement";
 import AnnouncementBox, {
   AnnouncementPriority,
 } from "@/modules/dashboard/teacher/AnnouncementsBox";
-import { Announcement } from "@/types/announcement.type";
 import { useState } from "react";
 
 const sampleAnnounc = [
   {
-    id: 1,
+    id: "asda",
     title: "Admin Dashboard Testing",
     content:
       "The admin dashboard and authentication features will be ready for testing by Monday next week.",
     createdAt: "2025-09-29",
     author: "Yishak",
-    priority: "HIGH",
+    priority: "High",
     circleColor: "yellow-500",
   },
   {
-    id: 2,
+    id: "dasa",
     title: "New Registration Flow",
     content:
       "We will add support for unrecognised email domains, allowing schools to register themselves and enable teachers to create accounts afterwards.",
     createdAt: "2025-10-05",
     author: "Yishak",
-    priority: "HIGH",
+    priority: "High",
     circleColor: "yellow-500",
   },
   {
-    id: 3,
+    id: "dasad",
     title: "Figma Design Updates",
     content:
       "The attached designs from Rares have been forwarded to the Figma designer. UI updates will align with the new visuals.",
     createdAt: "2025-09-25",
     author: "Yishak",
-    priority: "HIGH",
+    priority: "High",
     circleColor: "yellow-500",
   },
   {
-    id: 4,
+    id: "dasad",
     title: "Upcoming Features",
     content:
       "After completing the current development, we will integrate the new registration process, favourite uploads, and grading scale improvements.",
     createdAt: "2025-10-12",
     author: "Yishak",
-    priority: "HIGH",
+    priority: "High",
     circleColor: "yellow-500",
   },
   {
-    id: 5,
+    id: "dsaads",
     title: "System Improvements",
     content:
       "Enhancements for user experience, including better error handling during registration and new profile features, are planned for the next release cycle.",
     createdAt: "2025-10-15",
     author: "Yishak",
-    priority: "MEDIUM",
+    priority: "Medium",
     circleColor: "yellow-500",
   },
 ];
 
 export default function AnnouncementsClientTeachers() {
   const [selected, setSelected] = useState<Announcement | null>(null);
+  if (!sampleAnnounc) return null;
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-[35%_65%] gap-4">
       {/* Sidebar */}
@@ -69,11 +71,11 @@ export default function AnnouncementsClientTeachers() {
           Announcement Board
         </h4>
         <div className="flex flex-col gap-5">
-          {sampleAnnounc.map((announcement, idx) => (
+          {sampleAnnounc?.map((announcement, idx) => (
             <AnnouncementBox
               key={idx}
-              announcement={announcement}
-              onClick={() => setSelected(announcement)}
+              announcement={announcement as Announcement}
+              onClick={() => setSelected(announcement as Announcement)}
             />
           ))}
         </div>
@@ -96,11 +98,11 @@ export default function AnnouncementsClientTeachers() {
                       {selected.title}
                     </p>
                   </div>
-                  <span className="pl-[14px] text-[13px] font-normal text-[#717171]">
-                    {selected.createdAt}
-                  </span>
+                  {/* <span className="pl-[14px] text-[13px] font-normal text-[#717171]">
+                    {selected.createdAt!}
+                  </span> */}
                 </div>
-                <AnnouncementPriority priority={selected.priority} />
+                <AnnouncementPriority priority={selected.priority!} />
               </div>
 
               {/* Preview content */}

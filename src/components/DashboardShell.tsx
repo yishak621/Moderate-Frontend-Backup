@@ -19,6 +19,7 @@ import {
   PanelLeftClose,
   PanelLeftOpen,
 } from "lucide-react";
+import Image from "next/image";
 
 // theme icons removed since theme toggle is disabled
 
@@ -107,9 +108,18 @@ export default function DashboardShell({
       >
         <div className="flex items-center justify-between pt-6 2xl:pt-11 p-4 2xl:px-7.5 px-2  ">
           {isExpanded && (
-            <div className=" flex flex-col gap-1">
-              <span className="font-medium text-lg text-dark ">Moderate</span>
-              <span className=" text-base font-normal text-gray">
+            <div className="flex flex-col gap-1 items-start">
+              <div className="flex items-center gap-2">
+                <Image
+                  src="/images/logo/logo-1.png"
+                  alt="Moderate Logo"
+                  width={17}
+                  height={26}
+                  className="object-contain"
+                />
+                <span className="font-medium text-2xl text-dark">Moderate</span>
+              </div>
+              <span className="text-base font-normal text-[#717171]">
                 Management Portal System
               </span>
             </div>
@@ -178,21 +188,6 @@ export default function DashboardShell({
               </Link>
             );
           })}
-
-          {/* 
-              LOG OUT BUTTON
-              */}
-          <div
-            className={clsx(
-              "mt-auto",
-              isExpanded ? "py-5 px-5.5" : "p-5 justify-center",
-              "text-base font-medium text-[#717171] flex flex-row gap-3 cursor-pointer"
-            )}
-          >
-            <LogOut width={22} height={22} />{" "}
-            {isExpanded && <span>Logout</span>}{" "}
-            {/* Made Logout text conditional on sidebar expansion */}
-          </div>
         </nav>
 
         {/* <div className="mt-auto p-3">

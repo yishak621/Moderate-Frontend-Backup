@@ -93,7 +93,7 @@ export function getAnnouncementColumns(
 
         return (
           <div className="flex flex-col gap-1">
-            {domains.map((domain, idx) => {
+            {domains?.map((domain, idx) => {
               return (
                 <span key={idx} className="text-[#0C0C0C] font-normal">
                   {domain?.name}
