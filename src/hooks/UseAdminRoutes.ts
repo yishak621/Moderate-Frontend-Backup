@@ -14,6 +14,7 @@ import {
   getAllAnnouncements,
   getAllCurricularAreas,
   getAllEmailDomains,
+  getAllSiteSettings,
   getAllUsers,
   updateAnnouncment,
   updateCurricularArea,
@@ -529,5 +530,23 @@ export function useAdminAnnouncementDeleteData(id: string) {
     isDeletingAnnouncementSuccess: isSuccess,
     isDeletingAnnouncementError: isError,
     deletingAnnouncementError: error,
+  };
+}
+
+// GET ALL SITE SETTINGS
+export function useAdminAllSiteSettings(page: number) {
+  const query = useQuery({
+    queryKey: ["allSiteSettings", page],
+    queryFn: () => getAllSiteSettings(page),
+    placeholderData: (prev) => prev,
+    staleTime: 5 * 60 * 1000,
+  });
+
+  return {
+    allSiteSettings: query.data,
+    isSiteSettingsLoading: query.isPending,
+    isSiteSettingsSuccess: query.isSuccess,
+    isSiteSettingsError: query.isError,
+    allSiteSettingsError: query.error,
   };
 }

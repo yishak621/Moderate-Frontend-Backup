@@ -4,17 +4,36 @@ import SectionHeader from "@/components/SectionHeader";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
 import Textarea from "@/components/ui/Textarea";
+import { useAdminAllSiteSettings } from "@/hooks/UseAdminRoutes";
 import AdminPaymentSetting from "@/modules/dashboard/admin/AdminPaymentSetting";
 import ToggleSetting from "@/modules/dashboard/admin/ToggleSetting";
+import { Setting } from "@/types/admin.type";
 import { Globe, Settings, Shield } from "lucide-react";
+import { useState } from "react";
 
 export default function AdminSettingClient() {
-  const siteName = "Moderate Tech";
+  // const siteName = "Moderate Tech";
+  const [page, setPage] = useState(1);
   const handleToggleChange = (value: boolean, field?: string) => {
     if (!field) return;
     console.log({ [field]: value });
     // Example output: { registration: true }
   };
+  const {
+    allSiteSettings,
+    isSiteSettingsLoading,
+    isSiteSettingsSuccess,
+    allSiteSettingsError,
+  } = useAdminAllSiteSettings(page);
+
+  const siteName = allSiteSettings?.settings.find(
+    (setting: Setting) => setting.key === "site-name"
+  );
+  const sitedescription = allSiteSettings?.settings.find(
+    (setting: Setting) => setting.key === "site-description"
+  );
+
+  console.log(siteName, sitedescription, "all");
 
   return (
     <div className=" flex flex-col gap-5">
@@ -27,13 +46,28 @@ export default function AdminSettingClient() {
             subheader="Basic platform configuration and branding"
           />
           <div className="mt-6 xl:mt-10">
-            <Input type="text" placeholder="Site Name" label="Site Name" />
+            <Input
+              type="text"
+              placeholder="Site Name"
+              label="Site Name"
+              defaultValue={siteName?.value[0]}
+            />
           </div>
           <div className="mt-6 xl:mt-10">
-            <Textarea placeholder="Site Description" label="Site Description" />
+            <Textarea
+              placeholder="Site Description"
+              label="Site Description"
+              defaultValue={sitedescription?.value[0]}
+            />
           </div>
-          <div className=" self-end mt-2.5">
-            <Button>Save Changes</Button>
+
+          <div className=" flex flex-row self-end gap-2">
+            <div className="  mt-2.5">
+              <Button variant="secondary">Add New Setting</Button>
+            </div>
+            <div className="  mt-2.5">
+              <Button>Save Changes</Button>
+            </div>
           </div>
         </div>
       </div>

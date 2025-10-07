@@ -35,7 +35,6 @@ export default function LoginForm() {
       const res = await loginAsync(data);
     } catch (err) {
       if (err instanceof Error) {
-        console.error(err.message);
         toast.error(err.message);
       } else {
         console.error("Unknown error", err);

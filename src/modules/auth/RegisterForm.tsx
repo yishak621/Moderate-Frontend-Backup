@@ -72,8 +72,8 @@ export default function RegisterForm() {
         console.error(err.message);
         toast.error(err.message);
       } else {
-        console.error("Unknown error", err);
-        toast.error("Something went wrong");
+        console.error("Unknown error", signupError?.message);
+        toast.error(signupError?.message || "Something went wrong");
       }
     }
   };
@@ -86,6 +86,8 @@ export default function RegisterForm() {
 
   useEffect(() => {
     if (isError && signupError instanceof Error) {
+      console.log("Unknown error", signupError);
+
       toast.error(signupError.message);
     }
   }, [signupError, isError]);

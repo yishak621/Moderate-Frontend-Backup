@@ -24,7 +24,7 @@ export default function LoginScreen() {
           {/* Brand Image (responsive, constrained by parent) */}
           <div className="flex justify-center items-center">
             <Image
-              src="/images/logo/logo-2.png"
+              src="/images/logo/sassas.png"
               alt="Brand"
               width={320}
               height={320}
