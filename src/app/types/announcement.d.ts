@@ -9,7 +9,7 @@ export interface Announcement {
   content?: string;
   type?: string[];
   priority?: Priority;
-  domainIDs?: string;
+  domainIDs?: string[];
   domains?: Domain[];
   status?: AnnouncementStatus | string;
   views?: number;

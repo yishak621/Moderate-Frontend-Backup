@@ -51,7 +51,7 @@ export function getAnnouncementColumns(
           Report: "bg-orange-100 text-orange-700",
         };
         return (
-          <div className="flex flex-col gap-1 items-center justify-center">
+          <div className="flex flex-col gap-1 items-start">
             {type.map((t, idx) => {
               return (
                 <span

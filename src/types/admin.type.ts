@@ -4,10 +4,12 @@ export interface ApiRevenueItem {
   totalRevenue: number;
 }
 
-export type Setting = {
-  id: string;
+export interface Setting  {
+  id?: string;
   key: string;
-  value: string[]; // array of strings
-  createdAt: string; // ISO date string
-  updatedAt: string; // ISO date string
+  value: string[]; 
+  category?: string; 
+  description?: string; 
+  createdAt?: string; 
+  updatedAt?: string; 
 };

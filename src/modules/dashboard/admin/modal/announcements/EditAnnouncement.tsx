@@ -142,13 +142,14 @@ export default function EditAnnouncementModal({
             <Controller
               name="type"
               control={control}
+              defaultValue={announcement?.type || []}
               render={({ field }) => (
                 <CustomMultiSelect
                   options={typeOptions}
-                  defaultValue={
-                    announcement?.type?.map((t) => ({ value: t, label: t })) ||
-                    []
-                  }
+                  defaultValue={announcement?.type?.map((t) => ({
+                    value: t,
+                    label: t,
+                  }))}
                   onChange={field.onChange}
                   placeholder="System , Report .."
                 />
@@ -163,6 +164,7 @@ export default function EditAnnouncementModal({
             <Controller
               name="priority"
               control={control}
+              defaultValue={announcement?.priority}
               render={({ field }) => (
                 <CustomSelect
                   options={priorityOptions}
@@ -226,6 +228,7 @@ export default function EditAnnouncementModal({
           <Controller
             name="domainIDs"
             control={control}
+            defaultValue={announcement?.domains?.map((d) => d.id) || [] } //sync to rhf
             render={({ field }) => (
               <CustomMultiSelect
                 options={optionsSubjectDomains}

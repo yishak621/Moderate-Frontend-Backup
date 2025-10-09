@@ -5,10 +5,12 @@ import {
   createNewAnnouncement,
   createNewCurricularArea,
   createNewEmailDomain,
+  createNewSetting,
   createNewUser,
   deleteAnnouncment,
   deleteCurricularArea,
   deleteEmailDomain,
+  deleteSiteSetting,
   deleteUserData,
   editUserData,
   getAllAnnouncements,
@@ -19,6 +21,7 @@ import {
   updateAnnouncment,
   updateCurricularArea,
   updateEmailDomain,
+  updateSiteSetting,
   viewUserData,
 } from "@/services/admin.service";
 
@@ -29,6 +32,7 @@ import { SignupFormDataTypes } from "@/types/authData.type";
 import { Curricular } from "@/app/types/curricular";
 import { AllowedEmailDomainAttributes } from "@/types/typeLog";
 import { Announcement } from "@/app/types/announcement";
+import { Setting } from "@/types/admin.type";
 
 //ADMIN OVERVIEW STAT DATA
 export function useAdminOverviewData() {
@@ -550,3 +554,75 @@ export function useAdminAllSiteSettings(page: number) {
     allSiteSettingsError: query.error,
   };
 }
+
+//ADMIN SETTING CREATE DATA
+export const useAdminSettingCreateData = () => {
+  const { mutate, mutateAsync, data, isPending, isSuccess, isError, error } =
+    useMutation({
+      mutationFn: (data: Setting) => createNewSetting(data),
+      onSuccess: () => {
+        queryClient.invalidateQueries({
+          queryKey: ["allSiteSettings"],
+          exact: false,
+        });
+      },
+    });
+
+  return {
+    createSetting: mutate,
+    createSettingAsync: mutateAsync,
+    data,
+    isCreatingSettingLoading: isPending,
+    isCreatingSettingSuccess: isSuccess,
+    isCreatingSettingError: isError,
+    creatingSettingError: error,
+  };
+};
+
+//ADMIN SITE SETTINGS EDIT DATA
+export const useAdminUpdateSiteSetting = (key: string) => {
+  const { mutate, mutateAsync, data, isPending, isSuccess, isError, error } =
+    useMutation({
+      mutationFn: (data: string[]) => updateSiteSetting(key, data),
+      onSuccess: () => {
+        queryClient.invalidateQueries({
+          queryKey: ["allSiteSettings"],
+          exact: false,
+        });
+      },
+    });
+
+  return {
+    editSiteSetting: mutate,
+    editSiteSettingAsync: mutateAsync,
+    data,
+    isEditingSiteSettingLoading: isPending,
+    isEditingSiteSettingSuccess: isSuccess,
+    isEditingSiteSettingError: isError,
+    editingSiteSettingError: error,
+  };
+};
+
+//ADMIN SITE SETTINGS EDIT DATA
+export const useAdminDeleteSiteSetting = (key: string) => {
+  const { mutate, mutateAsync, data, isPending, isSuccess, isError, error } =
+    useMutation({
+      mutationFn: () => deleteSiteSetting(key),
+      onSuccess: () => {
+        queryClient.invalidateQueries({
+          queryKey: ["allSiteSettings"],
+          exact: false,
+        });
+      },
+    });
+
+  return {
+    deleteSiteSetting: mutate,
+    deleteSiteSettingAsync: mutateAsync,
+    data,
+    isDeleteSiteSettingLoading: isPending,
+    isDeleteSiteSettingSuccess: isSuccess,
+    isDeleteSiteSettingError: isError,
+    deletingSiteSettingError: error,
+  };
+};

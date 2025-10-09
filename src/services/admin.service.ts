@@ -5,6 +5,7 @@ import { SignupFormDataTypes } from "@/types/authData.type";
 import { Curricular } from "@/app/types/curricular";
 import { AllowedEmailDomainAttributes } from "@/types/typeLog";
 import { Announcement } from "@/app/types/announcement";
+import { Setting } from "@/types/admin.type";
 
 //-------------------ADMIN ONLY ROUTES
 export const AdminOverview = async () => {
@@ -497,10 +498,90 @@ export const deleteAnnouncment = async (id: string) => {
   }
 };
 
-//-------------------GET ALL ANNOUNCEMENTS
+//-------------------GET ALL SITE SETTINGS
 export const getAllSiteSettings = async (page: number) => {
   try {
     const res = await axiosInstance.get(`/api/system/platform`);
+
+    if (!res) {
+      console.log("error");
+    }
+
+    return res.data;
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error(error);
+      throw new Error(
+        // @ts-expect-error: might be Axios error with response
+        error?.response?.data?.message ||
+          error.message ||
+          "Something went wrong"
+      );
+    } else {
+      console.error("Unknown error", error);
+      throw new Error("Something went wrong");
+    }
+  }
+};
+
+//-------------------CREATE NEW SETTING
+export const createNewSetting = async (data: Setting) => {
+  try {
+    const res = await axiosInstance.post(`/api/system/platform`, data);
+
+    if (!res) {
+      console.log("error");
+    }
+
+    return res.data;
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error(error);
+      throw new Error(
+        // @ts-expect-error: might be Axios error with response
+        error?.response?.data?.message ||
+          error.message ||
+          "Something went wrong"
+      );
+    } else {
+      console.error("Unknown error", error);
+      throw new Error("Something went wrong");
+    }
+  }
+};
+
+//-------------------UPDATE SITE SETTINGS
+export const updateSiteSetting = async (key: string, data: string[]) => {
+  try {
+    const res = await axiosInstance.patch(`/api/system/platform/${key}`, {
+      value: data,
+    });
+
+    if (!res) {
+      console.log("error");
+    }
+
+    return res.data;
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error(error);
+      throw new Error(
+        // @ts-expect-error: might be Axios error with response
+        error?.response?.data?.message ||
+          error.message ||
+          "Something went wrong"
+      );
+    } else {
+      console.error("Unknown error", error);
+      throw new Error("Something went wrong");
+    }
+  }
+};
+
+//-------------------DELETE SITE SETTING
+export const deleteSiteSetting = async (key: string) => {
+  try {
+    const res = await axiosInstance.delete(`/api/system/platform/${key}`);
 
     if (!res) {
       console.log("error");
