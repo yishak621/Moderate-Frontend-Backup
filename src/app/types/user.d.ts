@@ -27,6 +27,8 @@ export interface User {
   id?: string;
   name: string;
   email: string;
+  password?: string;
+  confirmPassword?: string;
   emailDomain?: string;
   role?: string;
   isVerified?: boolean;
@@ -47,4 +49,9 @@ export interface User {
   updatedAt?: string;
   domains?: Domain[];
   uploads?: Upload[];
+}
+
+export interface CustomizedError {
+  message: string;
+  response: any;
 }

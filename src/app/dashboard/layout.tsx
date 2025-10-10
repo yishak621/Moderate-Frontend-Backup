@@ -111,11 +111,16 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const role = getRole() as Role;
+  const profileLink =
+    role === "SYSTEM_ADMIN"
+      ? "/dashboard/admin/profile"
+      : role === "TEACHER"
+      ? "/dashboard/teacher/profile"
+      : "";
 
   const router = useRouter();
   const { user, isLoading, isSuccess, isError, error } = useUserData();
 
-  console.log("user", user);
   const handleLogout = () => {
     removeToken();
     router.push("/auth/login");
@@ -125,7 +130,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
     {
       label: "Profile",
       icon: <User size={22} />,
-      onClick: () => router.push("/profile"),
+      onClick: () => router.push(profileLink),
     },
     // { label: "Settings", onClick: () => router.push("/settings") },
     { label: "Logout", icon: <LogOut size={22} />, onClick: handleLogout },

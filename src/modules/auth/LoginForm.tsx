@@ -5,6 +5,7 @@ import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
 import TextLink from "@/components/ui/Link";
 import { useLogin } from "@/hooks/useAuth";
+import { AxiosError } from "axios";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -50,12 +51,6 @@ export default function LoginForm() {
       router.push("/dashboard/admin");
     }
   }, [isSuccess, user, router]);
-
-  useEffect(() => {
-    if (isError && error instanceof Error) {
-      toast.error(error.message);
-    }
-  }, [error, isError]);
 
   return (
     <form

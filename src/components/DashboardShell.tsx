@@ -120,7 +120,7 @@ export default function DashboardShell({
                 <span className="font-medium text-2xl ">Moderate</span>
               </div>
               <span className="text-base font-normal text-[#717171]">
-                Management Portal System
+                Grade moderation made easy
               </span>
             </div>
           )}

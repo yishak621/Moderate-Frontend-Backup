@@ -111,9 +111,9 @@ export default function ForgotPasswordForm() {
           priority
           className="object-contain select-none"
         />
-        <h2 className="text-xl sm:text-2xl font-semibold">Moderate</h2>
+        <h2 className="text-xl sm:text-2xl font-semibold"> Forgot Password?</h2>
         <p className="text-gray-600 text-xs sm:text-sm lg:text-base">
-          Teacher Portal System
+          No worries, we’ll send you reset instructions
         </p>
       </div>
       {/* Inputs */}

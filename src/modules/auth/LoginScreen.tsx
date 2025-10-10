@@ -18,7 +18,7 @@ export default function LoginScreen() {
               Moderate
             </h4>
             <p className="text-sm sm:text-base lg:text-lg font-normal text-[#F1F1F1]">
-              Management Portal System
+              Grade moderation made easy
             </p>
           </div>
           {/* Brand Image (responsive, constrained by parent) */}
