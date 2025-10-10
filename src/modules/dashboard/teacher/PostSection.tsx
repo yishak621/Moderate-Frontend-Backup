@@ -8,13 +8,13 @@ import PostTags from "./PostTags";
 export default function Post({ post }: { post: PostAttributes }) {
   const {
     id,
-    name_of_post,
+    title,
     description,
-    posted_by,
-    uploaded_at,
-    files,
-    post_tags,
-    post_grade_avg,
+    createdBy,
+    uploadedAt,
+    uploads: files,
+    // post_tags,
+    // post_grade_avg,
   } = post;
 
   const router = useRouter();
@@ -30,9 +30,9 @@ export default function Post({ post }: { post: PostAttributes }) {
         <div className="flex flex-row gap-3 ">
           <div className="mt-4 w-2 h-2 rounded-full bg-[#368FFF]"></div>
           <div className="flex flex-col gap-1 items-start">
-            <p className="font-medium">{name_of_post}</p>
+            <p className="font-medium">{title}</p>
             <p className="text-sm text-gray-500">
-              by {posted_by} • {uploaded_at}
+              by {createdBy} • {uploadedAt}
             </p>
             <p className=" mt-2.5 ">{description}</p>
           </div>
@@ -46,7 +46,7 @@ export default function Post({ post }: { post: PostAttributes }) {
       {/* File previews */}
       <div className="grid grid-cols-2 md:grid-cols-3 gap-3 w-full">
         {files.map((file, idx) => {
-          const ext = file.split(".").pop()?.toLowerCase();
+          const ext = file.fileName.split(".").pop()?.toLowerCase();
 
           if (ext === "pdf") {
             return (
@@ -56,11 +56,13 @@ export default function Post({ post }: { post: PostAttributes }) {
                 className="cursor-pointer border rounded-xl overflow-hidden shadow-sm hover:shadow-md transition bg-gray-50 flex flex-col"
               >
                 <iframe
-                  src={file}
+                  src={file.fileUrl}
                   className="w-full h-32 pointer-events-none"
                   title="PDF Preview"
                 />
-                <p className="p-2 text-xs truncate">{file.split("/").pop()}</p>
+                <p className="p-2 text-xs truncate">
+                  {file.fileName.split("/").pop()}
+                </p>
               </div>
             );
           }
@@ -73,11 +75,13 @@ export default function Post({ post }: { post: PostAttributes }) {
                 className="cursor-pointer border rounded-xl overflow-hidden shadow-sm hover:shadow-md transition bg-gray-50"
               >
                 <img
-                  src={file}
+                  src={file.fileUrl}
                   alt="preview"
                   className="w-full h-32 object-cover"
                 />
-                <p className="p-2 text-xs truncate">{file.split("/").pop()}</p>
+                <p className="p-2 text-xs truncate">
+                  {file.fileName.split("/").pop()}
+                </p>
               </div>
             );
           }
@@ -88,7 +92,7 @@ export default function Post({ post }: { post: PostAttributes }) {
               onClick={handleOpen}
               className="cursor-pointer border rounded-xl p-4 text-center text-sm text-gray-600 bg-gray-100 hover:bg-gray-200 transition"
             >
-              {file.split("/").pop()}
+              {file.fileName.split("/").pop()}
             </div>
           );
         })}
@@ -96,7 +100,7 @@ export default function Post({ post }: { post: PostAttributes }) {
 
       {/* Bottom */}
       <div className="flex flex-row justify-between w-full">
-        <div className="flex flex-row gap-4 items-center">
+        {/* <div className="flex flex-row gap-4 items-center">
           {post_tags.map((tag, idx) => (
             <PostTags
               key={idx}
@@ -105,7 +109,7 @@ export default function Post({ post }: { post: PostAttributes }) {
             />
           ))}
           <p className="text-sm text-gray-600">Avg: {post_grade_avg}</p>
-        </div>
+        </div> */}
       </div>
     </div>
   );

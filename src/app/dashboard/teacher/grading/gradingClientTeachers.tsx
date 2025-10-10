@@ -6,186 +6,196 @@ import Post from "@/modules/dashboard/teacher/PostSection";
 import { PostAttributes } from "@/types/postAttributes";
 import { useState } from "react";
 import { ChevronUp } from "lucide-react";
+import { useUserPostFeeds } from "@/hooks/useUser";
 
-export const samplePosts: PostAttributes[] = [
-  {
-    id: "Dd3f32fhfvg3fvb3f",
-    name_of_post: "1-Introduction to Algorithms",
-    description: "This is a post for grade 8 ..................",
-    posted_by: "Prof. Thomas",
-    uploaded_at: "2025-09-25",
-    files: [
-      "https://arxiv.org/pdf/2111.01147.pdf", // sample CS research paper
-      "https://www.gutenberg.org/files/84/84-pdf.pdf", // Frankenstein (public domain)
-    ],
-    post_tags: ["Algorithms", "CS", "Education"],
-    post_status: "published",
-    post_grade_avg: 4.5,
-  },
-  {
-    id: "Dd3f32fhfvg3fvb3f",
-    name_of_post: "2-Modern Physics Basics",
-    description: "This is a post for grade 8 ..................",
+// export const samplePosts: PostAttributes[] = [
+//   {
+//     id: "Dd3f32fhfvg3fvb3f",
+//     name_of_post: "1-Introduction to Algorithms",
+//     description: "This is a post for grade 8 ..................",
+//     posted_by: "Prof. Thomas",
+//     uploaded_at: "2025-09-25",
+//     files: [
+//       "https://arxiv.org/pdf/2111.01147.pdf", // sample CS research paper
+//       "https://www.gutenberg.org/files/84/84-pdf.pdf", // Frankenstein (public domain)
+//     ],
+//     post_tags: ["Algorithms", "CS", "Education"],
+//     post_status: "published",
+//     post_grade_avg: 4.5,
+//   },
+//   {
+//     id: "Dd3f32fhfvg3fvb3f",
+//     name_of_post: "2-Modern Physics Basics",
+//     description: "This is a post for grade 8 ..................",
 
-    posted_by: "Dr. Einstein",
-    uploaded_at: "2025-09-20",
-    files: [
-      "https://arxiv.org/pdf/quant-ph/0410100.pdf", // quantum mechanics paper
-    ],
-    post_tags: ["Physics", "Quantum", "Education"],
-    post_status: "draft",
-    post_grade_avg: 4.2,
-  },
-  {
-    id: "Dd3f32fhfvg3fvb3f",
-    name_of_post: "3-Public Speaking Guide",
-    description: "This is a post for grade 8 ..................",
+//     posted_by: "Dr. Einstein",
+//     uploaded_at: "2025-09-20",
+//     files: [
+//       "https://arxiv.org/pdf/quant-ph/0410100.pdf", // quantum mechanics paper
+//     ],
+//     post_tags: ["Physics", "Quantum", "Education"],
+//     post_status: "draft",
+//     post_grade_avg: 4.2,
+//   },
+//   {
+//     id: "Dd3f32fhfvg3fvb3f",
+//     name_of_post: "3-Public Speaking Guide",
+//     description: "This is a post for grade 8 ..................",
 
-    posted_by: "Ms. Johnson",
-    uploaded_at: "2025-09-15",
-    files: [
-      "https://www.gutenberg.org/files/16317/16317-pdf.pdf", // Dale Carnegie-like public domain text
-    ],
-    post_tags: ["Soft Skills", "Communication"],
-    post_status: "archived",
-    post_grade_avg: 3.9,
-  },
-  {
-    id: "Dd3f32fhfvg3fvb3f",
-    name_of_post: "4-Introduction to Algorithms",
-    description: "This is a post for grade 8 ..................",
+//     posted_by: "Ms. Johnson",
+//     uploaded_at: "2025-09-15",
+//     files: [
+//       "https://www.gutenberg.org/files/16317/16317-pdf.pdf", // Dale Carnegie-like public domain text
+//     ],
+//     post_tags: ["Soft Skills", "Communication"],
+//     post_status: "archived",
+//     post_grade_avg: 3.9,
+//   },
+//   {
+//     id: "Dd3f32fhfvg3fvb3f",
+//     name_of_post: "4-Introduction to Algorithms",
+//     description: "This is a post for grade 8 ..................",
 
-    posted_by: "Prof. Thomas",
-    uploaded_at: "2025-09-25",
-    files: [
-      "https://arxiv.org/pdf/2111.01147.pdf", // sample CS research paper
-      "https://www.gutenberg.org/files/84/84-pdf.pdf", // Frankenstein (public domain)
-    ],
-    post_tags: ["Algorithms", "CS", "Education"],
-    post_status: "published",
-    post_grade_avg: 4.5,
-  },
-  {
-    id: "Dd3f32fhfvg3fvb3f",
-    name_of_post: "5-Modern Physics Basics",
-    description: "This is a post for grade 8 ..................",
+//     posted_by: "Prof. Thomas",
+//     uploaded_at: "2025-09-25",
+//     files: [
+//       "https://arxiv.org/pdf/2111.01147.pdf", // sample CS research paper
+//       "https://www.gutenberg.org/files/84/84-pdf.pdf", // Frankenstein (public domain)
+//     ],
+//     post_tags: ["Algorithms", "CS", "Education"],
+//     post_status: "published",
+//     post_grade_avg: 4.5,
+//   },
+//   {
+//     id: "Dd3f32fhfvg3fvb3f",
+//     name_of_post: "5-Modern Physics Basics",
+//     description: "This is a post for grade 8 ..................",
 
-    posted_by: "Dr. Einstein",
-    uploaded_at: "2025-09-20",
-    files: [
-      "https://arxiv.org/pdf/quant-ph/0410100.pdf", // quantum mechanics paper
-    ],
-    post_tags: ["Physics", "Quantum", "Education"],
-    post_status: "draft",
-    post_grade_avg: 4.2,
-  },
-  {
-    id: "Dd3f32fhfvg3fvb3f",
-    name_of_post: "6-Public Speaking Guide",
-    description: "This is a post for grade 8 ..................",
+//     posted_by: "Dr. Einstein",
+//     uploaded_at: "2025-09-20",
+//     files: [
+//       "https://arxiv.org/pdf/quant-ph/0410100.pdf", // quantum mechanics paper
+//     ],
+//     post_tags: ["Physics", "Quantum", "Education"],
+//     post_status: "draft",
+//     post_grade_avg: 4.2,
+//   },
+//   {
+//     id: "Dd3f32fhfvg3fvb3f",
+//     name_of_post: "6-Public Speaking Guide",
+//     description: "This is a post for grade 8 ..................",
 
-    posted_by: "Ms. Johnson",
-    uploaded_at: "2025-09-15",
-    files: [
-      "https://www.gutenberg.org/files/16317/16317-pdf.pdf", // Dale Carnegie-like public domain text
-    ],
-    post_tags: ["Soft Skills", "Communication"],
-    post_status: "archived",
-    post_grade_avg: 3.9,
-  },
-  {
-    id: "Dd3f32fhfvg3fvb3f",
-    name_of_post: "7-Introduction to Algorithms",
-    description: "This is a post for grade 8 ..................",
+//     posted_by: "Ms. Johnson",
+//     uploaded_at: "2025-09-15",
+//     files: [
+//       "https://www.gutenberg.org/files/16317/16317-pdf.pdf", // Dale Carnegie-like public domain text
+//     ],
+//     post_tags: ["Soft Skills", "Communication"],
+//     post_status: "archived",
+//     post_grade_avg: 3.9,
+//   },
+//   {
+//     id: "Dd3f32fhfvg3fvb3f",
+//     name_of_post: "7-Introduction to Algorithms",
+//     description: "This is a post for grade 8 ..................",
 
-    posted_by: "Prof. Thomas",
-    uploaded_at: "2025-09-25",
-    files: [
-      "https://arxiv.org/pdf/2111.01147.pdf", // sample CS research paper
-      "https://www.gutenberg.org/files/84/84-pdf.pdf", // Frankenstein (public domain)
-    ],
-    post_tags: ["Algorithms", "CS", "Education"],
-    post_status: "published",
-    post_grade_avg: 4.5,
-  },
-  {
-    id: "Dd3f32fhfvg3fvb3f",
-    name_of_post: "8-Modern Physics Basics",
-    description: "This is a post for grade 8 ..................",
+//     posted_by: "Prof. Thomas",
+//     uploaded_at: "2025-09-25",
+//     files: [
+//       "https://arxiv.org/pdf/2111.01147.pdf", // sample CS research paper
+//       "https://www.gutenberg.org/files/84/84-pdf.pdf", // Frankenstein (public domain)
+//     ],
+//     post_tags: ["Algorithms", "CS", "Education"],
+//     post_status: "published",
+//     post_grade_avg: 4.5,
+//   },
+//   {
+//     id: "Dd3f32fhfvg3fvb3f",
+//     name_of_post: "8-Modern Physics Basics",
+//     description: "This is a post for grade 8 ..................",
 
-    posted_by: "Dr. Einstein",
-    uploaded_at: "2025-09-20",
-    files: [
-      "https://arxiv.org/pdf/quant-ph/0410100.pdf", // quantum mechanics paper
-    ],
-    post_tags: ["Physics", "Quantum", "Education"],
-    post_status: "draft",
-    post_grade_avg: 4.2,
-  },
-  {
-    id: "Dd3f32fhfvg3fvb3f",
-    name_of_post: "9-Public Speaking Guide",
-    description: "This is a post for grade 8 ..................",
+//     posted_by: "Dr. Einstein",
+//     uploaded_at: "2025-09-20",
+//     files: [
+//       "https://arxiv.org/pdf/quant-ph/0410100.pdf", // quantum mechanics paper
+//     ],
+//     post_tags: ["Physics", "Quantum", "Education"],
+//     post_status: "draft",
+//     post_grade_avg: 4.2,
+//   },
+//   {
+//     id: "Dd3f32fhfvg3fvb3f",
+//     name_of_post: "9-Public Speaking Guide",
+//     description: "This is a post for grade 8 ..................",
 
-    posted_by: "Ms. Johnson",
-    uploaded_at: "2025-09-15",
-    files: [
-      "https://www.gutenberg.org/files/16317/16317-pdf.pdf", // Dale Carnegie-like public domain text
-    ],
-    post_tags: ["Soft Skills", "Communication"],
-    post_status: "archived",
-    post_grade_avg: 3.9,
-  },
-  {
-    id: "Dd3f32fhfvg3fvb3f",
-    name_of_post: "10-Introduction to Algorithms",
-    description: "This is a post for grade 8 ..................",
+//     posted_by: "Ms. Johnson",
+//     uploaded_at: "2025-09-15",
+//     files: [
+//       "https://www.gutenberg.org/files/16317/16317-pdf.pdf", // Dale Carnegie-like public domain text
+//     ],
+//     post_tags: ["Soft Skills", "Communication"],
+//     post_status: "archived",
+//     post_grade_avg: 3.9,
+//   },
+//   {
+//     id: "Dd3f32fhfvg3fvb3f",
+//     name_of_post: "10-Introduction to Algorithms",
+//     description: "This is a post for grade 8 ..................",
 
-    posted_by: "Prof. Thomas",
-    uploaded_at: "2025-09-25",
-    files: [
-      "https://arxiv.org/pdf/2111.01147.pdf", // sample CS research paper
-      "https://www.gutenberg.org/files/84/84-pdf.pdf", // Frankenstein (public domain)
-    ],
-    post_tags: ["Algorithms", "CS", "Education"],
-    post_status: "published",
-    post_grade_avg: 4.5,
-  },
-  {
-    id: "Dd3f32fhfvg3fvb3f",
-    name_of_post: "11-Modern Physics Basics",
-    description: "This is a post for grade 8 ..................",
+//     posted_by: "Prof. Thomas",
+//     uploaded_at: "2025-09-25",
+//     files: [
+//       "https://arxiv.org/pdf/2111.01147.pdf", // sample CS research paper
+//       "https://www.gutenberg.org/files/84/84-pdf.pdf", // Frankenstein (public domain)
+//     ],
+//     post_tags: ["Algorithms", "CS", "Education"],
+//     post_status: "published",
+//     post_grade_avg: 4.5,
+//   },
+//   {
+//     id: "Dd3f32fhfvg3fvb3f",
+//     name_of_post: "11-Modern Physics Basics",
+//     description: "This is a post for grade 8 ..................",
 
-    posted_by: "Dr. Einstein",
-    uploaded_at: "2025-09-20",
-    files: [
-      "https://arxiv.org/pdf/quant-ph/0410100.pdf", // quantum mechanics paper
-    ],
-    post_tags: ["Physics", "Quantum", "Education"],
-    post_status: "draft",
-    post_grade_avg: 4.2,
-  },
-  {
-    id: "Dd3f32fhfvg3fvb3f",
-    name_of_post: "12-Public Speaking Guide",
-    description: "This is a post for grade 8 ..................",
+//     posted_by: "Dr. Einstein",
+//     uploaded_at: "2025-09-20",
+//     files: [
+//       "https://arxiv.org/pdf/quant-ph/0410100.pdf", // quantum mechanics paper
+//     ],
+//     post_tags: ["Physics", "Quantum", "Education"],
+//     post_status: "draft",
+//     post_grade_avg: 4.2,
+//   },
+//   {
+//     id: "Dd3f32fhfvg3fvb3f",
+//     name_of_post: "12-Public Speaking Guide",
+//     description: "This is a post for grade 8 ..................",
 
-    posted_by: "Ms. Johnson",
-    uploaded_at: "2025-09-15",
-    files: [
-      "https://www.gutenberg.org/files/16317/16317-pdf.pdf", // Dale Carnegie-like public domain text
-    ],
-    post_tags: ["Soft Skills", "Communication"],
-    post_status: "archived",
-    post_grade_avg: 3.9,
-  },
-];
+//     posted_by: "Ms. Johnson",
+//     uploaded_at: "2025-09-15",
+//     files: [
+//       "https://www.gutenberg.org/files/16317/16317-pdf.pdf", // Dale Carnegie-like public domain text
+//     ],
+//     post_tags: ["Soft Skills", "Communication"],
+//     post_status: "archived",
+//     post_grade_avg: 3.9,
+//   },
+// ];
 
 //this page collects all posts
 export default function GradingClientTeachers() {
   const filters = ["All", "Moderated", "Pending"];
   const [activeFilter, setActiveFilter] = useState("Pending"); // ✅ default "All"
   const [visiblePostsCount, setVisiblePostsCount] = useState(5); // Start with 5 posts
+
+  const {
+    userPostFeedsData,
+    isUserPostFeedsDataError,
+    isUserPostFeedsDataLoading,
+    isUserPostFeedsDataSuccess,
+    isUserPostFeedsError,
+  } = useUserPostFeeds();
+  console.log(userPostFeedsData?.posts);
 
   const handleLoadMore = () => {
     setVisiblePostsCount((prev) => prev + 5); // Load 5 more posts
@@ -201,8 +211,8 @@ export default function GradingClientTeachers() {
     }
   };
 
-  const visiblePosts = samplePosts.slice(0, visiblePostsCount);
-  const hasMorePosts = visiblePostsCount < samplePosts.length;
+  const visiblePosts = userPostFeedsData?.posts.slice(0, visiblePostsCount);
+  const hasMorePosts = visiblePostsCount < userPostFeedsData?.posts.length;
   return (
     <div className="bg-[#FDFDFD] py-5.5 px-6 flex flex-col gap-5 rounded-[40px]">
       {/* left side */}
@@ -228,7 +238,7 @@ export default function GradingClientTeachers() {
           className="w-full overflow-x-auto max-h-[600px] overflow-y-auto scrollbar-thin scrollbar-thumb-blue-500 scrollbar-track-blue-100 scrollbar-thumb-rounded-full scrollbar-track-rounded-full"
           id="posts-container"
         >
-          {visiblePosts.map((post, idx) => {
+          {visiblePosts?.map((post: PostAttributes, idx: number) => {
             return <Post post={post} key={idx} />;
           })}
         </div>

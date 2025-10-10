@@ -55,3 +55,11 @@ export interface CustomizedError {
   message: string;
   response: any;
 }
+
+export interface StatsCardProps {
+  title: string;
+  count: number;
+  description?: string;
+  colored?: boolean;
+  icon?: LucideIcon;
+}

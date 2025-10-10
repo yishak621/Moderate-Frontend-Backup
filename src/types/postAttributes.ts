@@ -1,10 +1,20 @@
+export interface UploadAttributes {
+  id: string;
+  fileName: string;
+  fileUrl: string;
+  postId: string;
+  uploadedBy: string;
+  createdAt: string; // ISO date string
+  updatedAt: string; // ISO date string
+}
+
 export interface PostAttributes {
   id: string | number;
-  name_of_post: string;
+  title: string;
   description?: string;
-  posted_by: string;
-  uploaded_at: string;
-  files: string[];
+  createdBy: string;
+  uploadedAt: string;
+  uploads: UploadAttributes[];
   post_tags: string[];
   post_status: "draft" | "published" | "archived";
   post_grade_avg: string | number;

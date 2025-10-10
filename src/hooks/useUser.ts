@@ -1,6 +1,11 @@
 import { User } from "@/app/types/user";
 import { queryClient } from "@/lib/queryClient";
-import { updateUserData, userData } from "@/services/user.service";
+import {
+  updateUserData,
+  userData,
+  userOverviewStats,
+  userPostFeeds,
+} from "@/services/user.service";
 import { useMutation, useQuery } from "@tanstack/react-query";
 
 //--------------------GET USER DATA
@@ -20,8 +25,43 @@ export function useUserData() {
   };
 }
 
+//------------------- USER OVERVIEW STATS
+
+export function useUserOverviewStatsData() {
+  const { data, isPending, isSuccess, isError, error } = useQuery({
+    queryKey: ["userOverviewStat"],
+    queryFn: userOverviewStats,
+    staleTime: 5 * 60 * 1000,
+  });
+
+  return {
+    userOverviewStatsData: data,
+    isUserOverviewStatsDataLoading: isPending,
+    isUserOverviewStatsDataSuccess: isSuccess,
+    isUserOverviewStatsDataError: isError,
+    isUserOverviewStatsError: error,
+  };
+}
+
+//------------------- USER POST FEEDS
+
+export function useUserPostFeeds() {
+  const { data, isPending, isSuccess, isError, error } = useQuery({
+    queryKey: ["userPostFeeds"],
+    queryFn: userPostFeeds,
+    staleTime: 5 * 60 * 1000,
+  });
+
+  return {
+    userPostFeedsData: data,
+    isUserPostFeedsDataLoading: isPending,
+    isUserPostFeedsDataSuccess: isSuccess,
+    isUserPostFeedsDataError: isError,
+    isUserPostFeedsError: error,
+  };
+}
+
 //--------------------UPDATE USER DATA
-//ADMIN CURRICULAR AREA EDIT DATA
 export const useUpdateUserData = () => {
   const { mutate, mutateAsync, data, isPending, isSuccess, isError, error } =
     useMutation({

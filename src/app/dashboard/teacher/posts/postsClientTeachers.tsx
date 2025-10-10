@@ -9,6 +9,7 @@ import Modal from "@/components/ui/Modal";
 import CreatPostModal from "@/modules/dashboard/teacher/post/CreatPostModal";
 import Button from "@/components/ui/Button";
 import { Plus } from "lucide-react";
+import { useUserPostFeeds } from "@/hooks/useUser";
 
 const options = [
   { value: "all", label: "All" },
@@ -16,126 +17,126 @@ const options = [
   { value: "2026", label: "2026" },
 ];
 
-export const samplePosts: PostAttributes[] = [
-  {
-    id: "Dd3f32fhfvg3fvb3f",
-    name_of_post: "1-Introduction to Algorithms",
-    description: "This is a post for grade 8 ..................",
-    posted_by: "Prof. Thomas",
-    uploaded_at: "2025-09-25",
-    files: [
-      "https://arxiv.org/pdf/2111.01147.pdf", // sample CS research paper
-      "https://www.gutenberg.org/files/84/84-pdf.pdf", // Frankenstein (public domain)
-    ],
-    post_tags: ["Algorithms", "CS", "Education"],
-    post_status: "published",
-    post_grade_avg: 4.5,
-  },
-  {
-    id: "Dd3f32fhfvg3fvb3f",
-    name_of_post: "1-Introduction to Algorithms",
-    description: "This is a post for grade 8 ..................",
-    posted_by: "Prof. Thomas",
-    uploaded_at: "2025-09-25",
-    files: [
-      "https://arxiv.org/pdf/2111.01147.pdf", // sample CS research paper
-      "https://www.gutenberg.org/files/84/84-pdf.pdf", // Frankenstein (public domain)
-    ],
-    post_tags: ["Algorithms", "CS", "Education"],
-    post_status: "published",
-    post_grade_avg: 4.5,
-  },
-  {
-    id: "Dd3f32fhfvg3fvb3f",
-    name_of_post: "1-Introduction to Algorithms",
-    description: "This is a post for grade 8 ..................",
-    posted_by: "Prof. Thomas",
-    uploaded_at: "2025-09-25",
-    files: [
-      "https://arxiv.org/pdf/2111.01147.pdf", // sample CS research paper
-      "https://www.gutenberg.org/files/84/84-pdf.pdf", // Frankenstein (public domain)
-    ],
-    post_tags: ["Algorithms", "CS", "Education"],
-    post_status: "published",
-    post_grade_avg: 4.5,
-  },
-  {
-    id: "Dd3f32fhfvg3fvb3f",
-    name_of_post: "1-Introduction to Algorithms",
-    description: "This is a post for grade 8 ..................",
-    posted_by: "Prof. Thomas",
-    uploaded_at: "2025-09-25",
-    files: [
-      "https://arxiv.org/pdf/2111.01147.pdf", // sample CS research paper
-      "https://www.gutenberg.org/files/84/84-pdf.pdf", // Frankenstein (public domain)
-    ],
-    post_tags: ["Algorithms", "CS", "Education"],
-    post_status: "published",
-    post_grade_avg: 4.5,
-  },
+// export const samplePosts: PostAttributes[] = [
+//   {
+//     id: "Dd3f32fhfvg3fvb3f",
+//     name_of_post: "1-Introduction to Algorithms",
+//     description: "This is a post for grade 8 ..................",
+//     posted_by: "Prof. Thomas",
+//     uploaded_at: "2025-09-25",
+//     files: [
+//       "https://arxiv.org/pdf/2111.01147.pdf", // sample CS research paper
+//       "https://www.gutenberg.org/files/84/84-pdf.pdf", // Frankenstein (public domain)
+//     ],
+//     post_tags: ["Algorithms", "CS", "Education"],
+//     post_status: "published",
+//     post_grade_avg: 4.5,
+//   },
+//   {
+//     id: "Dd3f32fhfvg3fvb3f",
+//     name_of_post: "1-Introduction to Algorithms",
+//     description: "This is a post for grade 8 ..................",
+//     posted_by: "Prof. Thomas",
+//     uploaded_at: "2025-09-25",
+//     files: [
+//       "https://arxiv.org/pdf/2111.01147.pdf", // sample CS research paper
+//       "https://www.gutenberg.org/files/84/84-pdf.pdf", // Frankenstein (public domain)
+//     ],
+//     post_tags: ["Algorithms", "CS", "Education"],
+//     post_status: "published",
+//     post_grade_avg: 4.5,
+//   },
+//   {
+//     id: "Dd3f32fhfvg3fvb3f",
+//     name_of_post: "1-Introduction to Algorithms",
+//     description: "This is a post for grade 8 ..................",
+//     posted_by: "Prof. Thomas",
+//     uploaded_at: "2025-09-25",
+//     files: [
+//       "https://arxiv.org/pdf/2111.01147.pdf", // sample CS research paper
+//       "https://www.gutenberg.org/files/84/84-pdf.pdf", // Frankenstein (public domain)
+//     ],
+//     post_tags: ["Algorithms", "CS", "Education"],
+//     post_status: "published",
+//     post_grade_avg: 4.5,
+//   },
+//   {
+//     id: "Dd3f32fhfvg3fvb3f",
+//     name_of_post: "1-Introduction to Algorithms",
+//     description: "This is a post for grade 8 ..................",
+//     posted_by: "Prof. Thomas",
+//     uploaded_at: "2025-09-25",
+//     files: [
+//       "https://arxiv.org/pdf/2111.01147.pdf", // sample CS research paper
+//       "https://www.gutenberg.org/files/84/84-pdf.pdf", // Frankenstein (public domain)
+//     ],
+//     post_tags: ["Algorithms", "CS", "Education"],
+//     post_status: "published",
+//     post_grade_avg: 4.5,
+//   },
 
-  {
-    id: "Dd3f32fhfvg3fvb3f",
-    name_of_post: "3-Public Speaking Guide",
-    description: "This is a post for grade 8 ..................",
+//   {
+//     id: "Dd3f32fhfvg3fvb3f",
+//     name_of_post: "3-Public Speaking Guide",
+//     description: "This is a post for grade 8 ..................",
 
-    posted_by: "Ms. Johnson",
-    uploaded_at: "2025-09-15",
-    files: [
-      "https://www.gutenberg.org/files/16317/16317-pdf.pdf", // Dale Carnegie-like public domain text
-    ],
-    post_tags: ["Soft Skills", "Communication"],
-    post_status: "archived",
-    post_grade_avg: 3.9,
-  },
+//     posted_by: "Ms. Johnson",
+//     uploaded_at: "2025-09-15",
+//     files: [
+//       "https://www.gutenberg.org/files/16317/16317-pdf.pdf", // Dale Carnegie-like public domain text
+//     ],
+//     post_tags: ["Soft Skills", "Communication"],
+//     post_status: "archived",
+//     post_grade_avg: 3.9,
+//   },
 
-  {
-    id: "Dd3f32fhfvg3fvb3f",
-    name_of_post: "5-Modern Physics Basics",
-    description: "This is a post for grade 8 ..................",
+//   {
+//     id: "Dd3f32fhfvg3fvb3f",
+//     name_of_post: "5-Modern Physics Basics",
+//     description: "This is a post for grade 8 ..................",
 
-    posted_by: "Dr. Einstein",
-    uploaded_at: "2025-09-20",
-    files: [
-      "https://arxiv.org/pdf/quant-ph/0410100.pdf", // quantum mechanics paper
-    ],
-    post_tags: ["Physics", "Quantum", "Education"],
-    post_status: "draft",
-    post_grade_avg: 4.2,
-  },
+//     posted_by: "Dr. Einstein",
+//     uploaded_at: "2025-09-20",
+//     files: [
+//       "https://arxiv.org/pdf/quant-ph/0410100.pdf", // quantum mechanics paper
+//     ],
+//     post_tags: ["Physics", "Quantum", "Education"],
+//     post_status: "draft",
+//     post_grade_avg: 4.2,
+//   },
 
-  {
-    id: "Dd3f32fhfvg3fvb3f",
-    name_of_post: "7-Introduction to Algorithms",
-    description: "This is a post for grade 8 ..................",
+//   {
+//     id: "Dd3f32fhfvg3fvb3f",
+//     name_of_post: "7-Introduction to Algorithms",
+//     description: "This is a post for grade 8 ..................",
 
-    posted_by: "Prof. Thomas",
-    uploaded_at: "2025-09-25",
-    files: [
-      "https://arxiv.org/pdf/2111.01147.pdf", // sample CS research paper
-      "https://www.gutenberg.org/files/84/84-pdf.pdf", // Frankenstein (public domain)
-    ],
-    post_tags: ["Algorithms", "CS", "Education"],
-    post_status: "published",
-    post_grade_avg: 4.5,
-  },
+//     posted_by: "Prof. Thomas",
+//     uploaded_at: "2025-09-25",
+//     files: [
+//       "https://arxiv.org/pdf/2111.01147.pdf", // sample CS research paper
+//       "https://www.gutenberg.org/files/84/84-pdf.pdf", // Frankenstein (public domain)
+//     ],
+//     post_tags: ["Algorithms", "CS", "Education"],
+//     post_status: "published",
+//     post_grade_avg: 4.5,
+//   },
 
-  {
-    id: "Dd3f32fhfvg3fvb3f",
-    name_of_post: "10-Introduction to Algorithms",
-    description: "This is a post for grade 8 ..................",
+//   {
+//     id: "Dd3f32fhfvg3fvb3f",
+//     name_of_post: "10-Introduction to Algorithms",
+//     description: "This is a post for grade 8 ..................",
 
-    posted_by: "Prof. Thomas",
-    uploaded_at: "2025-09-25",
-    files: [
-      "https://arxiv.org/pdf/2111.01147.pdf", // sample CS research paper
-      "https://www.gutenberg.org/files/84/84-pdf.pdf", // Frankenstein (public domain)
-    ],
-    post_tags: ["Algorithms", "CS", "Education"],
-    post_status: "published",
-    post_grade_avg: 4.5,
-  },
-];
+//     posted_by: "Prof. Thomas",
+//     uploaded_at: "2025-09-25",
+//     files: [
+//       "https://arxiv.org/pdf/2111.01147.pdf", // sample CS research paper
+//       "https://www.gutenberg.org/files/84/84-pdf.pdf", // Frankenstein (public domain)
+//     ],
+//     post_tags: ["Algorithms", "CS", "Education"],
+//     post_status: "published",
+//     post_grade_avg: 4.5,
+//   },
+// ];
 
 export default function PostsClientTeachers() {
   const filters = ["All", "Moderated", "Pending"];
@@ -149,6 +150,16 @@ export default function PostsClientTeachers() {
   ) => {
     console.log("Selected option:", selected);
   };
+
+  const {
+    userPostFeedsData,
+    isUserPostFeedsDataError,
+    isUserPostFeedsDataLoading,
+    isUserPostFeedsDataSuccess,
+    isUserPostFeedsError,
+  } = useUserPostFeeds();
+  console.log(userPostFeedsData?.posts);
+
   const handleLoadMore = () => {
     setVisiblePostsCount((prev) => prev + 5); // Load 5 more posts
   };
@@ -163,8 +174,8 @@ export default function PostsClientTeachers() {
     }
   };
 
-  const visiblePosts = samplePosts.slice(0, visiblePostsCount);
-  const hasMorePosts = visiblePostsCount < samplePosts.length;
+  const visiblePosts = userPostFeedsData?.posts.slice(0, visiblePostsCount);
+  const hasMorePosts = visiblePostsCount < userPostFeedsData?.posts.length;
   return (
     <div className="bg-[#FDFDFD] py-11 px-6 rounded-[40px] flex flex-col">
       {/* top section */}
@@ -222,7 +233,7 @@ export default function PostsClientTeachers() {
           className="w-full overflow-x-auto max-h-[600px] overflow-y-auto scrollbar-thin scrollbar-thumb-blue-500 scrollbar-track-blue-100 scrollbar-thumb-rounded-full scrollbar-track-rounded-full"
           id="posts-container"
         >
-          {visiblePosts.map((post, idx) => {
+          {visiblePosts?.map((post: PostAttributes, idx: number) => {
             return <Post post={post} key={idx} />;
           })}
         </div>

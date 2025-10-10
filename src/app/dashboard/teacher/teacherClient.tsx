@@ -14,27 +14,7 @@ import { FilterButtons } from "@/components/ui/FilterButtons";
 import Post from "@/modules/dashboard/teacher/PostSection";
 import { PostAttributes } from "@/types/postAttributes";
 import CreatPostModal from "@/modules/dashboard/teacher/post/CreatPostModal";
-
-const statsData: StatsCardProps[] = [
-  {
-    title: "Posts Created",
-    count: 24,
-    description: "+12% from last month",
-    colored: true,
-  },
-  {
-    title: "Document Moderated ",
-    count: 45,
-    description: "+2 from last month",
-    colored: false,
-  },
-  {
-    title: "Documents Uploaded",
-    count: 1847,
-    description: "+12% from last month",
-    colored: false,
-  },
-];
+import { useUserOverviewStatsData, useUserPostFeeds } from "@/hooks/useUser";
 
 const notifications = [
   {
@@ -67,45 +47,45 @@ const buttonData = [
   },
 ];
 
-export const samplePosts: PostAttributes[] = [
-  {
-    id: "Dd3f32fhfvg3fvb3f",
-    name_of_post: "Introduction to Algorithms",
-    posted_by: "Prof. Thomas",
-    uploaded_at: "2025-09-25",
-    files: [
-      "https://arxiv.org/pdf/2111.01147.pdf", // sample CS research paper
-      "https://www.gutenberg.org/files/84/84-pdf.pdf", // Frankenstein (public domain)
-    ],
-    post_tags: ["Algorithms", "CS", "Education"],
-    post_status: "published",
-    post_grade_avg: 4.5,
-  },
-  {
-    id: "Dd3f32fhfvg3fvb3f",
-    name_of_post: "Modern Physics Basics",
-    posted_by: "Dr. Einstein",
-    uploaded_at: "2025-09-20",
-    files: [
-      "https://arxiv.org/pdf/quant-ph/0410100.pdf", // quantum mechanics paper
-    ],
-    post_tags: ["Physics", "Quantum", "Education"],
-    post_status: "draft",
-    post_grade_avg: 4.2,
-  },
-  {
-    id: "Dd3f32fhfvg3fvb3f",
-    name_of_post: "Public Speaking Guide",
-    posted_by: "Ms. Johnson",
-    uploaded_at: "2025-09-15",
-    files: [
-      "https://www.gutenberg.org/files/16317/16317-pdf.pdf", // Dale Carnegie-like public domain text
-    ],
-    post_tags: ["Soft Skills", "Communication"],
-    post_status: "archived",
-    post_grade_avg: 3.9,
-  },
-];
+// export const samplePosts: PostAttributes[] = [
+//   {
+//     id: "Dd3f32fhfvg3fvb3f",
+//     name_of_post: "Introduction to Algorithms",
+//     posted_by: "Prof. Thomas",
+//     uploaded_at: "2025-09-25",
+//     files: [
+//       "https://arxiv.org/pdf/2111.01147.pdf", // sample CS research paper
+//       "https://www.gutenberg.org/files/84/84-pdf.pdf", // Frankenstein (public domain)
+//     ],
+//     post_tags: ["Algorithms", "CS", "Education"],
+//     post_status: "published",
+//     post_grade_avg: 4.5,
+//   },
+//   {
+//     id: "Dd3f32fhfvg3fvb3f",
+//     name_of_post: "Modern Physics Basics",
+//     posted_by: "Dr. Einstein",
+//     uploaded_at: "2025-09-20",
+//     files: [
+//       "https://arxiv.org/pdf/quant-ph/0410100.pdf", // quantum mechanics paper
+//     ],
+//     post_tags: ["Physics", "Quantum", "Education"],
+//     post_status: "draft",
+//     post_grade_avg: 4.2,
+//   },
+//   {
+//     id: "Dd3f32fhfvg3fvb3f",
+//     name_of_post: "Public Speaking Guide",
+//     posted_by: "Ms. Johnson",
+//     uploaded_at: "2025-09-15",
+//     files: [
+//       "https://www.gutenberg.org/files/16317/16317-pdf.pdf", // Dale Carnegie-like public domain text
+//     ],
+//     post_tags: ["Soft Skills", "Communication"],
+//     post_status: "archived",
+//     post_grade_avg: 3.9,
+//   },
+// ];
 //--------------------------OVERVIEW DASHBOARD
 export default function UserClient() {
   //MODAL STATES
@@ -120,6 +100,45 @@ export default function UserClient() {
   const filters = ["All", "Moderated", "Pending"];
   const [activeFilter, setActiveFilter] = useState("All"); // ✅ default "All"
 
+  //HOOKS
+  const {
+    userOverviewStatsData,
+    isUserOverviewStatsDataLoading,
+    isUserOverviewStatsDataSuccess,
+    isUserOverviewStatsError,
+    isUserOverviewStatsDataError,
+  } = useUserOverviewStatsData();
+
+  const {
+    userPostFeedsData,
+    isUserPostFeedsDataError,
+    isUserPostFeedsDataLoading,
+    isUserPostFeedsDataSuccess,
+    isUserPostFeedsError,
+  } = useUserPostFeeds();
+  console.log(userPostFeedsData?.posts);
+
+  const statsData: StatsCardProps[] = [
+    {
+      title: "Posts Created",
+      count: userOverviewStatsData?.data.postCount || 0,
+      description: "0% from last month",
+      colored: true,
+    },
+    {
+      title: "Posts Moderated ",
+      count: userOverviewStatsData?.data.moderatedCount || 0,
+      description: "0 from last month",
+      colored: false,
+    },
+    {
+      title: "Documents Uploaded",
+      count: userOverviewStatsData?.data.uploadCount || 0,
+      description: "0% from last month",
+      colored: false,
+    },
+  ];
+
   return (
     <div className="flex flex-col gap-5.5">
       {/* first section */}
@@ -131,20 +150,21 @@ export default function UserClient() {
               title={stat.title}
               count={stat.count}
               description={stat.description}
+              colored={stat.colored}
             />
           );
         })}
       </div>
 
       <div className="min-h-screen rounded-[37px] bg-[#FDFDFD] p-6 max-w-full overflow-hidden ">
-        <div className="grid gap-6 md:grid-cols-[65%_35%] grid-cols-1">
+        <div className="grid gap-6 md:grid-cols-[70%_30%] grid-cols-1">
           {/* left side */}
           <div className="p-6 w-full">
             {/* left top */}
             <div className="flex flex-row justify-between mb-5 flex-wrap">
               <SectionHeader
-                title="Recent Uploads from Your School"
-                subheader="Documents uploaded by teachers in your domain"
+                title="Recent Uploads from Schools & Teachers You Follow"
+                subheader="Follow teachers and classmates to see their latest uploads in one place."
               />
 
               <div>
@@ -158,9 +178,11 @@ export default function UserClient() {
 
             {/* left bottom */}
             <div className="w-full overflow-x-auto">
-              {samplePosts.map((post, idx) => {
-                return <Post post={post} key={idx} />;
-              })}
+              {userPostFeedsData?.posts.map(
+                (post: PostAttributes, idx: number) => {
+                  return <Post post={post} key={idx} />;
+                }
+              )}
             </div>
           </div>
 
