@@ -144,7 +144,9 @@ export default function PostsClientTeachers() {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [open, setOpen] = useState(false);
 
-  const handleSelect = (selected: { value: string; label: string } | null) => {
+  const handleSelect = (
+    selected: { value: string | boolean; label: string } | null
+  ) => {
     console.log("Selected option:", selected);
   };
   const handleLoadMore = () => {

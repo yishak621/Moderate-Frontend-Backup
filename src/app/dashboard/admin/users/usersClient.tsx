@@ -123,7 +123,9 @@ export default function UsersClient() {
                   isClearable={true}
                   onChange={(val) => {
                     field.onChange(val);
-                    setSelectedCurricular(val?.value || null);
+                    setSelectedCurricular(
+                      typeof val?.value === "string" ? val.value : null
+                    );
                   }}
                   placeholder="Select Curricular..."
                 />

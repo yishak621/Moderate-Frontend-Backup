@@ -12,18 +12,20 @@ import AdminPaymentSetting from "@/modules/dashboard/admin/AdminPaymentSetting";
 import ToggleSetting from "@/modules/dashboard/admin/ToggleSetting";
 import { Setting } from "@/types/admin.type";
 import { Globe, Loader, Plus, Settings, Shield } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import { getBasicSettingsColumns } from "./columns";
 import DataTable from "@/components/table/Table";
 import Modal from "@/components/ui/Modal";
 import CreateNewSettingModal from "@/modules/dashboard/admin/modal/settings/CreateNewSettingModal";
+import CreateNewPlanModal from "@/modules/dashboard/admin/modal/plans/CreateNewPlanModal";
 
 export default function AdminSettingClient() {
   // const siteName = "Moderate Tech";
   const [page, setPage] = useState(1);
   const [open, setOpen] = useState(false);
+
   const [ModalComponent, setModalComponent] =
     useState<React.ComponentType<any> | null>(null);
   const [modalProps, setModalProps] = useState<Record<string, any>>({});
@@ -61,14 +63,6 @@ export default function AdminSettingClient() {
     isSiteSettingsSuccess,
     allSiteSettingsError,
   } = useAdminAllSiteSettings(page);
-  console.log(allSiteSettings, "sda");
-
-  const siteName = allSiteSettings?.settings.find(
-    (setting: Setting) => setting.key === "site-name"
-  );
-  const sitedescription = allSiteSettings?.settings.find(
-    (setting: Setting) => setting.key === "site-description"
-  );
 
   return (
     <div className=" flex flex-col gap-5">
@@ -110,7 +104,7 @@ export default function AdminSettingClient() {
         </div>
       </div>
       {/* mid section */}
-      <div className=" flex flex-col py-[30px] px-6 rounded-[37px] bg-[#FDFDFD]">
+      {/* <div className=" flex flex-col py-[30px] px-6 rounded-[37px] bg-[#FDFDFD]">
         <div className="flex flex-col">
           <SectionHeader
             title="User Registration & Security"
@@ -139,22 +133,31 @@ export default function AdminSettingClient() {
             <Button>Save Changes</Button>
           </div>
         </div>
-      </div>
+      </div> */}
 
       {/* third section */}
       <div className=" flex flex-col py-[30px] px-6 rounded-[37px] bg-[#FDFDFD]">
         <div className="flex flex-col">
-          <SectionHeader
-            title="Payment & Subscription Settings"
-            icon={Globe}
-            subheader="Configure Stripe integration and pricing plans"
-          />
+          <div className=" flex flex-row justify-between items-center">
+            <SectionHeader
+              title="Payment & Subscription Settings"
+              icon={Globe}
+              subheader="Configure Stripe integration and pricing plans"
+            />
+            <Button
+              icon={<Plus size={23} />}
+              onClick={() => handleOpenModal(CreateNewPlanModal)}
+            >
+              Create New Plan
+            </Button>
+          </div>
+
           <AdminPaymentSetting />
         </div>
       </div>
 
       {/* forth section */}
-      <div className=" flex flex-col py-[30px] px-6 rounded-[37px] bg-[#FDFDFD]">
+      {/* <div className=" flex flex-col py-[30px] px-6 rounded-[37px] bg-[#FDFDFD]">
         <div className="flex flex-col">
           <SectionHeader
             title="System Setting"
@@ -176,7 +179,7 @@ export default function AdminSettingClient() {
             <Button>Save Changes</Button>
           </div>
         </div>
-      </div>
+      </div> */}
       {/* fifth section */}
       <div className=" flex flex-col py-[30px] px-6 rounded-[37px] bg-[#FDFDFD]">
         <div className="flex flex-col">

@@ -5,7 +5,7 @@ import { SignupFormDataTypes } from "@/types/authData.type";
 import { Curricular } from "@/app/types/curricular";
 import { AllowedEmailDomainAttributes } from "@/types/typeLog";
 import { Announcement } from "@/app/types/announcement";
-import { Setting } from "@/types/admin.type";
+import { Plan, Setting } from "@/types/admin.type";
 
 //-------------------ADMIN ONLY ROUTES
 export const AdminOverview = async () => {
@@ -551,11 +551,9 @@ export const createNewSetting = async (data: Setting) => {
 };
 
 //-------------------UPDATE SITE SETTINGS
-export const updateSiteSetting = async (key: string, data: string[]) => {
+export const updateSiteSetting = async (key: string, data: Setting) => {
   try {
-    const res = await axiosInstance.patch(`/api/system/platform/${key}`, {
-      value: data,
-    });
+    const res = await axiosInstance.patch(`/api/system/platform/${key}`, data);
 
     if (!res) {
       console.log("error");
@@ -582,6 +580,109 @@ export const updateSiteSetting = async (key: string, data: string[]) => {
 export const deleteSiteSetting = async (key: string) => {
   try {
     const res = await axiosInstance.delete(`/api/system/platform/${key}`);
+
+    if (!res) {
+      console.log("error");
+    }
+
+    return res.data;
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error(error);
+      throw new Error(
+        // @ts-expect-error: might be Axios error with response
+        error?.response?.data?.message ||
+          error.message ||
+          "Something went wrong"
+      );
+    } else {
+      console.error("Unknown error", error);
+      throw new Error("Something went wrong");
+    }
+  }
+};
+
+//-------------------GET ALL SITE SETTINGS
+export const getAllPlans = async () => {
+  try {
+    const res = await axiosInstance.get(`/api/plans/admin`);
+
+    if (!res) {
+      console.log("error");
+    }
+
+    return res.data;
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error(error);
+      throw new Error(
+        // @ts-expect-error: might be Axios error with response
+        error?.response?.data?.message ||
+          error.message ||
+          "Something went wrong"
+      );
+    } else {
+      console.error("Unknown error", error);
+      throw new Error("Something went wrong");
+    }
+  }
+};
+
+//-------------------CREATE PLAN
+export const createNewPlan = async (data: Plan) => {
+  try {
+    const res = await axiosInstance.post(`/api/plans`, data);
+
+    if (!res) {
+      console.log("error");
+    }
+
+    return res.data;
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error(error);
+      throw new Error(
+        // @ts-expect-error: might be Axios error with response
+        error?.response?.data?.message ||
+          error.message ||
+          "Something went wrong"
+      );
+    } else {
+      console.error("Unknown error", error);
+      throw new Error("Something went wrong");
+    }
+  }
+};
+
+//-------------------UPDATE Plan
+export const updatePlan = async (id: string, data: Plan) => {
+  try {
+    const res = await axiosInstance.patch(`/api/plans/${id}`, data);
+
+    if (!res) {
+      console.log("error");
+    }
+
+    return res.data;
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error(error);
+      throw new Error(
+        // @ts-expect-error: might be Axios error with response
+        error?.response?.data?.message ||
+          error.message ||
+          "Something went wrong"
+      );
+    } else {
+      console.error("Unknown error", error);
+      throw new Error("Something went wrong");
+    }
+  }
+};
+//-------------------DELETE PLAN
+export const deletePlan = async (id: string) => {
+  try {
+    const res = await axiosInstance.delete(`/api/plans/${id}`);
 
     if (!res) {
       console.log("error");

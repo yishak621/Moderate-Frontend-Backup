@@ -7,25 +7,28 @@ import Button from "@/components/ui/Button";
 import { Curricular } from "@/app/types/curricular";
 import {
   useAdminCurricularAreaEditData,
+  useAdminUpdatePlan,
   useAdminUpdateSiteSetting,
 } from "@/hooks/UseAdminRoutes";
 import { Controller, useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import ToggleSetting from "../../ToggleSetting";
 import { useState } from "react";
-import { Setting } from "@/types/admin.type";
+import { Plan, Setting } from "@/types/admin.type";
 import Textarea from "@/components/ui/Textarea";
+import { CustomSelect } from "@/components/ui/CustomSelect";
 
-export default function EditBasicSiteSettingsModal({
-  BasicSetting,
-}: {
-  BasicSetting: Setting;
-}) {
+export default function EditPlanModal({ Plan }: { Plan: Plan }) {
   const { close } = useModal();
   const handleSelected = (values: { value: string; label: string }[]) => {
     console.log("Selected values:", values);
     // you can use these in real-time (e.g. store in state, send to API, etc.)
   };
+
+  const popularOptions = [
+    { value: true, label: "True" },
+    { value: false, label: "False" },
+  ];
   const [status, setStatus] = useState("active");
   //react hook form
   const {
@@ -34,28 +37,23 @@ export default function EditBasicSiteSettingsModal({
     register,
     control,
     watch,
-  } = useForm<Setting>();
+  } = useForm<Plan>();
 
   const {
-    editSiteSetting,
-    editSiteSettingAsync,
-    isEditingSiteSettingError,
-    isEditingSiteSettingLoading,
-    isEditingSiteSettingSuccess,
-  } = useAdminUpdateSiteSetting(BasicSetting?.key);
+    editPlan,
+    editPlanAsync,
+    isEditingPlanError,
+    isEditingPlanLoading,
+    isEditingPlanSuccess,
+  } = useAdminUpdatePlan(Plan.id);
 
-  if (!BasicSetting) return null;
+  if (!Plan) return null;
 
-  const onSubmit = async (data: Setting) => {
-    const value = Array.isArray(data.value) ? data.value : [data.value];
-    const dataToBeSent = {
-      ...data,
-      value,
-    };
+  const onSubmit = async (data: Plan) => {
     try {
-      await editSiteSettingAsync(dataToBeSent);
+      await editPlanAsync(data);
 
-      toast.success("Setting updated successfully!");
+      toast.success("Plan updated successfully!");
       close();
     } catch (err) {
       if (err instanceof Error) {
@@ -78,7 +76,7 @@ export default function EditBasicSiteSettingsModal({
         <div className=" flex flex-col gap-1.5">
           <p className=" text-xl text-[#0c0c0c] font-medium">Update Setting</p>
           <p className=" text-base font-normal text-[#717171]">
-            Edit a {`${BasicSetting.key}`}
+            Edit a <b>{`${Plan.name}`}</b> plan
           </p>
         </div>
 
@@ -88,45 +86,86 @@ export default function EditBasicSiteSettingsModal({
       </div>
       {/* main section */}
       <div className="flex flex-col gap-7 mt-10.5 mb-6.5">
-        {/* <Input
-          label="Enter Value"
-          type="text"
-          placeholder={BasicSetting.value[0]}
-          defaultValue={BasicSetting.value[0]}
-          {...register("value")}
-        /> */}
         <Input
-          label="Key"
+          label="Name"
           type="text"
-          placeholder="Enter setting key eg. Meta-tag"
-          defaultValue={BasicSetting.key}
-          {...register("key", {
-            required: "Title is required!",
+          placeholder="Enter Name of plan"
+          defaultValue={Plan.name}
+          {...register("name", {
+            required: "Name is required!",
           })}
-          error={errors?.key?.message}
+          error={errors?.name?.message}
         />
         <Input
-          label="Value"
+          label="Price"
           placeholder="Type your setting value here..."
-          defaultValue={BasicSetting.value[0]}
-          {...register("value", {
-            required: "Value is required!",
+          defaultValue={Plan.price}
+          {...register("price", {
+            required: "price is required!",
           })}
-          error={errors?.value?.message}
+          error={errors?.price?.message}
         />
         <Input
-          label="Category"
-          placeholder="Category of setting eg. System , Users , Apperance ... "
-          defaultValue={BasicSetting.category}
-          {...register("category", {
-            required: "Category is required!",
+          label="Currency"
+          placeholder="Type your setting value here..."
+          defaultValue={Plan.currency}
+          {...register("currency", {
+            required: "currency is required!",
           })}
-          error={errors?.category?.message}
+          error={errors?.currency?.message}
         />
+        <Input
+          label="Interval"
+          placeholder="Type your setting value here..."
+          defaultValue={Plan.interval}
+          {...register("interval", {
+            required: "interval is required!",
+          })}
+          error={errors?.interval?.message}
+        />
+        <div className="flex-1">
+          <p className="text-[#0c0c0c] text-base font-normal mb-1">isActive</p>
+
+          <Controller
+            name="isActive"
+            control={control}
+            defaultValue={Plan.isActive}
+            render={({ field }) => (
+              <CustomSelect
+                options={popularOptions}
+                defaultValue={popularOptions.find(
+                  (option) => option.value === Plan.isActive
+                )}
+                placeholder="Select isActive"
+                onChange={field.onChange}
+              />
+            )}
+          />
+        </div>
+        <div className="flex-1">
+          <p className="text-[#0c0c0c] text-base font-normal mb-1">isPopular</p>
+
+          <Controller
+            name="isPopular"
+            control={control}
+            defaultValue={Plan.isPopular}
+            render={({ field }) => (
+              <CustomSelect
+                options={popularOptions}
+                defaultValue={popularOptions.find(
+                  (option) => option.value === Plan.isPopular
+                )}
+                placeholder="Select isActive"
+                onChange={field.onChange}
+              />
+            )}
+          />
+        </div>
+
         <Textarea
           label="Description"
           placeholder="Description of setting "
-          defaultValue={BasicSetting.description}
+          defaultValue={Plan.description}
           {...register("description")}
           error={errors?.description?.message}
         />
@@ -143,10 +182,10 @@ export default function EditBasicSiteSettingsModal({
           <Button
             type="submit"
             className={`justify-center text-base cursor-pointer w-full transition
-        ${isEditingSiteSettingLoading && "opacity-70 cursor-not-allowed"}`}
-            disabled={isEditingSiteSettingLoading}
+        ${isEditingPlanLoading && "opacity-70 cursor-not-allowed"}`}
+            disabled={isEditingPlanLoading}
           >
-            {isEditingSiteSettingLoading ? (
+            {isEditingPlanLoading ? (
               <>
                 <svg
                   className="h-5 w-5 animate-spin text-white"
@@ -171,7 +210,7 @@ export default function EditBasicSiteSettingsModal({
                 Updating...
               </>
             ) : (
-              "Update"
+              "Update Plan"
             )}
           </Button>
         </div>

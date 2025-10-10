@@ -148,7 +148,9 @@ export default function AddTeacherModal() {
                 options={roleOptions}
                 onChange={(selected) => {
                   field.onChange(selected?.value);
-                  setRole(selected?.value || "");
+                  setRole(
+                    typeof selected?.value === "string" ? selected.value : ""
+                  );
                 }}
                 placeholder="Select user role..."
               />

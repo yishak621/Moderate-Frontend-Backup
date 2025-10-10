@@ -21,7 +21,7 @@ export default function CreatPostModal() {
   };
 
   const handleGradingCriteriaChange = (
-    selected: { value: string; label: string } | null
+    selected: { value: string | boolean; label: string } | null
   ) => {
     console.log("Selected grading criteria:", selected);
   };

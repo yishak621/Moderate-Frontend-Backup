@@ -20,6 +20,15 @@ export function getBasicSettingsColumns(
       ),
     },
     {
+      accessorKey: "Category",
+      header: "Category",
+      cell: ({ row }) => (
+        <span className="text-[#0C0C0C] font-normal">
+          {row.original.category}
+        </span>
+      ),
+    },
+    {
       accessorKey: "value",
       header: "Value",
       cell: ({ row }) => {

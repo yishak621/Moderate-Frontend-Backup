@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 
 const animatedComponents = makeAnimated();
 
-type Option = { value: string; label: string };
+type Option = { value: string | boolean; label: string };
 
 interface CustomSelectProps {
   options: Option[];

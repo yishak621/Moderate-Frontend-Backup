@@ -5,22 +5,26 @@ import {
   createNewAnnouncement,
   createNewCurricularArea,
   createNewEmailDomain,
+  createNewPlan,
   createNewSetting,
   createNewUser,
   deleteAnnouncment,
   deleteCurricularArea,
   deleteEmailDomain,
+  deletePlan,
   deleteSiteSetting,
   deleteUserData,
   editUserData,
   getAllAnnouncements,
   getAllCurricularAreas,
   getAllEmailDomains,
+  getAllPlans,
   getAllSiteSettings,
   getAllUsers,
   updateAnnouncment,
   updateCurricularArea,
   updateEmailDomain,
+  updatePlan,
   updateSiteSetting,
   viewUserData,
 } from "@/services/admin.service";
@@ -32,7 +36,7 @@ import { SignupFormDataTypes } from "@/types/authData.type";
 import { Curricular } from "@/app/types/curricular";
 import { AllowedEmailDomainAttributes } from "@/types/typeLog";
 import { Announcement } from "@/app/types/announcement";
-import { Setting } from "@/types/admin.type";
+import { Plan, Setting } from "@/types/admin.type";
 
 //ADMIN OVERVIEW STAT DATA
 export function useAdminOverviewData() {
@@ -583,7 +587,7 @@ export const useAdminSettingCreateData = () => {
 export const useAdminUpdateSiteSetting = (key: string) => {
   const { mutate, mutateAsync, data, isPending, isSuccess, isError, error } =
     useMutation({
-      mutationFn: (data: string[]) => updateSiteSetting(key, data),
+      mutationFn: (data: Setting) => updateSiteSetting(key, data),
       onSuccess: () => {
         queryClient.invalidateQueries({
           queryKey: ["allSiteSettings"],
@@ -624,5 +628,93 @@ export const useAdminDeleteSiteSetting = (key: string) => {
     isDeleteSiteSettingSuccess: isSuccess,
     isDeleteSiteSettingError: isError,
     deletingSiteSettingError: error,
+  };
+};
+
+// GET ALL Plans
+export function useAdminAllPlans() {
+  const query = useQuery({
+    queryKey: ["allPlans"],
+    queryFn: () => getAllPlans(),
+    placeholderData: (prev) => prev,
+    staleTime: 5 * 60 * 1000,
+  });
+
+  return {
+    allPlans: query.data,
+    isPlansLoading: query.isPending,
+    isPlansSuccess: query.isSuccess,
+    isPlansError: query.isError,
+    allPlansError: query.error,
+  };
+}
+//ADMIN SETTING CREATE PLAN
+export const useAdminCreatePlan = () => {
+  const { mutate, mutateAsync, data, isPending, isSuccess, isError, error } =
+    useMutation({
+      mutationFn: (data: Plan) => createNewPlan(data),
+      onSuccess: () => {
+        queryClient.invalidateQueries({
+          queryKey: ["allPlans"],
+          exact: false,
+        });
+      },
+    });
+
+  return {
+    createPlan: mutate,
+    createPlanAsync: mutateAsync,
+    data,
+    isCreatingPlanLoading: isPending,
+    isCreatingPlanSuccess: isSuccess,
+    isCreatingPlanError: isError,
+    creatingPlanError: error,
+  };
+};
+//ADMIN SITE SETTINGS EDIT DATA
+export const useAdminUpdatePlan = (key: string) => {
+  const { mutate, mutateAsync, data, isPending, isSuccess, isError, error } =
+    useMutation({
+      mutationFn: (data: Plan) => updatePlan(key, data),
+      onSuccess: () => {
+        queryClient.invalidateQueries({
+          queryKey: ["allPlans"],
+          exact: false,
+        });
+      },
+    });
+
+  return {
+    editPlan: mutate,
+    editPlanAsync: mutateAsync,
+    data,
+    isEditingPlanLoading: isPending,
+    isEditingPlanSuccess: isSuccess,
+    isEditingPlanError: isError,
+    editingPlanError: error,
+  };
+};
+
+//ADMIN SITE SETTINGS EDIT DATA
+export const useAdminDeletePlan = (id: string) => {
+  const { mutate, mutateAsync, data, isPending, isSuccess, isError, error } =
+    useMutation({
+      mutationFn: () => deletePlan(id),
+      onSuccess: () => {
+        queryClient.invalidateQueries({
+          queryKey: ["allPlans"],
+          exact: false,
+        });
+      },
+    });
+
+  return {
+    deletePlan: mutate,
+    deletePlanAsync: mutateAsync,
+    data,
+    isDeletePlanLoading: isPending,
+    isDeletePlanSuccess: isSuccess,
+    isDeletePlanError: isError,
+    deletingPlanError: error,
   };
 };
