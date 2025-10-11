@@ -12,6 +12,7 @@ import { GroupedGrade } from "@/app/types/user";
 import { userSinglePostData } from "@/services/user.service";
 import { useUserSinglePostData } from "@/hooks/useUser";
 import { timeAgo } from "@/lib/timeAgo";
+import SectionLoading from "@/components/SectionLoading";
 
 // const post: PostType = {
 //   id: "Dd3f32fhfvg3fvb3f",
@@ -100,9 +101,9 @@ export default function PostViewClient() {
     isUserSinglePostError,
   } = useUserSinglePostData(postId);
 
-  const groupedGrades: GroupedGrade[] = (post as PostType).grades.map(
+  const groupedGrades: GroupedGrade[] = (post as PostType)?.grades.map(
     (grade) => {
-      const comment = post.comments.find(
+      const comment = post?.comments.find(
         (c: any) => c.commentedBy === grade.gradedBy
       );
       return {
@@ -114,8 +115,15 @@ export default function PostViewClient() {
     }
   );
 
-  const { title, description, author, createdAt, uploads, tags, postGradeAvg } =
-    post;
+  const {
+    title = "",
+    description = "",
+    author = null,
+    createdAt = "",
+    uploads = [],
+    tags = [],
+    postGradeAvg = 0,
+  } = post || {};
 
   const [currentFileIndex, setCurrentFileIndex] = useState(0);
   const filters = ["Grades", "Grade Test"];
@@ -129,71 +137,73 @@ export default function PostViewClient() {
     setCurrentFileIndex((prev) => (prev - 1 + uploads.length) % uploads.length);
   };
 
-  const currentFile = uploads[currentFileIndex].fileUrl;
-  const ext = currentFile.split(".").pop()?.toLowerCase();
+  const currentFile = uploads[currentFileIndex]?.fileUrl;
+  const ext = currentFile?.split(".").pop()?.toLowerCase();
 
   return (
     <div className="bg-[#FDFDFD] py-5.5 px-6 rounded-[40px] grid grid-cols-2 w-full gap-16.5 min-h-screen">
       {/* LEFT SIDE */}
-      <div className="flex flex-col items-start rounded-3xl gap-6">
-        {/* Top */}
-        <div className="flex flex-row justify-between items-start  w-full">
-          <div className="flex flex-row   gap-3 ">
-            <div className="w-2"></div>
-            <div className="flex flex-col gap-1 items-start">
-              <div className="flex flex-col relative">
-                {" "}
-                <p className="font-medium">{title}</p>
-                <p className="text-sm text-gray-500">
-                  by {post.author.name} • {timeAgo(createdAt)}
-                </p>
-                <div className=" absolute top-2 left-[-15px] w-2 h-2 rounded-full bg-[#368FFF]"></div>
+      {!post && <SectionLoading />}{" "}
+      {post && (
+        <div className="flex flex-col items-start rounded-3xl gap-6">
+          {/* Top */}
+          <div className="flex flex-row justify-between items-start  w-full">
+            <div className="flex flex-row   gap-3 ">
+              <div className="w-2"></div>
+              <div className="flex flex-col gap-1 items-start">
+                <div className="flex flex-col relative">
+                  {" "}
+                  <p className="font-medium">{title}</p>
+                  <p className="text-sm text-gray-500">
+                    by {post?.author.name} • {timeAgo(createdAt)}
+                  </p>
+                  <div className=" absolute top-2 left-[-15px] w-2 h-2 rounded-full bg-[#368FFF]"></div>
+                </div>
+                <p className=" mt-2.5 ">{description}</p>
               </div>
-              <p className=" mt-2.5 ">{description}</p>
+            </div>
+            <div className="flex flex-row gap-1.5 items-center text-[#368FFF] cursor-pointer">
+              <UserPlus size={19} />
+              <p>Follow</p>
             </div>
           </div>
-          <div className="flex flex-row gap-1.5 items-center text-[#368FFF] cursor-pointer">
-            <UserPlus size={19} />
-            <p>Follow</p>
+          {/* full file preview */}
+          <div className="relative bg-gray-100 w-full rounded-3xl flex items-center justify-center overflow-hidden">
+            {/* Navigation */}
+            <button
+              onClick={prevFile}
+              className="absolute left-4 bg-white/80 p-2 rounded-full shadow hover:bg-white"
+            >
+              <ChevronLeft size={20} />
+            </button>
+            <button
+              onClick={nextFile}
+              className="absolute right-4 bg-white/80 p-2 rounded-full shadow hover:bg-white"
+            >
+              <ChevronRight size={20} />
+            </button>
+
+            {/* File content */}
+            {ext === "pdf" ? (
+              <iframe src={currentFile} className="w-full h-[80vh]" />
+            ) : (
+              <img src={currentFile} alt="viewer" className="max-h-[80vh]" />
+            )}
+          </div>
+          {/* Bottom tags */}
+          <div className="flex flex-row gap-4 items-center">
+            {tags?.map((tag: string, idx: number) => (
+              <PostTags
+                key={idx}
+                text={tag}
+                type={idx % 2 === 1 ? "colored" : undefined}
+              />
+            ))}
+            <p className="text-sm text-gray-600">Avg: {postGradeAvg}</p>
+            <p className="text-sm text-gray-600">Given Grade: C</p>
           </div>
         </div>
-        {/* full file preview */}
-        <div className="relative bg-gray-100 w-full rounded-3xl flex items-center justify-center overflow-hidden">
-          {/* Navigation */}
-          <button
-            onClick={prevFile}
-            className="absolute left-4 bg-white/80 p-2 rounded-full shadow hover:bg-white"
-          >
-            <ChevronLeft size={20} />
-          </button>
-          <button
-            onClick={nextFile}
-            className="absolute right-4 bg-white/80 p-2 rounded-full shadow hover:bg-white"
-          >
-            <ChevronRight size={20} />
-          </button>
-
-          {/* File content */}
-          {ext === "pdf" ? (
-            <iframe src={currentFile} className="w-full h-[80vh]" />
-          ) : (
-            <img src={currentFile} alt="viewer" className="max-h-[80vh]" />
-          )}
-        </div>
-        {/* Bottom tags */}
-        <div className="flex flex-row gap-4 items-center">
-          {tags?.map((tag: string, idx: number) => (
-            <PostTags
-              key={idx}
-              text={tag}
-              type={idx % 2 === 1 ? "colored" : undefined}
-            />
-          ))}
-          <p className="text-sm text-gray-600">Avg: {postGradeAvg}</p>
-          <p className="text-sm text-gray-600">Given Grade: C</p>
-        </div>
-      </div>
-
+      )}
       {/* RIGHT SIDE – File Viewer */}
       <div className="flex flex-col items-start">
         {/* filters */}
@@ -207,16 +217,16 @@ export default function PostViewClient() {
         {/* grades given */}
         <div className="  max-h-screen overflow-y-scroll scrollbar-hide">
           {activeFilter === "Grades" &&
-            groupedGrades.length > 0 &&
-            groupedGrades.map((grader, idx) => (
+            groupedGrades?.length > 0 &&
+            groupedGrades?.map((grader, idx) => (
               <GradeGivenSection
                 key={idx}
                 grader={grader}
-                date={post.createdAt}
-                authorName={post.author.name}
+                date={post?.createdAt}
+                authorName={post?.author.name}
               />
             ))}{" "}
-          {activeFilter === "Grades" && !groupedGrades.length && (
+          {activeFilter === "Grades" && !groupedGrades?.length && (
             <div className=" flex flex-col items-center justify-center mt-8 py-16 px-6 bg-gray-50 border border-dashed border-gray-300 rounded-xl space-y-4">
               <svg
                 className="w-16 h-16 text-gray-400"
@@ -247,8 +257,8 @@ export default function PostViewClient() {
           <div className=" mt-8 flex flex-col items-start">
             {post?.gradingLogic?.type === "rubric" && (
               <GradeTemplateRubric
-                criteria={post.gradingLogic.criteria}
-                totalRange={post.gradingLogic.total}
+                criteria={post?.gradingLogic.criteria}
+                totalRange={post?.gradingLogic.total}
               />
             )}
           </div>

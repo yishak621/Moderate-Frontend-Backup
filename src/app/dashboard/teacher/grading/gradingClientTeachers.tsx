@@ -7,6 +7,7 @@ import { PostAttributes } from "@/types/postAttributes";
 import { useState } from "react";
 import { ChevronUp } from "lucide-react";
 import { useUserPostFeeds } from "@/hooks/useUser";
+import SectionLoading from "@/components/SectionLoading";
 
 // export const samplePosts: PostAttributes[] = [
 //   {
@@ -238,6 +239,7 @@ export default function GradingClientTeachers() {
           className="w-full overflow-x-auto max-h-[600px] overflow-y-auto scrollbar-thin scrollbar-thumb-blue-500 scrollbar-track-blue-100 scrollbar-thumb-rounded-full scrollbar-track-rounded-full"
           id="posts-container"
         >
+          {!visiblePosts && <SectionLoading />}{" "}
           {visiblePosts?.map((post: PostAttributes, idx: number) => {
             return <Post post={post} key={idx} />;
           })}

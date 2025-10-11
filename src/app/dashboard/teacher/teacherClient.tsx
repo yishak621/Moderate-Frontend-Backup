@@ -15,6 +15,8 @@ import Post from "@/modules/dashboard/teacher/PostSection";
 import { PostAttributes } from "@/types/postAttributes";
 import CreatPostModal from "@/modules/dashboard/teacher/post/CreatPostModal";
 import { useUserOverviewStatsData, useUserPostFeeds } from "@/hooks/useUser";
+import Button from "@/components/ui/Button";
+import Link from "next/link";
 
 const notifications = [
   {
@@ -116,7 +118,13 @@ export default function UserClient() {
     isUserPostFeedsDataSuccess,
     isUserPostFeedsError,
   } = useUserPostFeeds();
-  console.log(userPostFeedsData?.posts);
+
+  const overViewPosts = [
+    userPostFeedsData?.posts[0],
+    userPostFeedsData?.posts[1],
+
+    userPostFeedsData?.posts[2],
+  ];
 
   const statsData: StatsCardProps[] = [
     {
@@ -167,22 +175,27 @@ export default function UserClient() {
                 subheader="Follow teachers and classmates to see their latest uploads in one place."
               />
 
-              <div>
+              {/* <div>
                 <FilterButtons
                   filters={filters}
                   activeFilter={activeFilter}
                   onFilterChange={setActiveFilter}
                 />
-              </div>
+              </div> */}
             </div>
 
             {/* left bottom */}
             <div className="w-full overflow-x-auto">
-              {userPostFeedsData?.posts.map(
-                (post: PostAttributes, idx: number) => {
-                  return <Post post={post} key={idx} />;
-                }
-              )}
+              {overViewPosts.map((post: PostAttributes, idx: number) => {
+                return <Post post={post} key={idx} />;
+              })}
+
+              <Link href={"/dashboard/teacher/grading"}>
+                {" "}
+                <Button className="w-full" variant="secondary">
+                  View More Posts
+                </Button>{" "}
+              </Link>
             </div>
           </div>
 
