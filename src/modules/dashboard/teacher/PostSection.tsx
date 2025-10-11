@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { UserPlus } from "lucide-react";
 import { PostAttributes } from "@/types/postAttributes";
 import PostTags from "./PostTags";
+import { timeAgo } from "@/lib/timeAgo";
 
 export default function Post({ post }: { post: PostAttributes }) {
   const {
@@ -11,7 +12,7 @@ export default function Post({ post }: { post: PostAttributes }) {
     title,
     description,
     createdBy,
-    uploadedAt,
+    createdAt,
     uploads: files,
     // post_tags,
     // post_grade_avg,
@@ -26,15 +27,19 @@ export default function Post({ post }: { post: PostAttributes }) {
   return (
     <div className="flex flex-col items-start border border-[#DBDBDB] p-7 rounded-3xl my-10 gap-4">
       {/* Top */}
-      <div className="flex flex-row justify-between w-full">
-        <div className="flex flex-row gap-3 ">
-          <div className="mt-4 w-2 h-2 rounded-full bg-[#368FFF]"></div>
+      <div className="flex flex-row justify-between items-start  w-full">
+        <div className="flex flex-row   gap-3 ">
+          <div className="w-2"></div>
           <div className="flex flex-col gap-1 items-start">
-            <p className="font-medium">{title}</p>
-            <p className="text-sm text-gray-500">
-              by {createdBy} • {uploadedAt}
-            </p>
-            <p className=" mt-2.5 ">{description}</p>
+            <div className="flex flex-col relative">
+              {" "}
+              <p className="font-medium">{title}</p>
+              <p className="text-sm text-gray-500">
+                by {post.author.name} • {timeAgo(createdAt)}
+              </p>
+              <div className=" absolute top-2 left-[-15px] w-2 h-2 rounded-full bg-[#368FFF]"></div>
+            </div>
+            <p className=" mt-2.5 block max-w-[40vw] truncate">{description}</p>
           </div>
         </div>
         <div className="flex flex-row gap-1.5 items-center text-[#368FFF] cursor-pointer">
@@ -47,7 +52,7 @@ export default function Post({ post }: { post: PostAttributes }) {
       <div className="grid grid-cols-2 md:grid-cols-3 gap-3 w-full">
         {files.map((file, idx) => {
           const ext = file.fileName.split(".").pop()?.toLowerCase();
-
+          console.log(ext, file.fileName);
           if (ext === "pdf") {
             return (
               <div

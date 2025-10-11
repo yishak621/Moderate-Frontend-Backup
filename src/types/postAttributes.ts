@@ -1,3 +1,5 @@
+import { User } from "@/app/types/user";
+
 export interface UploadAttributes {
   id: string;
   fileName: string;
@@ -13,9 +15,10 @@ export interface PostAttributes {
   title: string;
   description?: string;
   createdBy: string;
-  uploadedAt: string;
+  createdAt: string;
   uploads: UploadAttributes[];
   post_tags: string[];
   post_status: "draft" | "published" | "archived";
   post_grade_avg: string | number;
+  author: User;
 }

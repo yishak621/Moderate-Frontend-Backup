@@ -56,6 +56,12 @@ export interface CustomizedError {
   response: any;
 }
 
+type GroupedGrade = {
+  gradedBy: string;
+  grade: string;
+  comment: string | null;
+  createdAt: string;
+};
 export interface StatsCardProps {
   title: string;
   count: number;

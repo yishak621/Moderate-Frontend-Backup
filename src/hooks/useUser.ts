@@ -5,6 +5,7 @@ import {
   userData,
   userOverviewStats,
   userPostFeeds,
+  userSinglePostData,
 } from "@/services/user.service";
 import { useMutation, useQuery } from "@tanstack/react-query";
 
@@ -58,6 +59,24 @@ export function useUserPostFeeds() {
     isUserPostFeedsDataSuccess: isSuccess,
     isUserPostFeedsDataError: isError,
     isUserPostFeedsError: error,
+  };
+}
+
+//------------------- USER SINGLE  POST DATA
+
+export function useUserSinglePostData(postId: string) {
+  const { data, isPending, isSuccess, isError, error } = useQuery({
+    queryKey: ["userSinglePostData"],
+    queryFn: () => userSinglePostData(postId),
+    staleTime: 5 * 60 * 1000,
+  });
+
+  return {
+    userSinglePostData: data,
+    isUserSinglePostDataLoading: isPending,
+    isUserSinglePostDataSuccess: isSuccess,
+    isUserSinglePostDataError: isError,
+    isUserSinglePostError: error,
   };
 }
 
