@@ -137,15 +137,19 @@ export default function PostViewClient() {
       {/* LEFT SIDE */}
       <div className="flex flex-col items-start rounded-3xl gap-6">
         {/* Top */}
-        <div className="flex flex-row justify-between items-start w-full">
-          <div className="flex flex-row gap-3">
-            <div className="mt-2 w-2 h-2 rounded-full bg-[#368FFF]"></div>
+        <div className="flex flex-row justify-between items-start  w-full">
+          <div className="flex flex-row   gap-3 ">
+            <div className="w-2"></div>
             <div className="flex flex-col gap-1 items-start">
-              <p className="font-medium">{title}</p>
-              <p className="text-sm text-gray-500">
-                by {author.name} • {timeAgo(createdAt)}
-              </p>
-              <p className="mt-2">{description}</p>
+              <div className="flex flex-col relative">
+                {" "}
+                <p className="font-medium">{title}</p>
+                <p className="text-sm text-gray-500">
+                  by {post.author.name} • {timeAgo(createdAt)}
+                </p>
+                <div className=" absolute top-2 left-[-15px] w-2 h-2 rounded-full bg-[#368FFF]"></div>
+              </div>
+              <p className=" mt-2.5 ">{description}</p>
             </div>
           </div>
           <div className="flex flex-row gap-1.5 items-center text-[#368FFF] cursor-pointer">
@@ -212,8 +216,8 @@ export default function PostViewClient() {
                 authorName={post.author.name}
               />
             ))}{" "}
-          {!groupedGrades.length && (
-            <div className="flex flex-col items-center justify-center py-16 px-6 bg-gray-50 border border-dashed border-gray-300 rounded-xl space-y-4">
+          {activeFilter === "Grades" && !groupedGrades.length && (
+            <div className=" flex flex-col items-center justify-center mt-8 py-16 px-6 bg-gray-50 border border-dashed border-gray-300 rounded-xl space-y-4">
               <svg
                 className="w-16 h-16 text-gray-400"
                 fill="none"
@@ -232,7 +236,8 @@ export default function PostViewClient() {
                 No grades yet
               </h3>
               <p className="text-sm text-gray-500 text-center">
-                Once teachers grade the submissions, you’ll see them here.
+                Once teachers grade the submissions, you’ll see them here. or Be
+                the first one to grade this test :)
               </p>
             </div>
           )}
