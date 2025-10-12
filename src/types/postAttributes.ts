@@ -1,4 +1,6 @@
 import { User } from "@/app/types/user";
+import { Comment, Grade } from "./Post";
+import { JwtPayload } from "jwt-decode";
 
 export interface UploadAttributes {
   id: string;
@@ -21,4 +23,12 @@ export interface PostAttributes {
   post_status: "draft" | "published" | "archived";
   post_grade_avg: string | number;
   author: User;
+  comments: Comment[];
+  grades: Grade[];
+}
+
+export interface customJwtPayload extends JwtPayload {
+  id: string;
+  email?: string;
+  role?: string;
 }

@@ -1,7 +1,7 @@
 import { axiosInstance } from "@/lib/axiosInstance";
 import { setToken } from "./tokenService";
 
-//-------------------LOGIN
+//-------------------SUBJECT DOMAINS PUBLIC
 
 export const subjectDomains = async () => {
   try {
@@ -11,11 +11,7 @@ export const subjectDomains = async () => {
       console.log("error");
     }
 
-    if (res.data?.token) {
-      setToken(res.data.token);
-    }
-
-    return res.data.data; // 👈 if this doesn't exist, you return undefined
+    return res.data.data;
   } catch (error) {
     if (error instanceof Error) {
       console.error(error);
