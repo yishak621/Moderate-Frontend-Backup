@@ -72,9 +72,9 @@ export default function GradingClientTeachers() {
     activeFilter === "All"
       ? visiblePostsCount < userPostFeedsData?.posts.length
       : activeFilter === "Moderated"
-      ? visiblePostsCount < filteredModeratedPostFeedsData.length
+      ? visiblePostsCount < filteredModeratedPostFeedsData?.length
       : activeFilter === "Pending"
-      ? visiblePostsCount < filteredPendingPostFeedsData.length
+      ? visiblePostsCount < filteredPendingPostFeedsData?.length
       : [];
   return (
     <div className="bg-[#FDFDFD] py-5.5 px-6 flex flex-col gap-5 rounded-[40px]">
@@ -102,7 +102,7 @@ export default function GradingClientTeachers() {
           id="posts-container"
         >
           {!visiblePosts && <SectionLoading />}{" "}
-          {visiblePosts.length === 0 && <EmptyState />}
+          {visiblePosts?.length === 0 && <EmptyState />}
           {visiblePosts?.map((post: PostAttributes, idx: number) => {
             return <Post post={post} key={idx} />;
           })}

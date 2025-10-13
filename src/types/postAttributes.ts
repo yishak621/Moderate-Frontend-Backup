@@ -27,6 +27,24 @@ export interface PostAttributes {
   grades: Grade[];
 }
 
+export interface PostCreateInput {
+  title: string;
+  description?: string;
+  domain: string;
+  gradingType:
+    | "numeric"
+    | "letter"
+    | "rubric"
+    | "weightedRubric"
+    | "checklist"
+    | "passFail";
+  gradingTemplate: Record<string, any>;
+  files: File[];
+  tags?: string[];
+  minPoints?: number;
+  maxPoints?: number;
+}
+
 export interface customJwtPayload extends JwtPayload {
   id: string;
   email?: string;
