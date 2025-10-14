@@ -65,3 +65,14 @@ export type PostType = {
   postStatus: string;
   gradingLogic?: GradingLogic;
 };
+
+export type GradeData = {
+  gradeType?: string;
+  grade: {
+    numeric?: number;
+    [key: string]: any;
+  };
+  gradeTemplateId?: string;
+  criteria?: Record<string, any>;
+  comment?: string;
+};

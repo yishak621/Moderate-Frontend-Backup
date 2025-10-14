@@ -125,7 +125,7 @@ export default function UserClient() {
 
     userPostFeedsData?.posts[2],
   ];
-
+  console.log(overViewPosts);
   const statsData: StatsCardProps[] = [
     {
       title: "Posts Created",
@@ -151,7 +151,7 @@ export default function UserClient() {
     <div className="flex flex-col gap-5.5">
       {/* first section */}
       <div className="flex flex-row gap-6  rounded-[37px] 3xl:gap-12 justify-between bg-[#FDFDFD]  max-h-[285px] p-7 ">
-        {statsData.map((stat) => {
+        {statsData?.map((stat) => {
           return (
             <StatsCard
               key={stat.title}
@@ -186,16 +186,53 @@ export default function UserClient() {
 
             {/* left bottom */}
             <div className="w-full overflow-x-auto">
-              {overViewPosts.map((post: PostAttributes, idx: number) => {
-                return <Post post={post} key={idx} />;
-              })}
+              {!userPostFeedsData?.posts ? (
+                // Loading skeleton
+                <div className="flex flex-col gap-2 animate-pulse">
+                  <div className="h-24 bg-gray-200 rounded" />
+                  <div className="h-24 bg-gray-200 rounded" />
+                  <div className="h-24 bg-gray-200 rounded" />
+                </div>
+              ) : userPostFeedsData?.posts.length === 0 ? (
+                // No posts state
+                <div className="flex flex-col items-center justify-center mt-8 py-16 px-6 bg-gray-50 border border-dashed border-gray-300 rounded-xl space-y-4">
+                  <svg
+                    className="w-16 h-16 text-gray-400"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 12h6m-6 4h6m2 4H7a2 2 0 01-2-2V6a2 2 0 012-2h5l5 5v11a2 2 0 01-2 2z"
+                    />
+                  </svg>
 
-              <Link href={"/dashboard/teacher/grading"}>
-                {" "}
-                <Button className="w-full" variant="secondary">
-                  View More Posts
-                </Button>{" "}
-              </Link>
+                  <h3 className="text-lg font-semibold text-gray-700">
+                    No posts available
+                  </h3>
+                  <p className="text-sm text-gray-500 text-center">
+                    Posts will appear here once available. Be the first to
+                    create a post!
+                  </p>
+                </div>
+              ) : (
+                // Render posts
+                overViewPosts?.map((post: PostAttributes, idx: number) => (
+                  <Post post={post} key={idx} />
+                ))
+              )}
+              {userPostFeedsData?.posts.length > 0 && (
+                <Link href={"/dashboard/teacher/grading"}>
+                  {" "}
+                  <Button className="w-full" variant="secondary">
+                    View More Posts
+                  </Button>{" "}
+                </Link>
+              )}
             </div>
           </div>
 

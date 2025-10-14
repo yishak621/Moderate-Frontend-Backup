@@ -61,7 +61,9 @@ export default function PostsClientTeachers() {
 
   const filteredYearMyPosts = userMyPostFeedsData?.posts.filter(
     (post: PostAttributes) => {
-      return new Date(post.createdAt).getFullYear().toString() === activeFilter;
+      return (
+        new Date(post?.createdAt).getFullYear().toString() === activeFilter
+      );
     }
   );
   const visiblePosts =

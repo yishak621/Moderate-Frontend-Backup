@@ -2,6 +2,7 @@ import { User } from "@/app/types/user";
 import { queryClient } from "@/lib/queryClient";
 import {
   deleteFileApi,
+  saveUserGrade,
   updateUserData,
   uploadFileApi,
   userCreatePost,
@@ -10,6 +11,7 @@ import {
   userPostFeeds,
   userSinglePostData,
 } from "@/services/user.service";
+import { Grade, GradeData } from "@/types/Post";
 import { PostCreateInput } from "@/types/postAttributes";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import toast from "react-hot-toast";
@@ -190,5 +192,39 @@ export const useUserRemoveUploadedFile = () => {
     isDeletingFileSuccess: isSuccess,
     isDeletingFileError: isError,
     deletingFileError: error,
+  };
+};
+
+//--------------------USER SAVE GRADE
+export const useUserSaveGrade = () => {
+  const {
+    mutate,
+    mutateAsync,
+    data: savedGradeData,
+    isPending,
+    isSuccess,
+    isError,
+    error,
+  } = useMutation({
+    mutationFn: ({
+      postId,
+      gradeData,
+    }: {
+      postId: string;
+      gradeData: GradeData;
+    }) => saveUserGrade(postId, gradeData),
+    onSuccess: () => {
+      toast.success("Grade saved successfully!");
+    },
+  });
+
+  return {
+    saveGrade: mutate,
+    saveGradeAsync: mutateAsync,
+    savedGradeData,
+    isSavingGradeLoading: isPending,
+    isSavingGradeSuccess: isSuccess,
+    isSavingGradeError: isError,
+    savingGradeError: error,
   };
 };

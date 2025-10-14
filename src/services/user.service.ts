@@ -1,5 +1,6 @@
 import { User } from "@/app/types/user";
 import { axiosInstance } from "@/lib/axiosInstance";
+import { Grade, GradeData } from "@/types/Post";
 import { PostCreateInput } from "@/types/postAttributes";
 
 //-------------------GET USER DATA
@@ -245,12 +246,12 @@ export const deleteFileApi = async (id: string) => {
   }
 };
 
-export const saveUserGrade = async (file: File) => {
+export const saveUserGrade = async (postId: string, data: GradeData) => {
   try {
-    const formData = new FormData();
-    formData.append("files", file);
-
-    const res = await axiosInstance.post("/api/user/uploads", formData);
+    const res = await axiosInstance.post(
+      `/api/user/post/${postId}/grade`,
+      data
+    );
 
     if (!res) {
       console.log("error");

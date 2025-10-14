@@ -7,6 +7,9 @@ import PostTags from "./PostTags";
 import { timeAgo } from "@/lib/timeAgo";
 
 export default function Post({ post }: { post: PostAttributes }) {
+  const router = useRouter();
+  if (!post) return null;
+
   const {
     id,
     title,
@@ -17,8 +20,6 @@ export default function Post({ post }: { post: PostAttributes }) {
     // post_tags,
     // post_grade_avg,
   } = post;
-
-  const router = useRouter();
 
   const handleOpen = () => {
     window.open(`/dashboard/teacher/grading/${id}`, "_blank");

@@ -18,6 +18,7 @@ import { GradeTemplateLetter } from "@/modules/dashboard/teacher/GradingLogics/G
 import { GradeTemplateWeightedRubric } from "@/modules/dashboard/teacher/GradingLogics/GradeTemplateWeightedRubric";
 import { GradeTemplatePassFail } from "@/modules/dashboard/teacher/GradingLogics/GradeTemplatePassFail";
 import { GradeTemplateChecklist } from "@/modules/dashboard/teacher/GradingLogics/GradeTemplateChecklist";
+import { decoded } from "@/lib/currentUser";
 
 export default function PostViewClient() {
   const params = useParams();
@@ -62,6 +63,7 @@ export default function PostViewClient() {
   const [currentFileIndex, setCurrentFileIndex] = useState(0);
   const filters = ["Grades", "Grade Test"];
   const [activeFilter, setActiveFilter] = useState("Grades");
+  const checkPostIsNotThisUser = author?.id === decoded?.id;
 
   const nextFile = () => {
     setCurrentFileIndex((prev) => (prev + 1) % uploads.length);
@@ -137,7 +139,7 @@ export default function PostViewClient() {
             {ext === "pdf" ? (
               <iframe src={currentFile} className="w-full h-[80vh]" />
             ) : (
-              <img src={currentFile} alt="viewer" className="max-h-[80vh]" />
+              <img src={currentFile} alt="viewer" className="max-h-[90vh]" />
             )}
           </div>
           {/* Bottom tags */}
@@ -203,7 +205,7 @@ export default function PostViewClient() {
           )}
         </div>
 
-        {activeFilter === "Grade Test" && (
+        {activeFilter === "Grade Test" && !checkPostIsNotThisUser && (
           <div className=" mt-8 flex flex-col items-start  w-full">
             {post?.gradingTemplate?.type === "rubric" && (
               <GradeTemplateRubric
@@ -216,6 +218,8 @@ export default function PostViewClient() {
                 label="Score"
                 min={post?.gradingTemplate.criteria.numericCriteria.min}
                 max={post?.gradingTemplate.criteria.numericCriteria.max}
+                gradingTemplate={post?.gradingTemplate}
+                postId={postId}
               />
             )}
             {/* {post?.gradingTemplate?.type === "letter" && (

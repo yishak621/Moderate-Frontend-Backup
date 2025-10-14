@@ -3,10 +3,12 @@
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
 import Textarea from "@/components/ui/Textarea";
+import { useUserSaveGrade } from "@/hooks/useUser";
 import { GradeResult } from "@/types/grade";
 import { GradeParametersType } from "@/types/GradeParameters";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
+import toast from "react-hot-toast";
 
 type Props = {
   label?: string;
@@ -17,6 +19,8 @@ type Props = {
   defaultValue?: number;
   onSave?: (result: GradeResult) => void;
   onPublish?: (result: GradeResult) => void;
+  gradingTemplate: any;
+  postId: string;
 };
 
 export function GradeTemplateNumeric({
@@ -26,6 +30,8 @@ export function GradeTemplateNumeric({
   defaultValue = 0,
   onSave,
   onPublish,
+  gradingTemplate,
+  postId,
 }: Props) {
   // const [value, setValue] = useState<number>(defaultValue);
   const [feedback, setFeedback] = useState("");
@@ -41,7 +47,13 @@ export function GradeTemplateNumeric({
   } = useForm<Props>({
     mode: "onBlur",
   });
-
+  const {
+    saveGradeAsync,
+    saveGrade,
+    isSavingGradeError,
+    isSavingGradeLoading,
+    isSavingGradeSuccess,
+  } = useUserSaveGrade();
   const value = watch("value") ?? 0;
 
   const result = (): GradeResult | null => {
@@ -57,21 +69,27 @@ export function GradeTemplateNumeric({
   // const handlePublish = () => onPublish?.(result());
 
   const onSubmit = async (data: Props) => {
-    console.log(data);
-    // try {
-    //   console.log(data);
-    //   await editAnnouncementAsync(data);
-    //   toast.success("Announcement updated successfully!");
-    //   close();
-    // } catch (err) {
-    //   if (err instanceof Error) {
-    //     console.error(err.message);
-    //     toast.error(err.message);
-    //   } else {
-    //     console.error("Unknown error", err);
-    //     toast.error("Something went wrong");
-    //   }
-    // }
+    const gradeData = {
+      gradeType: gradingTemplate?.type,
+      grade: { numeric: data.value },
+      gradeTemplateId: gradingTemplate?.id,
+      criteria: gradingTemplate?.criteria,
+      comment: data.comment,
+    };
+    try {
+      console.log(data);
+      await saveGradeAsync({ postId, gradeData });
+      toast.success("Grade published successfully!");
+      close();
+    } catch (err) {
+      if (err instanceof Error) {
+        console.error(err.message);
+        toast.error(err.message);
+      } else {
+        console.error("Unknown error", err);
+        toast.error("Something went wrong");
+      }
+    }
   };
 
   return (
@@ -88,10 +106,7 @@ export function GradeTemplateNumeric({
         <div className="md:w-2/3">
           <Input
             type="number"
-            min={min}
-            max={max}
             defaultValue={value}
-            // onChange={(e) => setValue(Number(e.target.value))}
             className="w-full text-lg font-medium"
             placeholder="Enter score"
             {...register("value", {
@@ -116,10 +131,9 @@ export function GradeTemplateNumeric({
       {/* Feedback */}
       <Textarea
         placeholder="Write a short comment explaining this grade..."
-        value={feedback}
-        // onChange={(e) => setFeedback(e.target.value)}
+        defaultValue={feedback}
         className="w-full mt-4 resize-none min-h-[100px]"
-        maxLength={40}
+        maxLength={400}
         {...register("comment")}
       />
 
@@ -134,15 +148,47 @@ export function GradeTemplateNumeric({
         </div>
 
         <div className="flex gap-2 w-full md:w-auto">
-          <Button
+          {/* <Button
             variant="outline"
             // onClick={handleSave}
             className="w-full md:w-auto"
           >
             Save Grade
-          </Button>
-          <Button type="submit" variant="primary" className="w-full md:w-auto">
-            Publish
+          </Button> */}
+          <Button
+            type="submit"
+            variant="primary"
+            className={`justify-center text-base cursor-pointer w-full transition 
+        ${isSavingGradeLoading && "opacity-70 cursor-not-allowed"}`}
+            disabled={isSavingGradeLoading}
+          >
+            {isSavingGradeLoading ? (
+              <>
+                <svg
+                  className="h-5 w-5 animate-spin text-white"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  ></circle>
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8v4l3-3-3-3v4a12 12 0 00-12 12h4z"
+                  ></path>
+                </svg>
+                Publishing...
+              </>
+            ) : (
+              "Publish Grade"
+            )}
           </Button>
         </div>
       </div>

@@ -27,7 +27,6 @@ export interface PostAttributes {
   author: User;
   comments: Comment[];
   grades: Grade[];
-
 }
 
 export interface PostCreateInput {
@@ -42,7 +41,7 @@ export interface PostCreateInput {
     | "checklist"
     | "passFail";
   gradingTemplate: Record<string, any>;
-    postCreatorGrade:Record<string, any>;
+  postCreatorGrade: Record<string, any>;
   uploadIds: string[];
   tags?: string[];
   minPoints?: number;
