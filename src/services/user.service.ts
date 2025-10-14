@@ -245,6 +245,34 @@ export const deleteFileApi = async (id: string) => {
   }
 };
 
+export const saveUserGrade = async (file: File) => {
+  try {
+    const formData = new FormData();
+    formData.append("files", file);
+
+    const res = await axiosInstance.post("/api/user/uploads", formData);
+
+    if (!res) {
+      console.log("error");
+    }
+
+    return res.data;
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error(error);
+      throw new Error(
+        // @ts-expect-error: might be Axios error with response
+        error?.response?.data?.message ||
+          error.message ||
+          "Something went wrong"
+      );
+    } else {
+      console.error("Unknown error", error);
+      throw new Error("Something went wrong");
+    }
+  }
+};
+
 // {
 //   title: "Chemistry midterm exam",
 //   description: "Post description",

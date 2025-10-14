@@ -189,7 +189,7 @@ export default function CreatPostModal() {
 
     switch (selectedGradingType) {
       case "numeric":
-        gradingTemplate = { min: data.minPoints, max: data.maxPoints };
+        gradingTemplate = { numericCriteria };
         break;
       case "letter":
         gradingTemplate = { letterRanges };

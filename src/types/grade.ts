@@ -10,9 +10,9 @@ export type WeightedCriterion = Criterion & { weight: number }; // weight as fra
 export type LetterRange = { letter: string; min: number; max: number };
 
 export type GradeResult = {
-  totalScore: number;
-  maxScore: number;
-  percent: number;
+  totalScore: number | undefined;
+  maxScore: number | undefined;
+  percent: number | undefined;
   letter?: string | null;
   extra?: Record<string, any>;
 };

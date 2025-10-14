@@ -13,6 +13,11 @@ import { userSinglePostData } from "@/services/user.service";
 import { useUserSinglePostData } from "@/hooks/useUser";
 import { timeAgo } from "@/lib/timeAgo";
 import SectionLoading from "@/components/SectionLoading";
+import { GradeTemplateNumeric } from "@/modules/dashboard/teacher/GradingLogics/GradeTemplateNumeric";
+import { GradeTemplateLetter } from "@/modules/dashboard/teacher/GradingLogics/GradeTemplateLetter";
+import { GradeTemplateWeightedRubric } from "@/modules/dashboard/teacher/GradingLogics/GradeTemplateWeightedRubric";
+import { GradeTemplatePassFail } from "@/modules/dashboard/teacher/GradingLogics/GradeTemplatePassFail";
+import { GradeTemplateChecklist } from "@/modules/dashboard/teacher/GradingLogics/GradeTemplateChecklist";
 
 export default function PostViewClient() {
   const params = useParams();
@@ -50,7 +55,8 @@ export default function PostViewClient() {
     createdAt = "",
     uploads = [],
     tags = [],
-    postGradeAvg = 0,
+    averageGrade = 0,
+    userGrade,
   } = post || {};
 
   const [currentFileIndex, setCurrentFileIndex] = useState(0);
@@ -67,6 +73,22 @@ export default function PostViewClient() {
 
   const currentFile = uploads[currentFileIndex]?.fileUrl;
   const ext = currentFile?.split(".").pop()?.toLowerCase();
+  const givenGrade = (() => {
+    switch (post?.gradingTemplate?.type) {
+      case "numeric":
+        return userGrade.numeric;
+      case "letter":
+        return userGrade.letter;
+      case "rubric":
+        return userGrade.rubric;
+      case "passFail":
+        return userGrade.passFail;
+      case "checklist":
+        return userGrade.checklist;
+      default:
+        return null;
+    }
+  })();
 
   return (
     <div className="bg-[#FDFDFD] py-5.5 px-6 rounded-[40px] grid grid-cols-2 w-full gap-16.5 min-h-screen">
@@ -127,8 +149,8 @@ export default function PostViewClient() {
                 type={idx % 2 === 1 ? "colored" : undefined}
               />
             ))}
-            <p className="text-sm text-gray-600">Avg: {postGradeAvg}</p>
-            <p className="text-sm text-gray-600">Given Grade: C</p>
+            <p className="text-sm text-gray-600">Avg: {averageGrade}</p>
+            <p className="text-sm text-gray-600">Given Grade:{givenGrade}</p>
           </div>
         </div>
       )}
@@ -182,13 +204,33 @@ export default function PostViewClient() {
         </div>
 
         {activeFilter === "Grade Test" && (
-          <div className=" mt-8 flex flex-col items-start">
-            {post?.gradingLogic?.type === "rubric" && (
+          <div className=" mt-8 flex flex-col items-start  w-full">
+            {post?.gradingTemplate?.type === "rubric" && (
               <GradeTemplateRubric
-                criteria={post?.gradingLogic.criteria}
-                totalRange={post?.gradingLogic.total}
+                criteria={post?.gradingTemplate.criteria}
+                totalRange={post?.gradingTemplate.criteria.total}
               />
             )}
+            {post?.gradingTemplate?.type === "numeric" && (
+              <GradeTemplateNumeric
+                label="Score"
+                min={post?.gradingTemplate.criteria.numericCriteria.min}
+                max={post?.gradingTemplate.criteria.numericCriteria.max}
+              />
+            )}
+            {/* {post?.gradingTemplate?.type === "letter" && (
+              <GradeTemplateLetter />
+            )}
+            {post?.gradingTemplate?.type === "weightedRubric" && (
+              <GradeTemplateWeightedRubric />
+            )}
+            {post?.gradingTemplate?.type === "passFail" && (
+              <GradeTemplatePassFail />
+            )}
+
+            {post?.gradingTemplate?.type === "checklist" && (
+              <GradeTemplateChecklist />
+            )} */}
           </div>
         )}
       </div>
