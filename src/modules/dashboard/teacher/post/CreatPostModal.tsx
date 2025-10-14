@@ -10,9 +10,14 @@ import FileUploader from "@/components/FileUploader";
 import { CustomSelect } from "@/components/ui/CustomSelect";
 import { useSubjectDomains } from "@/hooks/usePublicRoutes";
 import { SubjectDomain } from "@/types/typeLog";
-import { useUserCreatePost, useUserData } from "@/hooks/useUser";
+import {
+  useUserCreatePost,
+  useUserData,
+  useUserRemoveUploadedFile,
+  useUserUploadFile,
+} from "@/hooks/useUser";
 import { User } from "@/app/types/user";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { gradingTypeOptions } from "@/lib/gradingTypeOptions";
 import { Controller, useForm } from "react-hook-form";
 import { PostAttributes, PostCreateInput } from "@/types/postAttributes";
@@ -26,6 +31,7 @@ const options = [
 
 export default function CreatPostModal() {
   const [title, setTitle] = useState("");
+  const [uploadIds, setUploadIds] = useState<string[]>([]);
   const [description, setDescription] = useState("");
   const [domain, setDomain] = useState<string | boolean>("");
   const [selectedGradingType, setSelectedGradingType] = useState<
@@ -34,8 +40,10 @@ export default function CreatPostModal() {
   const [gradingTemplate, setGradingTemplate] = useState<Record<string, any>>(
     {}
   );
+  const [userGrade, setUserGrade] = useState<Record<string, any>>({});
 
   const [maxPoints, setMaxPoints] = useState<number | null>(null);
+  const [numericCriteria, setNumericCriteria] = useState([{}]);
   const [letterRanges, setLetterRanges] = useState([
     { letter: "A", min: 90, max: 100 },
   ]);
@@ -85,6 +93,9 @@ export default function CreatPostModal() {
     isCreatingPostError,
     isCreatingPostSuccess,
   } = useUserCreatePost(domain);
+
+  const { isUploadingFileLoading } = useUserUploadFile();
+  const { isDeletingFileLoading } = useUserRemoveUploadedFile();
 
   const optionsSubjectDomains =
     subjectDomains
@@ -162,6 +173,16 @@ export default function CreatPostModal() {
     console.log("Selected grading criteria:", selected);
   };
 
+  const handleUploadIdsChange = useCallback((ids: string[]) => {
+    setUploadIds((prev) => {
+      // only update if different — prevents unnecessary re-renders
+      if (JSON.stringify(prev) !== JSON.stringify(ids)) {
+        return ids;
+      }
+      return prev;
+    });
+  }, []);
+
   const onSubmit = async (data: PostCreateInput) => {
     // Compose gradingTemplate based on selected type
     let gradingTemplate: Record<string, any> = {};
@@ -186,17 +207,23 @@ export default function CreatPostModal() {
     }
 
     try {
+      if (uploadIds.length === 0) toast.error("There is no files uploaded!");
+      console.log(uploadIds, "uploadids");
       const postData = {
         ...data,
         grading: {
           criteria: gradingTemplate,
           gradingType: selectedGradingType,
         },
+        uploadIds,
+        userGrade,
       };
       console.log(postData);
-      await createPostAsync(postData);
-      toast.success("Post created successfully!");
-      close();
+      if (uploadIds.length > 0) {
+        await createPostAsync(postData);
+        toast.success("Post created successfully!");
+        close();
+      }
     } catch (err) {
       if (err instanceof Error) toast.error(err.message);
       else toast.error("Something went wrong");
@@ -242,7 +269,22 @@ export default function CreatPostModal() {
           {...register("description", { required: "Description is required!" })}
           error={errors?.description?.message}
         />
-
+        {/* Tags */}
+        <Input
+          label="Tags"
+          type="text"
+          placeholder="Enter tags separated by commas"
+          {...register("tags", {
+            setValueAs: (v: unknown) =>
+              typeof v === "string" && v.length > 0
+                ? v
+                    .split(",")
+                    .map((tag) => tag.trim())
+                    .filter(Boolean)
+                : [],
+          })}
+          error={errors?.tags?.message}
+        />
         {/* Subject Domains */}
         <div>
           <p className="text-[#0c0c0c] text-base font-normal mb-1">
@@ -295,7 +337,7 @@ export default function CreatPostModal() {
               type="number"
               defaultValue={gradingTemplate.min || ""}
               onChange={(e) =>
-                setGradingTemplate((prev) => ({
+                setNumericCriteria((prev) => ({
                   ...prev,
                   min: Number(e.target.value),
                 }))
@@ -306,7 +348,7 @@ export default function CreatPostModal() {
               type="number"
               defaultValue={gradingTemplate.max || ""}
               onChange={(e) =>
-                setGradingTemplate((prev) => ({
+                setNumericCriteria((prev) => ({
                   ...prev,
                   max: Number(e.target.value),
                 }))
@@ -444,12 +486,139 @@ export default function CreatPostModal() {
           </div>
         )}
 
+        {/* User's Given Grade Section */}
+        {selectedGradingType === "numeric" && (
+          <Input
+            label="Your Grade"
+            type="number"
+            placeholder="Enter your grade"
+            value={userGrade.numeric || ""}
+            onChange={(e) =>
+              setUserGrade((prev) => ({
+                ...prev,
+                numeric: Number(e.target.value),
+              }))
+            }
+          />
+        )}
+
+        {selectedGradingType === "letter" && (
+          <div className="space-y-3">
+            <p className="text-sm font-medium text-gray-700">
+              Your Grade (Letter)
+            </p>
+            <CustomSelect
+              options={letterRanges.map((r) => ({
+                value: r.letter,
+                label: r.letter,
+              }))}
+              defaultValue={
+                userGrade.letter
+                  ? { value: userGrade.letter, label: userGrade.letter }
+                  : undefined
+              }
+              onChange={(val) =>
+                setUserGrade((prev) => ({
+                  ...prev,
+                  letter: typeof val?.value === "string" ? val.value : "",
+                }))
+              }
+            />
+          </div>
+        )}
+
+        {(selectedGradingType === "rubric" ||
+          selectedGradingType === "weightedRubric") && (
+          <div className="flex flex-col gap-2">
+            <p className="text-sm font-medium text-gray-700">
+              Your Grade (Rubric)
+            </p>
+            {rubricCriteria.map((item, idx) => (
+              <div key={idx} className="flex gap-2 items-center">
+                <span className="w-40">{item.label}</span>
+                <Input
+                  label="Score"
+                  type="number"
+                  placeholder={`0 - ${item.maxPoints}`}
+                  value={userGrade.rubric?.[idx] || ""}
+                  onChange={(e) => {
+                    const value = Number(e.target.value);
+                    setUserGrade((prev) => {
+                      const updated = [...(prev.rubric || [])];
+                      updated[idx] = value;
+                      return { ...prev, rubric: updated };
+                    });
+                  }}
+                />
+              </div>
+            ))}
+          </div>
+        )}
+
+        {selectedGradingType === "checklist" && (
+          <div className="space-y-3">
+            <p className="text-sm font-medium text-gray-700">
+              Checklist Grades
+            </p>
+            {checklistItems.map((item, idx) => (
+              <div key={idx} className="flex items-center gap-2">
+                <span className="w-40">{item}</span>
+                <CustomSelect
+                  options={[
+                    { value: "done", label: "Done" },
+                    { value: "pending", label: "Pending" },
+                  ]}
+                  defaultValue={
+                    userGrade.checklist?.[idx]
+                      ? {
+                          value: userGrade.checklist[idx],
+                          label: userGrade.checklist[idx],
+                        }
+                      : undefined
+                  }
+                  onChange={(val) => {
+                    const value = val?.value;
+                    setUserGrade((prev) => {
+                      const updated = [...(prev.checklist || [])];
+                      updated[idx] = value;
+                      return { ...prev, checklist: updated };
+                    });
+                  }}
+                />
+              </div>
+            ))}
+          </div>
+        )}
+
+        {selectedGradingType === "passFail" && (
+          <div className="space-y-3">
+            <p className="text-sm font-medium text-gray-700">
+              Your Grade (Pass/Fail)
+            </p>
+            <CustomSelect
+              options={[
+                { value: "pass", label: "Pass" },
+                { value: "fail", label: "Fail" },
+              ]}
+              defaultValue={
+                userGrade.passFail
+                  ? { value: userGrade.passFail, label: userGrade.passFail }
+                  : { value: "pass", label: "Pass" }
+              }
+              onChange={(val) =>
+                setUserGrade((prev) => ({
+                  ...prev,
+                  letter: typeof val?.value === "string" ? val.value : "",
+                }))
+              }
+            />
+          </div>
+        )}
+
         {/* File Upload */}
         <FileUploader
-          label="Upload Test Images or Documents"
-          accept="image/*,.pdf,.docx"
-          multiple
-          onUpload={handleUploadedFiles} // returns uploaded file URLs
+          label="Upload Documents"
+          onUploadIdsChange={handleUploadIdsChange}
         />
       </div>
 
@@ -464,9 +633,17 @@ export default function CreatPostModal() {
           {/* Update Button */}
           <Button
             type="submit"
-            className={`justify-center text-base cursor-pointer w-full transition 
-        ${isCreatingPostLoading && "opacity-70 cursor-not-allowed"}`}
-            disabled={isCreatingPostLoading}
+            className={`justify-center text-base w-full transition
+    ${
+      isCreatingPostLoading || isUploadingFileLoading || isDeletingFileLoading
+        ? "opacity-70 cursor-not-allowed"
+        : "cursor-pointer"
+    }`}
+            disabled={
+              isCreatingPostLoading ||
+              isUploadingFileLoading ||
+              isDeletingFileLoading
+            }
           >
             {isCreatingPostLoading ? (
               <>

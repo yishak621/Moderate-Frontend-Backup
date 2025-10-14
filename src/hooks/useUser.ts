@@ -1,7 +1,9 @@
 import { User } from "@/app/types/user";
 import { queryClient } from "@/lib/queryClient";
 import {
+  deleteFileApi,
   updateUserData,
+  uploadFileApi,
   userCreatePost,
   userData,
   userOverviewStats,
@@ -10,6 +12,7 @@ import {
 } from "@/services/user.service";
 import { PostCreateInput } from "@/types/postAttributes";
 import { useMutation, useQuery } from "@tanstack/react-query";
+import toast from "react-hot-toast";
 
 //--------------------GET USER DATA
 export function useUserData() {
@@ -145,5 +148,47 @@ export const useUserCreatePost = (domainId: string | boolean) => {
     isCreatingPostSuccess: isSuccess,
     isCreatingPostError: isError,
     creatingPostError: error,
+  };
+};
+
+//--------------------USER UPLOAD FILE
+export const useUserUploadFile = () => {
+  const { mutate, mutateAsync, data, isPending, isSuccess, isError, error } =
+    useMutation({
+      mutationFn: (data: File) => uploadFileApi(data),
+      onSuccess: () => {
+        toast.success("File Uploaded Successfully!");
+      },
+    });
+
+  return {
+    uploadFile: mutate,
+    uploadFileAsync: mutateAsync,
+    data,
+    isUploadingFileLoading: isPending,
+    isUploadingFileSuccess: isSuccess,
+    isUploadingFileError: isError,
+    uploadingFileError: error,
+  };
+};
+
+//--------------------USER REMOVE FILE
+export const useUserRemoveUploadedFile = () => {
+  const { mutate, mutateAsync, data, isPending, isSuccess, isError, error } =
+    useMutation({
+      mutationFn: (fileId: string) => deleteFileApi(fileId),
+      onSuccess: () => {
+        toast.success("File Deleted Successfully!");
+      },
+    });
+
+  return {
+    deleteFile: mutate,
+    deleteFileAsync: mutateAsync,
+    data,
+    isDeletingFileLoading: isPending,
+    isDeletingFileSuccess: isSuccess,
+    isDeletingFileError: isError,
+    deletingFileError: error,
   };
 };

@@ -6,10 +6,12 @@ export interface UploadAttributes {
   id: string;
   fileName: string;
   fileUrl: string;
-  postId: string;
-  uploadedBy: string;
-  createdAt: string; // ISO date string
-  updatedAt: string; // ISO date string
+  postId?: string;
+  preview?: string;
+  fileType?: string;
+  uploadedBy?: string;
+  createdAt?: string; // ISO date string
+  updatedAt?: string; // ISO date string
 }
 
 export interface PostAttributes {
@@ -25,6 +27,7 @@ export interface PostAttributes {
   author: User;
   comments: Comment[];
   grades: Grade[];
+
 }
 
 export interface PostCreateInput {
@@ -39,7 +42,8 @@ export interface PostCreateInput {
     | "checklist"
     | "passFail";
   gradingTemplate: Record<string, any>;
-  files: File[];
+    postCreatorGrade:Record<string, any>;
+  uploadIds: string[];
   tags?: string[];
   minPoints?: number;
   maxPoints?: number;
