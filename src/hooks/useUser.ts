@@ -216,6 +216,10 @@ export const useUserSaveGrade = () => {
     }) => saveUserGrade(postId, gradeData),
     onSuccess: () => {
       toast.success("Grade saved successfully!");
+      queryClient.invalidateQueries({
+        queryKey: ["userSinglePostData"],
+        exact: false,
+      });
     },
   });
 

@@ -18,7 +18,6 @@ export default function GradingClientTeachers() {
   const filters = ["All", "Moderated", "Pending"];
   const [activeFilter, setActiveFilter] = useState("Pending"); // ✅ default "All"
   const [visiblePostsCount, setVisiblePostsCount] = useState(5); // Start with 5 posts
-  
 
   const {
     userPostFeedsData,
@@ -38,9 +37,15 @@ export default function GradingClientTeachers() {
 
   const filteredPendingPostFeedsData = userPostFeedsData?.posts.filter(
     (post: PostAttributes) => {
-      return !post.comments.some(
-        (comment) => comment.commentedBy === (decoded?.id as any)
+      // Exclude posts that have been commented by the user
+      const notCommentedByUser = !post.comments.some(
+        (comment) => comment.commentedBy === decoded?.id
       );
+
+      // Exclude posts that are authored by the current user
+      const notMyPost = post?.author.id !== decoded?.id;
+
+      return notCommentedByUser && notMyPost;
     }
   );
 

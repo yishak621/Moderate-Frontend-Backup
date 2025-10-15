@@ -15,7 +15,7 @@ import { timeAgo } from "@/lib/timeAgo";
 import SectionLoading from "@/components/SectionLoading";
 import { GradeTemplateNumeric } from "@/modules/dashboard/teacher/GradingLogics/GradeTemplateNumeric";
 import { GradeTemplateLetter } from "@/modules/dashboard/teacher/GradingLogics/GradeTemplateLetter";
-import { GradeTemplateWeightedRubric } from "@/modules/dashboard/teacher/GradingLogics/GradeTemplateWeightedRubric";
+import GradeTemplateWeightedRubric from "@/modules/dashboard/teacher/GradingLogics/GradeTemplateWeightedRubric";
 import { GradeTemplatePassFail } from "@/modules/dashboard/teacher/GradingLogics/GradeTemplatePassFail";
 import { GradeTemplateChecklist } from "@/modules/dashboard/teacher/GradingLogics/GradeTemplateChecklist";
 import { decoded } from "@/lib/currentUser";
@@ -68,7 +68,7 @@ export default function PostViewClient() {
   const checkPostIsGradedByThisUser = groupedGrades?.some((grade) => {
     return grade?.gradedBy?.id === decoded?.id;
   });
-  console.log(checkPostIsGradedByThisUser);
+  console.log(groupedGrades, "grades");
 
   const nextFile = () => {
     setCurrentFileIndex((prev) => (prev + 1) % uploads.length);
@@ -172,7 +172,7 @@ export default function PostViewClient() {
           />
         </div>
         {/* grades given */}
-        <div className="max-h-screen overflow-y-scroll scrollbar-hide">
+        <div className="max-h-screen overflow-y-scroll scrollbar-hide w-full">
           {activeFilter === "Grades" && groupedGrades?.length > 0 && (
             <>
               {groupedGrades.map((grader, idx) => {
@@ -186,25 +186,60 @@ export default function PostViewClient() {
                         grade={grader}
                         gradingTemplate={post?.gradingTemplate}
                       >
-                        <div className="text-sm text-gray-700">
-                          Score: {grader.grade.numeric}/
-                          {post?.gradingTemplate.criteria.numericCriteria.max}
+                        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 bg-gray-50 border border-gray-200 rounded-xl px-5 py-4 shadow-sm hover:shadow-md transition-shadow duration-200">
+                          <div>
+                            <p className="text-sm text-gray-600">Score</p>
+                            <p className="text-base font-semibold text-gray-800">
+                              {grader.grade.numeric} /{" "}
+                              {
+                                post?.gradingTemplate.criteria.numericCriteria
+                                  .max
+                              }
+                            </p>
+                          </div>
+
+                          <div className="flex items-center justify-center w-10 h-10 rounded-full bg-green-100 text-green-600 font-semibold text-lg">
+                            {Math.round(
+                              (grader.grade.numeric /
+                                post?.gradingTemplate.criteria.numericCriteria
+                                  .max) *
+                                100
+                            )}
+                            %
+                          </div>
                         </div>
                       </GradeGivenSection>
                     );
 
-                  // case "letter":
-                  //   return (
-                  //     <GradeGivenSection
-                  //       key={idx}
-                  //       grade={grader}
-                  //       gradingTemplate={post?.gradingTemplate}
-                  //     >
-                  //       <div className="text-sm text-gray-700">
-                  //         Grade: {grader.grade.letter}
-                  //       </div>
-                  //     </GradeGivenSection>
-                  //   );
+                  case "letter":
+                    return (
+                      <GradeGivenSection
+                        key={idx}
+                        grade={grader}
+                        gradingTemplate={post?.gradingTemplate}
+                      >
+                        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 bg-gray-50 border border-gray-200 rounded-xl px-5 py-4 shadow-sm hover:shadow-md transition-shadow duration-200">
+                          <div className="flex items-center gap-3">
+                            <div className="flex items-center justify-center w-10 h-10 rounded-full bg-blue-100 text-blue-600 font-semibold text-lg">
+                              {grader?.grade.letter.letterGrade.letter}
+                            </div>
+                            <div>
+                              <p className="text-sm text-gray-600">Grade</p>
+                              <p className="text-base font-semibold text-gray-800">
+                                {grader?.grade.letter.letterGrade.letter}
+                              </p>
+                            </div>
+                          </div>
+
+                          <div className="text-right">
+                            <p className="text-sm text-gray-600">Score</p>
+                            <p className="text-base font-semibold text-gray-800">
+                              {grader?.grade.letter.score}
+                            </p>
+                          </div>
+                        </div>
+                      </GradeGivenSection>
+                    );
 
                   // case "rubric":
                   //   return (
@@ -322,6 +357,8 @@ export default function PostViewClient() {
                   <GradeTemplateRubric
                     criteria={post?.gradingTemplate.criteria}
                     totalRange={post?.gradingTemplate.criteria.total}
+                    gradingTemplate={post?.gradingTemplate}
+                    postId={postId}
                   />
                 )}
 

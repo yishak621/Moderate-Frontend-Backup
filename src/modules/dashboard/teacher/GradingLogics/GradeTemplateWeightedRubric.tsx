@@ -1,89 +1,185 @@
-"use client";
-
-import { GradeResult, WeightedCriterion } from "@/types/grade";
-import React, { useState } from "react";
-import { RubricCriteriaItem } from "./GradeTemplateRubric";
+import Input from "@/components/ui/Input";
+import Textarea from "@/components/ui/Textarea";
 import Button from "@/components/ui/Button";
+import { useState } from "react";
+import {
+  GradeResult,
+  GradeTemplateRubricProps,
+  RubricCriteria,
+  RubricCriteriaItemProps,
+} from "@/types/grade";
+import { useForm } from "react-hook-form";
+import { useUserSaveGrade } from "@/hooks/useUser";
+import toast from "react-hot-toast";
 
 type Props = {
-  criteria: WeightedCriterion[]; // weight usually sum to 1 (or 100)
-  onSave?: (r: GradeResult & { breakdown: Record<string, number> }) => void;
+  label?: string;
+  min?: number;
+  max?: number;
+  value?: number;
+  comment?: string;
+  defaultValue?: number;
+  onSave?: (result: GradeResult) => void;
+  onPublish?: (result: GradeResult) => void;
+  gradingTemplate: any;
+  postId: string;
 };
 
-export function GradeTemplateWeightedRubric({ criteria, onSave }: Props) {
-  // initial scores 0
-  const initial = criteria.reduce(
-    (acc, c) => ({ ...acc, [c.key]: 0 }),
-    {} as Record<string, number>
-  );
-  const [scores, setScores] = useState<Record<string, number>>(initial);
-  const [note, setNote] = useState("");
+type RubricFormValues = {
+  criteria: Record<string, number>;
+  comment: string;
+};
 
-  const handleChange = (key: string, val: number) =>
-    setScores((s) => ({ ...s, [key]: val }));
+export default function GradeTemplateWeightedRubric({
+  criteria,
+  postId,
+  gradingTemplate,
+}: GradeTemplateRubricProps) {
+  const { saveGradeAsync, isSavingGradeLoading } = useUserSaveGrade();
 
-  const maxPossible = criteria.reduce(
-    (sum, c) => sum + c.maxPoints * (c.weight ?? 1),
+  const defaultValues = {
+    criteria: criteria?.rubricCriteria.reduce((acc: any, c: any) => {
+      acc[c.label] = 0;
+      return acc;
+    }, {} as Record<string, number>),
+    comment: "",
+  };
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    watch,
+  } = useForm<RubricFormValues>({ defaultValues });
+
+  const watchedCriteria = watch("criteria");
+  console.log(watchedCriteria, "watched");
+
+  const totalScore = Object.values(watchedCriteria).reduce(
+    (sum, val) => sum + Number(val),
     0
   );
 
-  const totalScore = criteria.reduce((sum, c) => {
-    const raw = scores[c.key] ?? 0;
-    const pct = raw / c.maxPoints || 0;
-    return sum + pct * (c.weight ?? 1) * c.maxPoints;
-  }, 0);
+  const maxScore = criteria?.rubricCriteria.reduce(
+    (sum: number, c: any) => sum + c.maxPoints,
+    0
+  );
+  const percentage = (totalScore / maxScore) * 100;
+  const onSubmit = async (data: RubricFormValues) => {
+    const rubricData = Object.entries(data.criteria).map(([key, value]) => {
+      const criterion = criteria?.rubricCriteria.find(
+        (c: any) => c.label === key
+      );
+      return { label: criterion?.label || key, value };
+    });
 
-  const percent = (totalScore / maxPossible) * 100;
+    try {
+      await saveGradeAsync({
+        postId,
+        gradeData: {
+          gradeType: gradingTemplate.type,
+          grade: { rubric: { rubricData, totalScore, percentage } },
+          gradeTemplateId: gradingTemplate.id,
+          criteria: gradingTemplate.criteria,
+          comment: data.comment,
+        },
+      });
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Something went wrong");
+    }
+  };
 
   return (
-    <div className="p-4">
-      <div className="mb-3 font-medium">Weighted Rubric</div>
-      {criteria.map((c) => (
-        <div key={c.key} className="mb-3">
-          <div className="flex justify-between">
-            <div>
-              {c.label} (w:{c.weight})
-            </div>
-            <div>
-              {scores[c.key] ?? 0}/{c.maxPoints}
-            </div>
-          </div>
-          <RubricCriteriaItem
-            name={c.label}
-            value={scores[c.key] ?? 0}
-            min={0}
-            max={c.maxPoints}
-            onChange={(v) => handleChange(c.key, v)}
+    <form
+      onSubmit={handleSubmit(onSubmit)}
+      className="flex flex-col gap-6 w-full p-6"
+    >
+      <h3 className="text-lg font-semibold text-gray-800">Rubric Editor</h3>
+
+      {criteria?.rubricCriteria.map((c: any) => (
+        <div key={c.label} className="flex flex-col gap-2">
+          <label className="text-sm font-medium text-gray-700">
+            {c.label} ({c.minPoints ?? 0}-{c.maxPoints} pts)
+          </label>
+          <Input
+            type="number"
+            className="w-24"
+            placeholder="0"
+            defaultValue=""
+            {...register(`criteria.${c.label}`, {
+              required: "Score required",
+              min: {
+                value: c.minPoints ?? 0,
+                message: `Min ${c.minPoints ?? 0}`,
+              },
+              max: { value: c.maxPoints, message: `Max ${c.maxPoints}` },
+            })}
           />
+
+          {errors.criteria?.[c.label] && (
+            <p className="text-red-500 text-xs">
+              {errors.criteria[c.label]?.message}
+            </p>
+          )}
         </div>
       ))}
 
-      <textarea
-        placeholder="Notes..."
-        value={note}
-        onChange={(e) => setNote(e.target.value)}
-        className="w-full p-2 border rounded my-2"
-      />
-
-      <div className="mb-2">
-        Total: <strong>{Math.round(totalScore)}</strong> /{" "}
-        {Math.round(maxPossible)} ({Math.round(percent)}%)
+      <div className="bg-gray-50 rounded-lg p-4">
+        <div className="flex justify-between items-center">
+          <span className="font-medium text-gray-700">Total Score</span>
+          <span className="font-bold text-blue-600">
+            {totalScore} / {maxScore} (
+            {Math.round((totalScore / maxScore) * 100)}%)
+          </span>
+        </div>
+        <div className="w-full bg-gray-200 h-2 rounded-full mt-2">
+          <div
+            className="bg-blue-600 h-2 rounded-full transition-all"
+            style={{ width: `${(totalScore / maxScore) * 100}%` }}
+          ></div>
+        </div>
       </div>
 
-      <div className="flex gap-2">
-        <Button
-        //   onClick={() =>
-        //     // onSave?.({
-        //     //   totalScore,
-        //     //   maxScore: maxPossible,
-        //     //   percent,
-        //     //   extra: { breakdown: scores, note },
-        //     // })
-        //   }
-        >
-          Save
-        </Button>
+      <div className="flex flex-col gap-2">
+        <label className="text-sm font-medium text-gray-700">Feedback</label>
+        <Textarea placeholder="Enter comments..." {...register("comment")} />
       </div>
-    </div>
+
+      <Button
+        type="submit"
+        variant="primary"
+        className={`justify-center text-base cursor-pointer w-full transition 
+        ${isSavingGradeLoading && "opacity-70 cursor-not-allowed"}`}
+        disabled={isSavingGradeLoading}
+      >
+        {isSavingGradeLoading ? (
+          <>
+            <svg
+              className="h-5 w-5 animate-spin text-white"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <circle
+                className="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                strokeWidth="4"
+              ></circle>
+              <path
+                className="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8v4l3-3-3-3v4a12 12 0 00-12 12h4z"
+              ></path>
+            </svg>
+            Publishing...
+          </>
+        ) : (
+          "Publish Grade"
+        )}
+      </Button>
+    </form>
   );
 }

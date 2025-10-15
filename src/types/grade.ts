@@ -21,11 +21,14 @@ export type RubricCriteria = {
   key: string;
   label: string;
   maxPoints: number;
+  rubricCriteria: any;
 };
 
 export type GradeTemplateRubricProps = {
-  criteria?: RubricCriteria[];
+  criteria?: RubricCriteria;
   totalRange?: { min: number; max: number };
+  postId: string;
+  gradingTemplate: any;
 };
 
 export type RubricCriteriaItemProps = {

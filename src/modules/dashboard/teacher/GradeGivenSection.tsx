@@ -25,7 +25,7 @@ export default function GradeGivenSection({
 
   return (
     <div className="rounded-3xl border border-[#DBDBDB] py-6 px-7.5 my-5 flex flex-col gap-6">
-      <div className="flex items-center gap-2.5">
+      <div className="flex items-center gap-2.5 ">
         <div className="w-[38px] h-[38px] rounded-full bg-amber-300" />
         <div>
           <p className="text-[#0C0C0C] text-base font-normal">

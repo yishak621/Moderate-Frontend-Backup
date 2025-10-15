@@ -78,9 +78,6 @@ export function GradeTemplateNumeric({
           comment: data.comment,
         },
       });
-
-      toast.success("Grade published successfully!");
-      close();
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Something went wrong");
     }

@@ -3,171 +3,183 @@ import Textarea from "@/components/ui/Textarea";
 import Button from "@/components/ui/Button";
 import { useState } from "react";
 import {
+  GradeResult,
   GradeTemplateRubricProps,
+  RubricCriteria,
   RubricCriteriaItemProps,
 } from "@/types/grade";
+import { useForm } from "react-hook-form";
+import { useUserSaveGrade } from "@/hooks/useUser";
+import toast from "react-hot-toast";
+
+type Props = {
+  label?: string;
+  min?: number;
+  max?: number;
+  value?: number;
+  comment?: string;
+  defaultValue?: number;
+  onSave?: (result: GradeResult) => void;
+  onPublish?: (result: GradeResult) => void;
+  gradingTemplate: any;
+  postId: string;
+};
+
+type RubricFormValues = {
+  criteria: Record<string, number>;
+  comment: string;
+};
 
 export default function GradeTemplateRubric({
-  criteria = [],
-  totalRange = { min: 0, max: 100 },
+  criteria,
+  postId,
+  gradingTemplate,
 }: GradeTemplateRubricProps) {
-  const [scores, setScores] = useState<Record<string, number>>(
-    criteria.reduce((acc, criterion) => {
-      acc[criterion.key] = 0;
-      return acc;
-    }, {} as Record<string, number>)
-  );
-  const [feedback, setFeedback] = useState("");
+  const { saveGradeAsync, isSavingGradeLoading } = useUserSaveGrade();
 
-  const handleScoreChange = (key: string, value: number) => {
-    setScores((prev) => ({
-      ...prev,
-      [key]: value,
-    }));
+  const defaultValues = {
+    criteria: criteria?.rubricCriteria.reduce((acc: any, c: any) => {
+      acc[c.label] = 0;
+      return acc;
+    }, {} as Record<string, number>),
+    comment: "",
   };
 
-  const totalScore = Object.values(scores).reduce(
-    (sum, score) => sum + score,
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    watch,
+  } = useForm<RubricFormValues>({ defaultValues });
+
+  const watchedCriteria = watch("criteria");
+  console.log(watchedCriteria, "watched");
+
+  const totalScore = Object.values(watchedCriteria).reduce(
+    (sum, val) => sum + Number(val),
     0
   );
 
-  const maxPossibleScore = criteria.reduce((sum, c) => sum + c.maxPoints, 0);
-
-  const handleSaveGrade = () => {
-    // TODO: Implement save functionality
-    console.log("Saving grade:", { scores, totalScore, feedback });
-  };
-
-  const handlePublishGrade = () => {
-    // TODO: Implement publish functionality
-    console.log("Publishing grade:", { scores, totalScore, feedback });
-  };
-
-  return (
-    <div className="w-full  flex flex-col items-start p-6">
-      <p className="text-[#0C0C0C] text-lg font-semibold mb-6">Rubric Editor</p>
-
-      <div className="flex flex-col gap-6 w-full">
-        {/* Criteria Section */}
-        <div className="flex flex-col gap-4">
-          <div className="flex items-center gap-2 mb-2">
-            <span className="text-sm text-gray-600">💡</span>
-            <span className="text-sm text-gray-600">
-              Enter scores for each criterion (0 to max points)
-            </span>
-          </div>
-
-          {criteria.map((criterion) => (
-            <RubricCriteriaItem
-              key={criterion.key}
-              name={criterion.label}
-              value={scores[criterion.key] || 0}
-              min={0}
-              max={criterion.maxPoints}
-              onChange={(value) => handleScoreChange(criterion.key, value)}
-            />
-          ))}
-        </div>
-
-        {/* Feedback Section */}
-        <div className="flex flex-col gap-2 w-full">
-          <label className="text-sm font-medium text-gray-700">
-            Feedback Comments
-          </label>
-          <Textarea
-            placeholder="Provide detailed feedback for the student..."
-            value={feedback}
-            onChange={(e) => setFeedback(e.target.value)}
-            className="w-full min-h-[100px]"
-          />
-        </div>
-
-        {/* Total Score Display */}
-        <div className="bg-gray-50 rounded-lg p-4">
-          <div className="flex justify-between items-center">
-            <span className="font-medium text-gray-700">Total Score:</span>
-            <span className="text-xl font-bold text-blue-600">
-              {totalScore} / {maxPossibleScore}
-            </span>
-          </div>
-          <div className="mt-2">
-            <div className="w-full bg-gray-200 rounded-full h-2">
-              <div
-                className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-                style={{ width: `${(totalScore / maxPossibleScore) * 100}%` }}
-              ></div>
-            </div>
-            <p className="text-xs text-gray-500 mt-1">
-              {totalScore > 0
-                ? `${Math.round(
-                    (totalScore / maxPossibleScore) * 100
-                  )}% completed`
-                : "No scores entered yet"}
-            </p>
-          </div>
-        </div>
-
-        {/* Action Buttons */}
-        <div className="flex gap-3 pt-4 ">
-          <Button
-            onClick={handleSaveGrade}
-            variant="secondary"
-            className="flex-1"
-          >
-            Save Grade
-          </Button>
-          <Button
-            onClick={handlePublishGrade}
-            variant="primary"
-            className="flex-1"
-          >
-            Publish Grade
-          </Button>
-        </div>
-      </div>
-    </div>
+  const maxScore = criteria?.rubricCriteria.reduce(
+    (sum: number, c: any) => sum + c.maxPoints,
+    0
   );
-}
+  const percentage = (totalScore / maxScore) * 100;
+  const onSubmit = async (data: RubricFormValues) => {
+    const rubricData = Object.entries(data.criteria).map(([key, value]) => {
+      const criterion = criteria?.rubricCriteria.find(
+        (c: any) => c.label === key
+      );
+      return { label: criterion?.label || key, value };
+    });
 
-export function RubricCriteriaItem({
-  name,
-  value,
-  min = 0,
-  max = 10,
-  onChange,
-}: RubricCriteriaItemProps) {
+    try {
+      await saveGradeAsync({
+        postId,
+        gradeData: {
+          gradeType: gradingTemplate.type,
+          grade: { rubric: { rubricData, totalScore, percentage } },
+          gradeTemplateId: gradingTemplate.id,
+          criteria: gradingTemplate.criteria,
+          comment: data.comment,
+        },
+      });
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Something went wrong");
+    }
+  };
+
   return (
-    <div className="flex flex-col gap-2 w-full">
-      <div className="flex justify-between items-center">
-        <label className="font-medium text-gray-700">{name}</label>
-        <span className="text-sm text-gray-500">
-          {min} - {max} points
-        </span>
-      </div>
-      <div className="flex gap-4 items-center">
-        <div className="flex-1 border border-[#DBDBDB] rounded-[10px] py-3.5 px-4 bg-gray-50">
-          <span className="text-gray-600">
-            Enter score for {name.toLowerCase()}
+    <form
+      onSubmit={handleSubmit(onSubmit)}
+      className="flex flex-col gap-6 w-full p-6"
+    >
+      <h3 className="text-lg font-semibold text-gray-800">Rubric Editor</h3>
+
+      {criteria?.rubricCriteria.map((c: any) => (
+        <div key={c.label} className="flex flex-col gap-2">
+          <label className="text-sm font-medium text-gray-700">
+            {c.label} ({c.minPoints ?? 0}-{c.maxPoints} pts)
+          </label>
+          <Input
+            type="number"
+            className="w-24"
+            placeholder="0"
+            defaultValue=""
+            {...register(`criteria.${c.label}`, {
+              required: "Score required",
+              min: {
+                value: c.minPoints ?? 0,
+                message: `Min ${c.minPoints ?? 0}`,
+              },
+              max: { value: c.maxPoints, message: `Max ${c.maxPoints}` },
+            })}
+          />
+
+          {errors.criteria?.[c.label] && (
+            <p className="text-red-500 text-xs">
+              {errors.criteria[c.label]?.message}
+            </p>
+          )}
+        </div>
+      ))}
+
+      <div className="bg-gray-50 rounded-lg p-4">
+        <div className="flex justify-between items-center">
+          <span className="font-medium text-gray-700">Total Score</span>
+          <span className="font-bold text-blue-600">
+            {totalScore} / {maxScore} (
+            {Math.round((totalScore / maxScore) * 100)}%)
           </span>
         </div>
-        <div className="w-24">
-          <Input
-            className="w-full text-center"
-            type="number"
-            min={min}
-            max={max}
-            value={value}
-            onChange={(e) => onChange(Number(e.target.value))}
-            placeholder="0"
-          />
+        <div className="w-full bg-gray-200 h-2 rounded-full mt-2">
+          <div
+            className="bg-blue-600 h-2 rounded-full transition-all"
+            style={{ width: `${(totalScore / maxScore) * 100}%` }}
+          ></div>
         </div>
-        <div className="text-sm text-gray-500 min-w-[60px]">/ {max}</div>
       </div>
-      {Number(value) > max && (
-        <p className="text-red-500 text-xs">
-          ⚠️ Score cannot exceed {max} points
-        </p>
-      )}
-    </div>
+
+      <div className="flex flex-col gap-2">
+        <label className="text-sm font-medium text-gray-700">Feedback</label>
+        <Textarea placeholder="Enter comments..." {...register("comment")} />
+      </div>
+
+      <Button
+        type="submit"
+        variant="primary"
+        className={`justify-center text-base cursor-pointer w-full transition 
+        ${isSavingGradeLoading && "opacity-70 cursor-not-allowed"}`}
+        disabled={isSavingGradeLoading}
+      >
+        {isSavingGradeLoading ? (
+          <>
+            <svg
+              className="h-5 w-5 animate-spin text-white"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <circle
+                className="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                strokeWidth="4"
+              ></circle>
+              <path
+                className="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8v4l3-3-3-3v4a12 12 0 00-12 12h4z"
+              ></path>
+            </svg>
+            Publishing...
+          </>
+        ) : (
+          "Publish Grade"
+        )}
+      </Button>
+    </form>
   );
 }
