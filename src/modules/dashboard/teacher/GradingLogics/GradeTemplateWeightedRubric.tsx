@@ -1,31 +1,18 @@
+"use client";
+
 import Input from "@/components/ui/Input";
 import Textarea from "@/components/ui/Textarea";
 import Button from "@/components/ui/Button";
-import { useState } from "react";
+import { useForm } from "react-hook-form";
+import toast from "react-hot-toast";
+import { useUserSaveGrade } from "@/hooks/useUser";
 import {
   GradeResult,
   GradeTemplateRubricProps,
-  RubricCriteria,
-  RubricCriteriaItemProps,
+  WeightedCriterion,
 } from "@/types/grade";
-import { useForm } from "react-hook-form";
-import { useUserSaveGrade } from "@/hooks/useUser";
-import toast from "react-hot-toast";
 
-type Props = {
-  label?: string;
-  min?: number;
-  max?: number;
-  value?: number;
-  comment?: string;
-  defaultValue?: number;
-  onSave?: (result: GradeResult) => void;
-  onPublish?: (result: GradeResult) => void;
-  gradingTemplate: any;
-  postId: string;
-};
-
-type RubricFormValues = {
+type WeightedRubricFormValues = {
   criteria: Record<string, number>;
   comment: string;
 };
@@ -34,9 +21,11 @@ export default function GradeTemplateWeightedRubric({
   criteria,
   postId,
   gradingTemplate,
-}: GradeTemplateRubricProps) {
+}: GradeTemplateRubricProps & {
+  criteria: { rubricCriteria: WeightedCriterion[] };
+}) {
   const { saveGradeAsync, isSavingGradeLoading } = useUserSaveGrade();
-
+  console.log(criteria);
   const defaultValues = {
     criteria: criteria?.rubricCriteria.reduce((acc: any, c: any) => {
       acc[c.label] = 0;
@@ -50,27 +39,40 @@ export default function GradeTemplateWeightedRubric({
     handleSubmit,
     formState: { errors },
     watch,
-  } = useForm<RubricFormValues>({ defaultValues });
+  } = useForm<WeightedRubricFormValues>({ defaultValues });
 
   const watchedCriteria = watch("criteria");
-  console.log(watchedCriteria, "watched");
 
-  const totalScore = Object.values(watchedCriteria).reduce(
-    (sum, val) => sum + Number(val),
-    0
-  );
+  // Weighted total calculation
 
-  const maxScore = criteria?.rubricCriteria.reduce(
-    (sum: number, c: any) => sum + c.maxPoints,
-    0
-  );
+  // Sum weighted scores
+  const totalScore =
+    criteria?.rubricCriteria.reduce((sum: number, c: any) => {
+      const score = Number(watchedCriteria[c.label]) || 0;
+      const pct = score / c.maxPoints; // fraction of this criterion
+      return sum + pct * c.weight; // weight as percentage
+    }, 0) || 0;
+
+  // Max score is sum of all weights
+  const maxScore =
+    criteria?.rubricCriteria.reduce(
+      (sum: number, c: any) => sum + c.weight,
+      0
+    ) || 0;
+
+  // Percentage
   const percentage = (totalScore / maxScore) * 100;
-  const onSubmit = async (data: RubricFormValues) => {
+
+  const onSubmit = async (data: WeightedRubricFormValues) => {
     const rubricData = Object.entries(data.criteria).map(([key, value]) => {
       const criterion = criteria?.rubricCriteria.find(
         (c: any) => c.label === key
       );
-      return { label: criterion?.label || key, value };
+      return {
+        label: criterion?.label || key,
+        value,
+        weight: criterion?.weight,
+      };
     });
 
     try {
@@ -78,7 +80,13 @@ export default function GradeTemplateWeightedRubric({
         postId,
         gradeData: {
           gradeType: gradingTemplate.type,
-          grade: { rubric: { rubricData, totalScore, percentage } },
+          grade: {
+            weightedRubric: {
+              rubricData,
+              totalScore,
+              percentage,
+            },
+          },
           gradeTemplateId: gradingTemplate.id,
           criteria: gradingTemplate.criteria,
           comment: data.comment,
@@ -94,13 +102,19 @@ export default function GradeTemplateWeightedRubric({
       onSubmit={handleSubmit(onSubmit)}
       className="flex flex-col gap-6 w-full p-6"
     >
-      <h3 className="text-lg font-semibold text-gray-800">Rubric Editor</h3>
+      <h3 className="text-lg font-semibold text-gray-800">
+        Weighted Rubric Editor
+      </h3>
 
       {criteria?.rubricCriteria.map((c: any) => (
         <div key={c.label} className="flex flex-col gap-2">
           <label className="text-sm font-medium text-gray-700">
-            {c.label} ({c.minPoints ?? 0}-{c.maxPoints} pts)
+            {c.label} ({c.minPoints ?? 0}-{c.maxPoints} pts){" "}
+            <span className="text-xs text-gray-500">
+              • Weight: {c.weight.toFixed(0)}%
+            </span>
           </label>
+
           <Input
             type="number"
             className="w-24"
@@ -126,16 +140,16 @@ export default function GradeTemplateWeightedRubric({
 
       <div className="bg-gray-50 rounded-lg p-4">
         <div className="flex justify-between items-center">
-          <span className="font-medium text-gray-700">Total Score</span>
+          <span className="font-medium text-gray-700">Weighted Total</span>
           <span className="font-bold text-blue-600">
-            {totalScore} / {maxScore} (
-            {Math.round((totalScore / maxScore) * 100)}%)
+            {Math.round(totalScore)} / {Math.round(maxScore)} (
+            {Math.round(percentage)}%)
           </span>
         </div>
         <div className="w-full bg-gray-200 h-2 rounded-full mt-2">
           <div
             className="bg-blue-600 h-2 rounded-full transition-all"
-            style={{ width: `${(totalScore / maxScore) * 100}%` }}
+            style={{ width: `${Math.min(percentage, 100)}%` }}
           ></div>
         </div>
       </div>
@@ -177,7 +191,7 @@ export default function GradeTemplateWeightedRubric({
             Publishing...
           </>
         ) : (
-          "Publish Grade"
+          "Publish Weighted Grade"
         )}
       </Button>
     </form>

@@ -301,22 +301,55 @@ export default function PostViewClient() {
                       </GradeGivenSection>
                     );
 
-                  // case "weighted-rubric":
-                  //   return (
-                  //     <GradeGivenSection
-                  //       key={idx}
-                  //       grade={grader}
-                  //       gradingTemplate={post?.gradingTemplate}
-                  //     >
-                  //       <div className="space-y-2">
-                  //         {grader.grade.weights?.map((w: any, i: number) => (
-                  //           <div key={i} className="text-sm text-gray-700">
-                  //             {w.criteria}: {w.value} ({w.weight}%)
-                  //           </div>
-                  //         ))}
-                  //       </div>
-                  //     </GradeGivenSection>
-                  //   );
+                  case "weightedRubric":
+                    return (
+                      <GradeGivenSection
+                        key={idx}
+                        grade={grader}
+                        gradingTemplate={post?.gradingTemplate}
+                      >
+                        <div className="bg-gray-50 border border-gray-200 rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow duration-200">
+                          <p className="text-lg font-semibold text-gray-800 mb-4">
+                            Weighted Rubric Breakdown
+                          </p>
+
+                          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                            {Array.isArray(
+                              grader?.grade?.weightedRubric?.rubricData
+                            ) &&
+                              grader.grade.weightedRubric.rubricData.map(
+                                (w: any, i: number) => (
+                                  <div
+                                    key={i}
+                                    className="flex items-center justify-between bg-white border border-gray-100 rounded-lg px-4 py-3 shadow-sm hover:bg-gray-50 transition-colors"
+                                  >
+                                    <span className="text-sm font-medium text-gray-700">
+                                      {w.label}
+                                    </span>
+                                    <span className="text-sm font-semibold text-blue-600">
+                                      {w.value} ({w.weight}%)
+                                    </span>
+                                  </div>
+                                )
+                              )}
+                          </div>
+
+                          <div className="flex justify-between items-center mt-5 pt-4 border-t border-gray-200">
+                            <p className="text-sm text-gray-600">Total Score</p>
+                            <p className="text-base font-bold text-gray-800">
+                              {grader?.grade?.weightedRubric?.totalScore ?? 0}
+                            </p>
+                          </div>
+
+                          <p className="text-xs text-gray-500 mt-1">
+                            Overall Percentage:{" "}
+                            <span className="font-semibold text-blue-600">
+                              {grader?.grade?.weightedRubric?.percentage ?? 0}%
+                            </span>
+                          </p>
+                        </div>
+                      </GradeGivenSection>
+                    );
 
                   // case "checklist":
                   //   return (
@@ -414,6 +447,15 @@ export default function PostViewClient() {
                 {post?.gradingTemplate?.type === "letter" && (
                   <GradeTemplateLetter
                     ranges={post?.gradingTemplate.criteria.letterRanges}
+                    gradingTemplate={post?.gradingTemplate}
+                    postId={postId}
+                  />
+                )}
+
+                {post?.gradingTemplate?.type === "weightedRubric" && (
+                  <GradeTemplateWeightedRubric
+                    criteria={post?.gradingTemplate.criteria}
+                    totalRange={post?.gradingTemplate.criteria.total}
                     gradingTemplate={post?.gradingTemplate}
                     postId={postId}
                   />
