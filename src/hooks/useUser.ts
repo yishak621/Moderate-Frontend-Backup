@@ -7,6 +7,7 @@ import {
   uploadFileApi,
   userCreatePost,
   userData,
+  userMyPostsFeeds,
   userOverviewStats,
   userPostFeeds,
   userSinglePostData,
@@ -98,7 +99,7 @@ export function useUserPostFeeds() {
 export function useUserMyPostsFeeds() {
   const { data, isPending, isSuccess, isError, error } = useQuery({
     queryKey: ["userMyPostsFeeds"],
-    queryFn: userPostFeeds,
+    queryFn: userMyPostsFeeds,
     staleTime: 5 * 60 * 1000,
   });
 

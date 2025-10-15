@@ -57,8 +57,8 @@ export interface CustomizedError {
 }
 
 type GroupedGrade = {
-  gradedBy: string;
-  grade: string;
+  gradedBy: any;
+  grade: any;
   comment: string | null;
   createdAt: string;
 };

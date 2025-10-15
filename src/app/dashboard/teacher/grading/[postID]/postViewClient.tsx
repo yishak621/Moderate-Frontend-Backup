@@ -19,6 +19,7 @@ import { GradeTemplateWeightedRubric } from "@/modules/dashboard/teacher/Grading
 import { GradeTemplatePassFail } from "@/modules/dashboard/teacher/GradingLogics/GradeTemplatePassFail";
 import { GradeTemplateChecklist } from "@/modules/dashboard/teacher/GradingLogics/GradeTemplateChecklist";
 import { decoded } from "@/lib/currentUser";
+import AlreadyGradedNotice from "@/modules/dashboard/teacher/AlreadyGradedSection";
 
 export default function PostViewClient() {
   const params = useParams();
@@ -36,19 +37,19 @@ export default function PostViewClient() {
   } = useUserSinglePostData(postId);
 
   const groupedGrades: GroupedGrade[] = (post as PostType)?.grades.map(
-    (grade) => {
+    (grade: any) => {
       const comment = post?.comments.find(
         (c: any) => c.commentedBy === grade.gradedBy
       );
       return {
-        gradedBy: grade.gradedBy,
+        gradedBy: grade.grader,
         grade: grade.grade,
         createdAt: grade.createdAt,
         comment: comment?.comment || null,
       };
     }
   );
-
+  console.log(groupedGrades, "grouped");
   const {
     title = "",
     description = "",
@@ -64,6 +65,10 @@ export default function PostViewClient() {
   const filters = ["Grades", "Grade Test"];
   const [activeFilter, setActiveFilter] = useState("Grades");
   const checkPostIsNotThisUser = author?.id === decoded?.id;
+  const checkPostIsGradedByThisUser = groupedGrades?.some((grade) => {
+    return grade.gradedBy.id === decoded?.id;
+  });
+  console.log(checkPostIsGradedByThisUser);
 
   const nextFile = () => {
     setCurrentFileIndex((prev) => (prev + 1) % uploads.length);
@@ -167,25 +172,128 @@ export default function PostViewClient() {
           />
         </div>
         {/* grades given */}
-        <div className="  max-h-screen overflow-y-scroll scrollbar-hide">
-          {activeFilter === "Grades" &&
-            groupedGrades?.length > 0 &&
-            groupedGrades?.map((grader, idx) => (
-              <GradeGivenSection
-                key={idx}
-                grader={grader}
-                date={post?.createdAt}
-                authorName={post?.author.name}
-              />
-            ))}{" "}
+        <div className="max-h-screen overflow-y-scroll scrollbar-hide">
+          {activeFilter === "Grades" && groupedGrades?.length > 0 && (
+            <>
+              {groupedGrades.map((grader, idx) => {
+                const type = post?.gradingTemplate?.type;
+
+                switch (type) {
+                  case "numeric":
+                    return (
+                      <GradeGivenSection
+                        key={idx}
+                        grade={grader}
+                        gradingTemplate={post?.gradingTemplate}
+                      >
+                        <div className="text-sm text-gray-700">
+                          Score: {grader.grade.numeric}/
+                          {post?.gradingTemplate.criteria.numericCriteria.max}
+                        </div>
+                      </GradeGivenSection>
+                    );
+
+                  // case "letter":
+                  //   return (
+                  //     <GradeGivenSection
+                  //       key={idx}
+                  //       grade={grader}
+                  //       gradingTemplate={post?.gradingTemplate}
+                  //     >
+                  //       <div className="text-sm text-gray-700">
+                  //         Grade: {grader.grade.letter}
+                  //       </div>
+                  //     </GradeGivenSection>
+                  //   );
+
+                  // case "rubric":
+                  //   return (
+                  //     <GradeGivenSection
+                  //       key={idx}
+                  //       grade={grader}
+                  //       gradingTemplate={post?.gradingTemplate}
+                  //     >
+                  //       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  //         {Object.entries(grader.grade.criteria || {}).map(
+                  //           ([name, result], i) => (
+                  //             <GradeParametersView
+                  //               key={i}
+                  //               name={name}
+                  //               result={String(result)}
+                  //             />
+                  //           )
+                  //         )}
+                  //       </div>
+                  //     </GradeGivenSection>
+                  //   );
+
+                  // case "weighted-rubric":
+                  //   return (
+                  //     <GradeGivenSection
+                  //       key={idx}
+                  //       grade={grader}
+                  //       gradingTemplate={post?.gradingTemplate}
+                  //     >
+                  //       <div className="space-y-2">
+                  //         {grader.grade.weights?.map((w: any, i: number) => (
+                  //           <div key={i} className="text-sm text-gray-700">
+                  //             {w.criteria}: {w.value} ({w.weight}%)
+                  //           </div>
+                  //         ))}
+                  //       </div>
+                  //     </GradeGivenSection>
+                  //   );
+
+                  // case "checklist":
+                  //   return (
+                  //     <GradeGivenSection
+                  //       key={idx}
+                  //       grade={grader}
+                  //       gradingTemplate={post?.gradingTemplate}
+                  //     >
+                  //       <ul className="list-disc ml-6 space-y-1 text-sm text-gray-700">
+                  //         {grader.grade.items?.map(
+                  //           (item: string, i: number) => (
+                  //             <li key={i}>{item}</li>
+                  //           )
+                  //         )}
+                  //       </ul>
+                  //     </GradeGivenSection>
+                  //   );
+
+                  // case "passfail":
+                  //   return (
+                  //     <GradeGivenSection
+                  //       key={idx}
+                  //       grade={grader}
+                  //       gradingTemplate={post?.gradingTemplate}
+                  //     >
+                  //       <div
+                  //         className={`px-3 py-1 rounded-full text-sm font-medium ${
+                  //           grader.grade.pass
+                  //             ? "bg-green-100 text-green-700"
+                  //             : "bg-red-100 text-red-700"
+                  //         }`}
+                  //       >
+                  //         {grader.grade.pass ? "Passed" : "Failed"}
+                  //       </div>
+                  //     </GradeGivenSection>
+                  //   );
+
+                  default:
+                    return null;
+                }
+              })}
+            </>
+          )}
+
           {activeFilter === "Grades" && !groupedGrades?.length && (
-            <div className=" flex flex-col items-center justify-center mt-8 py-16 px-6 bg-gray-50 border border-dashed border-gray-300 rounded-xl space-y-4">
+            <div className="flex flex-col items-center justify-center mt-8 py-16 px-6 bg-gray-50 border border-dashed border-gray-300 rounded-xl space-y-4">
               <svg
                 className="w-16 h-16 text-gray-400"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
-                xmlns="http://www.w3.org/2000/svg"
               >
                 <path
                   strokeLinecap="round"
@@ -198,31 +306,53 @@ export default function PostViewClient() {
                 No grades yet
               </h3>
               <p className="text-sm text-gray-500 text-center">
-                Once teachers grade the submissions, you’ll see them here. or Be
-                the first one to grade this test :)
+                Once teachers grade the submissions, you’ll see them here. Be
+                the first one to grade this test 🙂
               </p>
             </div>
           )}
         </div>
 
         {activeFilter === "Grade Test" && !checkPostIsNotThisUser && (
-          <div className=" mt-8 flex flex-col items-start  w-full">
-            {post?.gradingTemplate?.type === "rubric" && (
-              <GradeTemplateRubric
-                criteria={post?.gradingTemplate.criteria}
-                totalRange={post?.gradingTemplate.criteria.total}
-              />
+          <>
+            {/* Show grading section if NOT graded */}
+            {!checkPostIsGradedByThisUser && (
+              <div className="mt-8 flex flex-col items-start w-full">
+                {post?.gradingTemplate?.type === "rubric" && (
+                  <GradeTemplateRubric
+                    criteria={post?.gradingTemplate.criteria}
+                    totalRange={post?.gradingTemplate.criteria.total}
+                  />
+                )}
+
+                {post?.gradingTemplate?.type === "numeric" && (
+                  <GradeTemplateNumeric
+                    label="Score"
+                    min={post?.gradingTemplate.criteria.numericCriteria.min}
+                    max={post?.gradingTemplate.criteria.numericCriteria.max}
+                    gradingTemplate={post?.gradingTemplate}
+                    postId={postId}
+                  />
+                )}
+
+                {post?.gradingTemplate?.type === "letter" && (
+                  <GradeTemplateLetter
+                    ranges={post?.gradingTemplate.criteria.letterRanges}
+                    gradingTemplate={post?.gradingTemplate}
+                    postId={postId}
+                  />
+                )}
+              </div>
             )}
-            {post?.gradingTemplate?.type === "numeric" && (
-              <GradeTemplateNumeric
-                label="Score"
-                min={post?.gradingTemplate.criteria.numericCriteria.min}
-                max={post?.gradingTemplate.criteria.numericCriteria.max}
-                gradingTemplate={post?.gradingTemplate}
-                postId={postId}
-              />
+
+            {/* Show "Already graded" notice if graded */}
+            {checkPostIsGradedByThisUser && (
+              <AlreadyGradedNotice onEdit={() => {}} />
             )}
-            {/* {post?.gradingTemplate?.type === "letter" && (
+          </>
+        )}
+
+        {/* {post?.gradingTemplate?.type === "letter" && (
               <GradeTemplateLetter />
             )}
             {post?.gradingTemplate?.type === "weightedRubric" && (
@@ -235,8 +365,6 @@ export default function PostViewClient() {
             {post?.gradingTemplate?.type === "checklist" && (
               <GradeTemplateChecklist />
             )} */}
-          </div>
-        )}
       </div>
     </div>
   );

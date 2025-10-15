@@ -11,14 +11,14 @@ import SectionLoading from "@/components/SectionLoading";
 import { getToken } from "@/services/tokenService";
 import { jwtDecode } from "jwt-decode";
 import { EmptyState } from "@/components/EmptyStateProps";
+import { decoded } from "@/lib/currentUser";
 
 //this page collects all posts
 export default function GradingClientTeachers() {
   const filters = ["All", "Moderated", "Pending"];
   const [activeFilter, setActiveFilter] = useState("Pending"); // ✅ default "All"
   const [visiblePostsCount, setVisiblePostsCount] = useState(5); // Start with 5 posts
-  const jwtCookie = getToken();
-  const decoded = jwtDecode(jwtCookie!) as customJwtPayload | null;
+  
 
   const {
     userPostFeedsData,

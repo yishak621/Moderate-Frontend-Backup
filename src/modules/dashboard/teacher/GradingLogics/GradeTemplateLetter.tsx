@@ -9,15 +9,20 @@ type Props = {
   ranges: LetterRange[]; // e.g. [{letter:'A', min:85, max:100}, ...]
   max?: number;
   defaultValue?: number;
+  gradingTemplate?: any;
+  postId?: string;
   onSave?: (res: GradeResult) => void;
 };
 
 export function GradeTemplateLetter({
+  gradingTemplate,
+  postId,
   ranges,
   max = 100,
   defaultValue = 0,
   onSave,
 }: Props) {
+  console.log(ranges);
   const [value, setValue] = useState<number>(defaultValue);
   const [feedback, setFeedback] = useState("");
 

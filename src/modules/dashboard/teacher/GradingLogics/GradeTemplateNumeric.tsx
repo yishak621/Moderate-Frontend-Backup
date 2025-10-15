@@ -44,9 +44,7 @@ export function GradeTemplateNumeric({
     control,
     watch,
     setValue: setValueRHF,
-  } = useForm<Props>({
-    mode: "onBlur",
-  });
+  } = useForm<Props>();
   const {
     saveGradeAsync,
     saveGrade,
@@ -69,36 +67,32 @@ export function GradeTemplateNumeric({
   // const handlePublish = () => onPublish?.(result());
 
   const onSubmit = async (data: Props) => {
-    const gradeData = {
-      gradeType: gradingTemplate?.type,
-      grade: { numeric: data.value },
-      gradeTemplateId: gradingTemplate?.id,
-      criteria: gradingTemplate?.criteria,
-      comment: data.comment,
-    };
     try {
-      console.log(data);
-      await saveGradeAsync({ postId, gradeData });
+      await saveGradeAsync({
+        postId,
+        gradeData: {
+          gradeType: gradingTemplate?.type,
+          grade: { numeric: data.value },
+          gradeTemplateId: gradingTemplate?.id,
+          criteria: gradingTemplate?.criteria,
+          comment: data.comment,
+        },
+      });
+
       toast.success("Grade published successfully!");
       close();
     } catch (err) {
-      if (err instanceof Error) {
-        console.error(err.message);
-        toast.error(err.message);
-      } else {
-        console.error("Unknown error", err);
-        toast.error("Something went wrong");
-      }
+      toast.error(err instanceof Error ? err.message : "Something went wrong");
     }
   };
-
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
       className="p-6 w-full rounded-2xl bg-card  "
     >
-      <label className="block font-normal text-[#0c0c0c] text-base mb-3 text-foreground">
-        {label}
+      <label className="block font-normal text-[#000000] text-base mb-3 text-foreground">
+        Grading Logic Type{" "}
+        <span className=" capitalize font-bold">{gradingTemplate?.type}</span>
       </label>
 
       {/* Score Section */}
@@ -106,14 +100,18 @@ export function GradeTemplateNumeric({
         <div className="md:w-2/3">
           <Input
             type="number"
-            defaultValue={value}
-            className="w-full text-lg font-medium"
             placeholder="Enter score"
+            className="w-full text-lg font-medium"
             {...register("value", {
-              required: "Title is required!",
-              validate: (v) =>
-                (v !== undefined && v <= max) ||
-                `Value can not exceed maximum score ${max}`,
+              required: "Value is required!",
+
+              // validate: (v) => {
+              //   const num = Number(v);
+              //   return (
+              //     (num >= min && num <= max) ||
+              //     `Value must be between ${min} and ${max}`
+              //   );
+              // },
             })}
             error={errors?.value?.message}
           />
