@@ -59,6 +59,7 @@ export default function PostViewClient() {
     tags = [],
     averageGrade = 0,
     userGrade,
+    gradingTemplate,
   } = post || {};
 
   const [currentFileIndex, setCurrentFileIndex] = useState(0);
@@ -83,15 +84,23 @@ export default function PostViewClient() {
   const givenGrade = (() => {
     switch (post?.gradingTemplate?.type) {
       case "numeric":
-        return userGrade.numeric;
+        return userGrade?.numeric;
       case "letter":
-        return userGrade.letter;
+        return userGrade?.letter;
       case "rubric":
-        return userGrade.rubric;
+        const rubricMaxScore =
+          gradingTemplate?.criteria?.rubricCriteria?.reduce(
+            (sum: number, c: any) => sum + c.maxPoints,
+            0
+          );
+        return `${userGrade?.rubric.reduce(
+          (acc: number, val: any) => acc + Number(val),
+          0
+        )}/${rubricMaxScore}`;
       case "passFail":
-        return userGrade.passFail;
+        return userGrade?.passFail;
       case "checklist":
-        return userGrade.checklist;
+        return userGrade?.checklist;
       default:
         return null;
     }
@@ -241,26 +250,56 @@ export default function PostViewClient() {
                       </GradeGivenSection>
                     );
 
-                  // case "rubric":
-                  //   return (
-                  //     <GradeGivenSection
-                  //       key={idx}
-                  //       grade={grader}
-                  //       gradingTemplate={post?.gradingTemplate}
-                  //     >
-                  //       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                  //         {Object.entries(grader.grade.criteria || {}).map(
-                  //           ([name, result], i) => (
-                  //             <GradeParametersView
-                  //               key={i}
-                  //               name={name}
-                  //               result={String(result)}
-                  //             />
-                  //           )
-                  //         )}
-                  //       </div>
-                  //     </GradeGivenSection>
-                  //   );
+                  case "rubric":
+                    return (
+                      <GradeGivenSection
+                        key={idx}
+                        grade={grader}
+                        gradingTemplate={post?.gradingTemplate}
+                      >
+                        <div className="bg-gray-50 border border-gray-200 rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow duration-200">
+                          <p className="text-sm font-semibold text-gray-800 mb-3">
+                            Rubric Breakdown
+                          </p>
+
+                          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                            {Array.isArray(grader?.grade?.rubric?.rubricData) &&
+                              grader.grade.rubric.rubricData.map(
+                                (
+                                  item: { label: string; value: string },
+                                  i: number
+                                ) => (
+                                  <div
+                                    key={i}
+                                    className="flex items-center justify-between bg-white border border-gray-100 rounded-lg px-4 py-3 shadow-sm"
+                                  >
+                                    <span className="text-sm font-medium text-gray-700">
+                                      {item.label}
+                                    </span>
+                                    <span className="text-sm font-semibold text-blue-600">
+                                      {item.value}
+                                    </span>
+                                  </div>
+                                )
+                              )}
+                          </div>
+
+                          <div className="flex justify-between items-center mt-5 pt-3 border-t border-gray-200">
+                            <p className="text-sm text-gray-600">Total Score</p>
+                            <p className="text-base font-bold text-gray-800">
+                              {grader?.grade?.rubric?.totalScore ?? 0}
+                            </p>
+                          </div>
+
+                          <p className="text-xs text-gray-500 mt-1">
+                            Overall Percentage:{" "}
+                            <span className="font-semibold text-blue-600">
+                              {grader?.grade?.rubric?.percentage ?? 0}%
+                            </span>
+                          </p>
+                        </div>
+                      </GradeGivenSection>
+                    );
 
                   // case "weighted-rubric":
                   //   return (

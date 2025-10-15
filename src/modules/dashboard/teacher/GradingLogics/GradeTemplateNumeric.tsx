@@ -102,13 +102,13 @@ export function GradeTemplateNumeric({
             {...register("value", {
               required: "Value is required!",
 
-              // validate: (v) => {
-              //   const num = Number(v);
-              //   return (
-              //     (num >= min && num <= max) ||
-              //     `Value must be between ${min} and ${max}`
-              //   );
-              // },
+              validate: (v) => {
+                const num = Number(v);
+                return (
+                  (num >= min && num <= max) ||
+                  `Value must be between ${min} and ${max}`
+                );
+              },
             })}
             error={errors?.value?.message}
           />

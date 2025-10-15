@@ -29,23 +29,31 @@ export default function GradingClientTeachers() {
 
   const filteredModeratedPostFeedsData = userPostFeedsData?.posts.filter(
     (post: PostAttributes) => {
-      return post.comments.some(
-        (comment) => comment.commentedBy === (decoded?.id as any)
+      const hasCommented = post.comments.some(
+        (comment) => comment.commentedBy === decoded?.id
       );
+
+      const hasGraded = post.grades?.some(
+        (grade) => grade.gradedBy === decoded?.id
+      );
+
+      return hasCommented || hasGraded; // Moderated if user did either
     }
   );
 
   const filteredPendingPostFeedsData = userPostFeedsData?.posts.filter(
     (post: PostAttributes) => {
-      // Exclude posts that have been commented by the user
-      const notCommentedByUser = !post.comments.some(
+      const notCommented = !post.comments.some(
         (comment) => comment.commentedBy === decoded?.id
       );
 
-      // Exclude posts that are authored by the current user
+      const notGraded = !post.grades?.some(
+        (grade) => grade.gradedBy === decoded?.id
+      );
+
       const notMyPost = post?.author.id !== decoded?.id;
 
-      return notCommentedByUser && notMyPost;
+      return notCommented && notGraded && notMyPost; // Pending if user did neither
     }
   );
 
