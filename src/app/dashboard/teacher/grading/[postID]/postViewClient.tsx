@@ -66,7 +66,7 @@ export default function PostViewClient() {
   const [activeFilter, setActiveFilter] = useState("Grades");
   const checkPostIsNotThisUser = author?.id === decoded?.id;
   const checkPostIsGradedByThisUser = groupedGrades?.some((grade) => {
-    return grade?.gradedBy.id === decoded?.id;
+    return grade?.gradedBy?.id === decoded?.id;
   });
   console.log(checkPostIsGradedByThisUser);
 
