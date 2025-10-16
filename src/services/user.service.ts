@@ -192,7 +192,7 @@ export const userCreatePost = async (
     }
   }
 };
-
+//-------------------UPLOAD FILE TO THE API
 export const uploadFileApi = async (file: File) => {
   try {
     const formData = new FormData();
@@ -220,6 +220,7 @@ export const uploadFileApi = async (file: File) => {
     }
   }
 };
+//-------------------DELETE FILE TO THE API
 
 export const deleteFileApi = async (id: string) => {
   try {
@@ -245,6 +246,7 @@ export const deleteFileApi = async (id: string) => {
     }
   }
 };
+//-------------------SAVE USER GRADE AND COMMENT
 
 export const saveUserGrade = async (postId: string, data: GradeData) => {
   try {
@@ -252,6 +254,33 @@ export const saveUserGrade = async (postId: string, data: GradeData) => {
       `/api/user/post/${postId}/grade`,
       data
     );
+
+    if (!res) {
+      console.log("error");
+    }
+
+    return res.data;
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error(error);
+      throw new Error(
+        // @ts-expect-error: might be Axios error with response
+        error?.response?.data?.message ||
+          error.message ||
+          "Something went wrong"
+      );
+    } else {
+      console.error("Unknown error", error);
+      throw new Error("Something went wrong");
+    }
+  }
+};
+
+//-------------------GET USER DATA
+
+export const getAllAnnouncements = async () => {
+  try {
+    const res = await axiosInstance.get("/api/announcments/users");
 
     if (!res) {
       console.log("error");

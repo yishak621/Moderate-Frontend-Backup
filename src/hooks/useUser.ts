@@ -2,6 +2,7 @@ import { User } from "@/app/types/user";
 import { queryClient } from "@/lib/queryClient";
 import {
   deleteFileApi,
+  getAllAnnouncements,
   saveUserGrade,
   updateUserData,
   uploadFileApi,
@@ -234,3 +235,20 @@ export const useUserSaveGrade = () => {
     savingGradeError: error,
   };
 };
+
+//--------------------GET USER DATA
+export function useAllAnnouncementsData() {
+  const { data, isPending, isSuccess, isError, error } = useQuery({
+    queryKey: ["AllAnnouncements"],
+    queryFn: getAllAnnouncements,
+    staleTime: 1 * 60 * 1000,
+  });
+
+  return {
+    AllAnnouncements: data,
+    isLoading: isPending,
+    isSuccess,
+    isError,
+    error,
+  };
+}

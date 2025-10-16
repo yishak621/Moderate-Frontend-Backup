@@ -90,16 +90,18 @@ export function getAnnouncementColumns(
       header: "Audience",
       cell: ({ row }) => {
         const domains = row.original.domains;
-
+        const targetAudience = row.original.targetAudience;
         return (
           <div className="flex flex-col gap-1">
-            {domains?.map((domain, idx) => {
-              return (
+            {domains && domains.length > 0 ? (
+              domains.map((domain, idx) => (
                 <span key={idx} className="text-[#0C0C0C] font-normal">
                   {domain?.name}
                 </span>
-              );
-            })}
+              ))
+            ) : targetAudience === "All" ? (
+              <span className="text-[#0C0C0C] font-normal">All</span>
+            ) : null}
           </div>
         );
       },

@@ -31,9 +31,7 @@ const priorityOptions = [
   { value: "Low", label: "Low" },
 ];
 export default function CreateNewAnnouncementModal() {
- 
   const { close } = useModal();
-
 
   //react hook form
   const {
@@ -54,12 +52,17 @@ export default function CreateNewAnnouncementModal() {
     error,
   } = useSubjectDomains();
 
-  const optionsSubjectDomains = subjectDomains?.map((item: SubjectDomain) => {
-    return {
+  const optionsSubjectDomains = [
+    ...(subjectDomains?.map((item: SubjectDomain) => ({
       value: item.id,
       label: item.name,
-    };
-  });
+    })) || []),
+    {
+      value: "All",
+      label: "All",
+    },
+  ];
+
   const {
     createAnnouncement,
     createAnnouncementAsync,
@@ -168,7 +171,7 @@ export default function CreateNewAnnouncementModal() {
                 <DatePickerInput
                   label="Start Date"
                   placeholder="Pick a date"
-                  onChange={field.onChange} 
+                  onChange={field.onChange}
                 />
               )}
             />
@@ -185,7 +188,7 @@ export default function CreateNewAnnouncementModal() {
                 <DatePickerInput
                   label="Expire Date"
                   placeholder="Pick a date"
-                  onChange={field.onChange} 
+                  onChange={field.onChange}
                 />
               )}
             />

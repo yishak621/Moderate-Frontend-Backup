@@ -11,6 +11,7 @@ export interface Announcement {
   priority?: Priority;
   domainIDs?: string[];
   domains?: Domain[];
+  targetAudience:string;
   status?: AnnouncementStatus | string;
   views?: number;
   published?: string | null; // ISO date string or null

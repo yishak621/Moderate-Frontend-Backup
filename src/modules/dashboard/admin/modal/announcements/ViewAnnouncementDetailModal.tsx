@@ -20,7 +20,7 @@ export default function ViewAnnouncementDetailModal({
   };
 
   return (
-    <div className=" bg-[#FDFDFD] w-full min-w-[551px] p-10 rounded-[27px] flex flex-col max-h-screen overflow-y-scroll scrollbar-hide">
+    <div className=" bg-[#FDFDFD] w-full min-w-[700px] p-10 rounded-[27px] flex flex-col max-h-screen overflow-y-scroll scrollbar-hide">
       <div onClick={close} className=" absolute right-0 top-0 py-3 px-3">
         <X width={22} height={22} className="text-[#000000] cursor-pointer" />
       </div>
@@ -50,7 +50,7 @@ export default function ViewAnnouncementDetailModal({
       </div>
 
       {/* Content Section */}
-      <div className="bg-gray-50 rounded-xl p-5 border border-gray-100 mb-4">
+      <div className="bg-gray-50 rounded-xl p-5 border border-gray-100 mb-4 mt-4">
         <h3 className="text-sm font-medium text-gray-500 uppercase mb-2">
           Content
         </h3>
@@ -82,7 +82,7 @@ export default function ViewAnnouncementDetailModal({
 
       {/* Type Section */}
       <div>
-        <h3 className="text-sm font-medium text-gray-500 uppercase mb-4">
+        <h3 className="text-sm font-medium text-gray-500 uppercase m-2">
           Announcement Types
         </h3>
         <div className="flex flex-wrap gap-2">
@@ -99,7 +99,7 @@ export default function ViewAnnouncementDetailModal({
 
       {/* Domains Section */}
       <div>
-        <h3 className="text-sm font-medium text-gray-500 uppercase mb-4">
+        <h3 className="text-sm font-medium text-gray-500 uppercase mt-2">
           Target Domains
         </h3>
         <div className="flex flex-wrap gap-2">

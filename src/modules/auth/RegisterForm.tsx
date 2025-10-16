@@ -136,9 +136,9 @@ export default function RegisterForm() {
           label="Email"
           type="email"
           placeholder="you@example.com"
-          error={errors?.email?.message}
           {...register("email", { required: "Email is required" })}
         />
+        <div>{errors?.email?.message}</div>
         <Input
           label="Password"
           type="password"
