@@ -1,15 +1,17 @@
 "use client";
 
-import { useState, ChangeEvent, DragEvent, useEffect } from "react";
+import { useState, ChangeEvent, DragEvent } from "react";
 import { UploadCloud, Trash } from "lucide-react";
 import { useUserRemoveUploadedFile, useUserUploadFile } from "@/hooks/useUser";
-import toast from "react-hot-toast";
 
 interface UploadedFile {
   id: string;
-  url?: string;
   name: string;
-  progress?: number; // upload progress %
+  url?: string;
+  fileType?: string;
+  preview?: string;
+  progress?: number;
+  originalFile?: File;
 }
 
 interface FileUploaderProps {
@@ -18,68 +20,79 @@ interface FileUploaderProps {
   multiple?: boolean;
   onUploadIdsChange?: (ids: string[]) => void;
   onFilesChange?: (files: UploadedFile[]) => void;
+  onLoadingChange?: (isLoading: boolean) => void; // 👈 new
 }
 
 export default function FileUploader({
   label = "Upload Files",
-  accept,
-  multiple,
+  accept = ".pdf,image/*",
+  multiple = true,
   onUploadIdsChange,
   onFilesChange,
+  onLoadingChange,
 }: FileUploaderProps) {
   const [files, setFiles] = useState<UploadedFile[]>([]);
-  const [isDragging, setIsDragging] = useState(false);
-
-  const { uploadFileAsync, isUploadingFileLoading, isUploadingFileSuccess } =
-    useUserUploadFile();
-  const { deleteFileAsync, isDeletingFileSuccess, isDeletingFileLoading } =
-    useUserRemoveUploadedFile();
+  const [uploadingFiles, setUploadingFiles] = useState<Set<string>>(new Set());
+  const { uploadFileAsync } = useUserUploadFile();
+  const { deleteFileAsync } = useUserRemoveUploadedFile();
 
   const handleFiles = async (selectedFiles: FileList | null) => {
     if (!selectedFiles?.length) return;
-
-    const uploaded: UploadedFile[] = [];
-
+    onLoadingChange?.(true);
     for (const file of Array.from(selectedFiles)) {
+      const fileId = `${file.name}_${file.size}_${file.lastModified}`;
+      const previewUrl = file.type.startsWith("image/")
+        ? URL.createObjectURL(file)
+        : undefined;
+
       const tempFile: UploadedFile = {
-        id: `temp-${file.name}-${Date.now()}`,
+        id: fileId,
         name: file.name,
-        // url: URL.createObjectURL(file),
+        fileType: file.type,
+        preview: previewUrl,
+        originalFile: file,
       };
 
       setFiles((prev) => [...prev, tempFile]);
+      setUploadingFiles((prev) => new Set(prev).add(fileId));
 
       try {
         const uploadedFile = await uploadFileAsync(file);
-        const realFile: UploadedFile = {
+        const uploaded: UploadedFile = {
+          ...tempFile,
           id: uploadedFile.upload.id,
-          name: file.name,
           url: uploadedFile.upload.fileUrl,
         };
 
-        uploaded.push(realFile);
+        setFiles((prev) => prev.map((f) => (f.id === fileId ? uploaded : f)));
+        setUploadingFiles((prev) => {
+          const copy = new Set(prev);
+          copy.delete(fileId);
+          return copy;
+        });
 
-        setFiles((prev) =>
-          prev.map((f) => (f.id === tempFile.id ? realFile : f))
-        );
-
-        // ✅ Call the parent callback after each successful upload
-        const currentFiles = files
-          .map((f) => (f.id === tempFile.id ? realFile : f))
-          .concat(
-            uploaded.filter((f) => !files.some((old) => old.id === f.id))
-          );
-        onUploadIdsChange?.(currentFiles.map((f) => f.id));
-        onFilesChange?.(currentFiles);
+        const updatedFiles = files
+          .map((f) => (f.id === fileId ? uploaded : f))
+          .concat(uploaded);
+        onUploadIdsChange?.(updatedFiles.map((f) => f.id));
+        onFilesChange?.(updatedFiles);
       } catch (err) {
-        console.error(err);
         alert(`Failed to upload ${file.name}`);
-        setFiles((prev) => prev.filter((f) => f.id !== tempFile.id));
+        setFiles((prev) => prev.filter((f) => f.id !== fileId));
+        setUploadingFiles((prev) => {
+          const copy = new Set(prev);
+          copy.delete(fileId);
+          return copy;
+        });
+      } finally {
+        onLoadingChange?.(false);
       }
     }
   };
 
-  const removeFile = async (fileId: string) => {
+  const deleteFile = async (fileId: string) => {
+    onLoadingChange?.(true);
+
     try {
       await deleteFileAsync(fileId);
       const updated = files.filter((f) => f.id !== fileId);
@@ -89,99 +102,111 @@ export default function FileUploader({
     } catch (err) {
       console.error(err);
       alert("Failed to delete file");
+    } finally {
+      onLoadingChange?.(false);
     }
   };
 
   const handleDrop = (e: DragEvent<HTMLDivElement>) => {
     e.preventDefault();
-    setIsDragging(false);
     handleFiles(e.dataTransfer.files);
   };
 
   return (
     <div className="w-full">
+      {/* Upload Box */}
       <div
         onDrop={handleDrop}
-        onDragOver={(e) => {
-          e.preventDefault();
-          setIsDragging(true);
-        }}
-        onDragLeave={() => setIsDragging(false)}
-        className={`flex flex-col items-center justify-center gap-2 border-2 border-dashed rounded-2xl py-8 px-6 cursor-pointer transition-all ${
-          isDragging
-            ? "border-[#368FFF] bg-[#F8FAFF] shadow-md scale-[1.02]"
-            : "border-[#DBDBDB] hover:border-[#368FFF] hover:bg-[#F8FAFF]"
-        }`}
+        onDragOver={(e) => e.preventDefault()}
+        className="flex flex-col items-center justify-center gap-2 border-2 border-dashed border-gray-300 rounded-2xl py-8 px-6 cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition"
       >
-        <UploadCloud
-          size={28}
-          className={`${
-            isDragging ? "text-[#2573d2]" : "text-[#368FFF]"
-          } transition-colors`}
-        />
-        <p className="text-[#0C0C0C] text-base font-medium">{label}</p>
-        <p className="text-[#717171] text-sm">
-          {isDragging
-            ? "Drop files to upload..."
-            : "Drag & drop or click to upload"}
+        <UploadCloud size={28} className="text-blue-500" />
+        <p className="text-base font-medium text-gray-900">{label}</p>
+        <p className="text-sm text-gray-500">
+          Drag & drop or click to upload files
         </p>
 
         <input
           type="file"
           accept={accept}
           multiple={multiple}
-          className="hidden"
-          id="fileInput"
           onChange={(e: ChangeEvent<HTMLInputElement>) =>
             handleFiles(e.target.files)
           }
+          className="hidden"
+          id="fileInput"
         />
 
         <label
           htmlFor="fileInput"
-          className="mt-2 px-4 py-2 bg-[#368FFF] text-white text-sm rounded-lg cursor-pointer hover:bg-[#2573d2] transition"
+          className="mt-2 px-4 py-2 bg-blue-600 text-white text-sm rounded-lg cursor-pointer hover:bg-blue-700 transition"
         >
           Choose File
         </label>
       </div>
 
+      {/* Uploading indicator */}
+      {uploadingFiles.size > 0 && (
+        <p className="text-sm text-blue-600 mt-3">
+          Uploading {uploadingFiles.size} file(s)...
+        </p>
+      )}
+
+      {/* File Previews */}
       {files.length > 0 && (
-        <div className="mt-4 grid gap-3">
-          {files.map((file) => (
-            <div
-              key={file.id}
-              className="flex items-center justify-between bg-[#F7F9FC] p-3 rounded-lg relative"
-            >
-              <div className="flex items-center gap-3">
-                {file.url && (
-                  <div className="relative w-16 h-16 rounded-md overflow-hidden">
+        <div className="mt-4">
+          <h3 className="text-sm font-medium mb-2 text-gray-700">
+            Uploaded Files ({files.length})
+          </h3>
+          <div className="grid grid-cols-2 gap-3">
+            {files.map((file) => {
+              const isUploading = uploadingFiles.has(file.id);
+
+              return (
+                <div
+                  key={file.id}
+                  className="relative border rounded-lg overflow-hidden shadow-sm"
+                >
+                  {file.fileType?.startsWith("image/") ? (
                     <img
-                      src={file.url}
+                      src={file.preview || file.url}
                       alt={file.name}
-                      className="object-cover w-full h-full"
+                      className="w-full h-32 object-cover"
                     />
+                  ) : (
+                    <div className="w-full h-32 bg-gray-100 flex items-center justify-center">
+                      <span className="text-gray-500 text-sm">PDF</span>
+                    </div>
+                  )}
+
+                  {/* Upload Overlay */}
+                  {isUploading && (
+                    <div className="absolute inset-0 bg-black/50 flex items-center justify-center text-white text-sm">
+                      Uploading...
+                    </div>
+                  )}
+
+                  {/* Delete Button */}
+                  <button
+                    type="button"
+                    onClick={() => deleteFile(file.id)}
+                    disabled={isUploading}
+                    className="absolute top-1 right-1 bg-red-500 hover:bg-red-600 disabled:bg-gray-400 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold"
+                    title="Delete file"
+                  >
+                    ×
+                  </button>
+
+                  {/* File Name */}
+                  <div className="p-2 bg-white border-t">
+                    <p className="text-xs text-gray-600 truncate">
+                      {file.name}
+                    </p>
                   </div>
-                )}
-                <p className="text-sm text-[#0C0C0C]">{file.name}</p>
-              </div>
-
-              <button
-                onClick={() => removeFile(file.id)}
-                className="p-2 text-red-500 hover:text-red-700 transition"
-              >
-                <Trash size={16} />
-              </button>
-
-              {file.progress !== undefined && file.progress < 100 && (
-                <div className="absolute bottom-0 left-0 w-full h-1 bg-gray-300 rounded-b">
-                  <div
-                    className="h-full bg-blue-600 rounded-b transition-all"
-                    style={{ width: `${file.progress}%` }}
-                  />
                 </div>
-              )}
-            </div>
-          ))}
+              );
+            })}
+          </div>
         </div>
       )}
     </div>

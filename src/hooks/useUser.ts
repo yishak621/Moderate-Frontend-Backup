@@ -147,6 +147,7 @@ export const useUserCreatePost = (domainId: string | boolean) => {
     createPost: mutate,
     createPostAsync: mutateAsync,
     data,
+
     isCreatingPostLoading: isPending,
     isCreatingPostSuccess: isSuccess,
     isCreatingPostError: isError,

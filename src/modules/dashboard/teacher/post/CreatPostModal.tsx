@@ -23,16 +23,10 @@ import { Controller, useForm } from "react-hook-form";
 import { PostAttributes, PostCreateInput } from "@/types/postAttributes";
 import toast from "react-hot-toast";
 
-const options = [
-  { value: "chocolate", label: "Chocolate" },
-  { value: "strawberry", label: "Strawberry" },
-  { value: "vanilla", label: "Vanilla" },
-];
-
 export default function CreatPostModal() {
-  const [title, setTitle] = useState("");
   const [uploadIds, setUploadIds] = useState<string[]>([]);
-  const [description, setDescription] = useState("");
+  const [isFileBusy, setIsFileBusy] = useState(false);
+
   const [domain, setDomain] = useState<string | boolean>("");
   const [selectedGradingType, setSelectedGradingType] = useState<
     string | boolean
@@ -96,6 +90,12 @@ export default function CreatPostModal() {
 
   const { isUploadingFileLoading } = useUserUploadFile();
   const { isDeletingFileLoading } = useUserRemoveUploadedFile();
+
+  console.log(
+    isCreatingPostLoading,
+    isCreatingPostLoading,
+    isDeletingFileLoading
+  );
 
   const optionsSubjectDomains =
     subjectDomains
@@ -619,6 +619,7 @@ export default function CreatPostModal() {
         <FileUploader
           label="Upload Documents"
           onUploadIdsChange={handleUploadIdsChange}
+          onLoadingChange={setIsFileBusy}
         />
       </div>
 
@@ -635,15 +636,11 @@ export default function CreatPostModal() {
             type="submit"
             className={`justify-center text-base w-full transition
     ${
-      isCreatingPostLoading || isUploadingFileLoading || isDeletingFileLoading
+      isCreatingPostLoading || isFileBusy
         ? "opacity-70 cursor-not-allowed"
         : "cursor-pointer"
     }`}
-            disabled={
-              isCreatingPostLoading ||
-              isUploadingFileLoading ||
-              isDeletingFileLoading
-            }
+            disabled={isCreatingPostLoading || isFileBusy}
           >
             {isCreatingPostLoading ? (
               <>
