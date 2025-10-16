@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import remarkGfm from "remark-gfm";
 import { ChevronDownIcon } from "lucide-react";
-
+import ReactMarkdown from "react-markdown";
 interface SupportClientTeachersProps {
   title: string;
   content: string;
@@ -15,7 +16,7 @@ export default function SupportPageToggleItem({
   onClick,
 }: SupportClientTeachersProps & { isOpen: boolean; onClick: () => void }) {
   return (
-    <div className="flex flex-col border-b pb-5 border-[#E5E5E5] ">
+    <div className="flex flex-col border-b pb-5 border-[#E5E5E5]">
       <button
         onClick={onClick}
         className="flex flex-row justify-between items-center w-full text-left group cursor-pointer"
@@ -33,10 +34,21 @@ export default function SupportPageToggleItem({
 
       <div
         className={`overflow-hidden transition-all duration-300 ease-in-out ${
-          isOpen ? "max-h-40 opacity-100 mt-3" : "max-h-0 opacity-0 mt-0"
+          isOpen ? "max-h-96 opacity-100 mt-3" : "max-h-0 opacity-0 mt-0"
         }`}
       >
-        <p className="text-sm font-normal text-[#717171]">{content}</p>
+        <div className="mt-2 space-y-2">
+          {content.split("\n").map((line, idx) => (
+            <div key={idx} className="flex items-start gap-3">
+              <span className="mt-1 w-2 h-2 bg-blue-500 rounded-full flex-shrink-0"></span>
+              <p className="text-sm text-[#717171]">
+                <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                  {line}
+                </ReactMarkdown>
+              </p>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );

@@ -15,6 +15,8 @@ import Input from "./ui/Input";
 import {
   ArrowLeftToLine,
   ArrowRightToLine,
+  ChevronLeft,
+  ChevronRight,
   LogOut,
   PanelLeftClose,
   PanelLeftOpen,
@@ -106,34 +108,38 @@ export default function DashboardShell({
           isExpanded ? "w-64" : "w-20"
         )}
       >
-        <div className="flex items-center justify-between pt-6 2xl:pt-11 p-4 2xl:px-7.5 px-2  ">
-          {isExpanded && (
-            <div className="flex flex-col gap-1 items-start">
-              <div className="flex items-center gap-2">
-                <Image
-                  src="/images/logo/logo-1.png"
-                  alt="Moderate Logo"
-                  width={17}
-                  height={26}
-                  className="object-contain"
-                />
-                <span className="font-medium text-2xl ">Moderate</span>
+        <div className="flex items-center justify-between pt-6 2xl:pt-11 px-4 2xl:px-7.5">
+          {/* Logo Section */}
+          <div className="flex items-center gap-2">
+            <Image
+              src="/images/logo/logo-1.png"
+              alt="Moderate Logo"
+              width={28}
+              height={28}
+              className="object-contain"
+            />
+            {isExpanded && (
+              <div className="flex flex-col ml-2">
+                <span className="font-medium text-2xl text-[#0C0C0C]">
+                  Moderate
+                </span>
+                <span className="text-sm font-normal text-[#717171]">
+                  Grade moderation made easy
+                </span>
               </div>
-              <span className="text-base font-normal text-[#717171]">
-                Grade moderation made easy
-              </span>
-            </div>
-          )}
+            )}
+          </div>
 
+          {/* Toggle Button */}
           <button
             onClick={() => setIsExpanded((v) => !v)}
-            className="text-[#0C0C0C] cursor-pointer"
+            className="flex items-center justify-center w-8 h-8 rounded-full hover:bg-gray-200 transition-colors"
             aria-label="Toggle sidebar"
           >
             {isExpanded ? (
-              <PanelLeftClose size={18} />
+              <ChevronLeft size={20} className="text-[#0C0C0C]" />
             ) : (
-              <PanelLeftOpen size={18} />
+              <ChevronRight size={20} className="text-[#0C0C0C]" />
             )}
           </button>
         </div>
