@@ -3,11 +3,13 @@ import { Announcement } from "@/app/types/announcement";
 
 export interface AnnouncementBoxProps {
   announcement: Announcement;
+  selectedId: string;
   onClick?: () => void;
 }
 
 export default function AnnouncementBox({
   announcement,
+  selectedId,
   onClick,
 }: AnnouncementBoxProps & { onClick: () => void }) {
   const { title, content, createdAt, priority } = announcement;
@@ -15,13 +17,17 @@ export default function AnnouncementBox({
   return (
     <div
       onClick={onClick}
-      className="flex flex-col cursor-pointer transition-all hover:bg-gray-50 rounded-lg p-3"
+      className={`flex flex-col cursor-pointer transition-all 
+  ${selectedId === announcement?.id ? "bg-amber-100" : "bg-white"} 
+  hover:bg-gray-50 rounded-lg p-3 shadow-sm`}
     >
       {/* Header */}
-      <div className="flex flex-row justify-between items-center mb-2">
+      <div className="flex flex-row justify-between gap-2 items-center mb-2">
         <div className="flex flex-col text-left">
           <div className="flex flex-row items-center">
-            <div className="w-[7px] h-[7px] rounded-full bg-[#368FFF]"></div>
+            <div>
+              <div className="w-[7px] h-[7px] rounded-full bg-[#368FFF]"></div>
+            </div>
             <p className="pl-[10px] text-[#0C0C0C] text-[15px] font-medium">
               {title}
             </p>
@@ -34,7 +40,7 @@ export default function AnnouncementBox({
       </div>
 
       {/* Preview content */}
-      <p className="pl-[14px] text-[#444] text-sm line-clamp-2">{content}</p>
+      <p className="pl-[14px] text-[#717171] text-sm line-clamp-2">{content}</p>
     </div>
   );
 }
@@ -47,7 +53,11 @@ export function AnnouncementPriority({ priority }: { priority: string }) {
   };
 
   return (
-    <div className={`border py-1.5 px-3.5 rounded-[47px] ${colors[priority]}`}>
+    <div
+      className={`border py-1.5 px-3.5 rounded-[47px] ${
+        colors[priority.toLocaleUpperCase()]
+      }`}
+    >
       {priority}
     </div>
   );

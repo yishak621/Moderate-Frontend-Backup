@@ -81,6 +81,7 @@ export default function AnnouncementsClientTeachers() {
                 key={idx}
                 announcement={announcement as Announcement}
                 onClick={() => setSelected(announcement as Announcement)}
+                selectedId={selected?.id || ""}
               />
             )
           )}
@@ -104,15 +105,17 @@ export default function AnnouncementsClientTeachers() {
                       {selected.title}
                     </p>
                   </div>
-                  {/* <span className="pl-[14px] text-[13px] font-normal text-[#717171]">
-                    {selected.createdAt!}
-                  </span> */}
+                  <span className="pl-[14px] text-[13px] font-normal text-[#717171]">
+                    {selected?.createdAt
+                      ? new Date(selected?.createdAt).toLocaleDateString()
+                      : "No Date"}
+                  </span>
                 </div>
                 <AnnouncementPriority priority={selected.priority!} />
               </div>
 
               {/* Preview content */}
-              <p className="pl-[14px] text-[#444] text-sm line-clamp-2">
+              <p className="pl-[14px] text-[#717171] text-sm ">
                 {selected.content}
               </p>
             </div>
