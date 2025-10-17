@@ -171,8 +171,8 @@ export default function UserClient() {
             {/* left top */}
             <div className="flex flex-row justify-between mb-5 flex-wrap">
               <SectionHeader
-                title="Recent Uploads from Schools & Teachers You Follow"
-                subheader="Follow teachers and classmates to see their latest uploads in one place."
+                title="Recent Moderation Posts from Schools & Teachers You Follow"
+                subheader="Follow teachers and classmates to see their latest moderation posts in one place."
               />
 
               {/* <div>

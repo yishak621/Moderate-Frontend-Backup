@@ -96,8 +96,8 @@ export default function GradingClientTeachers() {
         {/* left top */}
         <div className="flex flex-row justify-between mb-5 flex-wrap">
           <SectionHeader
-            title="Recent Uploads from Your School"
-            subheader="Documents uploaded by teachers in your domain"
+            title="Recent moderation posts from Your School"
+            subheader="Moderation posts by teachers in your domain"
           />
 
           <div>
