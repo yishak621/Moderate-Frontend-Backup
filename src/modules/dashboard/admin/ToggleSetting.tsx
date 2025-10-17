@@ -1,28 +1,22 @@
 "use client";
 
-import { useState } from "react";
-
 interface ToggleSettingProps {
   title: string;
   description: string;
   field?: string;
-  defaultValue?: boolean;
-  onChange: (value: boolean, field?: string) => void; // ✅ fixed type
+  value?: boolean; // ✅ renamed from defaultValue for clarity
+  onChange: (value: boolean, field?: string) => void;
 }
 
 const ToggleSetting: React.FC<ToggleSettingProps> = ({
   title,
   description,
   field,
-  defaultValue = false,
+  value = false,
   onChange,
 }) => {
-  const [enabled, setEnabled] = useState(defaultValue);
-
   const handleToggle = () => {
-    const newValue = !enabled;
-    setEnabled(newValue);
-    onChange(newValue, field); // ✅ matches (boolean, field?)
+    onChange(!value, field);
   };
 
   return (
@@ -38,12 +32,12 @@ const ToggleSetting: React.FC<ToggleSettingProps> = ({
         type="button"
         onClick={handleToggle}
         className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-          enabled ? "bg-blue-500" : "bg-gray-300"
+          value ? "bg-blue-500" : "bg-gray-300"
         }`}
       >
         <span
           className={`inline-block h-5 w-5 transform rounded-full bg-white shadow-md transition-transform ${
-            enabled ? "translate-x-5" : "translate-x-1"
+            value ? "translate-x-5" : "translate-x-1"
           }`}
         />
       </button>

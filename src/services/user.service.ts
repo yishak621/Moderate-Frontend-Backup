@@ -1,4 +1,4 @@
-import { User } from "@/app/types/user";
+import { SettingItem, User } from "@/app/types/user";
 import { axiosInstance } from "@/lib/axiosInstance";
 import { Grade, GradeData } from "@/types/Post";
 import { PostCreateInput } from "@/types/postAttributes";
@@ -303,6 +303,32 @@ export const getAllAnnouncements = async () => {
   }
 };
 
+//-------------------SAVE USER SETTINGS
+
+export const saveUserSettings = async (data: { settings: SettingItem }) => {
+  try {
+    const res = await axiosInstance.post(`/api/user/settings`, data);
+
+    if (!res) {
+      console.log("error");
+    }
+
+    return res.data;
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error(error);
+      throw new Error(
+        // @ts-expect-error: might be Axios error with response
+        error?.response?.data?.message ||
+          error.message ||
+          "Something went wrong"
+      );
+    } else {
+      console.error("Unknown error", error);
+      throw new Error("Something went wrong");
+    }
+  }
+};
 // {
 //   title: "Chemistry midterm exam",
 //   description: "Post description",

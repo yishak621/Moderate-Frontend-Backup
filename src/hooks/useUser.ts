@@ -1,9 +1,10 @@
-import { User } from "@/app/types/user";
+import { SettingItem, User } from "@/app/types/user";
 import { queryClient } from "@/lib/queryClient";
 import {
   deleteFileApi,
   getAllAnnouncements,
   saveUserGrade,
+  saveUserSettings,
   updateUserData,
   uploadFileApi,
   userCreatePost,
@@ -252,3 +253,23 @@ export function useAllAnnouncementsData() {
     error,
   };
 }
+
+//--------------------USER REMOVE FILE
+export const useUserSaveSettings = () => {
+  const { mutate, mutateAsync, data, isPending, isSuccess, isError, error } =
+    useMutation({
+      mutationFn: (data: { settings: SettingItem }) => saveUserSettings(data),
+      onSuccess: () => {
+        toast.success("Settings saved successfully!");
+      },
+    });
+  return {
+    saveSettings: mutate,
+    saveSettingsAsync: mutateAsync,
+    data,
+    isSavingSettingsLoading: isPending,
+    isSavingSettingsSuccess: isSuccess,
+    isSavingSettingsError: isError,
+    savingSettingError: error,
+  };
+};

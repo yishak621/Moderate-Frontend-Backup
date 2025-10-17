@@ -22,7 +22,9 @@ export interface Upload {
   createdAt: string;
   updatedAt: string;
 }
-
+export interface SettingItem {
+  [key: string]: boolean;
+}
 export interface User {
   id?: string;
   name: string;
