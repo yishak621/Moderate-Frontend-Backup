@@ -170,7 +170,7 @@ export const userCreatePost = async (
   domainId: string | boolean
 ) => {
   try {
-    const res = await axiosInstance.post(`/api/user/postss/${domainId}`, data);
+    const res = await axiosInstance.post(`/api/user/post/${domainId}`, data);
 
     if (!res) {
       console.log("error");
