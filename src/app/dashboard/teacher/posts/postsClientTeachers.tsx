@@ -81,7 +81,9 @@ export default function PostsClientTeachers() {
     <div className="bg-[#FDFDFD] py-11 px-6 rounded-[40px] flex flex-col">
       {/* top section */}
       <div className=" flex flex-row justify-between items-center">
-        <h4 className="text-[#0C0C0C] text-xl font-medium">My Posts</h4>
+        <h4 className="text-[#0C0C0C] text-xl font-medium">
+          My Moderate Posts
+        </h4>
 
         <div className="flex flex-row gap-1.5 items-center">
           {/* <div>
