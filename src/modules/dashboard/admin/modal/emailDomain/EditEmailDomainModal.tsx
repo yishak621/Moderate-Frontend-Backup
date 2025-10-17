@@ -105,7 +105,7 @@ export default function EditEmailDomainModal({
             <ToggleSetting
               title="Status"
               description="Control curricular area status"
-              defaultValue={field.value === "active"} // convert to boolean for toggle
+              value={field.value === "active"} // convert to boolean for toggle
               onChange={(val) => field.onChange(val ? "active" : "inactive")} // map back
             />
           )}

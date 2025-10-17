@@ -105,7 +105,7 @@ export default function DashboardShell({
       <aside
         className={clsx(
           "transition-all duration-300 bg-whiteCard shadow-lg flex flex-col overflow-y-scroll scrollbar-hide ",
-          isExpanded ? "w-64" : "w-20"
+          isExpanded ? "w-64" : "w-20 2xl:w-25"
         )}
       >
         <div className="flex items-center justify-between pt-6 2xl:pt-11 px-4 2xl:px-7.5">
@@ -114,10 +114,12 @@ export default function DashboardShell({
             <Image
               src="/images/logo/logo-1.png"
               alt="Moderate Logo"
-              width={28}
-              height={28}
-              className="object-contain"
+              width={0}
+              height={0}
+              sizes="100vw"
+              className="object-contain w-7 h-7 sm:w-9 sm:h-9 md:w-12 md:h-12 lg:w-16 lg:h-16"
             />
+
             {isExpanded && (
               <div className="flex flex-col ml-2">
                 <span className="font-medium text-2xl text-[#0C0C0C]">

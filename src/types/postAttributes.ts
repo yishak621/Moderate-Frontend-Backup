@@ -21,7 +21,7 @@ export interface PostAttributes {
   createdBy: string;
   createdAt: string;
   uploads: UploadAttributes[];
-  post_tags: string[];
+  tags: string[];
   post_status: "draft" | "published" | "archived";
   post_grade_avg: string | number;
   author: User;

@@ -1,13 +1,38 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { UserPlus } from "lucide-react";
+import { MoreVertical, UserPlus } from "lucide-react";
 import { PostAttributes } from "@/types/postAttributes";
 import PostTags from "./PostTags";
 import { timeAgo } from "@/lib/timeAgo";
+import { decoded } from "@/lib/currentUser";
+import { useState } from "react";
+import PopupCard from "@/components/PopCard";
+import PostActionsList from "./post/PostActionsList";
+import AddNewCurricularAreaModal from "../admin/modal/curricular/AddNewCurricularAreaModal";
+import Modal from "@/components/ui/Modal";
+import CreatPostModal from "./post/CreatPostModal";
+import EditPostModal from "./post/EditPostModal";
+import DeletePostModal from "./post/DeletePostModal";
+import ViewStatPostModal from "./post/ViewDetailPostModal";
 
 export default function Post({ post }: { post: PostAttributes }) {
   const router = useRouter();
+  const [isPopUpOpen, setIsPopUpOpen] = useState(false);
+  const [open, setOpen] = useState(false);
+  const [ModalComponent, setModalComponent] =
+    useState<React.ComponentType<any> | null>(null);
+  const [modalProps, setModalProps] = useState<Record<string, any>>({});
+
+  const handleOpenModal = <P,>(
+    component: React.ComponentType<P>,
+    props?: P
+  ) => {
+    setModalComponent(() => component);
+    setModalProps(props || {});
+    setOpen(true);
+  };
+
   if (!post) return null;
 
   const {
@@ -17,9 +42,27 @@ export default function Post({ post }: { post: PostAttributes }) {
     createdBy,
     createdAt,
     uploads: files,
-    // post_tags,
-    // post_grade_avg,
+    tags: post_tags,
+    post_grade_avg,
   } = post;
+  const currentUserId = decoded?.id;
+
+  const handleActionSelect = (action: string) => {
+    setIsPopUpOpen(false);
+    switch (action) {
+      case "edit":
+        handleOpenModal(EditPostModal, { post });
+        break;
+      case "delete":
+        handleOpenModal(DeletePostModal, { post });
+        break;
+      case "stats":
+        handleOpenModal(ViewStatPostModal, { post });
+        break;
+      default:
+        console.log("Selected:", action);
+    }
+  };
 
   const handleOpen = () => {
     window.open(`/dashboard/teacher/grading/${id}`, "_blank");
@@ -43,10 +86,33 @@ export default function Post({ post }: { post: PostAttributes }) {
             <p className=" mt-2.5 block max-w-[40vw] truncate">{description}</p>
           </div>
         </div>
-        <div className="flex flex-row gap-1.5 items-center text-[#368FFF] cursor-pointer">
-          <UserPlus size={19} />
-          <p>Follow</p>
-        </div>
+        {currentUserId !== createdBy ? (
+          <div className="flex flex-row gap-1.5 items-center text-[#368FFF] cursor-pointer">
+            <UserPlus size={19} />
+            <p>Follow</p>
+          </div>
+        ) : (
+          <div className="relative" onClick={() => setIsPopUpOpen((v) => !v)}>
+            <MoreVertical
+              size={20}
+              className="text-gray-400 hover:text-gray-600 cursor-pointer"
+            />
+
+            <PopupCard
+              isOpen={isPopUpOpen}
+              onClose={() => setIsPopUpOpen(false)}
+              align="right"
+            >
+              <PostActionsList onSelect={handleActionSelect} />
+            </PopupCard>
+
+            <Modal isOpen={open} onOpenChange={setOpen}>
+              <Modal.Content>
+                {ModalComponent && <ModalComponent {...modalProps} />}
+              </Modal.Content>
+            </Modal>
+          </div>
+        )}
       </div>
 
       {/* File previews */}
@@ -63,7 +129,7 @@ export default function Post({ post }: { post: PostAttributes }) {
               >
                 <iframe
                   src={file.fileUrl}
-                  className="w-full h-32 pointer-events-none"
+                  className="w-full h-32 xl:h-64 pointer-events-none"
                   title="PDF Preview"
                 />
                 <p className="p-2 text-xs truncate">
@@ -83,7 +149,7 @@ export default function Post({ post }: { post: PostAttributes }) {
                 <img
                   src={file.fileUrl}
                   alt="preview"
-                  className="w-full h-32 object-cover"
+                  className="w-full h-32 xl:h-64 object-cover"
                 />
                 <p className="p-2 text-xs truncate">
                   {file.fileName.split("/").pop()}
@@ -106,7 +172,7 @@ export default function Post({ post }: { post: PostAttributes }) {
 
       {/* Bottom */}
       <div className="flex flex-row justify-between w-full">
-        {/* <div className="flex flex-row gap-4 items-center">
+        <div className="flex flex-row gap-4 items-center">
           {post_tags.map((tag, idx) => (
             <PostTags
               key={idx}
@@ -115,7 +181,7 @@ export default function Post({ post }: { post: PostAttributes }) {
             />
           ))}
           <p className="text-sm text-gray-600">Avg: {post_grade_avg}</p>
-        </div> */}
+        </div>
       </div>
     </div>
   );

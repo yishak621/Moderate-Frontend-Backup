@@ -27,6 +27,7 @@ import { useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 
 import { useUserData } from "@/hooks/useUser";
+import PopupCard from "@/components/PopCard";
 
 type Role = "SYSTEM_ADMIN" | "TEACHER";
 
@@ -108,7 +109,8 @@ function getDashboardTitle(
 }
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
-  const [open, setOpen] = useState(false);
+  const [isPopUpOpen, setIsPopUpOpen] = useState(false);
+
   const [query, setQuery] = useState("");
   const role = getRole() as Role;
   const profileLink =
@@ -157,7 +159,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
         </div>
         <div
           className="relative flex flex-row gap-2 cursor-pointer"
-          onClick={() => setOpen(!open)}
+          onClick={() => setIsPopUpOpen(true)}
         >
           {/* 
            USER PROFILE
@@ -182,37 +184,32 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
           </div>
 
           {/* Dropdown Card */}
-          <AnimatePresence>
-            {open && (
-              <motion.div
-                initial={{ opacity: 0, y: -10, scale: 0.98 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: -10, scale: 0.98 }}
-                transition={{ duration: 0.25, ease: "easeOut" }}
-                className="absolute right-0 top-[45px] mt-4 w-56 bg-white  rounded-xl shadow-[0_4px_24px_rgba(0,0,0,0.08)] border border-gray-200  z-50 backdrop-blur-md"
-              >
-                <div className="flex flex-col py-3">
-                  {menuItems.map((item, idx) => (
-                    <motion.button
-                      key={idx}
-                      whileHover={{ x: 6 }}
-                      whileTap={{ scale: 0.97 }}
-                      onClick={() => {
-                        item.onClick();
-                        setOpen(false);
-                      }}
-                      className="flex flex-row items-center gap-3 px-5 py-3 text-left text-[15px] text-gray-800  font-medium rounded-lg transition-all duration-200 hover:bg-gray-50  hover:text-blue-600  group"
-                    >
-                      <span className="text-gray-500  group-hover:text-blue-500 transition-colors duration-200">
-                        {item.icon}
-                      </span>
-                      <span>{item.label}</span>
-                    </motion.button>
-                  ))}
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
+          <PopupCard
+            isOpen={isPopUpOpen}
+            onClose={() => setIsPopUpOpen(false)}
+            align="right"
+            className="mt-13"
+          >
+            <div className="flex flex-col ">
+              {menuItems.map((item, idx) => (
+                <motion.button
+                  key={idx}
+                  whileHover={{ x: 6 }}
+                  whileTap={{ scale: 0.97 }}
+                  onClick={() => {
+                    item.onClick();
+                    setIsPopUpOpen(false);
+                  }}
+                  className="flex flex-row items-center gap-3 px-5 py-3 text-left text-[15px] text-gray-800  font-medium rounded-lg transition-all duration-200 hover:bg-gray-50  hover:text-blue-600  group"
+                >
+                  <span className="text-gray-500  group-hover:text-blue-500 transition-colors duration-200">
+                    {item.icon}
+                  </span>
+                  <span>{item.label}</span>
+                </motion.button>
+              ))}
+            </div>
+          </PopupCard>
         </div>{" "}
       </div>
     );
@@ -237,8 +234,8 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
           <div className=" absolute bottom-0 right-0 w-[15px] h-[15px] bg-[#368FFF] rounded-full"></div>
         </div>
         <div
-          className="relative flex flex-row gap-2 cursor-pointer"
-          onClick={() => setOpen(!open)}
+          className=" flex flex-row gap-2 cursor-pointer "
+          onClick={() => setIsPopUpOpen(true)}
         >
           {/* 
            USER PROFILE
@@ -263,37 +260,32 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
           </div>
 
           {/* Dropdown Card */}
-          <AnimatePresence>
-            {open && (
-              <motion.div
-                initial={{ opacity: 0, y: -10, scale: 0.98 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: -10, scale: 0.98 }}
-                transition={{ duration: 0.25, ease: "easeOut" }}
-                className="absolute right-0 top-[45px] mt-4 w-56 bg-white  rounded-xl shadow-[0_4px_24px_rgba(0,0,0,0.08)] border border-gray-200  z-50 backdrop-blur-md"
-              >
-                <div className="flex flex-col py-3">
-                  {menuItems.map((item, idx) => (
-                    <motion.button
-                      key={idx}
-                      whileHover={{ x: 6 }}
-                      whileTap={{ scale: 0.97 }}
-                      onClick={() => {
-                        item.onClick();
-                        setOpen(false);
-                      }}
-                      className="flex flex-row items-center gap-3 px-5 py-3 text-left text-[15px] text-gray-800  font-medium rounded-lg transition-all duration-200 hover:bg-gray-50  hover:text-blue-600  group"
-                    >
-                      <span className="text-gray-500  group-hover:text-blue-500 transition-colors duration-200">
-                        {item.icon}
-                      </span>
-                      <span>{item.label}</span>
-                    </motion.button>
-                  ))}
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
+          <PopupCard
+            isOpen={isPopUpOpen}
+            onClose={() => setIsPopUpOpen(false)}
+            align="right"
+            className="mt-13"
+          >
+            <div className="flex flex-col ">
+              {menuItems.map((item, idx) => (
+                <motion.button
+                  key={idx}
+                  whileHover={{ x: 6 }}
+                  whileTap={{ scale: 0.97 }}
+                  onClick={() => {
+                    item.onClick();
+                    setIsPopUpOpen(false);
+                  }}
+                  className="flex flex-row items-center gap-3 px-5 py-3 text-left text-[15px] text-gray-800  font-medium rounded-lg transition-all duration-200 hover:bg-gray-50  hover:text-blue-600  group"
+                >
+                  <span className="text-gray-500  group-hover:text-blue-500 transition-colors duration-200">
+                    {item.icon}
+                  </span>
+                  <span>{item.label}</span>
+                </motion.button>
+              ))}
+            </div>
+          </PopupCard>
         </div>{" "}
       </div>
     );
