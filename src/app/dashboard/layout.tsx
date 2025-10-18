@@ -132,7 +132,10 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
     {
       label: "Profile",
       icon: <User size={22} />,
-      onClick: () => router.push(profileLink),
+      onClick: () => {
+        setIsPopUpOpen(false);
+        router.push(profileLink);
+      },
     },
     // { label: "Settings", onClick: () => router.push("/settings") },
     { label: "Logout", icon: <LogOut size={22} />, onClick: handleLogout },

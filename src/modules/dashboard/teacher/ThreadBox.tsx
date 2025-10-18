@@ -1,18 +1,33 @@
+"use client";
+import { useRouter } from "next/navigation";
+
 interface ThreadBox {
+  chatId?: string;
   name: string;
   unreadCount: number;
   lastMessage: string;
   isActive?: boolean;
+  onSelect?: (id: string) => void;
 }
 
 export function ThreadBox({
+  chatId,
   name,
   unreadCount,
   lastMessage,
   isActive = false,
+  onSelect,
 }: ThreadBox) {
+  const router = useRouter();
+
+  const handleClick = () => {
+    if (onSelect) onSelect(chatId || "");
+    router.push(`?chatId=${chatId}`);
+  };
+
   return (
     <div
+      onClick={handleClick}
       className={`flex flex-col items-left py-[15px] px-[18px] gap-1.5 border rounded-[9px] cursor-pointer transition-all duration-300 ease-in-out
     ${
       isActive
@@ -23,9 +38,11 @@ export function ThreadBox({
       <div className="flex flex-col rounded-[9px] w-full">
         <div className="flex flex-row justify-between">
           <p className="font-medium text-gray-800">{name}</p>
-          <div className="flex flex-row justify-center items-center w-[20px] h-[20px] rounded-full bg-[#368FFF]">
-            <p className="text-[#FDFDFD] text-[11px]">{unreadCount}</p>
-          </div>
+          {unreadCount > 0 && (
+            <div className="flex flex-row justify-center items-center w-[20px] h-[20px] rounded-full bg-[#368FFF]">
+              <p className="text-[#FDFDFD] text-[11px]">{unreadCount}</p>
+            </div>
+          )}
         </div>
       </div>
       <p className="text-[#717171] text-sm font-normal text-left truncate">
