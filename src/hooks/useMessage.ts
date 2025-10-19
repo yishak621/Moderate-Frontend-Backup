@@ -1,5 +1,12 @@
-import { getMessages, getThreads } from "@/services/message.service";
-import { useQuery } from "@tanstack/react-query";
+import { Message } from "@/app/types/threads";
+import { queryClient } from "@/lib/queryClient";
+import {
+  getMessages,
+  getThreads,
+  markMessageAsRead,
+  sendMessageAPI,
+} from "@/services/message.service";
+import { useMutation, useQuery } from "@tanstack/react-query";
 
 //-------------------------GET ALL THREADS
 export const useThreads = (userId: string) => {
@@ -40,5 +47,55 @@ export const useGetMessages = (receiverUserId: string) => {
     isMessagesLoading,
     isMessagesSuccess,
     messages,
+  };
+};
+
+//----------------------------MARK MESSAGE US READ
+
+export const useMarkMessageAsRead = () => {
+  const { mutate, mutateAsync, data, isPending, isSuccess, isError, error } =
+    useMutation({
+      mutationFn: (id: string) => markMessageAsRead(id),
+      onSuccess: () => {
+        queryClient.invalidateQueries({
+          queryKey: ["messages"],
+          exact: false,
+        });
+      },
+    });
+
+  return {
+    markMessageAsRead: mutate,
+    markMessageAsReadAsync: mutateAsync,
+    data,
+    ismarkMessageAsReadLoading: isPending,
+    ismarkMessageAsReadSuccess: isSuccess,
+    ismarkMessageAsReadError: isError,
+    markMessageAsReadError: error,
+  };
+};
+
+//----------------------------SEND MESSAGE API
+
+export const useSendMessageAPI = () => {
+  const { mutate, mutateAsync, data, isPending, isSuccess, isError, error } =
+    useMutation({
+      mutationFn: (message: Message) => sendMessageAPI(message),
+      onSuccess: () => {
+        queryClient.invalidateQueries({
+          queryKey: ["messages"],
+          exact: false,
+        });
+      },
+    });
+
+  return {
+    sendMessageAPI: mutate,
+    sendMessageAPIAsync: mutateAsync,
+    data,
+    isSendMessageAPILoading: isPending,
+    isSendMessageAPISuccess: isSuccess,
+    isSendMessageAPIError: isError,
+    sendMessageAPIError: error,
   };
 };

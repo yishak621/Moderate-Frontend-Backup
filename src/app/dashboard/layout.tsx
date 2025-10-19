@@ -28,6 +28,7 @@ import { AnimatePresence, motion } from "framer-motion";
 
 import { useUserData } from "@/hooks/useUser";
 import PopupCard from "@/components/PopCard";
+import { queryClient } from "@/lib/queryClient";
 
 type Role = "SYSTEM_ADMIN" | "TEACHER";
 
@@ -124,6 +125,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   const { user, isLoading, isSuccess, isError, error } = useUserData();
 
   const handleLogout = () => {
+    queryClient.clear();
     removeToken();
     router.push("/auth/login");
   };

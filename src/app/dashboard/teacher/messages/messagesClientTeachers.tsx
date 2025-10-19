@@ -1,13 +1,28 @@
 "use client";
 
 import { ThreadBox } from "@/modules/dashboard/teacher/ThreadBox";
-import { useEffect, useState } from "react";
-import { Brain, User, Loader2, MessageSquare, Send, Users } from "lucide-react";
-
-import { useGetMessages, useThreads } from "@/hooks/useMessage";
+import { useEffect, useRef, useState } from "react";
+import {
+  Brain,
+  User,
+  Loader2,
+  MessageSquare,
+  Send,
+  Users,
+  SmileIcon,
+} from "lucide-react";
+import { io, Socket } from "socket.io-client";
+import { DefaultEventsMap } from "@socket.io/component-emitter";
+import {
+  useGetMessages,
+  useMarkMessageAsRead,
+  useSendMessageAPI,
+  useThreads,
+} from "@/hooks/useMessage";
 import { decoded } from "@/lib/currentUser";
-import { Message, Threads } from "@/app/types/threads";
-import { useRouter } from "next/navigation";
+import { Message, Thread, Threads } from "@/app/types/threads";
+import EmojiPicker from "emoji-picker-react";
+import { getToken } from "@/services/tokenService";
 
 // const sampleThreads = [
 //   {
@@ -61,42 +76,253 @@ import { useRouter } from "next/navigation";
 //       },
 
 export default function MessagesClientTeachers() {
-  const [message, setMessage] = useState("");
-  const [messagesState, setMessagesState] = useState([]);
+  const [showPicker, setShowPicker] = useState<boolean>(false);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
+  const token = getToken();
 
-  const userId = decoded?.id || "";
+  const [newMessage, setNewMessage] = useState<string>("");
+  const [messagesState, setMessagesState] = useState<Message[]>([]);
+  const [unreadCounts, setUnreadCounts] = useState<Record<string, number>>({});
+  const [threadsState, setThreadsState] = useState<Thread[]>([]);
+  const [onlineUsers, setOnlineUsers] = useState<Set<string>>(new Set());
+  const [sending, setSending] = useState<boolean>(false);
+
+  const userId: string = decoded?.id || "";
   const [activeId, setActiveId] = useState<string | null>(null);
-  // const userId = decoded?.id;
 
-  //HOOKS
+  const [chatId, setChatId] = useState<string | null>(null);
+  const [postId, setPostId] = useState<string | null>(null);
+
+  const socketRef = useRef<Socket<DefaultEventsMap, DefaultEventsMap> | null>(
+    null
+  );
+  const messagesEndRef = useRef<HTMLDivElement | null>(null);
+  const audioRef = useRef<HTMLAudioElement>(new Audio("/audio/ping.mp3"));
+
+  // HOOKS
   const { isThreadsLoading, isThreadsSuccess, threads } = useThreads(userId);
   const { isMessagesLoading, isMessagesSuccess, messages } = useGetMessages(
     activeId || ""
   );
-
-  console.log(messages);
-  const handleSendMessage = () => {
-    if (message.trim()) {
-      console.log("Sending message:", message);
-      setMessage("");
-    }
-  };
-
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      handleSendMessage();
-    }
-  };
-
+  const { markMessageAsRead, markMessageAsReadAsync } = useMarkMessageAsRead();
+  const {
+    sendMessageAPIAsync,
+    isSendMessageAPILoading,
+    isSendMessageAPISuccess,
+  } = useSendMessageAPI();
+  // Set messages when fetched
   useEffect(() => {
-    setMessagesState(
-      messages?.messages.sort(
-        (a: Message, b: Message) =>
-          new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
-      )
+    if (isMessagesSuccess && messages?.messages) {
+      setMessagesState(
+        [...messages.messages].sort(
+          (a, b) =>
+            new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+        )
+      );
+    }
+  }, [isMessagesSuccess, messages]);
+
+  // Initialize socket
+  useEffect(() => {
+    const socket = io("http://localhost:8000/api/messages", {
+      auth: { token },
+      transports: ["websocket"],
+    });
+
+    socketRef.current = socket;
+    socket.emit("user:online", { userId });
+
+    socket.on("connect", () => {
+      console.log("WebSocket connected:", socket.id);
+    });
+
+    socket.on("user:online", ({ userId }) => {
+      console.log(`${userId} is online`);
+    });
+
+    socket.on("user:offline", ({ userId, lastSeen }) => {
+      console.log(`${userId} went offline at ${lastSeen}`);
+    });
+
+    socket.on("connect_error", (err: Error) => {
+      console.error("Socket connection error:", err.message);
+    });
+
+    socket.on("message:new", (message: Message) => {
+      if (message.senderId === activeId || message.receiverId === activeId) {
+        setMessagesState((prev) =>
+          [...prev, message].sort(
+            (a, b) =>
+              new Date(a.createdAt ?? Date.now()).getTime() -
+              new Date(b.createdAt ?? Date.now()).getTime()
+          )
+        );
+      } else {
+        setThreadsState((prev) =>
+          prev.map((t) =>
+            t.partnerId === message.senderId
+              ? { ...t, lastMessage: message.content }
+              : t
+          )
+        );
+        setUnreadCounts((prev) => ({
+          ...prev,
+          [message.senderId]: (prev[message.senderId] || 0) + 1,
+        }));
+      }
+
+      if (message.senderId !== userId) {
+        audioRef.current
+          .play()
+          .catch(() => console.warn("Audio play prevented"));
+      }
+    });
+
+    socket.on(
+      "message:read",
+      ({ senderId, readAt }: { senderId: string; readAt: string }) => {
+        setMessagesState((prev) =>
+          prev.map((m) => (m.senderId === senderId ? { ...m, readAt } : m))
+        );
+      }
     );
-  }, [isMessagesSuccess]);
+
+    return () => {
+      socket.off("user:online");
+      socket.off("user:offline");
+      socket.disconnect();
+    };
+  }, [userId, activeId, token]);
+
+  // Auto-scroll
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messagesState]);
+
+  // Online users
+  useEffect(() => {
+    if (!socketRef.current) return;
+
+    socketRef.current.on("users:online", (users: string[]) => {
+      setOnlineUsers(new Set(users));
+    });
+
+    socketRef.current.on("user:online", ({ userId }: { userId: string }) => {
+      setOnlineUsers((prev) => new Set(prev).add(userId));
+    });
+
+    socketRef.current.on("user:offline", ({ userId }: { userId: string }) => {
+      setOnlineUsers((prev) => {
+        const newSet = new Set(prev);
+        newSet.delete(userId);
+        return newSet;
+      });
+    });
+
+    return () => {
+      socketRef.current?.off("users:online");
+      socketRef.current?.off("user:online");
+      socketRef.current?.off("user:offline");
+    };
+  }, []);
+
+  // Mark messages as read
+  useEffect(() => {
+    if (!activeId) return;
+
+    const markAsRead = async () => {
+      try {
+        await markMessageAsReadAsync(activeId);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    markAsRead();
+  }, [activeId]);
+
+  // Send message via WebSocket
+  async function sendMessage() {
+    if (!newMessage.trim() || !socketRef.current) return;
+
+    setSending(true);
+    const tempId = `tmp_${Date.now()}_${Math.random()
+      .toString(36)
+      .slice(2, 7)}`;
+    const content = newMessage;
+
+    setMessagesState((prev) => [
+      ...prev,
+      {
+        id: tempId,
+        senderId: userId,
+        receiverId: "bot",
+        content,
+        pending: true,
+      },
+    ]);
+
+    setNewMessage("");
+
+    socketRef.current.emit(
+      "message:send",
+      { tempId, chatId, postId, receiverId: activeId, content },
+      (ack: { ok?: boolean; message?: Message; error?: string }) => {
+        if (!ack) {
+          fallbackHttpSend({
+            chatId,
+            postId,
+            receiverId: activeId!,
+            content,
+            tempId,
+            sendMessageAPIAsync,
+          });
+          setSending(false);
+          return;
+        }
+        if (ack.ok && ack.message) {
+          setMessagesState((prev) =>
+            prev.map((m) => (m.id === tempId ? ack.message! : m))
+          );
+        } else {
+          setMessagesState((prev) =>
+            prev.map((m) => (m.id === tempId ? { ...m, failed: true } : m))
+          );
+          console.error("send failed", ack.error);
+        }
+        setSending(false);
+      }
+    );
+  }
+
+  // Fallback HTTP message send
+  async function fallbackHttpSend({
+    chatId,
+    postId,
+    receiverId,
+    content,
+    tempId,
+    sendMessageAPIAsync,
+    data,
+  }: {
+    chatId: string | null;
+    postId: string | null;
+    receiverId: string;
+    content: string;
+    tempId: string;
+    data?: any;
+    sendMessageAPIAsync: any;
+  }) {
+    try {
+      setMessagesState((prev) =>
+        prev.map((m) => (m.id === tempId ? data.message : m))
+      );
+    } catch (err) {
+      console.log(err);
+    } finally {
+      setSending(false);
+    }
+  }
 
   return (
     <div className=" grid grid-cols-1 md:grid-cols-[25%_75%] gap-4   max-h-[90vh]">
@@ -162,27 +388,61 @@ export default function MessagesClientTeachers() {
           )}
         </div>
 
-        {/* chat messages area */}
-        <div className="flex-1 p-6 overflow-y-auto">
+        {/* Chat messages area */}
+        <div
+          className="flex-1 p-6 overflow-y-auto flex flex-col gap-2"
+          style={{ justifyContent: "flex-end" }}
+        >
           {isMessagesLoading ? (
             <MessagesLoading />
+          ) : messagesState?.length ? (
+            messagesState.map((message: Message) => {
+              const isSender = message.senderId !== activeId;
+
+              return (
+                <div key={message.id} className="flex items-end gap-2">
+                  {" "}
+                  {!isSender && (
+                    <img
+                      src={"/images/sample-user.png"}
+                      alt="Receiver"
+                      className="w-8 h-8 rounded-full object-cover"
+                    />
+                  )}
+                  <div
+                    className={`max-w-[70%] p-3 my-1 rounded-xl relative break-words
+            ${
+              isSender
+                ? "bg-blue-500 text-white self-end ml-auto"
+                : "bg-gray-200 text-black self-start mr-auto"
+            }
+          `}
+                  >
+                    {/* Bubble pointy corner */}
+                    <div
+                      className={`absolute w-3 h-3 bg-inherit transform rotate-45
+              ${isSender ? "bottom-0 right-[-6px]" : "bottom-0 left-[-6px]"}
+            `}
+                    ></div>
+
+                    {message.content}
+
+                    {/* Optional: timestamp */}
+                    <span className="block text-[10px] mt-1 text-gray-400 text-right">
+                      {new Date(
+                        message.createdAt ?? Date.now()
+                      ).toLocaleTimeString([], {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
+                    </span>
+                  </div>
+                </div>
+              );
+            })
           ) : (
             <div className="text-gray-500 text-center py-8">
-              {isMessagesSuccess &&
-                messagesState?.map((message: Message) => {
-                  return (
-                    <div
-                      key={message.id}
-                      className={`p-2 my-1 rounded-lg max-w-[70%] ${
-                        message.senderId === activeId
-                          ? "bg-blue-500 text-white self-end ml-auto"
-                          : "bg-gray-200 text-black self-start mr-auto"
-                      }`}
-                    >
-                      {message.content}
-                    </div>
-                  );
-                })}
+              Chat room - Messages will appear here
             </div>
           )}
         </div>
@@ -191,18 +451,38 @@ export default function MessagesClientTeachers() {
         <div className="px-6 py-4">
           <div className="flex gap-3 items-start ">
             <div className="flex-1 ">
-              <textarea
-                value={message}
-                onChange={(e) => setMessage(e.target.value)}
-                onKeyPress={handleKeyPress}
-                placeholder="Type your message..."
-                className="w-full p-3 border border-[#DBDBDB] rounded-lg resize-none focus:outline-none focus:border-[#368FFF] h-[50px] leading-6"
-                rows={1}
-              />
+              <div className="relative flex flex-row items-center">
+                {/* Emoji picker dropdown */}
+                {showPicker && (
+                  <div className="absolute bottom-14 left-0">
+                    <EmojiPicker />
+                  </div>
+                )}
+                <div className="relative w-full">
+                  {/* Emoji toggle button */}
+                  <button
+                    type="button"
+                    onClick={() => setShowPicker((prev) => !prev)}
+                    className="absolute left-3 top-1/2 -translate-y-1/2 p-1.5 hover:bg-gray-100 rounded-full transition"
+                  >
+                    <SmileIcon size={22} className="text-gray-500" />
+                  </button>
+
+                  {/* Message input */}
+                  <textarea
+                    ref={inputRef}
+                    value={newMessage}
+                    onChange={(e) => setNewMessage(e.target.value)}
+                    placeholder="Type your message..."
+                    className="w-full pl-14 pr-3 py-2 border border-[#DBDBDB] rounded-lg resize-none focus:outline-none focus:border-[#368FFF] h-[50px] leading-6"
+                    rows={1}
+                  />
+                </div>
+              </div>
             </div>
             <button
-              onClick={handleSendMessage}
-              disabled={!message.trim()}
+              onClick={sendMessage}
+              disabled={!newMessage.trim()}
               className="bg-[#368FFF] hover:bg-[#2574db] disabled:bg-gray-300 text-white rounded-lg transition-colors duration-200 flex items-center justify-center w-[50px] h-[50px]"
             >
               <Send size={20} />
@@ -227,7 +507,7 @@ function MessagesLoading() {
       {Array.from({ length: 6 }).map((_, i) => (
         <div
           key={i}
-          className={`flex ${
+          className={`flex overflow-hidden ${
             i % 2 === 0 ? "justify-start" : "justify-end"
           } animate-pulse`}
         >

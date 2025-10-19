@@ -8,12 +8,19 @@ export type Threads = {
   unreadCount: number;
 };
 
+export interface Thread {
+  partnerId: string;
+  partnerName: string;
+  lastMessage: string;
+  unreadCount: number;
+}
 export type Message = {
   id: string;
   senderId: string;
   receiverId: string;
+  pending?: boolean;
   content: string;
-  createdAt: string; // ISO date string
+  createdAt?: string | null; // ISO date string
   sender?: {
     id: string;
     name: string;
