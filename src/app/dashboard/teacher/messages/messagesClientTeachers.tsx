@@ -23,59 +23,10 @@ import { decoded } from "@/lib/currentUser";
 import { Message, Thread, Threads } from "@/app/types/threads";
 import EmojiPicker from "emoji-picker-react";
 import { getToken } from "@/services/tokenService";
-
-// const sampleThreads = [
-//   {
-//     name: "Yisahk A.",
-//     unreadCount: 8,
-//     lastMessage: "this is the last message",
-//     isActive: true,
-//   },
-//   {
-//     name: "Ermi A.",
-//     unreadCount: 8,
-//     lastMessage: "this is the last message",
-//   },
-//   {
-//     name: "Mahi K.",
-//     unreadCount: 8,
-//     lastMessage: "this is the last message",
-//   },
-//   {
-//     name: "jHonasd A.",
-//     unreadCount: 8,
-//     lastMessage: "this is the last message",
-//   },
-// ];
-
-//  "status": "success",
-//   "data": [
-//       {
-//           "partnerId": "9be589e9-6311-4ce1-85af-35203ecad8f9",
-//           "partnerName": "du lu duang",
-//           "senderName": "Yishak 2",
-//           "lastMessage": "Hello there is a misunderstanding in the quetion 4... let me know",
-//           "lastMessageAt": "2025-09-12T16:29:34.911Z",
-//           "messages": [
-//               {
-//                   "id": "a48a3247-906b-4cf9-9d0e-0617f1c1b7d8",
-//                   "senderId": "3c2b3c91-9f5d-4aff-bf68-17aa47e240fb",
-//                   "receiverId": "9be589e9-6311-4ce1-85af-35203ecad8f9",
-//                   "content": "Hello there is a misunderstanding in the quetion 4... let me know",
-//                   "createdAt": "2025-09-12T16:29:34.911Z"
-//               },
-//               {
-//                   "id": "9a986ed1-0e6d-4c19-9969-7a678c1cbc81",
-//                   "senderId": "3c2b3c91-9f5d-4aff-bf68-17aa47e240fb",
-//                   "receiverId": "9be589e9-6311-4ce1-85af-35203ecad8f9",
-//                   "content": "Let’s discuss your last submission.",
-//                   "createdAt": "2025-09-12T16:29:03.947Z"
-//               }
-//           ],
-//           "unreadCount": 0
-//       },
+import { useSearchParams } from "next/navigation";
 
 export default function MessagesClientTeachers() {
+  const searchParams = useSearchParams();
   const [showPicker, setShowPicker] = useState<boolean>(false);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const token = getToken();
@@ -147,33 +98,47 @@ export default function MessagesClientTeachers() {
     socket.on("connect_error", (err: Error) => {
       console.error("Socket connection error:", err.message);
     });
-
     socket.on("message:new", (message: Message) => {
-      if (message.senderId === activeId || message.receiverId === activeId) {
+      // ensure message has a createdAt timestamp
+      const normalizedMessage = {
+        ...message,
+        createdAt: message.createdAt ?? new Date().toISOString(),
+      };
+
+      // check chat relevance
+      if (
+        normalizedMessage.senderId === activeId ||
+        normalizedMessage.receiverId === activeId
+      ) {
+        // append & always keep messages sorted chronologically
         setMessagesState((prev) =>
-          [...prev, message].sort(
+          [...prev, normalizedMessage].sort(
             (a, b) =>
-              new Date(a.createdAt ?? Date.now()).getTime() -
-              new Date(b.createdAt ?? Date.now()).getTime()
+              new Date(a.createdAt ?? "").getTime() -
+              new Date(b.createdAt ?? "").getTime()
           )
         );
       } else {
+        // update thread preview and unread count
         setThreadsState((prev) =>
           prev.map((t) =>
-            t.partnerId === message.senderId
-              ? { ...t, lastMessage: message.content }
+            t.partnerId === normalizedMessage.senderId
+              ? { ...t, lastMessage: normalizedMessage.content }
               : t
           )
         );
+
         setUnreadCounts((prev) => ({
           ...prev,
-          [message.senderId]: (prev[message.senderId] || 0) + 1,
+          [normalizedMessage.senderId]:
+            (prev[normalizedMessage.senderId] || 0) + 1,
         }));
       }
 
-      if (message.senderId !== userId) {
+      // play sound for received messages
+      if (normalizedMessage.senderId !== userId) {
         audioRef.current
-          .play()
+          ?.play()
           .catch(() => console.warn("Audio play prevented"));
       }
     });
@@ -324,6 +289,25 @@ export default function MessagesClientTeachers() {
     }
   }
 
+  useEffect(() => {
+    const handleChatInit = async () => {
+      const chatId = searchParams.get("chatId");
+      if (!chatId || !threads?.data) return;
+
+      // Check if thread already exists
+      const existingThread = threads.data.find(
+        (thread: Threads) => thread.partnerId === chatId
+      );
+
+      if (existingThread) {
+        // ✅ Open existing thread
+        setActiveId(existingThread.partnerId);
+      }
+    };
+
+    handleChatInit();
+  }, [searchParams, threads?.data]);
+
   return (
     <div className=" grid grid-cols-1 md:grid-cols-[25%_75%] gap-4   max-h-[90vh]">
       <div className="bg-[#FDFDFD] rounded-[22px] py-6 px-7  flex flex-col">
@@ -377,74 +361,71 @@ export default function MessagesClientTeachers() {
           )}
         </div>
       </div>
-      <div className="bg-[#fdfdfd] py-4.5 rounded-[40px] flex flex-col h-[85vh]">
+      <div className="bg-[#fdfdfd] py-4.5 rounded-[40px] flex flex-col h-[85vh] overflow-hidden">
         {/* top section */}
-        <div className=" flex flex-row pb-3 px-6 items-center gap-3.5 border-b  border-b-[#DBDBDB]">
+        <div className="flex flex-row pb-3 px-6 items-center gap-3.5 border-b border-b-[#DBDBDB]">
           <div className="w-[52px] h-[52px] bg-[#368FFF] rounded-full"></div>
           {isMessagesSuccess && (
-            <p className=" text-xl text-[#0c0c0c] font-medium">
+            <p className="text-xl text-[#0c0c0c] font-medium">
               Chat with {messages?.messages[0]?.receiver.name}
             </p>
           )}
         </div>
 
         {/* Chat messages area */}
-        <div
-          className="flex-1 p-6 overflow-y-auto flex flex-col gap-2"
-          style={{ justifyContent: "flex-end" }}
-        >
-          {isMessagesLoading ? (
-            <MessagesLoading />
-          ) : messagesState?.length ? (
-            messagesState.map((message: Message) => {
-              const isSender = message.senderId !== activeId;
 
-              return (
-                <div key={message.id} className="flex items-end gap-2">
-                  {" "}
-                  {!isSender && (
-                    <img
-                      src={"/images/sample-user.png"}
-                      alt="Receiver"
-                      className="w-8 h-8 rounded-full object-cover"
-                    />
-                  )}
-                  <div
-                    className={`max-w-[70%] p-3 my-1 rounded-xl relative break-words
-            ${
-              isSender
-                ? "bg-blue-500 text-white self-end ml-auto"
-                : "bg-gray-200 text-black self-start mr-auto"
-            }
-          `}
-                  >
-                    {/* Bubble pointy corner */}
+        <div className="flex-1 min-h-0 p-6 flex flex-col justify-end">
+          {/* Scroll container */}
+          <div className="flex flex-col gap-2 overflow-y-scroll max-h-full px-4">
+            {isMessagesLoading ? (
+              <MessagesLoading />
+            ) : messagesState?.length ? (
+              messagesState.map((message: Message) => {
+                const isSender = message.senderId !== activeId;
+
+                return (
+                  <div key={message.id} className="flex items-end gap-2">
+                    {!isSender && (
+                      <img
+                        src={"/images/sample-user.png"}
+                        alt="Receiver"
+                        className="w-8 h-8 rounded-full object-cover"
+                      />
+                    )}
                     <div
-                      className={`absolute w-3 h-3 bg-inherit transform rotate-45
-              ${isSender ? "bottom-0 right-[-6px]" : "bottom-0 left-[-6px]"}
-            `}
-                    ></div>
-
-                    {message.content}
-
-                    {/* Optional: timestamp */}
-                    <span className="block text-[10px] mt-1 text-gray-400 text-right">
-                      {new Date(
-                        message.createdAt ?? Date.now()
-                      ).toLocaleTimeString([], {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
-                    </span>
+                      className={`max-w-[70%] p-3 my-1 rounded-xl relative break-words ${
+                        isSender
+                          ? "bg-blue-500 text-white self-end ml-auto"
+                          : "bg-gray-200 text-black self-start mr-auto"
+                      }`}
+                    >
+                      <div
+                        className={`absolute w-3 h-3 bg-inherit transform rotate-45 ${
+                          isSender
+                            ? "bottom-0 right-[-6px]"
+                            : "bottom-0 left-[-6px]"
+                        }`}
+                      />
+                      {message.content}
+                      <span className="block text-[10px] mt-1 text-black text-right">
+                        {new Date(
+                          message.createdAt ?? Date.now()
+                        ).toLocaleTimeString([], {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
+                      </span>
+                    </div>
+                    <div ref={messagesEndRef} />
                   </div>
-                </div>
-              );
-            })
-          ) : (
-            <div className="text-gray-500 text-center py-8">
-              Chat room - Messages will appear here
-            </div>
-          )}
+                );
+              })
+            ) : (
+              <div className="text-gray-500 text-center py-8">
+                Chat room – Messages will appear here
+              </div>
+            )}
+          </div>
         </div>
 
         {/* chat input */}
@@ -455,7 +436,11 @@ export default function MessagesClientTeachers() {
                 {/* Emoji picker dropdown */}
                 {showPicker && (
                   <div className="absolute bottom-14 left-0">
-                    <EmojiPicker />
+                    <EmojiPicker
+                      onEmojiClick={(emojiObject) =>
+                        setNewMessage((prev) => prev + emojiObject.emoji)
+                      }
+                    />
                   </div>
                 )}
                 <div className="relative w-full">

@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { MoreVertical, UserPlus } from "lucide-react";
+import { MessageSquare, MoreVertical, UserPlus } from "lucide-react";
 import { PostAttributes } from "@/types/postAttributes";
 import PostTags from "./PostTags";
 import { timeAgo } from "@/lib/timeAgo";
@@ -15,6 +15,9 @@ import CreatPostModal from "./post/CreatPostModal";
 import EditPostModal from "./post/EditPostModal";
 import DeletePostModal from "./post/DeletePostModal";
 import ViewStatPostModal from "./post/ViewDetailPostModal";
+import ComposeNewMessageModal from "./messages/ComposeNewMessageModal";
+import { useThreads } from "@/hooks/useMessage";
+import { Thread, Threads } from "@/app/types/threads";
 
 export default function Post({ post }: { post: PostAttributes }) {
   const router = useRouter();
@@ -33,10 +36,16 @@ export default function Post({ post }: { post: PostAttributes }) {
     setOpen(true);
   };
 
+  const currentUserId = decoded?.id ?? "";
+  // HOOKS
+  const { isThreadsLoading, isThreadsSuccess, threads } =
+    useThreads(currentUserId);
+
   if (!post) return null;
 
   const {
     id,
+    author,
     title,
     description,
     createdBy,
@@ -45,8 +54,14 @@ export default function Post({ post }: { post: PostAttributes }) {
     tags: post_tags,
     post_grade_avg,
   } = post;
-  const currentUserId = decoded?.id;
 
+  const didUserChatWithMe = threads?.data.some((thread: Threads) =>
+    thread.messages.some(
+      (msg) => msg.senderId === author?.id || msg.receiverId === author?.id
+    )
+  );
+
+  console.log(author?.name, didUserChatWithMe);
   const handleActionSelect = (action: string) => {
     setIsPopUpOpen(false);
     switch (action) {
@@ -65,7 +80,7 @@ export default function Post({ post }: { post: PostAttributes }) {
   };
 
   const handleOpen = () => {
-    window.open(`/dashboard/teacher/grading/${id}`, "_blank");
+    window.open(`/dashboard/teacher/messages?chatId=${author?.id}`, "_blank");
   };
 
   return (
@@ -87,9 +102,32 @@ export default function Post({ post }: { post: PostAttributes }) {
           </div>
         </div>
         {currentUserId !== createdBy ? (
-          <div className="flex flex-row gap-1.5 items-center text-[#368FFF] cursor-pointer">
-            <UserPlus size={19} />
-            <p>Follow</p>
+          <div className="flex items-center gap-2">
+            {/* Follow Button */}
+            <div className="flex flex-row gap-1.5 items-center text-[#368FFF] cursor-pointer hover:opacity-80">
+              <UserPlus size={19} />
+              <p>Follow</p>
+            </div>
+
+            {/* Message Icon */}
+
+            <div
+              onClick={
+                didUserChatWithMe
+                  ? handleOpen
+                  : () => handleOpenModal(ComposeNewMessageModal, { post })
+              }
+            >
+              <MessageSquare
+                size={19}
+                className="text-[#368FFF] cursor-pointer hover:opacity-80"
+              />
+            </div>
+            <Modal isOpen={open} onOpenChange={setOpen}>
+              <Modal.Content>
+                {ModalComponent && <ModalComponent {...modalProps} />}
+              </Modal.Content>
+            </Modal>
           </div>
         ) : (
           <div className="relative" onClick={() => setIsPopUpOpen((v) => !v)}>
