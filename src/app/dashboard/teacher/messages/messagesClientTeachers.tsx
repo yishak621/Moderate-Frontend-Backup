@@ -356,6 +356,7 @@ export default function MessagesClientTeachers() {
                 lastMessage={thread.lastMessage}
                 isActive={activeId === thread.partnerId}
                 onSelect={(id) => setActiveId(id)}
+                isOnline={onlineUsers.has(thread.partnerId)}
               />
             ))
           )}
@@ -376,7 +377,7 @@ export default function MessagesClientTeachers() {
 
         <div className="flex-1 min-h-0 p-6 flex flex-col justify-end">
           {/* Scroll container */}
-          <div className="flex flex-col gap-2 overflow-y-scroll max-h-full px-4">
+          <div className="flex flex-col gap-2 overflow-y-scroll max-h-full scrollbar-hide px-4">
             {isMessagesLoading ? (
               <MessagesLoading />
             ) : messagesState?.length ? (
@@ -458,7 +459,12 @@ export default function MessagesClientTeachers() {
                     ref={inputRef}
                     value={newMessage}
                     onChange={(e) => setNewMessage(e.target.value)}
-                    onKeyDown={(e) => e.key === "Enter" && sendMessage()}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" && !e.shiftKey) {
+                        e.preventDefault();
+                        sendMessage();
+                      }
+                    }}
                     placeholder="Type your message..."
                     className="w-full pl-14 pr-3 py-2 border border-[#DBDBDB] rounded-lg resize-none focus:outline-none focus:border-[#368FFF] h-[50px] leading-6"
                     rows={1}

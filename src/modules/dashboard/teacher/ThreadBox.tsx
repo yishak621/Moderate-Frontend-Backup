@@ -11,6 +11,7 @@ interface ThreadBox {
   unreadCount: number;
   lastMessage: string;
   isActive?: boolean;
+  isOnline?: boolean;
   onSelect?: (id: string) => void;
 }
 
@@ -20,6 +21,7 @@ export function ThreadBox({
   unreadCount,
   lastMessage,
   isActive = false,
+  isOnline = false,
   onSelect,
 }: ThreadBox) {
   const router = useRouter();
@@ -42,7 +44,7 @@ export function ThreadBox({
     if (onSelect) onSelect(chatId || "");
     router.push(`?chatId=${chatId}`);
   };
-
+  console.log(isOnline);
   return (
     <div
       onClick={handleClick}
@@ -56,7 +58,13 @@ export function ThreadBox({
       {/* Top row */}
       <div className="flex flex-row justify-between items-start">
         <div className="flex-1 min-w-0">
-          <p className="font-medium text-gray-800 truncate">{name}</p>
+          <div className=" flex flex-row gap-1 items-center">
+            {" "}
+            {isOnline && (
+              <span className="inline-block h-2 w-2 bg-green-500 rounded-full"></span>
+            )}
+            <p className="font-medium text-gray-800 truncate">{name}</p>
+          </div>
           <p className="text-[#717171] text-sm font-normal truncate">
             {lastMessage}
           </p>

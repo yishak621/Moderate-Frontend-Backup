@@ -82,6 +82,9 @@ export default function Post({ post }: { post: PostAttributes }) {
   const handleOpen = () => {
     window.open(`/dashboard/teacher/messages?chatId=${author?.id}`, "_blank");
   };
+  const handlePostOpen = () => {
+    window.open(`/dashboard/teacher/grading/${id}`, "_blank");
+  };
 
   return (
     <div className="flex flex-col items-start border border-[#DBDBDB] p-7 rounded-3xl my-10 gap-4">
@@ -162,7 +165,7 @@ export default function Post({ post }: { post: PostAttributes }) {
             return (
               <div
                 key={idx}
-                onClick={handleOpen}
+                onClick={handlePostOpen}
                 className="cursor-pointer border rounded-xl overflow-hidden shadow-sm hover:shadow-md transition bg-gray-50 flex flex-col"
               >
                 <iframe
@@ -181,7 +184,7 @@ export default function Post({ post }: { post: PostAttributes }) {
             return (
               <div
                 key={idx}
-                onClick={handleOpen}
+                onClick={handlePostOpen}
                 className="cursor-pointer border rounded-xl overflow-hidden shadow-sm hover:shadow-md transition bg-gray-50"
               >
                 <img
