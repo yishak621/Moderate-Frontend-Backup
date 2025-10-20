@@ -55,7 +55,7 @@ export default function ComposeNewMessageModal({
   useEffect(() => {
     if (!isSendMessageAPILoading) return;
 
-    router.push("/messages");
+    router.push(`/dashboard/teacher/messages?chatId=${post?.author.id}`);
   }, [isSendMessageAPILoading, router]);
 
   return (
