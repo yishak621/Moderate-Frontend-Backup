@@ -12,12 +12,6 @@ import Textarea from "@/components/ui/Textarea";
 import { useForm } from "react-hook-form";
 import { useSendMessageAPI } from "@/hooks/useMessage";
 import { Message } from "@/app/types/threads";
-import { useRouter } from "next/navigation";
-
-interface SendFirstMessageInputs {
-  receiverId: string;
-  message: string;
-}
 
 export default function ComposeNewMessageModal({
   post,
@@ -25,7 +19,6 @@ export default function ComposeNewMessageModal({
   post: PostAttributes;
 }) {
   const { close } = useModal();
-  const router = useRouter();
 
   //HOOKS
 
@@ -54,9 +47,11 @@ export default function ComposeNewMessageModal({
 
   useEffect(() => {
     if (!isSendMessageAPILoading) return;
-
-    router.push(`/dashboard/teacher/messages?chatId=${post?.author.id}`);
-  }, [isSendMessageAPILoading, router]);
+    window.open(
+      `/dashboard/teacher/messages?chatId=${post?.author.id}`,
+      "_blank"
+    );
+  }, [isSendMessageAPILoading]);
 
   return (
     <form
