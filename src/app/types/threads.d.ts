@@ -17,7 +17,7 @@ export interface Thread {
 export type Message = {
   id: string;
   senderId: string;
-  receiverId: string;
+  receiverId?: string | undefined;
   pending?: boolean;
   content: string;
   createdAt?: string | null; // ISO date string

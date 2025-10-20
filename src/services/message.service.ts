@@ -84,7 +84,7 @@ export const markMessageAsRead = async (receiverUserId: string) => {
 
 export const sendMessageAPI = async (message: Message) => {
   try {
-    const res = await axiosInstance.post("/api/user/uploads", message);
+    const res = await axiosInstance.post("/api/messages", message);
 
     if (!res) {
       console.log("error");
