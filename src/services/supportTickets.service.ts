@@ -69,7 +69,7 @@ export const getTicketMessages = async (ticketId: string) => {
     const res = await axiosInstance.get(
       `/api/support/tickets/${ticketId}/messages`
     );
-    return res.data?.messages;
+    return res.data;
   } catch (error) {
     handleApiError(error);
   }

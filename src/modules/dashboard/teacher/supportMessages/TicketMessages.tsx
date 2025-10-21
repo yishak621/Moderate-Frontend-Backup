@@ -58,31 +58,41 @@ export default function TicketMessages({ ticket }: TicketMessagesProps) {
   };
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-[80vh]">
       {/* Ticket Header */}
-      <div className="mb-6 border-b border-[#EDEDED] pb-4">
+      <div className="flex flex-row gap-2 items-center border-b border-[#EDEDED] p-4">
         <h2 className="text-[#0C0C0C] text-xl font-semibold">
           {ticket?.subject}
         </h2>
-        <p className="text-[#717171] text-sm mt-1">
+        <div
+          className={`px-4.5 py-2 text-sm font-semibold rounded-full ${
+            {
+              closed: "bg-green-100 text-green-700",
+              open: "bg-blue-100 text-blue-700",
+              pending: "bg-yellow-100 text-yellow-700",
+            }[ticket.status] || "bg-gray-100 text-gray-700"
+          }`}
+        >
           {ticket.status.replace("_", " ")}
-        </p>
+        </div>
       </div>
 
       {/* Messages List */}
-      <div className="flex-1 overflow-y-auto flex flex-col gap-4 mb-4">
-        {isMessagesLoading && (
-          <div className="flex-1">
-            <Loading text="Loading Messages..." />
-          </div>
-        )}{" "}
-        {messages?.map((msg: Message) => (
-          <TicketMessage
-            key={msg.id}
-            message={msg.message}
-            sender={msg.sender}
-          />
-        ))}
+      <div className="flex-1 min-h-0 overflow-hidden">
+        <div className="h-full overflow-y-auto flex flex-col p-2 gap-2">
+          {isMessagesLoading && (
+            <div className="flex justify-center items-center h-full">
+              <Loading text="Loading Messages..." />
+            </div>
+          )}
+          {messages?.map((msg: Message) => (
+            <TicketMessage
+              key={msg.id}
+              message={msg.message}
+              sender={msg.sender}
+            />
+          ))}
+        </div>
       </div>
 
       {/* Message Input */}
@@ -101,11 +111,11 @@ export default function TicketMessages({ ticket }: TicketMessagesProps) {
           rows={1}
           {...register("message", { required: "Message is required!" })}
           error={errors?.message?.message}
-          disabled={isSendingMessageLoading}
+          disabled={isSendingMessageLoading || ticket.status === "closed"}
         />
         <button
           type="submit"
-          disabled={isSendingMessageLoading}
+          disabled={isSendingMessageLoading || ticket.status === "closed"}
           className={`flex items-center justify-center p-2 rounded-lg text-white transition ${
             isSendingMessageLoading
               ? "bg-gray-400 cursor-not-allowed"

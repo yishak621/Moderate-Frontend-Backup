@@ -1,8 +1,8 @@
 export interface Ticket {
   id: string;
   subject: string;
-  status: "open" | "in_progress" | "resolved";
-  lastUpdated: string;
+  status: "open" | "pending" | "closed";
+  lastUpdated?: string;
   messages?: Message[];
 }
 export interface Message {

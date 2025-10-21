@@ -4,9 +4,10 @@ export interface Support {
   id: string;
   subject: string;
   user: User;
+  userId: string;
   type: "System" | "General" | "Feature";
-  status: "Opened" | "Resolved" | "In_progress";
+  status: "opened" | "closed" | "pending";
   messages: number;
-  last_reply: string;
-  created: Date;
+  lastMessageAt: string;
+  createdAt: string;
 }

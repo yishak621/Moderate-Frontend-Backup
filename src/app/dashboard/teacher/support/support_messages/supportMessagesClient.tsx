@@ -11,32 +11,8 @@ import { Ticket } from "@/app/types/support_tickets";
 import { useGetAllSupportTickets } from "@/hooks/useSupportTickets";
 import Loading from "@/components/ui/Loading";
 
-// interface Ticket {
-//   id: string;
-//   subject: string;
-//   status: "open" | "in_progress" | "resolved";
-//   lastUpdated: string;
-// }
-
-// const mockTickets: Ticket[] = [
-//   {
-//     id: "1",
-//     subject: "App not loading on desktop",
-//     status: "in_progress",
-//     lastUpdated: "2025-10-20",
-//   },
-//   {
-//     id: "2",
-//     subject: "Payment not reflected",
-//     status: "resolved",
-//     lastUpdated: "2025-10-18",
-//   },
-// ];
-
 export default function SupportMessagesClient() {
-  //   const [tickets] = useState<Ticket[]>(mockTickets);
   const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
-  const [showNewTicket, setShowNewTicket] = useState(false);
   const [open, setOpen] = useState(false);
   const [ModalComponent, setModalComponent] = useState<React.FC<any> | null>(
     null
@@ -102,9 +78,9 @@ export default function SupportMessagesClient() {
                 </p>
                 <Badge
                   className={`text-xs capitalize ${
-                    ticket.status === "resolved"
+                    ticket.status === "closed"
                       ? "bg-[#EAFEF1] text-[#1E874B]"
-                      : ticket.status === "in_progress"
+                      : ticket.status === "pending"
                       ? "bg-[#FFF9E6] text-[#E0A100]"
                       : "bg-[#F1F1F1] text-[#717171]"
                   }`}
@@ -139,9 +115,6 @@ export default function SupportMessagesClient() {
           </div>
         )}
       </div>
-
-      {/* Modal for Creating Ticket */}
-      {showNewTicket && <NewTicketModal />}
     </div>
   );
 }

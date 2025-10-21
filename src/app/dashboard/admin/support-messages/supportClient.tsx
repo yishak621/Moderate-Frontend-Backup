@@ -24,7 +24,11 @@ import { CustomMultiSelect } from "@/components/ui/MultiSelectInput";
 import { Support } from "@/app/types/support";
 import SupportMessageModal from "@/modules/dashboard/admin/modal/support/SupportMessageModal";
 import { StatsCardProps } from "@/types/statusCardProps";
-import { useSupportStats } from "@/hooks/useSupportTickets";
+import {
+  useAllSupportTickets,
+  useSupportStats,
+} from "@/hooks/useSupportTickets";
+import Loading from "@/components/ui/Loading";
 
 // const statsData: StatsCardProps[] = [
 //   { title: "Total Tickets", count: 243, colored: true, icon: Ticket },
@@ -94,7 +98,7 @@ export default function SupportClient() {
 
   //HOOKS
   const { stats, isStatsLoading, statsError } = useSupportStats();
-
+  const { tickets, isTicketsLoading } = useAllSupportTickets();
   const handleSelected = (values: { value: string; label: string }[]) => {
     console.log("Selected values:", values);
     // you can use these in real-time (e.g. store in state, send to API, etc.)
@@ -112,7 +116,7 @@ export default function SupportClient() {
     { title: "Resolved", count: stats?.resolvedTickets, icon: CheckCircle },
   ];
 
-  const No_Of_tickets = 5;
+  const No_Of_tickets = tickets?.total;
 
   const options = [
     { value: "chocolate", label: "Chocolate" },
@@ -196,50 +200,59 @@ export default function SupportClient() {
         </div>
 
         {/* table */}
-        <div className="px-0 p-6">
-          {/* <DataTable<Support> data={sampleData} columns={columns} /> */}
-          <Modal isOpen={open} onOpenChange={setOpen}>
-            <Modal.Content>
-              {ModalComponent && <ModalComponent {...modalProps} />}
-            </Modal.Content>
-          </Modal>
-        </div>
+        {tickets && (
+          <div className="px-0 p-6">
+            <DataTable<Support> data={tickets?.tickets} columns={columns} />
+            <Modal isOpen={open} onOpenChange={setOpen}>
+              <Modal.Content>
+                {ModalComponent && <ModalComponent {...modalProps} />}
+              </Modal.Content>
+            </Modal>
+          </div>
+        )}
+        {isTicketsLoading && (
+          <div className="flex-1">
+            <Loading text="Loading Tickets.." />
+          </div>
+        )}
 
         {/* pagination buttons */}
-        <div className=" flex flex-row gap-2 border border-red-500 absolute bottom-0 right-0">
-          {/* Pagination */}
-          <div className="flex gap-2 mt-4">
-            <button
-              disabled={page === 1}
-              onClick={() => setPage((p) => p - 1)}
-              className="px-3 py-1 border rounded disabled:opacity-50"
-            >
-              Back
-            </button>
-
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
+        {No_Of_tickets > 10 && (
+          <div className=" flex flex-row gap-2 border border-red-500 absolute bottom-0 right-0">
+            {/* Pagination */}
+            <div className="flex gap-2 mt-4">
               <button
-                key={p}
-                onClick={() => setPage(p)}
-                className={`px-3 py-1 border rounded ${
-                  p === page
-                    ? "bg-blue-500 text-white"
-                    : "bg-white text-blue-500"
-                }`}
+                disabled={page === 1}
+                onClick={() => setPage((p) => p - 1)}
+                className="px-3 py-1 border rounded disabled:opacity-50"
               >
-                {p}
+                Back
               </button>
-            ))}
 
-            <button
-              disabled={page === totalPages}
-              onClick={() => setPage((p) => p + 1)}
-              className="px-3 py-1 border rounded disabled:opacity-50"
-            >
-              Next
-            </button>
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
+                <button
+                  key={p}
+                  onClick={() => setPage(p)}
+                  className={`px-3 py-1 border rounded ${
+                    p === page
+                      ? "bg-blue-500 text-white"
+                      : "bg-white text-blue-500"
+                  }`}
+                >
+                  {p}
+                </button>
+              ))}
+
+              <button
+                disabled={page === totalPages}
+                onClick={() => setPage((p) => p + 1)}
+                className="px-3 py-1 border rounded disabled:opacity-50"
+              >
+                Next
+              </button>
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );

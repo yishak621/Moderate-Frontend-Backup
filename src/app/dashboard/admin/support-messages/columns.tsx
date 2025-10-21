@@ -4,6 +4,9 @@ import { MessageSquare } from "lucide-react";
 import type { ComponentType } from "react";
 
 import { Support } from "@/app/types/support";
+import { timeAgo } from "@/lib/timeAgo";
+import Link from "next/link";
+import MarkAsAResolvedModal from "@/modules/dashboard/admin/modal/support/MarkAsAResolvedModal";
 
 export function getAnnouncementColumns(
   handleOpenModal: <P>(component: ComponentType<P>, props?: P) => void
@@ -32,34 +35,16 @@ export function getAnnouncementColumns(
         </div>
       ),
     },
-    {
-      accessorKey: "type",
-      header: "Type",
-      cell: ({ row }) => {
-        const type = row.original.type;
-        const colorMap: Record<string, string> = {
-          General: "border-green-700 bg-green-100 text-green-700",
-          System: "border-red-700 bg-red-100 text-red-700",
-          Feature: "border-yellow-700 bg-yellow-100 text-yellow-700",
-        };
-        return (
-          <span
-            className={`px-4.5 py-2 text-sm font-semibold rounded-full ${colorMap[type]}`}
-          >
-            {type}
-          </span>
-        );
-      },
-    },
+
     {
       accessorKey: "status",
       header: "Status",
       cell: ({ row }) => {
         const priority = row.original.status;
         const colorMap: Record<string, string> = {
-          Resolved: "bg-green-100 text-green-700",
-          Opened: "bg-blue-100 text-blue-700",
-          In_progress: "bg-yellow-100 text-yellow-700",
+          closed: "bg-green-100 text-green-700",
+          open: "bg-blue-100 text-blue-700",
+          pending: "bg-yellow-100 text-yellow-700",
         };
         return (
           <span
@@ -70,26 +55,13 @@ export function getAnnouncementColumns(
         );
       },
     },
-    {
-      accessorKey: "messages",
-      header: "Messages",
-      cell: ({ row }) => (
-        <div className=" flex flex-row gap-1 items-center">
-          <div>
-            <MessageSquare size={18} className="text-[#717171]" />
-          </div>{" "}
-          <span className="text-[#0C0C0C] font-normal">
-            {row.original.messages}
-          </span>
-        </div>
-      ),
-    },
+
     {
       accessorKey: "last reply",
       header: "Last Reply",
       cell: ({ row }) => (
         <span className="text-[#717171] font-normal">
-          {row.original.last_reply}
+          {timeAgo(row.original.lastMessageAt)}
         </span>
       ),
     },
@@ -98,10 +70,35 @@ export function getAnnouncementColumns(
       header: "Created",
       cell: ({ row }) => (
         <span className="text-[#717171] font-normal">
-          {row.original.created instanceof Date
-            ? row.original.created.toLocaleDateString()
-            : String(row.original.created)}
+          {timeAgo(row.original.createdAt)}
         </span>
+      ),
+    },
+    {
+      accessorKey: "Actions",
+      header: "Actions",
+      cell: ({ row }) => (
+        <div className="flex items-center gap-2">
+          {/* Open Ticket Button */}
+          <Link
+            href={`/dashboard/admin/support-messages/messages?ticketId=${row.original.id}`}
+            className="flex items-center gap-1 px-3 py-1.5 text-sm font-medium rounded-md border border-[#D0E3FF] text-[#1D75E8] hover:bg-[#E8F1FF] transition"
+          >
+            <span>Open</span>
+          </Link>
+
+          {/* Resolve Button */}
+          {row.original.status !== "closed" && (
+            <button
+              onClick={() =>
+                handleOpenModal(MarkAsAResolvedModal, { ticket: row.original })
+              }
+              className="flex items-center gap-1 px-3 py-1.5 text-sm font-medium rounded-md bg-[#22C55E]/10 text-[#16A34A] hover:bg-[#16A34A]/20 transition"
+            >
+              <span>Resolve</span>
+            </button>
+          )}
+        </div>
       ),
     },
   ];

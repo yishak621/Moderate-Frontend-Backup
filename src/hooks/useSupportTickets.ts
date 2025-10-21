@@ -10,6 +10,7 @@ import {
   getAllSupportTickets,
 } from "@/services/supportTickets.service";
 import { CreateTicketInput, Ticket } from "@/app/types/support_tickets";
+import toast from "react-hot-toast";
 
 //-------------------- CREATE SUPPORT TICKET
 export const useCreateSupportTicket = () => {
@@ -103,17 +104,19 @@ export const useAllSupportTickets = () => {
   };
 };
 
-//-------------------- ADMIN: GET TICKET MESSAGES
+//-------------------- ADMIN: GET TICKET AND MESSAGES
 export const useTicketMessages = (ticketId: string) => {
   const { data, isLoading, isError, error, refetch } = useQuery({
     queryKey: ["ticket-messages", ticketId],
     queryFn: () => getTicketMessages(ticketId),
     enabled: !!ticketId,
     retry: 3,
+    refetchOnWindowFocus: true, // Enable refetching when the window regains focus
   });
 
   return {
-    messages: data,
+    messages: data?.messages,
+    ticket: data?.ticket,
     isMessagesLoading: isLoading,
     isMessagesError: isError,
     messagesError: error,
