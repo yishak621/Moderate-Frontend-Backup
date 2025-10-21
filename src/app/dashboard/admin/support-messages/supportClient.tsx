@@ -24,63 +24,64 @@ import { CustomMultiSelect } from "@/components/ui/MultiSelectInput";
 import { Support } from "@/app/types/support";
 import SupportMessageModal from "@/modules/dashboard/admin/modal/support/SupportMessageModal";
 import { StatsCardProps } from "@/types/statusCardProps";
+import { useSupportStats } from "@/hooks/useSupportTickets";
 
-const statsData: StatsCardProps[] = [
-  { title: "Total Tickets", count: 243, colored: true, icon: Ticket },
-  { title: "Open", count: 45, icon: Inbox },
-  { title: "In Progress", count: 1847, icon: RefreshCw },
-  { title: "Resolved", count: 1847, icon: CheckCircle },
-];
+// const statsData: StatsCardProps[] = [
+//   { title: "Total Tickets", count: 243, colored: true, icon: Ticket },
+//   { title: "Open", count: 45, icon: Inbox },
+//   { title: "In Progress", count: 1847, icon: RefreshCw },
+//   { title: "Resolved", count: 1847, icon: CheckCircle },
+// ];
 
-export const sampleData: Support[] = [
-  {
-    id: "1",
-    subject: "Login not working",
-    user: {
-      id: "101",
-      email: "zara@asdas.com",
-      name: "Alice Johnson",
-      role: "Student",
-    },
-    type: "System",
-    status: "Opened",
-    messages: 3,
-    last_reply: "2025-09-20T10:45:00Z",
-    created: new Date("2025-09-18T08:30:00Z"),
-  },
-  {
-    id: "2",
-    subject: "Request for dark mode",
-    user: {
-      id: "102",
-      email: "zara@asdas.com",
+// export const sampleData: Support[] = [
+//   {
+//     id: "1",
+//     subject: "Login not working",
+//     user: {
+//       id: "101",
+//       email: "zara@asdas.com",
+//       name: "Alice Johnson",
+//       role: "Student",
+//     },
+//     type: "System",
+//     status: "Opened",
+//     messages: 3,
+//     last_reply: "2025-09-20T10:45:00Z",
+//     created: new Date("2025-09-18T08:30:00Z"),
+//   },
+//   {
+//     id: "2",
+//     subject: "Request for dark mode",
+//     user: {
+//       id: "102",
+//       email: "zara@asdas.com",
 
-      name: "Mark Thompson",
-      role: "Teacher",
-    },
-    type: "Feature",
-    status: "In_progress",
-    messages: 5,
-    last_reply: "2025-09-21T14:20:00Z",
-    created: new Date("2025-09-19T09:10:00Z"),
-  },
-  {
-    id: "3",
-    subject: "General inquiry about grading system",
-    user: {
-      id: "103",
-      email: "zara@asdas.com",
+//       name: "Mark Thompson",
+//       role: "Teacher",
+//     },
+//     type: "Feature",
+//     status: "In_progress",
+//     messages: 5,
+//     last_reply: "2025-09-21T14:20:00Z",
+//     created: new Date("2025-09-19T09:10:00Z"),
+//   },
+//   {
+//     id: "3",
+//     subject: "General inquiry about grading system",
+//     user: {
+//       id: "103",
+//       email: "zara@asdas.com",
 
-      name: "Sophia Lee",
-      role: "Admin",
-    },
-    type: "General",
-    status: "Resolved",
-    messages: 2,
-    last_reply: "2025-09-15T12:00:00Z",
-    created: new Date("2025-09-14T11:15:00Z"),
-  },
-];
+//       name: "Sophia Lee",
+//       role: "Admin",
+//     },
+//     type: "General",
+//     status: "Resolved",
+//     messages: 2,
+//     last_reply: "2025-09-15T12:00:00Z",
+//     created: new Date("2025-09-14T11:15:00Z"),
+//   },
+// ];
 
 export default function SupportClient() {
   const [open, setOpen] = useState(false);
@@ -91,10 +92,25 @@ export default function SupportClient() {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
+  //HOOKS
+  const { stats, isStatsLoading, statsError } = useSupportStats();
+
   const handleSelected = (values: { value: string; label: string }[]) => {
     console.log("Selected values:", values);
     // you can use these in real-time (e.g. store in state, send to API, etc.)
   };
+
+  const statsData: StatsCardProps[] = [
+    {
+      title: "Total Tickets",
+      count: stats?.totalTickets,
+      colored: true,
+      icon: Ticket,
+    },
+    { title: "Open", count: stats?.openTickets, icon: Inbox },
+    { title: "In Progress", count: stats?.inProgressTickets, icon: RefreshCw },
+    { title: "Resolved", count: stats?.resolvedTickets, icon: CheckCircle },
+  ];
 
   const No_Of_tickets = 5;
 
@@ -121,7 +137,7 @@ export default function SupportClient() {
     <div className="flex flex-col gap-5.5">
       {/* first section */}
       <div className="flex flex-row gap-6  rounded-[37px] 3xl:gap-12 justify-between bg-[#FDFDFD]  max-h-[285px] p-7 ">
-        {statsData.map((stat) => {
+        {statsData?.map((stat: StatsCardProps) => {
           return (
             <StatsCard
               key={stat.title}
@@ -181,7 +197,7 @@ export default function SupportClient() {
 
         {/* table */}
         <div className="px-0 p-6">
-          <DataTable<Support> data={sampleData} columns={columns} />
+          {/* <DataTable<Support> data={sampleData} columns={columns} /> */}
           <Modal isOpen={open} onOpenChange={setOpen}>
             <Modal.Content>
               {ModalComponent && <ModalComponent {...modalProps} />}

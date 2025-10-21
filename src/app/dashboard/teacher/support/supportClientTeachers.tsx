@@ -88,7 +88,20 @@ const sampleSupportItems: SupportClientTeachersProps[] = [
 ];
 
 export default function SupportClientTeachers() {
+  const [open, setOpen] = useState(false);
+  const [ModalComponent, setModalComponent] =
+    useState<React.ComponentType<any> | null>(null);
+  const [modalProps, setModalProps] = useState<Record<string, any>>({});
   const [activeIndex, setActiveIndex] = useState<number | null>(0);
+
+  const handleOpenModal = <P,>(
+    component: React.ComponentType<P>,
+    props?: P
+  ) => {
+    setModalComponent(() => component);
+    setModalProps(props || {});
+    setOpen(true);
+  };
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-[40px] rounded-[40px] py-6 px-7 bg-[#FDFDFD] min-h-screen">
@@ -108,12 +121,20 @@ export default function SupportClientTeachers() {
             />
           ))}
         </div>
-        <Link
-          href={"/dashboard/teacher/guide"}
-          className="mt-2 text-[#368FFF] text-base font-normal cursor-pointer"
-        >
-          Learn More
-        </Link>
+        <div className=" flex flex-row justify-between">
+          <Link
+            href={"/dashboard/teacher/guide"}
+            className="mt-2 text-[#368FFF] text-base font-normal cursor-pointer"
+          >
+            Learn More
+          </Link>
+          <Link
+            href={"/dashboard/teacher/support/support_messages"}
+            className="mt-2 text-[#368FFF] text-base font-normal cursor-pointer"
+          >
+            Contact Customer Support
+          </Link>
+        </div>
       </div>
 
       {/* right side */}
