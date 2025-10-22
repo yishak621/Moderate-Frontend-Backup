@@ -6,10 +6,20 @@ import {
 import { axiosInstance } from "@/lib/axiosInstance";
 import { AxiosError } from "axios";
 
-//------------------- CREATE SUPPORT TICKET
+//------------------- CREATE SUPPORT TICKET -- USER
 export const createSupportTicket = async (data: CreateTicketInput) => {
   try {
     const res = await axiosInstance.post("/api/support/tickets", data);
+    return res.data;
+  } catch (error) {
+    handleApiError(error);
+  }
+};
+
+//------------------- CREATE SUPPORT TICKET -- ADMIN
+export const createSupportTicketAdmin = async (data: CreateTicketInput) => {
+  try {
+    const res = await axiosInstance.post("/api/support/admin/tickets", data);
     return res.data;
   } catch (error) {
     handleApiError(error);

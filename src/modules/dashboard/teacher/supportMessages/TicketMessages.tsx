@@ -7,7 +7,7 @@ import {
   SendMessageTicketInput,
   Message,
 } from "@/app/types/support_tickets";
-import { SendHorizonal } from "lucide-react";
+import { RefreshCw, SendHorizonal } from "lucide-react";
 import Textarea from "@/components/ui/Textarea";
 import { decoded } from "@/lib/currentUser";
 import {
@@ -74,6 +74,18 @@ export default function TicketMessages({ ticket }: TicketMessagesProps) {
           }`}
         >
           {ticket.status.replace("_", " ")}
+        </div>
+        <div className=" self-end">
+          <button
+            onClick={() => refetchMessages()}
+            disabled={isMessagesLoading}
+            className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium rounded-lg bg-gray-100 hover:bg-gray-200 transition"
+          >
+            <RefreshCw
+              className={`w-4 h-4 ${isMessagesLoading ? "animate-spin" : ""}`}
+            />
+            Refresh
+          </button>
         </div>
       </div>
 

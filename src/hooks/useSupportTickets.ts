@@ -8,6 +8,7 @@ import {
   postAdminMessage,
   closeTicket,
   getAllSupportTickets,
+  createSupportTicketAdmin,
 } from "@/services/supportTickets.service";
 import { CreateTicketInput, Ticket } from "@/app/types/support_tickets";
 import toast from "react-hot-toast";
@@ -28,6 +29,36 @@ export const useCreateSupportTicket = () => {
     mutationFn: (data: CreateTicketInput) => createSupportTicket(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["user-support-tickets"] });
+    },
+  });
+
+  return {
+    createTicket,
+    createTicketAsync,
+    data,
+    isCreatingTicketLoading: isPending,
+    isCreatingTicketSuccess: isSuccess,
+    isCreatingTicketError: isError,
+    creatingTicketError: error,
+  };
+};
+
+//-------------------- CREATE SUPPORT TICKET ADMIN
+export const useCreateSupportTicketAdmin = () => {
+  const queryClient = useQueryClient();
+
+  const {
+    mutate: createTicket,
+    mutateAsync: createTicketAsync,
+    data,
+    isPending,
+    isSuccess,
+    isError,
+    error,
+  } = useMutation({
+    mutationFn: (data: CreateTicketInput) => createSupportTicketAdmin(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-support-tickets"] });
     },
   });
 

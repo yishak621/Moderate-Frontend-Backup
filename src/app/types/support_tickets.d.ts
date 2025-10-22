@@ -16,6 +16,7 @@ export interface TicketMessagesProps {
 }
 
 export interface CreateTicketInput {
+  email?: string;
   subject: string;
   message: string;
 }
