@@ -78,14 +78,14 @@ export default function LoginForm() {
         />
         <h2 className="text-xl sm:text-2xl font-semibold">Moderate</h2>
         <p className="text-gray-600 text-xs sm:text-sm lg:text-base">
-          Teacher Portal System
+          Grade moderation made easy
         </p>
       </div>
 
       {/* Inputs */}
       <div className="flex flex-col gap-5 sm:gap-6">
         <Input
-          label="Email"
+          label="School / Institutional Email"
           type="email"
           placeholder="you@example.com"
           error={errors?.email?.message}

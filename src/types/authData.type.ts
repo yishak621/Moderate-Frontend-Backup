@@ -3,6 +3,10 @@ export interface loginFormDataTypes {
   password: string;
 }
 
+export interface domainVerifyFormDataTypes {
+  email: string;
+  teacherEmail: string;
+}
 export interface SignupFormDataTypes {
   name: string;
   email: string;

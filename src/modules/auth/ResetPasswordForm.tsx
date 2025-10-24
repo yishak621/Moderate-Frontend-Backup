@@ -89,7 +89,7 @@ export default function ResetPasswordForm() {
         />
         <h2 className="text-xl sm:text-2xl font-semibold">Moderate</h2>
         <p className="text-gray-600 text-xs sm:text-sm lg:text-base">
-          Teacher Portal System
+          Grade moderation made easy
         </p>
       </div>
 

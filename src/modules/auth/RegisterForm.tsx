@@ -60,21 +60,19 @@ export default function RegisterForm() {
 
   const onSubmit = async (data: SignupFormDataTypes) => {
     try {
-      // Await the login mutation
       const res = await signupAsync(data);
+      toast.success("Registered successfully!");
+    } catch (err: any) {
+      console.log("RAW ERROR:", err);
 
-      // Show success toast if login succeeded
-      if (isSuccess) {
-        toast.success("Registered successfully!");
+      const status = err?.response?.status;
+      const message = err?.response?.data?.message;
+
+      if (status === 403 && message === "Email domain not allowed!") {
+        return router.push(`/auth/domain-verify?email=${data.email}`);
       }
-    } catch (err) {
-      if (err instanceof Error) {
-        console.error(err.message);
-        toast.error(err.message);
-      } else {
-        console.error("Unknown error", signupError?.message);
-        toast.error(signupError?.message || "Something went wrong");
-      }
+
+      toast.error(message || "Something went wrong");
     }
   };
 
@@ -83,14 +81,6 @@ export default function RegisterForm() {
       router.push("/auth/verify-email");
     }
   }, [isSuccess, router]);
-
-  useEffect(() => {
-    if (isError && signupError instanceof Error) {
-      console.log("Unknown error", signupError);
-
-      toast.error(signupError.message);
-    }
-  }, [signupError, isError]);
 
   return (
     <form
@@ -118,7 +108,7 @@ export default function RegisterForm() {
         />
         <h2 className="text-xl sm:text-2xl font-semibold">Moderate</h2>
         <p className="text-gray-600 text-xs sm:text-sm lg:text-base">
-          Teacher Portal System
+          Grade moderation made easy
         </p>
       </div>
 
@@ -133,7 +123,7 @@ export default function RegisterForm() {
         />
 
         <Input
-          label="Email"
+          label="School / Institutional Email"
           type="email"
           placeholder="you@example.com"
           {...register("email", { required: "Email is required" })}

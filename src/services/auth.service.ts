@@ -1,5 +1,6 @@
 import { axiosInstance } from "@/lib/axiosInstance";
 import {
+  domainVerifyFormDataTypes,
   forgotPasswordFormDataTypes,
   loginFormDataTypes,
   ResetPasswordFormDataTypes,
@@ -53,12 +54,13 @@ export const signup = async (data: SignupFormDataTypes) => {
   } catch (error) {
     if (error instanceof Error) {
       console.error(error);
-      throw new Error(
-        // @ts-expect-error: might be Axios error with response
-        error?.response?.data?.message ||
-          error.message ||
-          "Something went wrong"
-      );
+      throw error;
+      // throw new Error(
+      //   // // @ts-expect-error: might be Axios error with response
+      //   // error?.response?.data?.message ||
+      //   //   error.message ||
+      //   //   "Something went wrong"
+      // );
     } else {
       console.error("Unknown error", error);
       throw new Error("Something went wrong");
@@ -103,6 +105,36 @@ export const resetPassword = async ({
     console.log(resetToken, "reset token");
     const res = await axiosInstance.post(
       `/api/auth/resetPassword/${resetToken}`,
+      data
+    );
+
+    if (!res) {
+      console.log("error");
+    }
+    console.log(res.data);
+    return res.data;
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error(error);
+      throw new Error(
+        // @ts-expect-error: might be Axios error with response
+        error?.response?.data?.message ||
+          error.message ||
+          "Something went wrong"
+      );
+    } else {
+      console.error("Unknown error", error);
+      throw new Error("Something went wrong");
+    }
+  }
+};
+
+//-------------------VERIFY DOMAIN
+
+export const verifyDomainAdmin = async (data: domainVerifyFormDataTypes) => {
+  try {
+    const res = await axiosInstance.post(
+      "/api/auth/request-domain-verification",
       data
     );
 

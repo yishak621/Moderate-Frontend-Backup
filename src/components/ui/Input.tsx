@@ -14,7 +14,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
     return (
       <div className="w-full">
         {label && (
-          <label className="text-[#0c0c0c] text-base font-normal">
+          <label className="text-[#0c0c0c] text-base font-normal text-left block mb-1">
             {label}
           </label>
         )}
@@ -34,7 +34,9 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
           )}
           {...props}
         />
-        {error && <p className="mt-1 text-sm text-red-500">{error}</p>}
+        {error && (
+          <p className="mt-1 text-sm text-red-500 text-left">{error}</p>
+        )}
       </div>
     );
   }
