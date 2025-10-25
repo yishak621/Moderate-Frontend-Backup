@@ -45,7 +45,7 @@ export default function DomainVerification() {
     watch,
   } = useForm<domainVerifyFormDataTypes>();
 
-  const schoolDomainAdminEmail = watch("teacherEmail");
+  const schoolDomainAdminEmail = watch("email");
   const {
     domainVerify,
     domainVerifyAsync,
