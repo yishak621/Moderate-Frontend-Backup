@@ -1,0 +1,120 @@
+"use client";
+
+import Link from "next/link";
+import { useState } from "react";
+import { FilterButtons } from "@/components/ui/FilterButtons";
+
+const PlansData = [
+  {
+    title: "Free",
+    monthlyPrice: "0",
+    yearlyPrice: "0",
+    features: ["1000 uploads", "1000 downloads", "1000 views"],
+    moto: "For small schools and individual teachers",
+  },
+  {
+    title: "Basic",
+    monthlyPrice: "10",
+    yearlyPrice: "100",
+    features: ["1000 uploads", "1000 downloads", "1000 views"],
+    moto: "For small schools and individual teachers",
+  },
+];
+
+export default function PricingSection() {
+  const [billingPeriod, setBillingPeriod] = useState<"monthly" | "yearly">(
+    "monthly"
+  );
+
+  return (
+    <section className="py-20 w-full flex flex-col items-center justify-center">
+      <div>
+        <h1 className="sm:text-[150px] 2xl:text-[200px] font-bold text-center  text-[#000]  leading-normal max-w-[356px]">
+          Pricing
+        </h1>
+      </div>
+
+      <div className="flex flex-row justify-center gap-[50px]">
+        {PlansData.map((plan) => (
+          <PricingCard
+            key={plan.title}
+            {...plan}
+            billingPeriod={billingPeriod}
+          />
+        ))}
+      </div>
+      {/* Toggle Button */}
+      <div className="mt-8 mb-8 w-full flex justify-start">
+        <FilterButtons
+          filters={["Monthly", "Yearly"]}
+          activeFilter={billingPeriod === "monthly" ? "Monthly" : "Yearly"}
+          onFilterChange={(filter) =>
+            setBillingPeriod(filter === "Monthly" ? "monthly" : "yearly")
+          }
+        />
+      </div>
+    </section>
+  );
+}
+function PricingCard({
+  title,
+  monthlyPrice,
+  yearlyPrice,
+  features,
+  moto,
+  billingPeriod,
+}: {
+  title: string;
+  monthlyPrice: string;
+  yearlyPrice: string;
+  features: string[];
+  moto: string;
+  billingPeriod: "monthly" | "yearly";
+}) {
+  const price = billingPeriod === "monthly" ? monthlyPrice : yearlyPrice;
+  const isFree = price === "0";
+
+  return (
+    <div className="p-[61px] rounded-[40px] bg-[#C1C1C10F] flex flex-col items-start ">
+      <div className=" flex flex-col border-b-[3px] border-b-[#EAEAEA] pb-[28px]">
+        <span className="text-[#838383] text-base font-medium leading-normal">
+          {moto}
+        </span>
+
+        <span className="text-[#000] text-[48px] font-medium leading-normal">
+          {price === "0" ? title : `$${price}`} /{" "}
+          {billingPeriod === "monthly" ? "month" : "year"}
+        </span>
+      </div>
+      <div className="flex flex-col items-start gap-8 mt-[83px]">
+        {features.map((feature) => (
+          <div
+            key={feature}
+            className="flex flex-row items-center gap-2.5 text-[#838383] text-base font-medium leading-normal bg-[#f6f6f6] rounded-[41.5px] py-3.5 px-6"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="10"
+              height="10"
+              viewBox="0 0 10 10"
+              fill="none"
+            >
+              <circle cx="5" cy="5" r="5" fill="black" />
+            </svg>{" "}
+            {feature}
+          </div>
+        ))}
+      </div>
+      <Link
+        href="/auth/register"
+        className={`w-full text-center 2xl:mt-[60px] mt-[40px]  ${
+          isFree
+            ? "bg-white text-[#000] border border-[#000] hover:bg-white hover:text-[#000]"
+            : "bg-blue-600 text-white hover:bg-blue-700 hover:text-white"
+        }  text-base font-medium leading-normal px-6 py-3.5 rounded-full transition-colors`}
+      >
+        Get Started
+      </Link>
+    </div>
+  );
+}
