@@ -39,17 +39,17 @@ const benefitsRight = [
 ];
 export default function BenefitsSection() {
   return (
-    <section className="py-20 w-full px-4 ">
+    <section className="py-12 sm:py-16 md:py-20 w-full px-2">
       <div className="flex flex-col ">
         {/* Left side  */}
         <div className="flex flex-col">
-          <h3 className="mb-[94px] text-[32px] text-[#000] font-medium leading-normal max-w-[356px]">
+          <h3 className="mb-8 sm:mb-12 md:mb-[60px] lg:mb-[94px] text-[20px] sm:text-[28px] md:text-[32px] text-[#000] font-medium leading-normal max-w-[356px]">
             Benefits for Schools — Why Partner With Us
           </h3>
-          <div className="flex flex-row justify-between">
+          <div className="flex flex-col lg:flex-row justify-between gap-8">
             {/* card wrapper */}
-            <div className="bg-[#f6f6f6] px-2 py-2 pb-[73px] rounded-[59px] max-w-[688px]">
-              <div className="bg-[#fff] py-[81px] px-[62px] flex flex-col items-start rounded-[59px]">
+            <div className="bg-[#f6f6f6] px-2 py-2 pb-12 sm:pb-16 md:pb-[73px] rounded-[32px] sm:rounded-[45px] md:rounded-[59px] max-w-full lg:max-w-[688px]">
+              <div className="bg-[#fff] py-8 sm:py-12 md:py-16 lg:py-[81px] px-4 sm:px-8 md:px-12 lg:px-[62px] flex flex-col items-start rounded-[32px] sm:rounded-[45px] md:rounded-[59px]">
                 {benefits.map((benefit) => (
                   <BenefitsItem key={benefit.title} {...benefit} />
                 ))}
@@ -65,9 +65,9 @@ export default function BenefitsSection() {
                 href="/auth/register"
                 className="
                     w-full text-center
-                    bg-blue-600 hover:bg-gradient-to-br hover:from-blue-600 hover:via-blue-700 hover:to-indigo-800 text-white px-6 py-3.5
+                    bg-[#2997F1] hover:bg-[#2178c9] text-white px-6 py-3.5
                     rounded-full text-base font-medium transition-all duration-300
-                    hover:scale-105 hover:shadow-lg hover:shadow-blue-600/40
+                    hover:scale-105 hover:shadow-lg hover:shadow-[#2997F1]/40
                     transform hover:-translate-y-0.5 active:scale-100
                   "
               >
@@ -90,10 +90,10 @@ function BenefitsItem({
 }) {
   return (
     <div className=" flex flex-col items-start gap-4 mb-10">
-      <h4 className="text-[24px] text-[#000] font-medium leading-normal">
+      <h4 className="text-base sm:text-lg md:text-[24px] text-[#000] font-medium leading-normal">
         {title}
       </h4>
-      <div className=" flex flex-col gap-4">
+      <div className=" flex flex-col gap-2 sm:gap-3 md:gap-4">
         {description.map((desc, index) => (
           <div
             key={index}
@@ -109,7 +109,7 @@ function BenefitsItem({
             >
               <circle cx="5" cy="5" r="5" fill="#2997F1" />
             </svg>
-            <p className="text-[16px] text-[#000] font-medium leading-normal">
+            <p className="text-sm sm:text-[16px] text-[#363636] font-medium leading-normal">
               {desc}
             </p>
           </div>

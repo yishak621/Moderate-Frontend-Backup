@@ -78,6 +78,12 @@
   display: none; /* Chrome/Safari */
 }
 
+/* Remove black borders from images */
+img {
+  border: none !important;
+  outline: none !important;
+}
+
 /* .my-card {
   width: 300px;
   height: 180px;

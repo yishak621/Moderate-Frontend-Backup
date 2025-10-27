@@ -42,11 +42,11 @@ export default function ServicesSection() {
   const [activeService, setActiveService] = useState(0);
 
   return (
-    <section className="py-20 w-full px-4">
+    <section className="py-12 sm:py-16 md:py-20 w-full px-2">
       {/* Top section */}
-      <div className="w-full flex flex-col mb-12">
-        <div className="flex flex-col items-start sm:mb-6 2xl:mb-16">
-          <div className="flex flex-row items-center bg-[#f3f3f3] rounded-[41.5px] gap-2.5 py-3.5 px-6">
+      <div className="w-full flex flex-col mb-8 sm:mb-12">
+        <div className="flex flex-col items-start mb-6 sm:mb-6 2xl:mb-16">
+          <div className="flex flex-row items-center bg-[#f3f3f3] rounded-[41.5px] gap-2.5 py-2.5 px-4 sm:py-3.5 sm:px-6">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="10"
@@ -56,11 +56,13 @@ export default function ServicesSection() {
             >
               <circle cx="5" cy="5" r="5" fill="#2997F1" />
             </svg>
-            <p className="text-[#000] text-base font-medium">Services</p>
+            <p className="text-[#000] text-sm sm:text-base font-medium">
+              Services
+            </p>
           </div>
         </div>
 
-        <h3 className="mt-0 text-[32px] text-[#000] font-medium leading-normal max-w-[356px]">
+        <h3 className="mt-0 text-[20px] sm:text-[28px] md:text-[32px] text-[#000] font-medium leading-normal max-w-[356px]">
           Simplifying your work with our service
         </h3>
       </div>
@@ -154,7 +156,7 @@ export default function ServicesSection() {
               <div className="flex-1">
                 <h4
                   className={`
-            text-xl font-medium mb-2.5 transition-colors
+            text-base sm:text-lg md:text-xl font-medium mb-2.5 transition-colors
             ${activeService === index ? "text-[#000]" : "text-[#4b4b4b]"}
           `}
                 >
@@ -162,8 +164,8 @@ export default function ServicesSection() {
                 </h4>
                 <p
                   className={`
-            text-lg font-medium leading-relaxed transition-opacity
-            ${activeService === index ? "text-[#6A6A6A]" : "text-[#a5a4a4]"}
+            text-sm sm:text-base md:text-lg font-medium leading-relaxed transition-opacity
+            ${activeService === index ? "text-[#707070]" : "text-[#838383]"}
           `}
                 >
                   {service.description}
@@ -174,7 +176,7 @@ export default function ServicesSection() {
         </div>
 
         {/* Right Side - Display Box */}
-        <div className="relative w-full max-w-[590px] h-[495px] rounded-[37px] border border-[#C7C7C7] bg-[rgba(50,50,50,0.04)] backdrop-blur-[6.5px] overflow-hidden flex-shrink-0">
+        <div className="relative w-full max-w-full lg:max-w-[590px] h-[300px] sm:h-[400px] md:h-[450px] lg:h-[495px] rounded-[24px] sm:rounded-[30px] lg:rounded-[37px] bg-[rgba(50,50,50,0.04)] backdrop-blur-[6.5px] overflow-hidden flex-shrink-0">
           <AnimatePresence mode="wait">
             <motion.div
               key={activeService}
@@ -184,7 +186,7 @@ export default function ServicesSection() {
               exit={{ opacity: 0, y: -20, scale: 0.95 }}
               transition={{ duration: 0.6, ease: [0.4, 0, 0.2, 1] }}
             >
-              <div className="w-full h-full bg-gradient-to-br from-blue-100 to-indigo-200 flex flex-col items-center justify-center px-6 text-center">
+              <div className="w-full h-full bg-gradient-to-br from-[#F7F7F7] to-indigo-200 flex flex-col items-center justify-center px-6 text-center">
                 <Image
                   src={services[activeService].image}
                   alt={services[activeService].title}

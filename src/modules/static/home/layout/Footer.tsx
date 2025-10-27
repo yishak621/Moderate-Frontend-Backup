@@ -17,12 +17,12 @@ const links = [
 
 export default function Footer() {
   return (
-    <footer className="  w-full">
+    <footer className="w-full py-8 sm:py-10 md:py-12">
       {/* Links section */}
-      <div className=" flex flex-row justify-center items-center gap-[50px]">
+      <div className="flex flex-wrap flex-row justify-center items-center gap-4 sm:gap-6 md:gap-8 lg:gap-[50px] mb-6 sm:mb-8">
         {links.map((link) => (
           <Link
-            className="text-[#797979] text-base font-medium hover:text-blue-600 transition-colors"
+            className="text-[#797979] text-xs sm:text-sm md:text-base font-medium hover:text-blue-600 transition-colors"
             key={link.id}
             href={link.href}
           >
@@ -31,7 +31,7 @@ export default function Footer() {
         ))}
       </div>
       {/* Social media section */}
-      <div className=" flex flex-row justify-center items-center gap-[20px]">
+      <div className="flex flex-row justify-center items-center gap-3 sm:gap-4 md:gap-6 lg:gap-[20px]">
         <SocialMediaLinkItem
           href="https://www.facebook.com"
           icon={<FacebookIcon />}
@@ -74,7 +74,7 @@ function SocialMediaLinkItem({
   return (
     <Link
       href={href}
-      className="group flex justify-center items-center sm:mt-[50px] 2xl:mt-[70px] bg-[#F3F3F3] rounded-full p-4.5 hover:bg-gradient-to-br hover:from-blue-500 hover:to-purple-600 transition-all duration-300 hover:scale-110 hover:shadow-lg transform hover:-translate-y-1"
+      className="group flex justify-center items-center bg-[#F3F3F3] rounded-full p-3 sm:p-3.5 md:p-4 lg:p-4.5 hover:bg-gradient-to-br hover:from-blue-500 hover:to-purple-600 transition-all duration-300 hover:scale-110 hover:shadow-lg transform hover:-translate-y-1"
       aria-label={label}
     >
       <div className="text-[#797979] group-hover:text-white transition-colors duration-300 transform group-hover:rotate-12">

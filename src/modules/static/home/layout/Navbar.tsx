@@ -29,6 +29,7 @@ const loggedInNavigationLinks = [
 export default function Navbar() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -70,7 +71,7 @@ export default function Navbar() {
         style={{ opacity: borderOpacity }}
         className="absolute bottom-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-gray-300 to-transparent"
       />
-      <div className="w-full px-4 relative">
+      <div className="w-full px-2 sm:px-4 relative">
         <div className="flex items-center justify-between h-16 sm:mt-6 2xl:mt-10">
           {/* Left Side */}
           <div className="flex items-center gap-8">
@@ -96,11 +97,11 @@ export default function Navbar() {
                     href={link.href}
                     className="
                         text-gray-700 
-                        hover:text-blue-600 
+                        hover:text-[#2997F1] 
                         text-base font-medium transition-all duration-300
                         relative inline-block pb-1
                         before:content-[''] before:absolute before:bottom-0 before:left-0 
-                        before:w-0 before:h-0.5 before:bg-blue-600 
+                        before:w-0 before:h-0.5 before:bg-[#2997F1] 
                         hover:before:w-full before:transition-all before:duration-300 before:ease-in-out
                       "
                   >
@@ -137,9 +138,9 @@ export default function Navbar() {
                   className="
                     group flex items-center gap-2 relative
                     text-gray-700 
-                    hover:text-blue-600 px-6 py-3.5 text-base font-medium 
+                    hover:text-[#2997F1] px-6 py-3.5 text-base font-medium 
                     transition-all duration-300 border border-gray-400/50 
-                    rounded-full hover:border-blue-600 backdrop-blur-md
+                    rounded-full hover:border-[#2997F1] backdrop-blur-md
                     hover:bg-blue-50 hover:scale-105 hover:shadow-md
                     transform hover:-translate-y-0.5 active:scale-95
                   "
@@ -151,9 +152,9 @@ export default function Navbar() {
                   href="/auth/register"
                   className="
                     group flex items-center gap-2 relative overflow-hidden
-                    bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-700 text-white px-6 py-3.5
+                    bg-[#2997F1] hover:bg-[#2178c9] text-white px-6 py-3.5
                     rounded-full text-base font-medium transition-all duration-300
-                    hover:scale-110 hover:shadow-xl hover:shadow-blue-500/50
+                    hover:scale-110 hover:shadow-xl hover:shadow-[#2997F1]/50
                     transform hover:-translate-y-1 hover:rotate-1 active:scale-100
                   "
                 >
@@ -167,18 +168,109 @@ export default function Navbar() {
 
           {/* Mobile Menu Button */}
           <div className="md:hidden">
-            <button className="text-gray-600 ">
-              <svg className="h-6 w-6" fill="none" stroke="currentColor">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M4 6h16M4 12h16M4 18h16"
-                />
-              </svg>
+            <button
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              className="text-gray-600 p-2"
+              aria-label="Toggle mobile menu"
+            >
+              {isMobileMenuOpen ? (
+                <svg
+                  className="h-6 w-6"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+              ) : (
+                <svg
+                  className="h-6 w-6"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M4 6h16M4 12h16M4 18h16"
+                  />
+                </svg>
+              )}
             </button>
           </div>
         </div>
+
+        {/* Mobile Menu */}
+        {isMobileMenuOpen && (
+          <div className="md:hidden absolute top-full left-0 right-0 bg-white border-t border-gray-200 shadow-lg py-4 px-4 z-50">
+            <div className="flex flex-col gap-4">
+              {/* Mobile Links */}
+              {(isLoggedIn
+                ? loggedInNavigationLinks
+                : publicNavigationLinks
+              ).map((link) => (
+                <Link
+                  key={link.name}
+                  href={link.href}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="text-gray-700 hover:text-[#2997F1] text-base font-medium py-2 transition-colors"
+                >
+                  {link.name}
+                </Link>
+              ))}
+
+              {/* Mobile Buttons */}
+              <div className="pt-4 border-t border-gray-200 flex flex-col gap-3">
+                {isLoggedIn ? (
+                  <>
+                    <Link
+                      href="/dashboard/teacher"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className="text-gray-700 hover:text-[#2997F1] px-4 py-3 text-base font-medium transition-colors border border-gray-300 rounded-lg"
+                    >
+                      Dashboard
+                    </Link>
+                    <button
+                      onClick={() => {
+                        handleLogout();
+                        setIsMobileMenuOpen(false);
+                      }}
+                      className="w-full bg-red-500 text-white px-4 py-3 rounded-lg text-base font-medium hover:bg-red-600 transition-colors flex items-center justify-center gap-2"
+                    >
+                      <LogOut className="w-4 h-4" />
+                      Logout
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <Link
+                      href="/auth/login"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className="text-gray-700 hover:text-[#2997F1] px-4 py-3 text-base font-medium transition-colors border border-gray-300 rounded-lg flex items-center justify-center gap-2"
+                    >
+                      <LogIn className="w-4 h-4" />
+                      Login
+                    </Link>
+                    <Link
+                      href="/auth/register"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className="bg-[#2997F1] hover:bg-[#2178c9] text-white px-4 py-3 rounded-lg text-base font-medium transition-colors flex items-center justify-center gap-2"
+                    >
+                      <UserPlus className="w-4 h-4" />
+                      Register
+                    </Link>
+                  </>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </motion.nav>
   );
