@@ -4,7 +4,12 @@ import Link from "next/link";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { getToken, removeToken } from "@/services/tokenService";
-import { motion, useScroll, useTransform } from "framer-motion";
+import {
+  motion,
+  useScroll,
+  useTransform,
+  AnimatePresence,
+} from "framer-motion";
 import { queryClient } from "@/lib/queryClient";
 import { useRouter } from "next/navigation";
 import { LogIn, UserPlus, LogOut } from "lucide-react";
@@ -168,109 +173,160 @@ export default function Navbar() {
 
           {/* Mobile Menu Button */}
           <div className="md:hidden">
-            <button
+            <motion.button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="text-gray-600 p-2"
+              className="text-gray-600 p-2 rounded-lg hover:bg-gray-100 transition-colors"
               aria-label="Toggle mobile menu"
+              whileTap={{ scale: 0.95 }}
             >
-              {isMobileMenuOpen ? (
-                <svg
-                  className="h-6 w-6"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M6 18L18 6M6 6l12 12"
-                  />
-                </svg>
-              ) : (
-                <svg
-                  className="h-6 w-6"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M4 6h16M4 12h16M4 18h16"
-                  />
-                </svg>
-              )}
-            </button>
+              <AnimatePresence mode="wait">
+                {isMobileMenuOpen ? (
+                  <motion.svg
+                    key="close"
+                    initial={{ rotate: -90, opacity: 0 }}
+                    animate={{ rotate: 0, opacity: 1 }}
+                    exit={{ rotate: 90, opacity: 0 }}
+                    transition={{ duration: 0.2 }}
+                    className="h-6 w-6"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  </motion.svg>
+                ) : (
+                  <motion.svg
+                    key="menu"
+                    initial={{ rotate: 90, opacity: 0 }}
+                    animate={{ rotate: 0, opacity: 1 }}
+                    exit={{ rotate: -90, opacity: 0 }}
+                    transition={{ duration: 0.2 }}
+                    className="h-6 w-6"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M4 6h16M4 12h16M4 18h16"
+                    />
+                  </motion.svg>
+                )}
+              </AnimatePresence>
+            </motion.button>
           </div>
         </div>
 
         {/* Mobile Menu */}
-        {isMobileMenuOpen && (
-          <div className="md:hidden absolute top-full left-0 right-0 bg-white border-t border-gray-200 shadow-lg py-4 px-4 z-50">
-            <div className="flex flex-col gap-4">
-              {/* Mobile Links */}
-              {(isLoggedIn
-                ? loggedInNavigationLinks
-                : publicNavigationLinks
-              ).map((link) => (
-                <Link
-                  key={link.name}
-                  href={link.href}
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className="text-gray-700 hover:text-[#2997F1] text-base font-medium py-2 transition-colors"
-                >
-                  {link.name}
-                </Link>
-              ))}
+        <AnimatePresence>
+          {isMobileMenuOpen && (
+            <motion.div
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.3, ease: "easeInOut" }}
+              className="md:hidden absolute top-full left-0 right-0 bg-white border-t border-gray-200 shadow-xl py-6 px-4 z-50"
+            >
+              <div className="flex flex-col gap-2">
+                {/* Mobile Links */}
+                {(isLoggedIn
+                  ? loggedInNavigationLinks
+                  : publicNavigationLinks
+                ).map((link, index) => (
+                  <motion.div
+                    key={link.name}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: index * 0.05, duration: 0.3 }}
+                  >
+                    <Link
+                      href={link.href}
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className="block text-gray-700 hover:text-[#2997F1] hover:bg-blue-50 text-base font-medium py-3 px-4 rounded-lg transition-all duration-200"
+                    >
+                      {link.name}
+                    </Link>
+                  </motion.div>
+                ))}
 
-              {/* Mobile Buttons */}
-              <div className="pt-4 border-t border-gray-200 flex flex-col gap-3">
-                {isLoggedIn ? (
-                  <>
-                    <Link
-                      href="/dashboard/teacher"
-                      onClick={() => setIsMobileMenuOpen(false)}
-                      className="text-gray-700 hover:text-[#2997F1] px-4 py-3 text-base font-medium transition-colors border border-gray-300 rounded-lg"
-                    >
-                      Dashboard
-                    </Link>
-                    <button
-                      onClick={() => {
-                        handleLogout();
-                        setIsMobileMenuOpen(false);
-                      }}
-                      className="w-full bg-red-500 text-white px-4 py-3 rounded-lg text-base font-medium hover:bg-red-600 transition-colors flex items-center justify-center gap-2"
-                    >
-                      <LogOut className="w-4 h-4" />
-                      Logout
-                    </button>
-                  </>
-                ) : (
-                  <>
-                    <Link
-                      href="/auth/login"
-                      onClick={() => setIsMobileMenuOpen(false)}
-                      className="text-gray-700 hover:text-[#2997F1] px-4 py-3 text-base font-medium transition-colors border border-gray-300 rounded-lg flex items-center justify-center gap-2"
-                    >
-                      <LogIn className="w-4 h-4" />
-                      Login
-                    </Link>
-                    <Link
-                      href="/auth/register"
-                      onClick={() => setIsMobileMenuOpen(false)}
-                      className="bg-[#2997F1] hover:bg-[#2178c9] text-white px-4 py-3 rounded-lg text-base font-medium transition-colors flex items-center justify-center gap-2"
-                    >
-                      <UserPlus className="w-4 h-4" />
-                      Register
-                    </Link>
-                  </>
-                )}
+                {/* Mobile Buttons */}
+                <div className="pt-2 mt-2 border-t border-gray-200 flex flex-col gap-2">
+                  {isLoggedIn ? (
+                    <>
+                      <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.3, duration: 0.3 }}
+                      >
+                        <Link
+                          href="/dashboard/teacher"
+                          onClick={() => setIsMobileMenuOpen(false)}
+                          className="block text-gray-700 hover:text-[#2997F1] hover:bg-blue-50 px-4 py-3 text-base font-medium transition-all duration-200 border-2 border-gray-200 hover:border-[#2997F1] rounded-lg"
+                        >
+                          Dashboard
+                        </Link>
+                      </motion.div>
+                      <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.35, duration: 0.3 }}
+                      >
+                        <button
+                          onClick={() => {
+                            handleLogout();
+                            setIsMobileMenuOpen(false);
+                          }}
+                          className="w-full bg-red-500 hover:bg-red-600 text-white px-4 py-3 rounded-lg text-base font-medium transition-all duration-200 flex items-center justify-center gap-2 shadow-lg shadow-red-500/30"
+                        >
+                          <LogOut className="w-4 h-4" />
+                          Logout
+                        </button>
+                      </motion.div>
+                    </>
+                  ) : (
+                    <>
+                      <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.3, duration: 0.3 }}
+                      >
+                        <Link
+                          href="/auth/login"
+                          onClick={() => setIsMobileMenuOpen(false)}
+                          className="flex text-gray-700 hover:text-[#2997F1] hover:bg-blue-50 px-4 py-3 text-base font-medium transition-all duration-200 border-2 border-gray-200 hover:border-[#2997F1] rounded-lg items-center justify-center gap-2"
+                        >
+                          <LogIn className="w-4 h-4" />
+                          Login
+                        </Link>
+                      </motion.div>
+                      <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.35, duration: 0.3 }}
+                      >
+                        <Link
+                          href="/auth/register"
+                          onClick={() => setIsMobileMenuOpen(false)}
+                          className="flex bg-[#2997F1] hover:bg-[#2178c9] text-white px-4 py-3 rounded-lg text-base font-medium transition-all duration-200 items-center justify-center gap-2 shadow-lg shadow-[#2997F1]/30"
+                        >
+                          <UserPlus className="w-4 h-4" />
+                          Register
+                        </Link>
+                      </motion.div>
+                    </>
+                  )}
+                </div>
               </div>
-            </div>
-          </div>
-        )}
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </motion.nav>
   );
