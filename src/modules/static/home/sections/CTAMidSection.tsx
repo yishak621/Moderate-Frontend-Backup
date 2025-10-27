@@ -18,9 +18,13 @@ export default function CTAMidSection() {
           <Link
             href="/auth/register"
             className="
-                 text-center
-                bg-blue-600 hover:bg-blue-700 text-white px-6 py-3.5
-                rounded-full text-base font-medium transition-colors
+                 text-center inline-block
+                bg-gradient-to-r from-blue-600 to-indigo-600 
+                hover:from-blue-700 hover:to-purple-700 text-white px-8 py-4
+                rounded-full text-base font-medium transition-all duration-300
+                hover:scale-105 hover:shadow-xl hover:shadow-blue-500/40
+                transform hover:-translate-y-1 active:scale-100
+                border-2 border-transparent hover:border-white/20
               "
           >
             Create your first moderate post

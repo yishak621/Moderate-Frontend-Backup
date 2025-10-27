@@ -33,7 +33,7 @@ export default function RootLayout({
         <ReactQueryProvider>
           <div className="max-w-[1840px] mx-auto ">{children}</div>
           <Toaster position="top-center" />
-          <ReactQueryDevtools initialIsOpen={false} />;
+          <ReactQueryDevtools initialIsOpen={false} />
         </ReactQueryProvider>
       </body>
     </html>

@@ -56,12 +56,16 @@ export default function HowItWorksSection() {
           <Link
             href="/auth/register"
             className="
-               text-center
-              bg-blue-600 hover:bg-blue-700 text-white px-6 py-3.5
-              rounded-full text-base font-medium transition-colors
+               text-center inline-block
+              bg-blue-600 hover:bg-gradient-to-r hover:from-blue-500 hover:via-blue-600 hover:to-blue-700 text-white px-8 py-4
+              rounded-full text-base font-medium transition-all duration-300
+              hover:scale-110 hover:shadow-2xl hover:shadow-blue-500/50
+              transform hover:-translate-y-2 hover:rotate-1 active:scale-95
+              relative overflow-hidden group
             "
           >
-            Start Now
+            <span className="relative z-10">Start Now</span>
+            <span className="absolute inset-0 bg-white/20 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></span>
           </Link>
         </div>
 

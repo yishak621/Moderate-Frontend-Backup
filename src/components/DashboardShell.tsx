@@ -110,7 +110,10 @@ export default function DashboardShell({
       >
         <div className="flex items-center justify-between pt-6 2xl:pt-11 px-4 2xl:px-7.5">
           {/* Logo Section */}
-          <div className="flex items-center gap-2">
+          <Link
+            href="/"
+            className="flex items-center gap-2 hover:opacity-80 transition-opacity"
+          >
             <Image
               src="/images/logo/logo-1.png"
               alt="Moderate Logo"
@@ -130,7 +133,7 @@ export default function DashboardShell({
                 </span>
               </div>
             )}
-          </div>
+          </Link>
 
           {/* Toggle Button */}
           <button

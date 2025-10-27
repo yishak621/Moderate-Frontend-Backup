@@ -7,6 +7,7 @@ import { getToken, removeToken } from "@/services/tokenService";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { queryClient } from "@/lib/queryClient";
 import { useRouter } from "next/navigation";
+import { LogIn, UserPlus, LogOut } from "lucide-react";
 
 const publicNavigationLinks = [
   { name: "About", href: "/about" },
@@ -17,11 +18,11 @@ const publicNavigationLinks = [
 ];
 
 const loggedInNavigationLinks = [
-  { name: "Dashboard", href: "/dashboard/teacher" },
-  { name: "My Classes", href: "/dashboard/classes" },
-  { name: "Uploads", href: "/dashboard/uploads" },
-  { name: "Grading History", href: "/dashboard/grades" },
-  { name: "Profile", href: "/profile" },
+  { name: "Dashboard", href: "/teacher/dashboard/teacher" },
+  { name: "Posts", href: "/teacher/dashboard/posts" },
+  { name: "Messages", href: "/teacher/dashboard/messages" },
+  { name: "Profile", href: "/teacher/dashboard/profile" },
+  { name: "Announcements", href: "/teacher/dashboard/announcements" },
 ];
 
 export default function Navbar() {
@@ -42,22 +43,33 @@ export default function Navbar() {
   };
 
   const { scrollYProgress } = useScroll();
-  const blurLevel = useTransform(scrollYProgress, [0, 0.1], ["0px", "18px"]);
-  const navOpacity = useTransform(scrollYProgress, [0, 0.1], [1, 0.82]);
+  const blurLevel = useTransform(scrollYProgress, [0, 0.1], ["0px", "20px"]);
+  const navOpacity = useTransform(scrollYProgress, [0, 0.1], [1, 0.85]);
+  const borderOpacity = useTransform(scrollYProgress, [0, 0.05], [0, 1]);
+  const shadowOpacity = useTransform(scrollYProgress, [0, 0.05], [0, 0.1]);
 
   if (isLoading) return null;
 
   return (
     <motion.nav
-      style={{ backdropFilter: blurLevel, opacity: navOpacity }}
+      style={{
+        backdropFilter: blurLevel,
+        opacity: navOpacity,
+        boxShadow: `0 4px 6px -1px rgb(0 0 0 / ${shadowOpacity})`,
+      }}
       className="
         sticky top-0 z-50 w-full px-4
-        
+        bg-white/70
         transition-all duration-500 ease-in-out
-        backdrop-blur-md shadow-sm
+        backdrop-blur-md
       "
     >
-      <div className="w-full px-4">
+      {/* Bottom Border */}
+      <motion.div
+        style={{ opacity: borderOpacity }}
+        className="absolute bottom-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-gray-300 to-transparent"
+      />
+      <div className="w-full px-4 relative">
         <div className="flex items-center justify-between h-16 sm:mt-6 2xl:mt-10">
           {/* Left Side */}
           <div className="flex items-center gap-8">
@@ -78,22 +90,22 @@ export default function Navbar() {
                 ? loggedInNavigationLinks
                 : publicNavigationLinks
               ).map((link) => (
-                <motion.div
-                  key={link.name}
-                  whileHover={{ y: -2 }}
-                  transition={{ type: "spring", stiffness: 200 }}
-                >
+                <div key={link.name} className="relative">
                   <Link
                     href={link.href}
                     className="
                         text-gray-700 
                         hover:text-blue-600 
-                        text-base font-medium transition-colors
+                        text-base font-medium transition-all duration-300
+                        relative inline-block pb-1
+                        before:content-[''] before:absolute before:bottom-0 before:left-0 
+                        before:w-0 before:h-0.5 before:bg-blue-600 
+                        hover:before:w-full before:transition-all before:duration-300 before:ease-in-out
                       "
                   >
                     {link.name}
                   </Link>
-                </motion.div>
+                </div>
               ))}
             </div>
           </div>
@@ -102,25 +114,15 @@ export default function Navbar() {
           <div className="hidden md:flex items-center space-x-3">
             {isLoggedIn ? (
               <>
-                <Link
-                  href="/dashboard/teacher"
-                  className="
-                    text-gray-700  hover:text-blue-600 
-                    px-6 py-3.5 text-base font-medium transition-colors 
-                    border border-transparent rounded-full
-                    backdrop-blur-md bg-white/10 
-                    hover:bg-blue-100 
-                  "
-                >
-                  Dashboard
-                </Link>
                 <button
                   onClick={handleLogout}
                   className="
+                    flex items-center gap-2
                     bg-red-500 text-white px-6 py-3.5 rounded-full 
                     font-medium hover:bg-red-600 transition-colors
                   "
                 >
+                  <LogOut className="w-5 h-5" />
                   Logout
                 </button>
               </>
@@ -129,21 +131,25 @@ export default function Navbar() {
                 <Link
                   href="/auth/login"
                   className="
+                    flex items-center gap-2
                     text-gray-700 
                     hover:text-blue-600 px-6 py-3.5 text-base font-medium 
                     transition-colors border border-gray-400/50 
                     rounded-full hover:border-blue-600 backdrop-blur-md
                   "
                 >
+                  <LogIn className="w-5 h-5" />
                   Login
                 </Link>
                 <Link
                   href="/auth/register"
                   className="
+                    flex items-center gap-2
                     bg-blue-600 hover:bg-blue-700 text-white px-6 py-3.5
                     rounded-full text-base font-medium transition-colors
                   "
                 >
+                  <UserPlus className="w-5 h-5" />
                   Register
                 </Link>
               </>

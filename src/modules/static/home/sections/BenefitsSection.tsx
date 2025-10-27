@@ -65,8 +65,10 @@ export default function BenefitsSection() {
                 href="/auth/register"
                 className="
                     w-full text-center
-                    bg-blue-600 hover:bg-blue-700 text-white px-6 py-3.5
-                    rounded-full text-base font-medium transition-colors
+                    bg-blue-600 hover:bg-gradient-to-br hover:from-blue-600 hover:via-blue-700 hover:to-indigo-800 text-white px-6 py-3.5
+                    rounded-full text-base font-medium transition-all duration-300
+                    hover:scale-105 hover:shadow-lg hover:shadow-blue-600/40
+                    transform hover:-translate-y-0.5 active:scale-100
                   "
               >
                 Register

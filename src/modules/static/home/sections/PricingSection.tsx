@@ -107,11 +107,11 @@ function PricingCard({
       </div>
       <Link
         href="/auth/register"
-        className={`w-full text-center 2xl:mt-[60px] mt-[40px]  ${
+        className={`w-full text-center 2xl:mt-[60px] mt-[40px] inline-block ${
           isFree
-            ? "bg-white text-[#000] border border-[#000] hover:bg-white hover:text-[#000]"
-            : "bg-blue-600 text-white hover:bg-blue-700 hover:text-white"
-        }  text-base font-medium leading-normal px-6 py-3.5 rounded-full transition-colors`}
+            ? "bg-white text-[#000] border-2 border-black hover:bg-black hover:text-white hover:scale-105 hover:shadow-xl hover:shadow-black/20"
+            : "bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:from-blue-700 hover:to-purple-700 hover:scale-105 hover:shadow-xl hover:shadow-blue-500/40"
+        } text-base font-medium leading-normal px-6 py-3.5 rounded-full transition-all duration-300 transform hover:-translate-y-1 active:scale-100`}
       >
         Get Started
       </Link>
