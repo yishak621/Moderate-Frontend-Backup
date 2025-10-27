@@ -1,13 +1,14 @@
 import StaticLayout from "@/modules/static/layout/StaticLayout";
 import PageHeader from "@/modules/static/layout/PageHeader";
 import ServicesSection from "@/modules/static/home/sections/ServicesSection";
+import PricingSection from "@/modules/static/home/sections/PricingSection";
 
-export default function FeaturesPage() {
+export default function PrivacyPage() {
   return (
     <StaticLayout>
       <div className="py-20 w-full">
-        <PageHeader title="Features" />
-        <ServicesSection />
+        <PageHeader title="Privacy Policy" />
+        {/* <PrivacyPolicySection /> */}
       </div>
     </StaticLayout>
   );

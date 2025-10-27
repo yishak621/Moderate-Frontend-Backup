@@ -1,7 +1,19 @@
-export default function MotoSection() {
+interface MotoSectionProps {
+  align?: "left" | "center" | "right";
+}
+
+export default function MotoSection({ align = "left" }: MotoSectionProps) {
+  const alignClasses = {
+    left: "text-left items-start",
+    center: "text-center items-center",
+    right: "text-right items-end",
+  };
+
   return (
     <section className="py-12 sm:py-16 md:py-20 sm:mt-[100px] 2xl:mt-[177px] w-full">
-      <div className="w-full flex flex-col gap-3 sm:gap-4">
+      <div
+        className={`w-full flex flex-col gap-3 sm:gap-4 ${alignClasses[align]}`}
+      >
         <p className="text-[#838383] text-sm sm:text-base font-medium">
           Helping educators collaborate on grading without exposing student
           data.

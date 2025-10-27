@@ -9,11 +9,10 @@ import Image from "next/image";
 import Link from "next/link";
 
 const links = [
-  { id: 1, href: "/", label: "Home" },
   { id: 2, href: "/about", label: "About" },
   { id: 3, href: "/contact", label: "Contact" },
-  { id: 4, href: "/privacy", label: "Privacy" },
-  { id: 5, href: "/terms", label: "Terms" },
+  { id: 4, href: "/privacy", label: "Privacy Policy" },
+  { id: 5, href: "/terms", label: "Terms of Service" },
 ];
 
 export default function Footer() {

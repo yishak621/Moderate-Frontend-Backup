@@ -1,13 +1,13 @@
 import StaticLayout from "@/modules/static/layout/StaticLayout";
 import PageHeader from "@/modules/static/layout/PageHeader";
-import ServicesSection from "@/modules/static/home/sections/ServicesSection";
+import ContactUsSection from "@/modules/static/contact/contactUsSection";
 
-export default function FeaturesPage() {
+export default function ContactPage() {
   return (
     <StaticLayout>
       <div className="py-20 w-full">
-        <PageHeader title="Features" />
-        <ServicesSection />
+        <PageHeader title="Get in touch" />
+        <ContactUsSection />
       </div>
     </StaticLayout>
   );

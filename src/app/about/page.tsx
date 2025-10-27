@@ -1,23 +1,15 @@
+import BenefitsSection from "@/modules/static/home/sections/BenefitsSection";
+import MotoSection from "@/modules/static/home/sections/MotoSection";
 import StaticLayout from "@/modules/static/layout/StaticLayout";
+import PageHeader from "@/modules/static/layout/PageHeader";
 
 export default function AboutPage() {
   return (
     <StaticLayout>
-      <div className="py-20">
-        <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto text-center">
-            <h1 className="text-4xl font-bold text-gray-900 mb-6">About Us</h1>
-            <p className="text-xl text-gray-600 mb-12">
-              Learn more about our mission to revolutionize education
-              management.
-            </p>
-            <div className="h-96 bg-gray-200 rounded-lg flex items-center justify-center">
-              <p className="text-gray-500 text-lg">
-                About content coming soon...
-              </p>
-            </div>
-          </div>
-        </div>
+      <div className="py-20 w-full">
+        <PageHeader title="About Us" />
+        <MotoSection align="center" />
+        <BenefitsSection />
       </div>
     </StaticLayout>
   );

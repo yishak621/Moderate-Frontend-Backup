@@ -36,7 +36,7 @@ export default function PricingSection() {
       </div>
 
       {/* Cards positioned to overlap the hidden portion with glass effect */}
-      <div className="flex flex-row justify-center gap-[50px] -mt-18 relative z-10">
+      <div className="flex flex-row justify-center gap-[50px] sm:-mt-[50px] md:-mt-[60px] lg:-mt-[70px] xl:-mt-[80px] 2xl:-mt-[100px] relative z-10">
         {PlansData.map((plan) => (
           <PricingCard
             key={plan.title}

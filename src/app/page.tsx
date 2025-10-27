@@ -22,7 +22,6 @@ export default function HomePage() {
       <PricingSection />
       <TestimonialsSection />
       <FAQSection />
-      <CTASection />
     </StaticLayout>
   );
 }

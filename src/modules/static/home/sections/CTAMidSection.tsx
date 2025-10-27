@@ -3,7 +3,7 @@ import Image from "next/image";
 
 export default function CTAMidSection() {
   return (
-    <section className="w-full py-[87px] px-[124px] border border-[#C6C6C6] rounded-[65px] relative overflow-hidden">
+    <section className="w-full py-[87px] px-[124px] border border-[#C6C6C6] rounded-[65px] relative overflow-hidden max-w-[1402px] mx-auto">
       <div className="flex flex-row items-center justify-between relative z-10">
         {/* Left Content */}
         <div className="flex flex-col items-start">

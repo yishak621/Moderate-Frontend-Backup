@@ -18,11 +18,12 @@ const publicNavigationLinks = [
 ];
 
 const loggedInNavigationLinks = [
-  { name: "Dashboard", href: "/teacher/dashboard/teacher" },
-  { name: "Posts", href: "/teacher/dashboard/posts" },
-  { name: "Messages", href: "/teacher/dashboard/messages" },
-  { name: "Profile", href: "/teacher/dashboard/profile" },
-  { name: "Announcements", href: "/teacher/dashboard/announcements" },
+  { name: "Dashboard", href: "/dashboard/teacher" },
+  { name: "Moderate", href: "/dashboard/teacher/grading" },
+  { name: "My Posts", href: "/dashboard/teacher/posts" },
+  { name: "Messages", href: "/dashboard/teacher/messages" },
+  { name: "Profile", href: "/dashboard/teacher/profile" },
+  { name: "Announcements", href: "/dashboard/teacher/announcements" },
 ];
 
 export default function Navbar() {
