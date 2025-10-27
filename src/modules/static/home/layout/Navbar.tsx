@@ -117,13 +117,16 @@ export default function Navbar() {
                 <button
                   onClick={handleLogout}
                   className="
-                    flex items-center gap-2
+                    group flex items-center gap-2 relative overflow-hidden
                     bg-red-500 text-white px-6 py-3.5 rounded-full 
-                    font-medium hover:bg-red-600 transition-colors
+                    font-medium transition-all duration-300 
+                    hover:bg-red-600 hover:scale-105 hover:shadow-lg hover:shadow-red-500/50
+                    transform hover:-translate-y-0.5 active:scale-95
                   "
                 >
-                  <LogOut className="w-5 h-5" />
-                  Logout
+                  <LogOut className="w-5 h-5 transition-transform duration-300 group-hover:-translate-x-1" />
+                  <span className="relative z-10">Logout</span>
+                  <div className="absolute inset-0 bg-white/20 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left rounded-full" />
                 </button>
               </>
             ) : (
@@ -131,26 +134,31 @@ export default function Navbar() {
                 <Link
                   href="/auth/login"
                   className="
-                    flex items-center gap-2
+                    group flex items-center gap-2 relative
                     text-gray-700 
                     hover:text-blue-600 px-6 py-3.5 text-base font-medium 
-                    transition-colors border border-gray-400/50 
+                    transition-all duration-300 border border-gray-400/50 
                     rounded-full hover:border-blue-600 backdrop-blur-md
+                    hover:bg-blue-50 hover:scale-105 hover:shadow-md
+                    transform hover:-translate-y-0.5 active:scale-95
                   "
                 >
-                  <LogIn className="w-5 h-5" />
+                  <LogIn className="w-5 h-5 transition-transform duration-300 group-hover:translate-x-1" />
                   Login
                 </Link>
                 <Link
                   href="/auth/register"
                   className="
-                    flex items-center gap-2
-                    bg-blue-600 hover:bg-blue-700 text-white px-6 py-3.5
-                    rounded-full text-base font-medium transition-colors
+                    group flex items-center gap-2 relative overflow-hidden
+                    bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-700 text-white px-6 py-3.5
+                    rounded-full text-base font-medium transition-all duration-300
+                    hover:scale-110 hover:shadow-xl hover:shadow-blue-500/50
+                    transform hover:-translate-y-1 hover:rotate-1 active:scale-100
                   "
                 >
-                  <UserPlus className="w-5 h-5" />
-                  Register
+                  <UserPlus className="w-5 h-5 transition-transform duration-300 group-hover:scale-125 group-hover:rotate-12" />
+                  <span className="relative z-10">Register</span>
+                  <div className="absolute inset-0 bg-gradient-to-r from-white/30 via-white/20 to-transparent transform translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700 ease-in-out" />
                 </Link>
               </>
             )}

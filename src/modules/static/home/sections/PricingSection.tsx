@@ -27,14 +27,16 @@ export default function PricingSection() {
   );
 
   return (
-    <section className="py-20 w-full flex flex-col items-center justify-center">
-      <div>
-        <h1 className="sm:text-[150px] 2xl:text-[200px] font-bold text-center  text-[#000]  leading-normal max-w-[356px]">
+    <section className="py-20 w-full flex flex-col items-center justify-center relative">
+      {/* Title with bottom portion hidden */}
+      <div className="overflow-hidden relative" style={{ height: "85%" }}>
+        <h1 className="sm:text-[150px] 2xl:text-[200px] font-bold text-center text-[#000] leading-normal">
           Pricing
         </h1>
       </div>
 
-      <div className="flex flex-row justify-center gap-[50px]">
+      {/* Cards positioned to overlap the hidden portion with glass effect */}
+      <div className="flex flex-row justify-center gap-[50px] -mt-18 relative z-10">
         {PlansData.map((plan) => (
           <PricingCard
             key={plan.title}
@@ -44,14 +46,16 @@ export default function PricingSection() {
         ))}
       </div>
       {/* Toggle Button */}
-      <div className="mt-8 mb-8 w-full flex justify-start">
-        <FilterButtons
-          filters={["Monthly", "Yearly"]}
-          activeFilter={billingPeriod === "monthly" ? "Monthly" : "Yearly"}
-          onFilterChange={(filter) =>
-            setBillingPeriod(filter === "Monthly" ? "monthly" : "yearly")
-          }
-        />
+      <div className="mt-8 mb-8 w-full flex justify-center items-start">
+        <div className="flex justify-start">
+          <FilterButtons
+            filters={["Monthly", "Yearly"]}
+            activeFilter={billingPeriod === "monthly" ? "Monthly" : "Yearly"}
+            onFilterChange={(filter) =>
+              setBillingPeriod(filter === "Monthly" ? "monthly" : "yearly")
+            }
+          />
+        </div>
       </div>
     </section>
   );
@@ -75,7 +79,7 @@ function PricingCard({
   const isFree = price === "0";
 
   return (
-    <div className="p-[61px] rounded-[40px] bg-[#C1C1C10F] flex flex-col items-start ">
+    <div className="p-[61px] rounded-[40px] bg-white/20 backdrop-blur-md border border-white/30 shadow-lg flex flex-col items-start relative">
       <div className=" flex flex-col border-b-[3px] border-b-[#EAEAEA] pb-[28px]">
         <span className="text-[#838383] text-base font-medium leading-normal">
           {moto}

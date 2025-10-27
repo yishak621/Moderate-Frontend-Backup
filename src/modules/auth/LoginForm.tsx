@@ -67,7 +67,10 @@ export default function LoginForm() {
     "
     >
       {/* Header */}
-      <div className="flex flex-col items-center text-center gap-1.5 sm:gap-2 pb-4 sm:pb-6 lg:pb-8">
+      <Link
+        href="/"
+        className="flex flex-col items-center text-center gap-1.5 sm:gap-2 pb-4 sm:pb-6 lg:pb-8"
+      >
         <Image
           src="/images/logo/logo-4.png"
           alt="Moderate Logo"
@@ -80,7 +83,7 @@ export default function LoginForm() {
         <p className="text-gray-600 text-xs sm:text-sm lg:text-base">
           Grade moderation made easy
         </p>
-      </div>
+      </Link>
 
       {/* Inputs */}
       <div className="flex flex-col gap-5 sm:gap-6">

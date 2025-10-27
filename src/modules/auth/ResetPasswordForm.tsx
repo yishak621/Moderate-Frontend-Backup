@@ -10,6 +10,7 @@ import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import PasswordResetSuccess from "./PasswordResetSuccess";
+import Link from "next/link";
 
 export default function ResetPasswordForm() {
   const router = useRouter();
@@ -79,14 +80,17 @@ export default function ResetPasswordForm() {
     >
       {/* Header */}
       <div className="flex flex-col items-center text-center gap-1.5 sm:gap-2 pb-4 sm:pb-6 lg:pb-8">
-        <Image
-          src="/images/logo/logo-4.png"
-          alt="Moderate Logo"
-          width={45}
-          height={45}
-          priority
-          className="object-contain select-none"
-        />
+        <Link href="/">
+          {" "}
+          <Image
+            src="/images/logo/logo-4.png"
+            alt="Moderate Logo"
+            width={45}
+            height={45}
+            priority
+            className="object-contain select-none"
+          />
+        </Link>
         <h2 className="text-xl sm:text-2xl font-semibold">Moderate</h2>
         <p className="text-gray-600 text-xs sm:text-sm lg:text-base">
           Grade moderation made easy
