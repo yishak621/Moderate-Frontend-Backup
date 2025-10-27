@@ -118,14 +118,14 @@ export default function Navbar() {
                 <button
                   onClick={handleLogout}
                   className="
-                    group flex items-center gap-2 relative overflow-hidden
-                    bg-red-500 text-white px-6 py-3.5 rounded-full 
-                    font-medium transition-all duration-300 
+                    group flex items-center gap-1.5 relative overflow-hidden
+                    bg-red-500 text-white px-4 py-2 rounded-full 
+                    text-sm font-medium transition-all duration-300 
                     hover:bg-red-600 hover:scale-105 hover:shadow-lg hover:shadow-red-500/50
                     transform hover:-translate-y-0.5 active:scale-95
                   "
                 >
-                  <LogOut className="w-5 h-5 transition-transform duration-300 group-hover:-translate-x-1" />
+                  <LogOut className="w-4 h-4 transition-transform duration-300 group-hover:-translate-x-1" />
                   <span className="relative z-10">Logout</span>
                   <div className="absolute inset-0 bg-white/20 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left rounded-full" />
                 </button>

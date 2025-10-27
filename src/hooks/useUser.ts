@@ -273,3 +273,28 @@ export const useUserSaveSettings = () => {
     savingSettingError: error,
   };
 };
+
+//--------------------UPDATE PASSWORD
+export const useUpdatePassword = () => {
+  const { mutate, mutateAsync, data, isPending, isSuccess, isError, error } =
+    useMutation({
+      mutationFn: (data: { password: string }) => updateUserData(data),
+      onSuccess: () => {
+        toast.success("Password updated successfully!");
+        queryClient.invalidateQueries({
+          queryKey: ["me"],
+          exact: false,
+        });
+      },
+    });
+
+  return {
+    updatePassword: mutate,
+    updatePasswordAsync: mutateAsync,
+    data,
+    isUpdatingPasswordLoading: isPending,
+    isUpdatingPasswordSuccess: isSuccess,
+    isUpdatingPasswordError: isError,
+    updatingPasswordError: error,
+  };
+};
