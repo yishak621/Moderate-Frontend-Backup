@@ -79,7 +79,7 @@ export default function DomainVerification() {
   }, [isSuccess]);
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen  px-6 py-6  md:py-12 overflow-y-scroll scrollbar-hide">
+    <div className="flex flex-col items-center justify-center min-h-[500px] px-4 py-6 sm:px-6 md:py-12 overflow-y-scroll scrollbar-hide">
       <StepIndicator steps={steps} current={step} />
 
       <AnimatePresence mode="wait">
@@ -89,20 +89,20 @@ export default function DomainVerification() {
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: -40, opacity: 0 }}
           transition={{ duration: 0.3 }}
-          className="w-full max-w-md bg-white shadow-lg rounded-2xl p-7 border border-gray-200 text-center"
+          className="w-full bg-[#fdfdfd] shadow-lg rounded-[20px] sm:rounded-[24px] p-7 border border-gray-100 text-center"
         >
           {/* Header */}
-          <div className="flex flex-col items-center text-center gap-1.5 sm:gap-2 pb-4 sm:pb-6 lg:pb-8">
+          <div className="flex flex-col items-center text-center gap-2 sm:gap-3 pb-6 sm:pb-8">
             <Image
               src="/images/logo/logo-4.png"
               alt="Moderate Logo"
-              width={45}
-              height={45}
+              width={50}
+              height={50}
               priority
               className="object-contain select-none"
             />
-            <h2 className="text-xl sm:text-2xl font-semibold">Moderate</h2>
-            <p className="text-gray-600 text-xs sm:text-sm lg:text-base">
+            <h2 className="text-2xl sm:text-3xl font-semibold">Moderate</h2>
+            <p className="text-gray-600 text-base font-normal sm:text-base">
               Grade moderation made easy
             </p>
           </div>
@@ -110,7 +110,7 @@ export default function DomainVerification() {
           {step === 0 && (
             <form
               onSubmit={handleSubmit(onSubmit)}
-              className="flex flex-col gap-3"
+              className="flex flex-col gap-6 sm:gap-7"
             >
               <div className="w-full bg-[#FFF4E5] text-[#AD8A59] py-4 px-7 rounded-lg mt-4">
                 <div className="flex flex-row items-start gap-3">
@@ -138,7 +138,7 @@ export default function DomainVerification() {
               {/* Button */}
               <Button
                 type="submit"
-                className={`justify-center mt-2.5 sm:mt-4 text-base cursor-pointer w-full transition 
+                className={`justify-center mt-4 sm:mt-6 text-base cursor-pointer w-full transition 
         ${isLoading ? "opacity-70 cursor-not-allowed" : "hover:bg-blue-700"}`}
               >
                 {isLoading ? (

@@ -36,38 +36,41 @@ export default function SearchInput({
   return (
     <div className="w-full">
       {label && (
-        <label className="text-[#0c0c0c] text-base font-normal">{label}</label>
+        <label className="text-[#0c0c0c] text-sm font-normal sm:text-base mb-1 block">
+          {label}
+        </label>
       )}
 
       <div
         className={clsx(
-          "flex items-center w-full rounded-lg border",
+          "flex items-center w-full rounded-[62px] border h-[45px]",
+          "sm:h-12 lg:h-14",
           "focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-blue-500",
           error ? "border-red-500" : "border-gray-300",
           className
         )}
       >
-        <button
-          type="button"
-          onClick={handleSearch}
-          className="px-4 pr-0 py-2 text-[#717171] cursor-pointer rounded-r-lg flex items-center justify-center"
-        >
-          <Search size={22} />
-        </button>
         <input
           type="text"
-          value={value} // ✅ stays in sync with parent
+          value={value}
           onChange={(e) => onChange?.(e.target.value)}
           onKeyDown={handleKeyDown}
           placeholder={placeholder}
           className={clsx(
-            "w-full px-3 py-2 text-sm",
-            "sm:px-4 sm:py-2.5 sm:text-base",
-            "md:px-5 md:py-3 md:text-base",
-            "lg:px-6 lg:py-3.5 lg:text-lg",
-            "rounded-l-lg outline-0 bg-white text-gray-900"
+            "w-full px-6 py-[15px] text-sm font-normal",
+            "placeholder:text-sm placeholder:font-normal",
+            "sm:px-6 sm:py-4 sm:text-base sm:placeholder:text-base",
+            "lg:px-8 lg:py-5 lg:text-lg lg:placeholder:text-lg",
+            "rounded-l-[62px] outline-0 bg-white text-gray-900"
           )}
         />
+        <button
+          type="button"
+          onClick={handleSearch}
+          className="px-4 pr-6 text-[#717171] cursor-pointer rounded-r-[62px] flex items-center justify-center"
+        >
+          <Search size={20} className="sm:w-5 sm:h-5" />
+        </button>
       </div>
 
       {error && <p className="mt-1 text-sm text-red-500">{error}</p>}

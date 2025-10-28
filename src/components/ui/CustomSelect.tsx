@@ -50,12 +50,24 @@ export function CustomSelect({
       styles={{
         control: (base, state) => ({
           ...base,
-          minHeight: "60px", // match your input height
-          borderRadius: "0.5rem",
+          minHeight: "45px", // Mobile: 45px
+          borderRadius: "62px", // Mobile: 62px pill shape
           borderColor: state.isFocused ? "#3b82f6" : "#d1d5db",
-          boxShadow: state.isFocused ? "0 0 0 2px #3b82f6" : "none",
-          paddingLeft: "12px",
-          paddingRight: "12px",
+          boxShadow: state.isFocused
+            ? "0 0 0 2px rgba(59, 130, 246, 0.2)"
+            : "none",
+          paddingLeft: "24px", // Mobile: 24px
+          paddingRight: "24px",
+          fontSize: "14px", // Mobile: 14px
+          fontWeight: "400",
+          "@media (min-width: 640px)": {
+            minHeight: "48px",
+            fontSize: "15px",
+          },
+          "@media (min-width: 1024px)": {
+            minHeight: "56px",
+            fontSize: "16px",
+          },
         }),
         valueContainer: (base) => ({
           ...base,

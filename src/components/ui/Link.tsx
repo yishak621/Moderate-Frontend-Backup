@@ -14,7 +14,7 @@ export default function TextLink({ href, children, className }: TextLinkProps) {
     <Link
       href={href}
       className={clsx(
-        "text-[#368FFF] text-base font-semibold  hover:underline hover:text-blue-800 transition-colors",
+        "text-[#368FFF] text-sm font-semibold sm:text-base hover:underline hover:text-blue-800 transition-colors",
         className
       )}
     >

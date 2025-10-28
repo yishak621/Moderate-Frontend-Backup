@@ -2,16 +2,16 @@
 
 import LoadingFallback from "@/components/LoadingFallback";
 import DomainVerification from "./domainVerifyClient";
-import IllustrationGrid from "@/modules/auth/IllustrationGrid";
 import { Suspense } from "react";
 
 export default function DomainVerifyPage() {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 items-center justify-center bg-[#f1f1f1] min-h-screen">
-      <IllustrationGrid />
-      <Suspense fallback={<LoadingFallback />}>
-        <DomainVerification />
-      </Suspense>
+    <div className="min-h-screen bg-[#f1f1f1] flex items-center justify-center p-4 sm:p-6 lg:p-8">
+      <div className="w-full max-w-md lg:max-w-lg xl:max-w-xl">
+        <Suspense fallback={<LoadingFallback />}>
+          <DomainVerification />
+        </Suspense>
+      </div>
     </div>
   );
 }

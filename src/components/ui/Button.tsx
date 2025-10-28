@@ -17,7 +17,7 @@ const Button: React.FC<ButtonProps> = ({
   ...props
 }) => {
   const baseStyles =
-    "inline-flex justify-center  items-center gap-2 px-4 py-4.5 rounded-md font-medium text-base transition-colors duration-200 cursor-pointer";
+    "inline-flex justify-center items-center gap-2.5 rounded-[87px] font-normal text-[13px] transition-colors duration-200 cursor-pointer";
 
   const variantStyles = {
     primary: "bg-[#368FFF] text-[#FDFDFD] hover:bg-[#2574db]  ", // deeper blue
@@ -31,7 +31,11 @@ const Button: React.FC<ButtonProps> = ({
 
   return (
     <button
-      className={`${baseStyles} ${variantStyles[variant]} ${className}`}
+      className={`${baseStyles} 
+        h-[45px] px-[20px] py-4
+        sm:h-12 sm:px-8 sm:py-4 sm:text-sm
+        lg:h-14 lg:px-12 lg:text-base
+        ${variantStyles[variant]} ${className}`}
       {...props}
     >
       {icon && <span className="flex items-center">{icon}</span>}

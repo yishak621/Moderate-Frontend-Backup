@@ -14,18 +14,18 @@ const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
     return (
       <div className="w-full">
         {label && (
-          <label className="text-[#0c0c0c] text-base font-normal">
+          <label className="text-[#0c0c0c] text-sm font-normal sm:text-base mb-1 block">
             {label}
           </label>
         )}
         <textarea
           ref={ref}
           className={clsx(
-            "w-full rounded-lg border min-h-[118px]",
-            "px-3 py-2 text-sm", // base
-            "sm:px-4 sm:py-2.5 sm:text-base", // small screens
-            "md:px-5 md:py-3 md:text-base", // tablets
-            "lg:px-6 lg:py-3.5 lg:text-lg", // large screens
+            "w-full rounded-[62px] border min-h-[120px]",
+            "px-6 py-[15px] text-sm font-normal",
+            "placeholder:text-sm placeholder:font-normal",
+            "sm:min-h-[130px] sm:px-6 sm:py-4 sm:text-base",
+            "lg:min-h-[150px] lg:px-8 lg:py-5 lg:text-lg",
             "focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-0",
             "bg-white text-gray-900 resize-none",
             error ? "border-red-500" : "border-gray-300",

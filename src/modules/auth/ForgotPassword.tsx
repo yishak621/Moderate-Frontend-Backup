@@ -92,35 +92,36 @@ export default function ForgotPasswordForm() {
       onSubmit={handleSubmit(onSubmit)}
       className="
       bg-[#fdfdfd]
-      px-4 py-6                    
-      sm:px-6 sm:py-8             
-      lg:px-8 lg:py-12            
+      px-6 py-8                    
+      sm:px-8 sm:py-10             
+      lg:px-10 lg:py-12            
       rounded-[20px] sm:rounded-[24px]
-      w-full max-w-lg mx-auto
-      flex flex-col gap-5 sm:gap-6
-      max-h-screen overflow-y-scroll scrollbar-hide
+      w-full max-w-md mx-auto
+      flex flex-col gap-6 sm:gap-7
+      shadow-lg
+      border border-gray-100
     "
     >
       {/* Header */}
-      <div className="flex flex-col items-center text-center gap-1.5 sm:gap-2 pb-4 sm:pb-6 lg:pb-8">
-        <Link href="/">
-          <Image
-            src="/images/logo/logo-4.png"
-            alt="Moderate Logo"
-            width={45}
-            height={45}
-            priority
-            className="object-contain select-none"
-          />
-        </Link>
-
-        <h2 className="text-xl sm:text-2xl font-semibold"> Forgot Password?</h2>
-        <p className="text-gray-600 text-xs sm:text-sm lg:text-base">
-          No worries, we’ll send you reset instructions
+      <Link
+        href="/"
+        className="flex flex-col items-center text-center gap-2 sm:gap-3 pb-6 sm:pb-8"
+      >
+        <Image
+          src="/images/logo/logo-4.png"
+          alt="Moderate Logo"
+          width={50}
+          height={50}
+          priority
+          className="object-contain select-none"
+        />
+        <h2 className="text-2xl sm:text-3xl font-semibold">Forgot Password?</h2>
+        <p className="text-gray-600 text-base font-normal sm:text-base">
+          No worries, we&apos;ll send you reset instructions
         </p>
-      </div>
+      </Link>
       {/* Inputs */}
-      <div className="flex flex-col gap-5 sm:gap-6">
+      <div className="flex flex-col gap-6 sm:gap-7">
         <Input
           label="Email"
           type="email"
@@ -132,7 +133,7 @@ export default function ForgotPasswordForm() {
       {/* Button */}
       <Button
         type="submit"
-        className={`justify-center mt-2.5 sm:mt-4 text-base cursor-pointer w-full transition 
+        className={`justify-center mt-4 sm:mt-6 text-base cursor-pointer w-full transition 
         ${isLoading ? "opacity-70 cursor-not-allowed" : "hover:bg-blue-700"}`}
       >
         {isLoading ? (
