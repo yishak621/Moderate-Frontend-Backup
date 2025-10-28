@@ -65,7 +65,7 @@ export default function Navbar() {
         boxShadow: `0 4px 6px -1px rgb(0 0 0 / ${shadowOpacity})`,
       }}
       className="
-        sticky top-0 z-50 w-full px-4
+        sticky top-0 z-50 w-full px-4 py-5 md:py-5
         bg-white/70
         transition-all duration-500 ease-in-out
         backdrop-blur-md
@@ -77,7 +77,7 @@ export default function Navbar() {
         className="absolute bottom-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-gray-300 to-transparent"
       />
       <div className="w-full px-2 sm:px-4 relative">
-        <div className="flex items-center justify-between h-16 sm:mt-6 2xl:mt-10">
+        <div className="flex items-center justify-between h-16">
           {/* Left Side */}
           <div className="flex items-center gap-8">
             <Link href="/" className="flex items-center">
@@ -223,111 +223,111 @@ export default function Navbar() {
             </motion.button>
           </div>
         </div>
-
-        {/* Mobile Menu */}
-        <AnimatePresence>
-          {isMobileMenuOpen && (
-            <motion.div
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.3, ease: "easeInOut" }}
-              className="md:hidden absolute top-full left-0 right-0 bg-white border-t border-gray-200 shadow-xl py-6 px-4 z-50"
-            >
-              <div className="flex flex-col gap-2">
-                {/* Mobile Links */}
-                {(isLoggedIn
-                  ? loggedInNavigationLinks
-                  : publicNavigationLinks
-                ).map((link, index) => (
-                  <motion.div
-                    key={link.name}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: index * 0.05, duration: 0.3 }}
-                  >
-                    <Link
-                      href={link.href}
-                      onClick={() => setIsMobileMenuOpen(false)}
-                      className="block text-gray-700 hover:text-[#2997F1] hover:bg-blue-50 text-base font-medium py-3 px-4 rounded-lg transition-all duration-200"
-                    >
-                      {link.name}
-                    </Link>
-                  </motion.div>
-                ))}
-
-                {/* Mobile Buttons */}
-                <div className="pt-2 mt-2 border-t border-gray-200 flex flex-col gap-2">
-                  {isLoggedIn ? (
-                    <>
-                      <motion.div
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.3, duration: 0.3 }}
-                      >
-                        <Link
-                          href="/dashboard/teacher"
-                          onClick={() => setIsMobileMenuOpen(false)}
-                          className="block text-gray-700 hover:text-[#2997F1] hover:bg-blue-50 px-4 py-3 text-base font-medium transition-all duration-200 border-2 border-gray-200 hover:border-[#2997F1] rounded-lg"
-                        >
-                          Dashboard
-                        </Link>
-                      </motion.div>
-                      <motion.div
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.35, duration: 0.3 }}
-                      >
-                        <button
-                          onClick={() => {
-                            handleLogout();
-                            setIsMobileMenuOpen(false);
-                          }}
-                          className="w-full bg-red-500 hover:bg-red-600 text-white px-4 py-3 rounded-lg text-base font-medium transition-all duration-200 flex items-center justify-center gap-2 shadow-lg shadow-red-500/30"
-                        >
-                          <LogOut className="w-4 h-4" />
-                          Logout
-                        </button>
-                      </motion.div>
-                    </>
-                  ) : (
-                    <>
-                      <motion.div
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.3, duration: 0.3 }}
-                      >
-                        <Link
-                          href="/auth/login"
-                          onClick={() => setIsMobileMenuOpen(false)}
-                          className="flex text-gray-700 hover:text-[#2997F1] hover:bg-blue-50 px-4 py-3 text-base font-medium transition-all duration-200 border-2 border-gray-200 hover:border-[#2997F1] rounded-lg items-center justify-center gap-2"
-                        >
-                          <LogIn className="w-4 h-4" />
-                          Login
-                        </Link>
-                      </motion.div>
-                      <motion.div
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.35, duration: 0.3 }}
-                      >
-                        <Link
-                          href="/auth/register"
-                          onClick={() => setIsMobileMenuOpen(false)}
-                          className="flex bg-[#2997F1] hover:bg-[#2178c9] text-white px-4 py-3 rounded-lg text-base font-medium transition-all duration-200 items-center justify-center gap-2 shadow-lg shadow-[#2997F1]/30"
-                        >
-                          <UserPlus className="w-4 h-4" />
-                          Register
-                        </Link>
-                      </motion.div>
-                    </>
-                  )}
-                </div>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
       </div>
+
+      {/* Mobile Menu - Outside the padded container for full width */}
+      <AnimatePresence>
+        {isMobileMenuOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.3, ease: "easeInOut" }}
+            className="md:hidden absolute top-full left-0 right-0 w-full bg-white/90 backdrop-blur-xl border-t border-gray-200 shadow-xl py-6 px-4 z-50"
+          >
+            <div className="flex flex-col gap-2">
+              {/* Mobile Links */}
+              {(isLoggedIn
+                ? loggedInNavigationLinks
+                : publicNavigationLinks
+              ).map((link, index) => (
+                <motion.div
+                  key={link.name}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: index * 0.05, duration: 0.3 }}
+                >
+                  <Link
+                    href={link.href}
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="block text-gray-700 hover:text-[#2997F1] hover:bg-blue-50 text-base font-medium py-3 px-4 rounded-lg transition-all duration-200"
+                  >
+                    {link.name}
+                  </Link>
+                </motion.div>
+              ))}
+
+              {/* Mobile Buttons */}
+              <div className="pt-2 mt-2 border-t border-gray-200 flex flex-col gap-2">
+                {isLoggedIn ? (
+                  <>
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.3, duration: 0.3 }}
+                    >
+                      <Link
+                        href="/dashboard/teacher"
+                        onClick={() => setIsMobileMenuOpen(false)}
+                        className="block text-gray-700 hover:text-[#2997F1] hover:bg-blue-50 px-4 py-3 text-base font-medium transition-all duration-200 border-2 border-gray-200 hover:border-[#2997F1] rounded-lg"
+                      >
+                        Dashboard
+                      </Link>
+                    </motion.div>
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.35, duration: 0.3 }}
+                    >
+                      <button
+                        onClick={() => {
+                          handleLogout();
+                          setIsMobileMenuOpen(false);
+                        }}
+                        className="w-full bg-red-500 hover:bg-red-600 text-white px-4 py-3 rounded-lg text-base font-medium transition-all duration-200 flex items-center justify-center gap-2 shadow-lg shadow-red-500/30"
+                      >
+                        <LogOut className="w-4 h-4" />
+                        Logout
+                      </button>
+                    </motion.div>
+                  </>
+                ) : (
+                  <>
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.3, duration: 0.3 }}
+                    >
+                      <Link
+                        href="/auth/login"
+                        onClick={() => setIsMobileMenuOpen(false)}
+                        className="flex text-gray-700 hover:text-[#2997F1] hover:bg-blue-50 px-4 py-3 text-base font-medium transition-all duration-200 border-2 border-gray-200 hover:border-[#2997F1] rounded-lg items-center justify-center gap-2"
+                      >
+                        <LogIn className="w-4 h-4" />
+                        Login
+                      </Link>
+                    </motion.div>
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.35, duration: 0.3 }}
+                    >
+                      <Link
+                        href="/auth/register"
+                        onClick={() => setIsMobileMenuOpen(false)}
+                        className="flex bg-[#2997F1] hover:bg-[#2178c9] text-white px-4 py-3 rounded-lg text-base font-medium transition-all duration-200 items-center justify-center gap-2 shadow-lg shadow-[#2997F1]/30"
+                      >
+                        <UserPlus className="w-4 h-4" />
+                        Register
+                      </Link>
+                    </motion.div>
+                  </>
+                )}
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.nav>
   );
 }

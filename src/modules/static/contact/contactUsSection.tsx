@@ -147,11 +147,11 @@ export default function ContactUsSection() {
               type="submit"
               disabled={isSubmitting}
               className="
-                bg-blue-600 hover:bg-blue-700 text-white px-8 py-3.5
+             cursor-pointer   bg-blue-600 hover:bg-blue-700 text-white px-8 py-3.5
                 rounded-full text-base font-medium transition-all duration-300
                 hover:scale-105 hover:shadow-lg hover:shadow-blue-500/40
                 transform hover:-translate-y-0.5 active:scale-100
-                disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100
+                disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:bg-blue-600
               "
             >
               {isSubmitting ? "Sending..." : "Send Message"}
