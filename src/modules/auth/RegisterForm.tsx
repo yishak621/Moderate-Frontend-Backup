@@ -87,9 +87,7 @@ export default function RegisterForm() {
       onSubmit={handleSubmit(onSubmit)}
       className="
       bg-[#fdfdfd]
-      px-6 py-8                    
-      sm:px-8 sm:py-10             
-      lg:px-10 lg:py-12            
+      px-6 py-8 sm:px-8 sm:py-10 lg:px-10 lg:py-12
       rounded-[20px] sm:rounded-[24px]
       w-full max-w-md mx-auto
       flex flex-col gap-6 sm:gap-7

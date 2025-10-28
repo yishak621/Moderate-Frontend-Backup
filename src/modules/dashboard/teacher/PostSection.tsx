@@ -18,6 +18,7 @@ import ViewStatPostModal from "./post/ViewDetailPostModal";
 import ComposeNewMessageModal from "./messages/ComposeNewMessageModal";
 import { useThreads } from "@/hooks/useMessage";
 import { Thread, Threads } from "@/app/types/threads";
+import MobileFileSwiper from "./MobileFileSwiper";
 
 export default function Post({ post }: { post: PostAttributes }) {
   const router = useRouter();
@@ -87,33 +88,35 @@ export default function Post({ post }: { post: PostAttributes }) {
   };
 
   return (
-    <div className="flex flex-col items-start border border-[#DBDBDB] p-7 rounded-3xl my-10 gap-4">
+    <div className="flex flex-col items-start border border-[#DBDBDB] p-4 sm:p-7 rounded-2xl sm:rounded-3xl my-4 sm:my-10 gap-3 sm:gap-4 w-full max-w-full overflow-hidden">
       {/* Top */}
-      <div className="flex flex-row justify-between items-start  w-full">
-        <div className="flex flex-row   gap-3 ">
-          <div className="w-2"></div>
-          <div className="flex flex-col gap-1 items-start">
-            <div className="flex flex-col relative">
-              {" "}
-              <p className="font-medium">{title}</p>
-              <p className="text-sm text-gray-500">
+      <div className="flex flex-row justify-between items-start w-full gap-2 sm:gap-0">
+        <div className="flex flex-row gap-2 sm:gap-3 flex-1 min-w-0">
+          <div className="w-1 sm:w-2 flex-shrink-0"></div>
+          <div className="flex flex-col gap-1 items-start min-w-0 flex-1">
+            <div className="flex flex-col relative w-full">
+              <p className="font-medium text-sm sm:text-base truncate w-full">
+                {title}
+              </p>
+              <p className="text-xs sm:text-sm text-gray-500 truncate w-full">
                 by {post.author.name} • {timeAgo(createdAt)}
               </p>
-              <div className=" absolute top-2 left-[-15px] w-2 h-2 rounded-full bg-[#368FFF]"></div>
+              <div className="absolute top-2 left-[-12px] sm:left-[-15px] w-1.5 sm:w-2 h-1.5 sm:h-2 rounded-full bg-[#368FFF] flex-shrink-0"></div>
             </div>
-            <p className=" mt-2.5 block max-w-[40vw] truncate">{description}</p>
+            <p className="mt-2 sm:mt-2.5 block max-w-full sm:max-w-[40vw] text-xs sm:text-sm line-clamp-2">
+              {description}
+            </p>
           </div>
         </div>
         {currentUserId !== createdBy ? (
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
             {/* Follow Button */}
-            <div className="flex flex-row gap-1.5 items-center text-[#368FFF] cursor-pointer hover:opacity-80">
-              <UserPlus size={19} />
-              <p>Follow</p>
+            <div className="flex flex-row gap-1 sm:gap-1.5 items-center text-[#368FFF] cursor-pointer hover:opacity-80">
+              <UserPlus size={16} className="sm:w-[19px] sm:h-[19px]" />
+              <p className="text-xs sm:text-sm hidden sm:block">Follow</p>
             </div>
 
             {/* Message Icon */}
-
             <div
               onClick={
                 didUserChatWithMe
@@ -122,8 +125,8 @@ export default function Post({ post }: { post: PostAttributes }) {
               }
             >
               <MessageSquare
-                size={19}
-                className="text-[#368FFF] cursor-pointer hover:opacity-80"
+                size={16}
+                className="text-[#368FFF] cursor-pointer hover:opacity-80 sm:w-[19px] sm:h-[19px]"
               />
             </div>
             <Modal isOpen={open} onOpenChange={setOpen}>
@@ -157,7 +160,7 @@ export default function Post({ post }: { post: PostAttributes }) {
       </div>
 
       {/* File previews */}
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-3 w-full">
+      <div className="hidden md:grid grid-cols-2 md:grid-cols-3 gap-3 w-full">
         {files.map((file, idx) => {
           const ext = file.fileName.split(".").pop()?.toLowerCase();
           console.log(ext, file.fileName);
@@ -211,9 +214,16 @@ export default function Post({ post }: { post: PostAttributes }) {
         })}
       </div>
 
+      {/* Mobile File Swiper */}
+      {files.length > 0 && (
+        <div className="md:hidden w-full">
+          <MobileFileSwiper files={files} onPostOpen={handlePostOpen} />
+        </div>
+      )}
+
       {/* Bottom */}
-      <div className="flex flex-row justify-between w-full">
-        <div className="flex flex-row gap-4 items-center">
+      <div className="flex flex-col sm:flex-row justify-between w-full gap-2 sm:gap-0">
+        <div className="flex flex-row gap-2 items-center flex-wrap min-w-0">
           {post_tags.map((tag, idx) => (
             <PostTags
               key={idx}
@@ -221,7 +231,9 @@ export default function Post({ post }: { post: PostAttributes }) {
               type={idx % 2 === 1 ? "colored" : undefined}
             />
           ))}
-          <p className="text-sm text-gray-600">Avg: {post_grade_avg}</p>
+          <p className="text-xs sm:text-sm text-gray-600 whitespace-nowrap">
+            Avg: {post_grade_avg}
+          </p>
         </div>
       </div>
     </div>

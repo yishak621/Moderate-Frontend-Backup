@@ -5,7 +5,8 @@ import AddTeacherModal from "@/modules/dashboard/admin/modal/AddTeacherModal";
 import DashboardNotificationItem from "@/modules/dashboard/admin/DashboardNotificationItem";
 import DashboardButton from "@/modules/dashboard/DashboardButton";
 import StatsCard from "@/modules/dashboard/StatsCards";
-import { Megaphone, MessagesSquare, PlusSquare } from "lucide-react";
+import MobileStatsCards from "@/modules/dashboard/MobileStatsCards";
+import { Megaphone, MessagesSquare, PlusSquare, Filter } from "lucide-react";
 import { useState } from "react";
 import CreateNewAnnouncementModal from "@/modules/dashboard/admin/modal/announcements/CreateNewAnnouncementModal";
 import { StatsCardProps } from "@/types/statusCardProps";
@@ -17,6 +18,7 @@ import CreatPostModal from "@/modules/dashboard/teacher/post/CreatPostModal";
 import { useUserOverviewStatsData, useUserPostFeeds } from "@/hooks/useUser";
 import Button from "@/components/ui/Button";
 import Link from "next/link";
+import { useUserData } from "@/hooks/useUser";
 
 const notifications = [
   {
@@ -33,18 +35,28 @@ const notifications = [
 
 const buttonData = [
   {
-    icon: <PlusSquare width={23} height={23} />,
+    icon: (
+      <PlusSquare width={20} height={20} className="sm:w-[23px] sm:h-[23px]" />
+    ),
     label: "New Post",
     component: CreatPostModal,
   },
   {
-    icon: <MessagesSquare width={23} height={23} />,
+    icon: (
+      <MessagesSquare
+        width={20}
+        height={20}
+        className="sm:w-[23px] sm:h-[23px]"
+      />
+    ),
     label: "Messages",
     component: AddTeacherModal,
   },
   {
-    icon: <Megaphone width={23} height={23} />,
-    label: "More Announcements",
+    icon: (
+      <Megaphone width={20} height={20} className="sm:w-[23px] sm:h-[23px]" />
+    ),
+    label: "Announcements",
     component: CreateNewAnnouncementModal,
   },
 ];
@@ -93,6 +105,7 @@ export default function UserClient() {
   //MODAL STATES
   const [open, setOpen] = useState(false);
   const [ModalComponent, setModalComponent] = useState<React.FC | null>(null);
+  const [showFilters, setShowFilters] = useState(false);
 
   const handleOpenModal = (Component: React.FC) => {
     setModalComponent(() => Component); // store the component to render
@@ -119,40 +132,42 @@ export default function UserClient() {
     isUserPostFeedsError,
   } = useUserPostFeeds();
 
+  const { user } = useUserData();
+
   const overViewPosts = [
     userPostFeedsData?.posts[0],
     userPostFeedsData?.posts[1],
-
     userPostFeedsData?.posts[2],
   ];
-  console.log(overViewPosts);
+
   const statsData: StatsCardProps[] = [
     {
       title: "Posts Created",
       count: userOverviewStatsData?.data.postCount || 0,
-      description: "0% from last month",
+      description: "0% from last month",
       colored: true,
     },
     {
       title: "Posts Moderated ",
       count: userOverviewStatsData?.data.moderatedCount || 0,
-      description: "0 from last month",
+      description: "0 from last month",
       colored: false,
     },
     {
       title: "Documents Uploaded",
       count: userOverviewStatsData?.data.uploadCount || 0,
-      description: "0% from last month",
+      description: "0% from last month",
       colored: false,
     },
   ];
 
   return (
-    <div className="flex flex-col gap-5.5">
-      {/* first section */}
-      <div className="flex flex-row gap-6  rounded-[37px] 3xl:gap-12 justify-between bg-[#FDFDFD]  max-h-[285px] p-7 ">
-        {statsData?.map((stat) => {
-          return (
+    <div className="flex flex-col gap-4 sm:gap-6 w-full max-w-full overflow-hidden">
+      {/* Stats Cards - Responsive */}
+      <div className="relative">
+        {/* Desktop Stats */}
+        <div className="hidden md:flex gap-4">
+          {statsData?.map((stat, index) => (
             <StatsCard
               key={stat.title}
               title={stat.title}
@@ -160,127 +175,108 @@ export default function UserClient() {
               description={stat.description}
               colored={stat.colored}
             />
-          );
-        })}
-      </div>
-
-      <div className="min-h-screen rounded-[37px] bg-[#FDFDFD] p-6 max-w-full overflow-hidden ">
-        <div className="grid gap-6 md:grid-cols-[70%_30%] grid-cols-1">
-          {/* left side */}
-          <div className="p-6 w-full">
-            {/* left top */}
-            <div className="flex flex-row justify-between mb-5 flex-wrap">
-              <SectionHeader
-                title="Recent Moderation Posts from Schools & Teachers You Follow"
-                subheader="Follow teachers and classmates to see their latest moderation posts in one place."
-              />
-
-              {/* <div>
-                <FilterButtons
-                  filters={filters}
-                  activeFilter={activeFilter}
-                  onFilterChange={setActiveFilter}
-                />
-              </div> */}
-            </div>
-
-            {/* left bottom */}
-            <div className="w-full overflow-x-auto">
-              {!userPostFeedsData?.posts ? (
-                // Loading skeleton
-                <div className="flex flex-col gap-2 animate-pulse">
-                  <div className="h-24 bg-gray-200 rounded" />
-                  <div className="h-24 bg-gray-200 rounded" />
-                  <div className="h-24 bg-gray-200 rounded" />
-                </div>
-              ) : userPostFeedsData?.posts.length === 0 ? (
-                // No posts state
-                <div className="flex flex-col items-center justify-center mt-8 py-16 px-6 bg-gray-50 border border-dashed border-gray-300 rounded-xl space-y-4">
-                  <svg
-                    className="w-16 h-16 text-gray-400"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M9 12h6m-6 4h6m2 4H7a2 2 0 01-2-2V6a2 2 0 012-2h5l5 5v11a2 2 0 01-2 2z"
-                    />
-                  </svg>
-
-                  <h3 className="text-lg font-semibold text-gray-700">
-                    No posts available
-                  </h3>
-                  <p className="text-sm text-gray-500 text-center">
-                    Posts will appear here once available. Be the first to
-                    create a post!
-                  </p>
-                </div>
-              ) : (
-                // Render posts
-                overViewPosts?.map((post: PostAttributes, idx: number) => (
-                  <Post post={post} key={idx} />
-                ))
-              )}
-              {userPostFeedsData?.posts.length > 0 && (
-                <Link href={"/dashboard/teacher/grading"}>
-                  {" "}
-                  <Button className="w-full" variant="secondary">
-                    View More Posts
-                  </Button>{" "}
-                </Link>
-              )}
-            </div>
-          </div>
-
-          {/* right side */}
-          <div className="flex flex-col gap-8 w-full">
-            {/* right title block */}
-            <div className="flex flex-col gap-2 ">
-              <p className="text-[#0C0C0C] text-xl font-medium">
-                Recent Announcements
-              </p>
-              <p className="text-[#717171] font-normal text-base">
-                Latest system events and user actions
-              </p>
-            </div>
-
-            {/* right bottom */}
-            <div className="flex flex-col gap-6  overflow-hidden">
-              {notifications.map((item, idx) => (
-                <DashboardNotificationItem
-                  key={idx}
-                  statusColor={item.statusColor}
-                  title={item.title}
-                  time={item.time}
-                />
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* BOOTM */}
-        <div className="pt-15 flex flex-row gap-7 justify-between">
-          {buttonData.map((btn, idx) => (
-            <DashboardButton
-              key={idx}
-              icon={btn.icon}
-              label={btn.label}
-              onClick={() => handleOpenModal(btn.component!)}
-            />
           ))}
-          {/* VERY IMPORTANT */}
-          <Modal isOpen={open} onOpenChange={setOpen}>
-            <Modal.Content>
-              {ModalComponent && <ModalComponent />}{" "}
-              {/* render dynamic component */}
-            </Modal.Content>
-          </Modal>
+        </div>
+
+        {/* Mobile Stats with Swipe */}
+        <div className="md:hidden">
+          <MobileStatsCards stats={statsData || []} />
         </div>
       </div>
+
+      {/* Recent Posts Section */}
+      <div className="bg-[#FDFDFD] rounded-[20px] sm:rounded-[24px] p-4 sm:p-6 w-full max-w-full overflow-hidden">
+        {/* Section Header with Filter */}
+        <div className="flex items-center justify-between mb-4 sm:mb-6">
+          <h2 className="text-lg sm:text-xl font-semibold text-gray-900">
+            Recent Posts
+          </h2>
+          <button
+            onClick={() => setShowFilters(!showFilters)}
+            className="p-2 rounded-lg hover:bg-gray-100"
+          >
+            <Filter className="w-5 h-5 text-gray-600" />
+          </button>
+        </div>
+
+        {/* Filter Buttons - Show/Hide */}
+        {showFilters && (
+          <div className="mb-4 sm:mb-6">
+            <FilterButtons
+              filters={filters}
+              activeFilter={activeFilter}
+              onFilterChange={setActiveFilter}
+            />
+          </div>
+        )}
+
+        {/* Posts List */}
+        <div className="space-y-4">
+          {!userPostFeedsData?.posts ? (
+            // Loading skeleton
+            <div className="flex flex-col gap-3 animate-pulse">
+              <div className="h-20 bg-gray-200 rounded-lg" />
+              <div className="h-20 bg-gray-200 rounded-lg" />
+              <div className="h-20 bg-gray-200 rounded-lg" />
+            </div>
+          ) : userPostFeedsData?.posts.length === 0 ? (
+            // No posts state
+            <div className="flex flex-col items-center justify-center py-12 px-6 bg-gray-50 border border-dashed border-gray-300 rounded-xl space-y-4">
+              <svg
+                className="w-12 h-12 text-gray-400"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9 12h6m-6 4h6m2 4H7a2 2 0 01-2-2V6a2 2 0 012-2h5l5 5v11a2 2 0 01-2 2z"
+                />
+              </svg>
+              <h3 className="text-base font-semibold text-gray-700">
+                No posts available
+              </h3>
+              <p className="text-sm text-gray-500 text-center">
+                Posts will appear here once available. Be the first to create a
+                post!
+              </p>
+            </div>
+          ) : (
+            // Render posts
+            overViewPosts?.map((post: PostAttributes, idx: number) => (
+              <Post post={post} key={idx} />
+            ))
+          )}
+
+          {userPostFeedsData?.posts.length > 0 && (
+            <Link href={"/dashboard/teacher/grading"}>
+              <Button className="w-full" variant="secondary">
+                View More Posts
+              </Button>
+            </Link>
+          )}
+        </div>
+      </div>
+
+      {/* Action Buttons - Mobile Layout */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 w-full max-w-full">
+        {buttonData.map((btn, idx) => (
+          <DashboardButton
+            key={idx}
+            icon={btn.icon}
+            label={btn.label}
+            onClick={() => handleOpenModal(btn.component!)}
+          />
+        ))}
+      </div>
+
+      {/* Modal */}
+      <Modal isOpen={open} onOpenChange={setOpen}>
+        <Modal.Content>{ModalComponent && <ModalComponent />}</Modal.Content>
+      </Modal>
     </div>
   );
 }

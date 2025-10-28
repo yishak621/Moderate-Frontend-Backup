@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import { ChevronDown, Check } from "lucide-react";
 
-interface CustomSelectProps {
+interface MobileCustomSelectProps {
   options: string[];
   value: string;
   onChange: (value: string) => void;
@@ -11,13 +11,13 @@ interface CustomSelectProps {
   className?: string;
 }
 
-export default function CustomSelect({
+export default function MobileCustomSelect({
   options,
   value,
   onChange,
   placeholder = "Select an option",
   className = "",
-}: CustomSelectProps) {
+}: MobileCustomSelectProps) {
   const [isOpen, setIsOpen] = useState(false);
   const selectRef = useRef<HTMLDivElement>(null);
 
@@ -44,15 +44,15 @@ export default function CustomSelect({
 
   return (
     <div className={`relative ${className}`} ref={selectRef}>
-      {/* Select Button */}
+      {/* Select Button - Mobile Optimized */}
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
         className="
           w-full flex items-center justify-between gap-2
-          px-3 sm:px-4 py-2 sm:py-3
+          px-3 py-2
           bg-white border border-gray-300 rounded-lg
-          text-sm sm:text-base font-normal text-gray-900
+          text-sm font-normal text-gray-900
           hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500
           transition-colors duration-200
         "
@@ -66,7 +66,7 @@ export default function CustomSelect({
         />
       </button>
 
-      {/* Dropdown Options */}
+      {/* Dropdown Options - Mobile Optimized */}
       {isOpen && (
         <div
           className="
@@ -82,7 +82,7 @@ export default function CustomSelect({
               onClick={() => handleSelect(option)}
               className="
                 w-full flex items-center justify-between gap-2
-                px-3 sm:px-4 py-2 sm:py-3 text-left text-sm sm:text-base
+                px-3 py-2 text-left text-sm
                 hover:bg-gray-50 transition-colors duration-200
                 first:rounded-t-lg last:rounded-b-lg
               "

@@ -20,8 +20,12 @@ import {
   LogOut,
   PanelLeftClose,
   PanelLeftOpen,
+  Menu,
+  Search,
+  X,
 } from "lucide-react";
 import Image from "next/image";
+import { AnimatePresence, motion } from "framer-motion";
 
 // theme icons removed since theme toggle is disabled
 
@@ -59,7 +63,9 @@ export default function DashboardShell({
 }: DashboardShellProps) {
   const pathname = usePathname();
   const [isExpanded, setIsExpanded] = useState(true);
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [search, setSearch] = useState(initialSearch);
+  const [showMobileSearch, setShowMobileSearch] = useState(false);
   const debounceTimerRef = useRef<number | null>(null);
 
   // const [theme] = useState<"light" | "dark">(() => {
@@ -101,10 +107,11 @@ export default function DashboardShell({
   const activeSet = useMemo(() => new Set([pathname]), [pathname]);
 
   return (
-    <div className="flex h-screen w-full bg-[#F1F1F1]">
+    <div className="flex h-screen w-full max-w-screen bg-[#F1F1F1] overflow-x-hidden">
+      {/* Desktop Sidebar - Hidden on mobile */}
       <aside
         className={clsx(
-          "transition-all duration-300 bg-whiteCard shadow-lg flex flex-col overflow-y-scroll scrollbar-hide ",
+          "hidden md:flex transition-all duration-300 bg-whiteCard shadow-lg flex-col overflow-y-scroll scrollbar-hide",
           isExpanded ? "w-64" : "w-20 2xl:w-25"
         )}
       >
@@ -271,10 +278,90 @@ export default function DashboardShell({
         </div> */}
       </aside>
 
-      <main className="flex-1 flex flex-col">
-        {/* main top section */}
-        <header className="flex items-center justify-between bg-whiteCard p-4 pt-6 2xl:pt-11 pl-5.5  gap-4">
-          <h1 className="text-3xl font-medium text-[#0C0C0C]  whitespace-nowrap">
+      {/* Mobile Sidebar - Slides in from left */}
+      <AnimatePresence>
+        {isMobileSidebarOpen && (
+          <>
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsMobileSidebarOpen(false)}
+              className="fixed inset-0 bg-black/20 backdrop-blur-md z-40 md:hidden"
+            />
+
+            {/* Sidebar */}
+            <motion.aside
+              initial={{ x: "-100%" }}
+              animate={{ x: 0 }}
+              exit={{ x: "-100%" }}
+              transition={{ type: "spring", damping: 25, stiffness: 200 }}
+              className="fixed left-0 top-0 h-full w-64 shadow-xl z-50 md:hidden flex flex-col"
+              style={{ backgroundColor: "#EFF3F7" }}
+            >
+              {/* Mobile Sidebar Header */}
+              <div className="flex items-center justify-between p-4 border-b">
+                <Link
+                  href="/"
+                  className="flex items-center gap-2"
+                  onClick={() => setIsMobileSidebarOpen(false)}
+                >
+                  <Image
+                    src="/images/logo/logo-1.png"
+                    alt="Moderate Logo"
+                    width={32}
+                    height={32}
+                    className="object-contain"
+                  />
+                  <div className="flex flex-col">
+                    <span className="font-medium text-xl text-[#0C0C0C]">
+                      Moderate
+                    </span>
+                    <span className="text-xs font-normal text-[#717171]">
+                      Grade moderation
+                    </span>
+                  </div>
+                </Link>
+                <button
+                  onClick={() => setIsMobileSidebarOpen(false)}
+                  className="p-2 rounded-lg hover:bg-gray-100"
+                >
+                  <X size={24} className="text-gray-600" />
+                </button>
+              </div>
+
+              {/* Mobile Sidebar Nav */}
+              <nav className="flex-1 overflow-y-auto p-4 space-y-2">
+                {sidebarItems.map(({ label, icon: Icon, href }) => {
+                  const isActive = checkIsActive(pathname, href);
+                  return (
+                    <Link
+                      key={href}
+                      href={href}
+                      onClick={() => setIsMobileSidebarOpen(false)}
+                      className={clsx(
+                        "group flex items-center gap-3 rounded-xl px-4 py-3 transition-all",
+                        isActive
+                          ? "bg-blue-50 text-blue-600 font-semibold"
+                          : "text-gray-600 hover:bg-gray-50"
+                      )}
+                    >
+                      {Icon && <Icon size={22} />}
+                      <span className="text-sm">{label}</span>
+                    </Link>
+                  );
+                })}
+              </nav>
+            </motion.aside>
+          </>
+        )}
+      </AnimatePresence>
+
+      <main className="flex-1 flex flex-col md:ml-0 min-w-0 max-w-full overflow-hidden">
+        {/* Desktop Header - Hidden on mobile */}
+        <header className="hidden md:flex items-center justify-between bg-whiteCard p-4 pt-6 2xl:pt-11 pl-5.5 gap-4 min-w-0 max-w-full overflow-hidden">
+          <h1 className="text-3xl font-medium text-[#0C0C0C] whitespace-nowrap">
             {title}
           </h1>
           {place === "teacher" && (
@@ -291,8 +378,57 @@ export default function DashboardShell({
           </div>
         </header>
 
-        <section className="flex-1 overflow-y-auto p-6 scrollbar-hide">
-          {children}
+        {/* Mobile Header - Only visible on mobile */}
+        <header className="md:hidden bg-whiteCard p-4 shadow-sm border-b min-w-0 max-w-full overflow-hidden">
+          <div className="flex items-center justify-between gap-3">
+            {/* Left: Menu Toggle + Title */}
+            <div className="flex items-center gap-3 flex-1">
+              <button
+                onClick={() => setIsMobileSidebarOpen(true)}
+                className="p-2 rounded-lg hover:bg-gray-100"
+              >
+                <Menu size={24} className="text-gray-600" />
+              </button>
+              <div className="flex-1 min-w-0">
+                <h1 className="text-lg font-semibold text-gray-900 truncate">
+                  {title}
+                </h1>
+                <p className="text-xs text-gray-500">Welcome back!</p>
+              </div>
+            </div>
+
+            {/* Right: Search Button */}
+            <button
+              onClick={() => setShowMobileSearch(!showMobileSearch)}
+              className="p-2 rounded-lg hover:bg-gray-100 flex-shrink-0"
+            >
+              <Search size={20} className="text-gray-600" />
+            </button>
+          </div>
+
+          {/* Mobile Search Bar - Expandable */}
+          <AnimatePresence>
+            {showMobileSearch && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: "auto", opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                className="mt-3 overflow-hidden"
+              >
+                <Input
+                  placeholder="Search..."
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  className="w-full"
+                  autoFocus
+                />
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </header>
+
+        <section className="flex-1 overflow-y-auto px-2 sm:px-6 py-4 sm:py-6 scrollbar-hide max-w-full min-w-0">
+          <div className="max-w-full overflow-hidden w-full">{children}</div>
         </section>
       </main>
     </div>

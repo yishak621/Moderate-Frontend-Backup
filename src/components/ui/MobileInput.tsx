@@ -1,20 +1,19 @@
-// components/ui/Input.tsx
 "use client";
 
 import { InputHTMLAttributes, forwardRef } from "react";
 import clsx from "clsx";
 
-interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
+interface MobileInputProps extends InputHTMLAttributes<HTMLInputElement> {
   label?: string;
   error?: string;
 }
 
-const Input = forwardRef<HTMLInputElement, InputProps>(
+const MobileInput = forwardRef<HTMLInputElement, MobileInputProps>(
   ({ label, error, className, type = "text", ...props }, ref) => {
     return (
       <div className="w-full">
         {label && (
-          <label className="text-[#0c0c0c] text-sm sm:text-base font-normal text-left block mb-1 sm:mb-2">
+          <label className="text-[#0c0c0c] text-sm font-normal text-left block mb-1">
             {label}
           </label>
         )}
@@ -22,26 +21,24 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
           ref={ref}
           type={type}
           className={clsx(
-            "w-full h-10 sm:h-12 px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base font-normal",
-            "border border-gray-300 rounded-lg",
+            "w-full h-[45px] px-6 py-[15px] text-sm font-normal",
+            "border border-gray-300 rounded-[62px]",
             "focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-0",
             "bg-white text-gray-900",
-            "placeholder:text-gray-500",
+            "placeholder:text-sm placeholder:font-normal",
             error ? "border-red-500" : "border-gray-300",
             className
           )}
           {...props}
         />
         {error && (
-          <p className="mt-1 text-xs sm:text-sm text-red-500 text-left">
-            {error}
-          </p>
+          <p className="mt-1 text-xs text-red-500 text-left">{error}</p>
         )}
       </div>
     );
   }
 );
 
-Input.displayName = "Input";
+MobileInput.displayName = "MobileInput";
 
-export default Input;
+export default MobileInput;

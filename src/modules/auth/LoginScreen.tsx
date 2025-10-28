@@ -2,7 +2,7 @@ import Image from "next/image";
 
 export default function LoginScreen() {
   return (
-    <div className="z-[233] p-4 pb-2 sm:p-6 lg:p-8">
+    <div className="z-[233] p-8 h-screen max-h-screen overflow-hidden flex items-center justify-center">
       <div
         className="relative w-full max-w-[750px] h-[95vh] max-h-[850px] mx-auto
         rounded-[37px] overflow-hidden p-[8px]
