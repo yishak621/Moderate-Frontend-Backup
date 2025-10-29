@@ -5,9 +5,9 @@ import LoginScreen from "@/modules/auth/LoginScreen";
 
 export default function LoginPage() {
   return (
-    <div className="h-screen bg-[#f1f1f1] flex items-center justify-center p-4 sm:p-6 lg:p-8">
+    <div className="h-screen bg-[#f1f1f1] flex items-center justify-center  sm:p-6 lg:p-8">
       {/* Mobile/Tablet: Login Form only - Full screen */}
-      <div className="w-full h-screen lg:hidden flex items-center justify-center p-4">
+      <div className="w-full h-screen lg:hidden flex items-center justify-center ">
         <div className="w-full max-w-md">
           <LoginForm />
         </div>

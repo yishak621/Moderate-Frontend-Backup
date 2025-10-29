@@ -24,6 +24,7 @@ import { Message, Thread, Threads } from "@/app/types/threads";
 import EmojiPicker from "emoji-picker-react";
 import { getToken } from "@/services/tokenService";
 import { useSearchParams } from "next/navigation";
+import { getSocketUrl } from "@/lib/socketConfig";
 
 export default function MessagesClientTeachers() {
   const searchParams = useSearchParams();
@@ -75,7 +76,7 @@ export default function MessagesClientTeachers() {
 
   // Initialize socket
   useEffect(() => {
-    const socket = io("http://localhost:8000/api/messages", {
+    const socket = io(getSocketUrl(), {
       auth: { token },
       transports: ["websocket"],
     });

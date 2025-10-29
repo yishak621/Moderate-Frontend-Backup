@@ -5,9 +5,9 @@ import RegisterForm from "@/modules/auth/RegisterForm";
 
 export default function RegisterPage() {
   return (
-    <div className="h-screen bg-[#f1f1f1] flex items-center justify-center p-4 sm:p-6 lg:p-8">
+    <div className="sm:h-screen bg-[#f1f1f1] flex items-center justify-center  sm:p-6 lg:p-8">
       {/* Mobile/Tablet: Only show form - Full screen */}
-      <div className="w-full h-screen lg:hidden flex items-center justify-center p-4">
+      <div className="mt-15 sm:mt-0 w-full h-screen lg:hidden flex items-center justify-center ">
         <div className="w-full max-w-md">
           <RegisterForm />
         </div>

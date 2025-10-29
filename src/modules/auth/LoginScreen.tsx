@@ -4,7 +4,7 @@ export default function LoginScreen() {
   return (
     <div className="z-[233] p-8 h-screen max-h-screen overflow-hidden flex items-center justify-center">
       <div
-        className="relative w-full max-w-[750px] h-[95vh] max-h-[850px] mx-auto
+        className="relative w-full max-w-[750px] h-[95vh] 2xl:h-[80vh] max-h-[850px] mx-auto
         rounded-[37px] overflow-hidden p-[8px]
         bg-gradient-to-br from-blue-500 to-cyan-500"
       >

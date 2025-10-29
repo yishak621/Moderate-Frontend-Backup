@@ -6,7 +6,7 @@ export default function VerifyEmail() {
   return (
     <div className="min-h-screen bg-[#f1f1f1] flex items-center justify-center">
       {/* Mobile/Tablet: Only show form */}
-      <div className="w-full max-w-md px-4 sm:px-6 lg:hidden">
+      <div className="w-full max-w-md  sm:px-6 lg:hidden">
         <VerifyEmailClient />
       </div>
 

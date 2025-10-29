@@ -233,9 +233,15 @@ export default function Navbar() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.3, ease: "easeInOut" }}
-            className="md:hidden absolute top-full left-0 right-0 w-full bg-white/90 backdrop-blur-xl border-t border-gray-200 shadow-xl py-6 px-4 z-50"
+            className="md:hidden absolute top-full left-0 right-0 w-full bg-white/80 border-t border-white/20 shadow-2xl py-6 px-4 z-50"
           >
-            <div className="flex flex-col gap-2">
+            <div
+              className="flex flex-col gap-2 backdrop-blur-2xl w-full h-screen"
+              style={{
+                backdropFilter: "blur(20px) saturate(180%)",
+                WebkitBackdropFilter: "blur(20px) saturate(180%)",
+              }}
+            >
               {/* Mobile Links */}
               {(isLoggedIn
                 ? loggedInNavigationLinks
@@ -261,19 +267,6 @@ export default function Navbar() {
               <div className="pt-2 mt-2 border-t border-gray-200 flex flex-col gap-2">
                 {isLoggedIn ? (
                   <>
-                    <motion.div
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.3, duration: 0.3 }}
-                    >
-                      <Link
-                        href="/dashboard/teacher"
-                        onClick={() => setIsMobileMenuOpen(false)}
-                        className="block text-gray-700 hover:text-[#2997F1] hover:bg-blue-50 px-4 py-3 text-base font-medium transition-all duration-200 border-2 border-gray-200 hover:border-[#2997F1] rounded-lg"
-                      >
-                        Dashboard
-                      </Link>
-                    </motion.div>
                     <motion.div
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}

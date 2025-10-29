@@ -37,7 +37,7 @@ export default function HeroSection() {
           alt="Hero Image"
           width={1000}
           height={1000}
-          className="w-full h-auto"
+          className="w-full h-auto max-w-full max-h-[600px] sm:max-h-[700px] md:max-h-[800px] lg:max-h-[900px] xl:max-h-[1000px] object-contain"
         />
       </div>
     </section>

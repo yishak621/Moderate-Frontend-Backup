@@ -28,15 +28,15 @@ export default function PricingSection() {
 
   return (
     <section className="py-8 sm:py-12 md:py-16 lg:py-20 w-full flex flex-col items-center justify-center relative px-2">
-      {/* Title with bottom portion hidden */}
-      <div className="overflow-hidden relative" style={{ height: "85%" }}>
-        <h1 className="text-[64px] sm:text-[70px] md:text-[80px] lg:text-[100px] xl:text-[130px] 2xl:text-[200px] font-bold text-center text-[#000] leading-tight sm:leading-normal">
+      {/* Title with bottom portion hidden - less hidden on small screens */}
+      <div className="overflow-hidden relative h-[60%] md:h-[85%]">
+        <h1 className="text-[64px] sm:text-[80px] md:text-[100px] lg:text-[130px] xl:text-[160px] 2xl:text-[200px] font-bold text-center text-[#000] leading-tight sm:leading-normal mb-0">
           Pricing
         </h1>
       </div>
 
-      {/* Cards positioned to overlap the hidden portion with glass effect */}
-      <div className="flex flex-col sm:flex-row justify-center gap-4 sm:gap-6 md:gap-8 lg:gap-[40px] xl:gap-[50px] -mt-4 sm:-mt-6 md:-mt-8 lg:-mt-10 xl:-mt-12 2xl:-mt-16 relative z-10 w-full max-w-full px-2">
+      {/* Cards positioned to overlap the hidden portion - less overlap on small screens */}
+      <div className="flex flex-col sm:flex-row justify-center items-center gap-4 sm:gap-6 md:gap-8 lg:gap-[40px] xl:gap-[50px] -mt-4 sm:-mt-12 md:-mt-14 lg:-mt-16 xl:-mt-[72px] 2xl:-mt-20 relative z-10 w-full max-w-full px-2">
         {PlansData.map((plan) => (
           <PricingCard
             key={plan.title}
@@ -79,7 +79,7 @@ function PricingCard({
   const isFree = price === "0";
 
   return (
-    <div className="p-6 sm:p-8 md:p-12 lg:p-[61px] rounded-[20px] sm:rounded-[28px] md:rounded-[35px] lg:rounded-[40px] bg-white/20 backdrop-blur-md border border-white/30 shadow-lg flex flex-col items-start relative w-full">
+    <div className="p-6 sm:p-8 md:p-12 lg:p-[61px] rounded-[20px] sm:rounded-[28px] md:rounded-[35px] lg:rounded-[40px] bg-white/20 backdrop-blur-md border border-white/30 shadow-lg flex flex-col items-start relative w-full max-w-[485px]">
       <div className="w-full flex flex-col border-b-[2px] sm:border-b-[3px] border-b-[#EAEAEA] pb-6 sm:pb-8 md:pb-[28px]">
         <span className="text-[#838383] text-xs sm:text-sm md:text-base font-medium leading-normal">
           {moto}

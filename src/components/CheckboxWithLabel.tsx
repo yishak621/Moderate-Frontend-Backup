@@ -29,7 +29,7 @@ export default function CheckboxWithLabel({
         onChange={handleChange}
         className="h-4 w-4 sm:h-5 sm:w-5 accent-blue-600 rounded border-gray-300"
       />
-      <span className="text-sm text-[#3F4236] font-semibold sm:text-base sm:font-semibold">
+      <span className="text-sm text-[#3F4236] font-normal sm:text-base ">
         {label}
       </span>
     </label>
