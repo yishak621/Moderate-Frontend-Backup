@@ -11,10 +11,12 @@ import { getToken } from "@/services/tokenService";
 import { jwtDecode } from "jwt-decode";
 import { customJwtPayload } from "@/types/postAttributes";
 import Link from "next/link";
+import { useUserData } from "@/hooks/useUser";
 
 export default function PricingSection() {
   //hooks
   const { plans, isLoading, isSuccess, isError, error } = usePlansPublic();
+  const { user } = useUserData();
 
   // Filter and sort active plans (show both monthly and yearly together)
   const filteredPlans = useMemo(() => {
@@ -78,20 +80,34 @@ export default function PricingSection() {
       {/* Cards positioned to overlap the hidden portion - less overlap on small screens */}
       {!isLoading && isSuccess && filteredPlans.length > 0 && (
         <div className="flex flex-col sm:flex-row justify-center items-center gap-4 sm:gap-6 md:gap-8 lg:gap-[40px] xl:gap-[50px] -mt-4 sm:-mt-12 md:-mt-14 lg:-mt-16 xl:-mt-[72px] 2xl:-mt-20 relative z-10 w-full max-w-full px-2">
-          {filteredPlans.map((plan: Plan) => (
-            <PricingCard
-              key={plan.id}
-              id={plan.id}
-              name={plan.name}
-              description={plan.description}
-              price={plan.price}
-              features={plan.features || []}
-              isPopular={plan.isPopular}
-              savings={plan.savings}
-              interval={plan.interval}
-              stripePriceId={plan.stripePriceId}
-            />
-          ))}
+          {filteredPlans.map((plan: Plan) => {
+            // Check if this plan matches user's current subscription
+            // Compare plan name with user's subscriptionPlan
+            const isCurrentPlan =
+              user?.subscriptionStatus === "active" &&
+              user?.subscriptionPlan?.toLowerCase() ===
+                plan.name?.toLowerCase();
+
+            return (
+              <PricingCard
+                key={plan.id}
+                id={plan.id}
+                name={plan.name}
+                description={plan.description}
+                price={plan.price}
+                features={plan.features || []}
+                isPopular={plan.isPopular}
+                savings={plan.savings}
+                interval={plan.interval}
+                stripePriceId={plan.stripePriceId}
+                isCurrentPlan={isCurrentPlan}
+                hasActiveSubscription={
+                  user?.subscriptionStatus === "active" && !isCurrentPlan
+                }
+                userSubscriptionPlan={user?.subscriptionPlan || null}
+              />
+            );
+          })}
         </div>
       )}
     </section>
@@ -107,6 +123,9 @@ function PricingCard({
   savings,
   interval,
   stripePriceId,
+  isCurrentPlan = false,
+  hasActiveSubscription = false,
+  userSubscriptionPlan = null,
 }: {
   id: string;
   name: string;
@@ -117,6 +136,9 @@ function PricingCard({
   savings: string | null;
   interval: string;
   stripePriceId?: string;
+  isCurrentPlan?: boolean;
+  hasActiveSubscription?: boolean;
+  userSubscriptionPlan?: string | null;
 }) {
   const isFree = parseFloat(price || "0") === 0;
   const intervalText = interval?.toLowerCase() === "year" ? "year" : "month";
@@ -174,10 +196,19 @@ function PricingCard({
   return (
     <div
       className={`p-6 sm:p-8 md:p-12 lg:p-[61px] rounded-[20px] sm:rounded-[28px] md:rounded-[35px] lg:rounded-[40px] bg-white/20 backdrop-blur-md border ${
-        isPopular ? "border-[#2997F1] border-2" : "border-white/30"
+        isCurrentPlan
+          ? "border-green-600 border-2"
+          : isPopular
+          ? "border-[#2997F1] border-2"
+          : "border-white/30"
       } shadow-lg flex flex-col items-start relative w-full max-w-[485px]`}
     >
-      {isPopular && (
+      {isCurrentPlan && (
+        <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-green-600 text-white px-4 py-1 rounded-full text-xs sm:text-sm font-medium">
+          Current Plan
+        </div>
+      )}
+      {isPopular && !isCurrentPlan && (
         <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-[#2997F1] text-white px-4 py-1 rounded-full text-xs sm:text-sm font-medium">
           Most Popular
         </div>
@@ -222,21 +253,36 @@ function PricingCard({
         ))}
       </div>
       {isAuthenticated ? (
-        <button
-          onClick={handleGetStarted}
-          disabled={isCreatingCheckout || !stripePriceId}
-          className={`w-full text-center mt-6 sm:mt-8 md:mt-12 lg:mt-[40px] 2xl:mt-[60px] cursor-pointer inline-block ${
-            isFree
-              ? "bg-white text-[#000] border-2 border-black hover:bg-black hover:text-white hover:scale-105 hover:shadow-xl hover:shadow-black/20"
-              : "bg-[#2997F1] text-white hover:bg-[#2178c9] hover:scale-105 hover:shadow-xl hover:shadow-[#2997F1]/40"
-          } ${
-            isCreatingCheckout || !stripePriceId
-              ? "opacity-50 cursor-not-allowed"
-              : ""
-          } text-xs sm:text-sm md:text-base font-medium leading-normal px-4 py-2.5 sm:px-6 sm:py-3 md:px-6 md:py-3.5 rounded-full transition-all duration-300 transform hover:-translate-y-1 active:scale-100`}
-        >
-          {isCreatingCheckout ? "Processing..." : "Subscribe Now"}
-        </button>
+        <>
+          {isCurrentPlan ? (
+            <button
+              disabled
+              className="w-full text-center mt-6 sm:mt-8 md:mt-12 lg:mt-[40px] 2xl:mt-[60px] cursor-not-allowed inline-block bg-gray-300 text-gray-600 opacity-70 text-xs sm:text-sm md:text-base font-medium leading-normal px-4 py-2.5 sm:px-6 sm:py-3 md:px-6 md:py-3.5 rounded-full"
+            >
+              Current Plan
+            </button>
+          ) : (
+            <button
+              onClick={handleGetStarted}
+              disabled={isCreatingCheckout || !stripePriceId}
+              className={`w-full text-center mt-6 sm:mt-8 md:mt-12 lg:mt-[40px] 2xl:mt-[60px] cursor-pointer inline-block ${
+                isFree
+                  ? "bg-white text-[#000] border-2 border-black hover:bg-black hover:text-white hover:scale-105 hover:shadow-xl hover:shadow-black/20"
+                  : "bg-[#2997F1] text-white hover:bg-[#2178c9] hover:scale-105 hover:shadow-xl hover:shadow-[#2997F1]/40"
+              } ${
+                isCreatingCheckout || !stripePriceId
+                  ? "opacity-50 cursor-not-allowed"
+                  : ""
+              } text-xs sm:text-sm md:text-base font-medium leading-normal px-4 py-2.5 sm:px-6 sm:py-3 md:px-6 md:py-3.5 rounded-full transition-all duration-300 transform hover:-translate-y-1 active:scale-100`}
+            >
+              {isCreatingCheckout
+                ? "Processing..."
+                : hasActiveSubscription
+                ? "Upgrade"
+                : "Subscribe Now"}
+            </button>
+          )}
+        </>
       ) : !isCheckingAuth ? (
         <Link
           className={`w-full text-center mt-6 sm:mt-8 md:mt-12 lg:mt-[40px] 2xl:mt-[60px] cursor-pointer inline-block ${

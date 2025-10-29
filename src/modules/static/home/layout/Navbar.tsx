@@ -31,6 +31,7 @@ const loggedInNavigationLinks = [
   { name: "Messages", href: "/dashboard/teacher/messages" },
   { name: "Profile", href: "/dashboard/teacher/profile" },
   { name: "Announcements", href: "/dashboard/teacher/announcements" },
+  { name: "Plans", href: "/pricing" },
 ];
 
 export default function Navbar() {
