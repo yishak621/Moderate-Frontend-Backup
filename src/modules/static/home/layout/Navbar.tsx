@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import { getToken, removeToken } from "@/services/tokenService";
+import { getToken, removeToken, getRole } from "@/services/tokenService";
 import {
   motion,
   useScroll,
@@ -12,7 +12,9 @@ import {
 } from "framer-motion";
 import { queryClient } from "@/lib/queryClient";
 import { useRouter } from "next/navigation";
-import { LogIn, UserPlus, LogOut } from "lucide-react";
+import { LogIn, UserPlus, LogOut, User } from "lucide-react";
+import { useUserData } from "@/hooks/useUser";
+import PopupCard from "@/components/PopCard";
 
 const publicNavigationLinks = [
   { name: "About", href: "/about" },
@@ -35,7 +37,9 @@ export default function Navbar() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isPopUpOpen, setIsPopUpOpen] = useState(false);
   const router = useRouter();
+  const { user } = useUserData();
 
   useEffect(() => {
     const token = getToken();
@@ -46,8 +50,33 @@ export default function Navbar() {
   const handleLogout = () => {
     queryClient.clear();
     removeToken();
+    setIsPopUpOpen(false);
     router.push("/auth/login");
   };
+
+  const role = getRole();
+  const profileLink =
+    role === "SYSTEM_ADMIN"
+      ? "/dashboard/admin/profile"
+      : role === "TEACHER"
+      ? "/dashboard/teacher/profile"
+      : "/dashboard/teacher/profile";
+
+  const menuItems = [
+    {
+      label: "Profile",
+      icon: <User size={22} />,
+      onClick: () => {
+        setIsPopUpOpen(false);
+        router.push(profileLink);
+      },
+    },
+    {
+      label: "Logout",
+      icon: <LogOut size={22} />,
+      onClick: handleLogout,
+    },
+  ];
 
   const { scrollYProgress } = useScroll();
   const blurLevel = useTransform(scrollYProgress, [0, 0.1], ["0px", "20px"]);
@@ -121,20 +150,57 @@ export default function Navbar() {
           <div className="hidden md:flex items-center space-x-3">
             {isLoggedIn ? (
               <>
-                <button
-                  onClick={handleLogout}
-                  className="
-                    group flex items-center gap-1.5 relative overflow-hidden
-                    bg-red-500 text-white px-4 py-2 rounded-full 
-                    text-sm font-medium transition-all duration-300 
-                    hover:bg-red-600 hover:scale-105 hover:shadow-lg hover:shadow-red-500/50
-                    transform hover:-translate-y-0.5 active:scale-95
-                  "
+                <div
+                  className="relative flex flex-row gap-2 cursor-pointer items-center"
+                  onClick={() => setIsPopUpOpen(true)}
                 >
-                  <LogOut className="w-4 h-4 transition-transform duration-300 group-hover:-translate-x-1" />
-                  <span className="relative z-10">Logout</span>
-                  <div className="absolute inset-0 bg-white/20 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left rounded-full" />
-                </button>
+                  {/* User Profile */}
+                  <div className="flex flex-col justify-center items-center w-[51px] h-[51px] rounded-full bg-white">
+                    <Image
+                      className="w-11 h-11 rounded-full border-2 border-[#368FFF] object-cover"
+                      src="/images/sample-user.png"
+                      alt="user image"
+                      width={44}
+                      height={44}
+                    />
+                  </div>
+
+                  <div className="flex flex-col gap-[4px]">
+                    <span className="font-base font-medium text-[#0C0C0C]">
+                      {user?.name || "User"}
+                    </span>
+                    <span className="text-sm font-normal text-[#717171]">
+                      {user?.email || ""}
+                    </span>
+                  </div>
+
+                  {/* Dropdown Card */}
+                  <PopupCard
+                    isOpen={isPopUpOpen}
+                    onClose={() => setIsPopUpOpen(false)}
+                    align="right"
+                  >
+                    <div className="flex flex-col">
+                      {menuItems.map((item, idx) => (
+                        <motion.button
+                          key={idx}
+                          whileHover={{ x: 6 }}
+                          whileTap={{ scale: 0.97 }}
+                          onClick={() => {
+                            item.onClick();
+                            setIsPopUpOpen(false);
+                          }}
+                          className="flex flex-row items-center gap-3 px-5 py-3 text-left text-[15px] text-gray-800 font-medium rounded-lg transition-all duration-200 hover:bg-gray-50 hover:text-blue-600 group"
+                        >
+                          <span className="text-gray-500 group-hover:text-blue-500 transition-colors duration-200">
+                            {item.icon}
+                          </span>
+                          <span>{item.label}</span>
+                        </motion.button>
+                      ))}
+                    </div>
+                  </PopupCard>
+                </div>
               </>
             ) : (
               <>
@@ -263,26 +329,63 @@ export default function Navbar() {
                 </motion.div>
               ))}
 
+              {/* Mobile User Section */}
+              {isLoggedIn && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.3, duration: 0.3 }}
+                  className="pt-4 mt-4 border-t border-gray-200"
+                >
+                  <div className="flex flex-row gap-3 items-center px-4 py-3 bg-gray-50 rounded-lg">
+                    <div className="flex flex-col justify-center items-center w-[44px] h-[44px] rounded-full bg-white">
+                      <Image
+                        className="w-10 h-10 rounded-full border-2 border-[#368FFF] object-cover"
+                        src="/images/sample-user.png"
+                        alt="user image"
+                        width={40}
+                        height={40}
+                      />
+                    </div>
+                    <div className="flex flex-col gap-1 flex-1">
+                      <span className="text-base font-medium text-[#0C0C0C]">
+                        {user?.name || "User"}
+                      </span>
+                      <span className="text-sm font-normal text-[#717171]">
+                        {user?.email || ""}
+                      </span>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+
               {/* Mobile Buttons */}
               <div className="pt-2 mt-2 border-t border-gray-200 flex flex-col gap-2">
                 {isLoggedIn ? (
                   <>
-                    <motion.div
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.35, duration: 0.3 }}
-                    >
-                      <button
-                        onClick={() => {
-                          handleLogout();
-                          setIsMobileMenuOpen(false);
-                        }}
-                        className="w-full bg-red-500 hover:bg-red-600 text-white px-4 py-3 rounded-lg text-base font-medium transition-all duration-200 flex items-center justify-center gap-2 shadow-lg shadow-red-500/30"
+                    {menuItems.map((item, idx) => (
+                      <motion.div
+                        key={idx}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.35 + idx * 0.05, duration: 0.3 }}
                       >
-                        <LogOut className="w-4 h-4" />
-                        Logout
-                      </button>
-                    </motion.div>
+                        <button
+                          onClick={() => {
+                            item.onClick();
+                            setIsMobileMenuOpen(false);
+                          }}
+                          className={`w-full px-4 py-3 rounded-lg text-base font-medium transition-all duration-200 flex items-center justify-center gap-2 ${
+                            item.label === "Logout"
+                              ? "bg-red-500 hover:bg-red-600 text-white shadow-lg shadow-red-500/30"
+                              : "bg-gray-100 hover:bg-gray-200 text-gray-800"
+                          }`}
+                        >
+                          {item.icon}
+                          {item.label}
+                        </button>
+                      </motion.div>
+                    ))}
                   </>
                 ) : (
                   <>

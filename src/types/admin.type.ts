@@ -28,4 +28,5 @@ export interface Plan {
   isActive: boolean;
   isPopular: boolean;
   savings: string | null;
+  sortOrder?: number;
 }

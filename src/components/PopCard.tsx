@@ -47,7 +47,7 @@ const PopupCard: React.FC<PopupCardProps> = ({
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -5 }}
           transition={{ duration: 0.15 }}
-          className={`absolute z-50 mt-2 ${alignment}`}
+          className={`absolute z-50 top-full mt-2 ${alignment}`}
         >
           <div
             className={`bg-white shadow-lg rounded-2xl border border-gray-200 p-4 w-54 xl:max-w-64 ${className}`}
