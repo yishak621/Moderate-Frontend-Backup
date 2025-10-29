@@ -1,100 +1,87 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
-import { ChevronDown, Check } from "lucide-react";
+import Select from "react-select";
+import makeAnimated from "react-select/animated";
+import { useEffect, useState } from "react";
+
+const animatedComponents = makeAnimated();
+
+type Option = { value: string | boolean; label: string };
 
 interface CustomSelectProps {
-  options: string[];
-  value: string;
-  onChange: (value: string) => void;
+  options: Option[];
+  defaultValue?: Option;
+  onChange?: (selected: Option | null) => void;
   placeholder?: string;
-  className?: string;
+  isClearable?: boolean;
 }
 
 export default function CustomSelect({
   options,
-  value,
+  defaultValue,
   onChange,
-  placeholder = "Select an option",
-  className = "",
+  placeholder,
+  isClearable,
 }: CustomSelectProps) {
-  const [isOpen, setIsOpen] = useState(false);
-  const selectRef = useRef<HTMLDivElement>(null);
+  const [selected, setSelected] = useState<Option | null>(defaultValue || null);
+  const [mounted, setMounted] = useState(false);
 
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        selectRef.current &&
-        !selectRef.current.contains(event.target as Node)
-      ) {
-        setIsOpen(false);
-      }
-    };
+  useEffect(() => setMounted(true), []);
 
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
-
-  const handleSelect = (option: string) => {
-    onChange(option);
-    setIsOpen(false);
+  const handleChange = (newValue: Option | null) => {
+    setSelected(newValue || null);
+    onChange?.(newValue || null);
   };
 
-  return (
-    <div className={`relative ${className}`} ref={selectRef}>
-      {/* Select Button */}
-      <button
-        type="button"
-        onClick={() => setIsOpen(!isOpen)}
-        className="
-          w-full flex items-center justify-between gap-2
-          px-3 sm:px-4 py-2 sm:py-3
-          bg-white border border-gray-300 rounded-lg
-          text-sm sm:text-base font-normal text-gray-900
-          hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500
-          transition-colors duration-200
-        "
-      >
-        <span className="truncate">{value || placeholder}</span>
-        <ChevronDown
-          size={16}
-          className={`text-gray-500 transition-transform duration-200 ${
-            isOpen ? "rotate-180" : ""
-          }`}
-        />
-      </button>
+  if (!mounted) return null;
 
-      {/* Dropdown Options */}
-      {isOpen && (
-        <div
-          className="
-          absolute top-full left-0 right-0 mt-1
-          bg-white border border-gray-300 rounded-lg shadow-lg
-          z-50 max-h-60 overflow-y-auto
-        "
-        >
-          {options.map((option) => (
-            <button
-              key={option}
-              type="button"
-              onClick={() => handleSelect(option)}
-              className="
-                w-full flex items-center justify-between gap-2
-                px-3 sm:px-4 py-2 sm:py-3 text-left text-sm sm:text-base
-                hover:bg-gray-50 transition-colors duration-200
-                first:rounded-t-lg last:rounded-b-lg
-              "
-            >
-              <span className="truncate">{option}</span>
-              {value === option && (
-                <Check size={16} className="text-blue-500 flex-shrink-0" />
-              )}
-            </button>
-          ))}
-        </div>
-      )}
-    </div>
+  return (
+    <Select
+      options={options}
+      isMulti={false} // single select only
+      closeMenuOnSelect={true}
+      components={animatedComponents}
+      defaultValue={defaultValue}
+      value={selected}
+      onChange={handleChange}
+      placeholder={placeholder}
+      isClearable={isClearable}
+      styles={{
+        control: (base, state) => ({
+          ...base,
+          minHeight: "45px",
+          borderRadius: "0.5rem",
+          borderColor: state.isFocused ? "#3b82f6" : "#d1d5db",
+          boxShadow: state.isFocused
+            ? "0 0 0 2px rgba(59, 130, 246, 0.2)"
+            : "none",
+          paddingLeft: "12px",
+          paddingRight: "12px",
+          fontSize: "14px",
+          fontWeight: "400",
+          "@media (min-width: 640px)": {
+            minHeight: "48px",
+            fontSize: "15px",
+          },
+          "@media (min-width: 1024px)": {
+            minHeight: "56px",
+            fontSize: "16px",
+          },
+        }),
+        valueContainer: (base) => ({
+          ...base,
+          padding: "0px",
+        }),
+        input: (base) => ({
+          ...base,
+          margin: "0px",
+          padding: "0px",
+        }),
+        indicatorsContainer: (base) => ({
+          ...base,
+          paddingRight: "8px",
+        }),
+      }}
+    />
   );
 }

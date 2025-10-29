@@ -16,7 +16,7 @@ import ToggleSetting from "../../ToggleSetting";
 import { useState } from "react";
 import { Plan, Setting } from "@/types/admin.type";
 import Textarea from "@/components/ui/Textarea";
-import { CustomSelect } from "@/components/ui/CustomSelect";
+import CustomSelect from "@/components/ui/CustomSelect";
 
 export default function EditPlanModal({ Plan }: { Plan: Plan }) {
   const { close } = useModal();

@@ -11,7 +11,7 @@ import { Announcement } from "@/app/types/announcement";
 import toast from "react-hot-toast";
 import { useAdminAnnouncementEditData } from "@/hooks/UseAdminRoutes";
 import { Controller, useForm } from "react-hook-form";
-import { CustomSelect } from "@/components/ui/CustomSelect";
+import CustomSelect from "@/components/ui/CustomSelect";
 import DatePickerInput from "@/components/ui/DatePickerInput";
 import { SubjectDomain } from "@/types/typeLog";
 

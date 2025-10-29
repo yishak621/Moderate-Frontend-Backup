@@ -103,16 +103,17 @@ export default function PostsClientTeachers() {
           <div className="flex flex-row gap-1.5 items-center">
             <div className="min-w-[200px]">
               <CustomSelect
-                options={yearOptions.map((option) => option.label)}
-                value={
-                  yearOptions.find((option) => option.value === activeFilter)
-                    ?.label || "All"
-                }
-                onChange={(selectedLabel) => {
-                  const selectedOption = yearOptions.find(
-                    (option) => option.label === selectedLabel
-                  );
-                  setActiveFilter(selectedOption?.value || "all");
+                options={yearOptions}
+                defaultValue={yearOptions.find(
+                  (option) => option.value === activeFilter
+                )}
+                onChange={(val) => {
+                  const value = val
+                    ? typeof val === "string"
+                      ? val
+                      : val.value
+                    : "all";
+                  setActiveFilter(value);
                 }}
                 placeholder="Select a year"
               />

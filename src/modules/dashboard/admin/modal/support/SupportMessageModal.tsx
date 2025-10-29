@@ -4,7 +4,7 @@ import { X } from "lucide-react";
 import { CustomMultiSelect } from "@/components/ui/MultiSelectInput";
 import Button from "@/components/ui/Button";
 import Textarea from "@/components/ui/Textarea";
-import { CustomSelect } from "@/components/ui/CustomSelect";
+import CustomSelect from "@/components/ui/CustomSelect";
 import { useForm } from "react-hook-form";
 import { Support } from "@/app/types/support";
 import toast from "react-hot-toast";

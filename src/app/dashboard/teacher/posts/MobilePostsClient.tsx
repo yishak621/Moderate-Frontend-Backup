@@ -43,16 +43,17 @@ export default function MobilePostsClient({
         {/* Mobile Year Filter */}
         <div className="w-32">
           <CustomSelect
-            options={yearOptions.map((option) => option.label)}
-            value={
-              yearOptions.find((option) => option.value === activeFilter)
-                ?.label || "All"
-            }
-            onChange={(selectedLabel) => {
-              const selectedOption = yearOptions.find(
-                (option) => option.label === selectedLabel
-              );
-              setActiveFilter(selectedOption?.value || "all");
+            options={yearOptions}
+            defaultValue={yearOptions.find(
+              (option: any) => option.value === activeFilter
+            )}
+            onChange={(val: any) => {
+              const value = val
+                ? typeof val === "string"
+                  ? val
+                  : val.value
+                : "all";
+              setActiveFilter(value);
             }}
             placeholder="Select year"
           />

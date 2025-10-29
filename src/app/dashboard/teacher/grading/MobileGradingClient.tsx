@@ -27,6 +27,12 @@ export default function MobileGradingClient({
   handleLoadMore,
   scrollToTop,
 }: MobileGradingClientProps) {
+  // Convert string filters to Option format for CustomSelect
+  const filterOptions = filters.map((filter) => ({
+    value: filter,
+    label: filter,
+  }));
+
   return (
     <div className="bg-[#FDFDFD] py-3 px-3 flex flex-col gap-3 rounded-[20px] w-full max-w-full overflow-hidden">
       {/* Mobile Header with Tabs and Filter */}
@@ -46,9 +52,18 @@ export default function MobileGradingClient({
         {/* Mobile Filter */}
         <div className="w-32">
           <CustomSelect
-            options={filters}
-            value={activeFilter}
-            onChange={setActiveFilter}
+            options={filterOptions}
+            defaultValue={filterOptions.find(
+              (opt) => opt.value === activeFilter
+            )}
+            onChange={(val: any) => {
+              const valueStr = val
+                ? typeof val === "string"
+                  ? val
+                  : val.value
+                : "";
+              setActiveFilter(valueStr);
+            }}
             placeholder="Filter"
           />
         </div>

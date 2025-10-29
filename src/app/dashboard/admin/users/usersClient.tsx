@@ -16,7 +16,7 @@ import { useAdminUsersData } from "@/hooks/UseAdminRoutes";
 import { useSubjectDomains } from "@/hooks/usePublicRoutes";
 import { SubjectDomain } from "@/types/typeLog";
 import { Controller, useForm } from "react-hook-form";
-import { CustomSelect } from "@/components/ui/CustomSelect";
+import CustomSelect from "@/components/ui/CustomSelect";
 
 export default function UsersClient() {
   const [open, setOpen] = useState(false);
@@ -53,12 +53,13 @@ export default function UsersClient() {
     error: subjectDomainError,
   } = useSubjectDomains();
 
-  const optionsSubjectDomains = subjectDomains?.map((item: SubjectDomain) => {
-    return {
-      value: item.id,
-      label: item.name,
-    };
-  });
+  const optionsSubjectDomains =
+    subjectDomains?.map((item: SubjectDomain) => {
+      return {
+        value: item.id,
+        label: item.name,
+      };
+    }) || [];
 
   // Pass debouncedSearch to your query hook
   const { allUsers, isUsersLoading, isSuccess, isError, error } =
@@ -120,12 +121,17 @@ export default function UsersClient() {
               render={({ field }) => (
                 <CustomSelect
                   options={optionsSubjectDomains}
-                  isClearable={true}
+                  defaultValue={optionsSubjectDomains?.find(
+                    (option: any) => option.value === field.value
+                  )}
                   onChange={(val) => {
-                    field.onChange(val);
-                    setSelectedCurricular(
-                      typeof val?.value === "string" ? val.value : null
-                    );
+                    const valueStr = val
+                      ? typeof val === "string"
+                        ? val
+                        : val.value
+                      : "";
+                    field.onChange(valueStr);
+                    setSelectedCurricular(valueStr as string | null);
                   }}
                   placeholder="Select Curricular..."
                 />

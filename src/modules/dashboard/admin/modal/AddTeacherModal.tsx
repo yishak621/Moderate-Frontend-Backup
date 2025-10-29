@@ -11,8 +11,7 @@ import { SubjectDomain } from "@/types/typeLog";
 import toast from "react-hot-toast";
 import { useAdminUserCreateData } from "@/hooks/UseAdminRoutes";
 import { useEffect, useState } from "react";
-import { CustomSelect } from "@/components/ui/CustomSelect";
-
+import CustomSelect from "@/components/ui/CustomSelect";
 const roleOptions = [
   { value: "TEACHER", label: "Teacher" },
   // { value: "admin", label: "Admin" },
@@ -146,7 +145,7 @@ export default function AddTeacherModal() {
             render={({ field }) => (
               <CustomSelect
                 options={roleOptions}
-                onChange={(selected) => {
+                onChange={(selected: any) => {
                   field.onChange(selected?.value);
                   setRole(
                     typeof selected?.value === "string" ? selected.value : ""

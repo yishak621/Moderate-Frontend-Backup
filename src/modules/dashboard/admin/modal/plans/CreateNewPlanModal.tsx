@@ -17,7 +17,7 @@ import { Controller, useForm } from "react-hook-form";
 import { useSubjectDomains } from "@/hooks/usePublicRoutes";
 import { Announcement } from "@/app/types/announcement";
 import { SubjectDomain } from "@/types/typeLog";
-import { CustomSelect } from "@/components/ui/CustomSelect";
+import CustomSelect from "@/components/ui/CustomSelect";
 import { Plan, Setting } from "@/types/admin.type";
 
 export default function CreateNewPlanModal() {
