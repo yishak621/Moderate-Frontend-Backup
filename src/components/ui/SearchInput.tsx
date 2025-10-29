@@ -61,7 +61,7 @@ export default function SearchInput({
             "placeholder:text-sm placeholder:font-normal",
             "sm:px-6 sm:py-4 sm:text-base sm:placeholder:text-base",
             "lg:px-8 lg:py-5 lg:text-lg lg:placeholder:text-lg",
-            "rounded-l-[62px] outline-0 bg-white text-gray-900"
+            "rounded-l-[62px] outline-0  text-gray-900"
           )}
         />
         <button
