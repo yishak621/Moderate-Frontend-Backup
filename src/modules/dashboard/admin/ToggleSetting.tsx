@@ -32,7 +32,7 @@ const ToggleSetting: React.FC<ToggleSettingProps> = ({
         type="button"
         onClick={handleToggle}
         className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-          value ? "bg-blue-500" : "bg-gray-300"
+          value ? "bg-[#368FFF]" : "bg-gray-300"
         }`}
       >
         <span

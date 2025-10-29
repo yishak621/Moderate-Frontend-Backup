@@ -68,7 +68,7 @@ export default function TicketMessages({ ticket }: TicketMessagesProps) {
           className={`px-4.5 py-2 text-sm font-semibold rounded-full ${
             {
               closed: "bg-green-100 text-green-700",
-              open: "bg-blue-100 text-blue-700",
+              open: "bg-[#368FFF]/10 text-[#368FFF]",
               pending: "bg-yellow-100 text-yellow-700",
             }[ticket.status] || "bg-gray-100 text-gray-700"
           }`}
@@ -131,7 +131,7 @@ export default function TicketMessages({ ticket }: TicketMessagesProps) {
           className={`flex items-center justify-center p-2 rounded-lg text-white transition ${
             isSendingMessageLoading
               ? "bg-gray-400 cursor-not-allowed"
-              : "bg-blue-600 hover:bg-blue-700"
+              : "bg-[#368FFF] hover:bg-[#2574db]"
           }`}
         >
           <SendHorizonal size={20} />

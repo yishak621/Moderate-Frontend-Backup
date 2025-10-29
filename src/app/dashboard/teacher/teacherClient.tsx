@@ -1,14 +1,13 @@
 "use client";
 
 import Modal from "@/components/ui/Modal";
-import AddTeacherModal from "@/modules/dashboard/admin/modal/AddTeacherModal";
-import DashboardNotificationItem from "@/modules/dashboard/admin/DashboardNotificationItem";
 import DashboardButton from "@/modules/dashboard/DashboardButton";
 import StatsCard from "@/modules/dashboard/StatsCards";
 import MobileStatsCards from "@/modules/dashboard/MobileStatsCards";
-import { Megaphone, MessagesSquare, PlusSquare, Filter } from "lucide-react";
+import { Megaphone, HelpCircle, PlusSquare, Filter } from "lucide-react";
 import { useState } from "react";
 import CreateNewAnnouncementModal from "@/modules/dashboard/admin/modal/announcements/CreateNewAnnouncementModal";
+import NewTicketModal from "@/modules/dashboard/teacher/supportMessages/NewTicketModal";
 import { StatsCardProps } from "@/types/statusCardProps";
 import SectionHeader from "@/components/SectionHeader";
 import { FilterButtons } from "@/components/ui/FilterButtons";
@@ -26,19 +25,6 @@ import Link from "next/link";
 import AnnouncementBox from "@/modules/dashboard/teacher/AnnouncementsBox";
 import { Announcement } from "@/app/types/announcement";
 
-const notifications = [
-  {
-    statusColor: "bg-green-500",
-    title: "New Grading Guidelines Released",
-    time: "2 minutes ago",
-  },
-  {
-    statusColor: "bg-yellow-500",
-    title: "Assignment pending approval: math101",
-    time: "10 minutes ago",
-  },
-];
-
 const buttonData = [
   {
     icon: (
@@ -49,77 +35,30 @@ const buttonData = [
   },
   {
     icon: (
-      <MessagesSquare
-        width={20}
-        height={20}
-        className="sm:w-[23px] sm:h-[23px]"
-      />
+      <Megaphone width={20} height={20} className="sm:w-[23px] sm:h-[23px]" />
     ),
-    label: "Messages",
-    component: AddTeacherModal,
+    label: "Create Announcement",
+    component: CreateNewAnnouncementModal,
   },
   {
     icon: (
-      <Megaphone width={20} height={20} className="sm:w-[23px] sm:h-[23px]" />
+      <HelpCircle width={20} height={20} className="sm:w-[23px] sm:h-[23px]" />
     ),
-    label: "Announcements",
-    component: CreateNewAnnouncementModal,
+    label: "Support Ticket",
+    component: NewTicketModal,
   },
 ];
 
-// export const samplePosts: PostAttributes[] = [
-//   {
-//     id: "Dd3f32fhfvg3fvb3f",
-//     name_of_post: "Introduction to Algorithms",
-//     posted_by: "Prof. Thomas",
-//     uploaded_at: "2025-09-25",
-//     files: [
-//       "https://arxiv.org/pdf/2111.01147.pdf", // sample CS research paper
-//       "https://www.gutenberg.org/files/84/84-pdf.pdf", // Frankenstein (public domain)
-//     ],
-//     post_tags: ["Algorithms", "CS", "Education"],
-//     post_status: "published",
-//     post_grade_avg: 4.5,
-//   },
-//   {
-//     id: "Dd3f32fhfvg3fvb3f",
-//     name_of_post: "Modern Physics Basics",
-//     posted_by: "Dr. Einstein",
-//     uploaded_at: "2025-09-20",
-//     files: [
-//       "https://arxiv.org/pdf/quant-ph/0410100.pdf", // quantum mechanics paper
-//     ],
-//     post_tags: ["Physics", "Quantum", "Education"],
-//     post_status: "draft",
-//     post_grade_avg: 4.2,
-//   },
-//   {
-//     id: "Dd3f32fhfvg3fvb3f",
-//     name_of_post: "Public Speaking Guide",
-//     posted_by: "Ms. Johnson",
-//     uploaded_at: "2025-09-15",
-//     files: [
-//       "https://www.gutenberg.org/files/16317/16317-pdf.pdf", // Dale Carnegie-like public domain text
-//     ],
-//     post_tags: ["Soft Skills", "Communication"],
-//     post_status: "archived",
-//     post_grade_avg: 3.9,
-//   },
-// ];
 //--------------------------OVERVIEW DASHBOARD
 export default function UserClient() {
   //MODAL STATES
   const [open, setOpen] = useState(false);
   const [ModalComponent, setModalComponent] = useState<React.FC | null>(null);
-  const [showFilters, setShowFilters] = useState(false);
 
   const handleOpenModal = (Component: React.FC) => {
     setModalComponent(() => Component); // store the component to render
     setOpen(true);
   };
-
-  const filters = ["All", "Moderated", "Pending"];
-  const [activeFilter, setActiveFilter] = useState("All"); // ✅ default "All"
 
   //HOOKS
   const {
@@ -181,15 +120,16 @@ export default function UserClient() {
       {/* Stats Cards - Responsive */}
       <div className="relative">
         {/* Desktop Stats */}
-        <div className="hidden sm:p-[26px]  md:flex gap-4 bg-[#FDFDFD] sm:rounded-[37px]">
+        <div className="hidden sm:p-[26px] md:flex gap-4 bg-[#FDFDFD] sm:rounded-[37px] w-full">
           {statsData?.map((stat, index) => (
-            <StatsCard
-              key={stat.title}
-              title={stat.title}
-              count={stat.count}
-              description={stat.description}
-              colored={stat.colored}
-            />
+            <div key={stat.title} className="flex-1">
+              <StatsCard
+                title={stat.title}
+                count={stat.count}
+                description={stat.description}
+                colored={stat.colored}
+              />
+            </div>
           ))}
         </div>
 
@@ -262,14 +202,16 @@ export default function UserClient() {
         </div>
 
         {/* Recent Announcements - Right Side (Fixed Height, Desktop Only) */}
-        <div className="flex-[40%] p-4 sm:p-6 overflow-y-scroll scrollbar-hide flex flex-col ">
-          <div className="flex items-center justify-between mb-4 sm:mb-6">
+        <div className="flex-[40%] p-4 sm:p-6 overflow-y-scroll scrollbar-hide flex flex-col">
+          {/* Section Header */}
+          <div className="flex items-center justify-between mb-4 sm:mb-6 flex-shrink-0">
             <h2 className="text-lg sm:text-xl font-semibold text-gray-900">
               Recent Announcements
             </h2>
           </div>
 
-          <div className="space-y-3">
+          {/* Announcements List */}
+          <div className="space-y-4 flex-1">
             {isAnnouncementsLoading ? (
               // Loading skeleton
               <div className="flex flex-col gap-3 animate-pulse">
@@ -302,13 +244,17 @@ export default function UserClient() {
               // Render announcements
               latestAnnouncements.map(
                 (announcement: Announcement, idx: number) => (
-                  <div key={announcement.id || idx}>
+                  <Link
+                    href={"/dashboard/teacher/announcements"}
+                    className="block mb-4"
+                    key={announcement.id || idx}
+                  >
                     <AnnouncementBox
                       announcement={announcement}
                       selectedId=""
                       onClick={() => {}}
                     />
-                  </div>
+                  </Link>
                 )
               )
             )}

@@ -17,6 +17,7 @@ import {
   CircleQuestionMark,
   User,
   LogOut,
+  Shield,
 } from "lucide-react";
 import DashboardShell, { NavItem } from "@/components/DashboardShell";
 import Image from "next/image";
@@ -180,9 +181,17 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
           </div>
 
           <div className="flex flex-col gap-[4px] ">
-            <span className="font-base font-medium text-[#0C0C0C] ">
-              {user?.name}
-            </span>
+            <div className="flex items-center gap-1.5">
+              <span className="font-base font-medium text-[#0C0C0C] ">
+                {user?.name}
+              </span>
+              {role === "SYSTEM_ADMIN" && (
+                <span className="inline-flex items-center gap-1 px-1.5 py-0.5 bg-[#2997F1]/10 text-[#2997F1] rounded text-[10px] font-medium">
+                  <Shield className="w-3 h-3" />
+                  Admin
+                </span>
+              )}
+            </div>
             <span className="text-sm font-normal text-[#717171]">
               {user?.email}
             </span>
@@ -256,9 +265,17 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
           </div>
 
           <div className="flex flex-col gap-[4px] ">
-            <span className="font-base font-medium text-[#0C0C0C] ">
-              {user?.name}
-            </span>
+            <div className="flex items-center gap-1.5">
+              <span className="font-base font-medium text-[#0C0C0C] ">
+                {user?.name}
+              </span>
+              {role === "SYSTEM_ADMIN" && (
+                <span className="inline-flex items-center gap-1 px-1.5 py-0.5 bg-[#2997F1]/10 text-[#2997F1] rounded text-[10px] font-medium">
+                  <Shield className="w-3 h-3" />
+                  Admin
+                </span>
+              )}
+            </div>
             <span className="text-sm font-normal text-[#717171]">
               {user?.email}
             </span>

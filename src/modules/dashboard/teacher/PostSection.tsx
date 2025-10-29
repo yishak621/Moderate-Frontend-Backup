@@ -88,7 +88,7 @@ export default function Post({ post }: { post: PostAttributes }) {
   };
 
   return (
-    <div className="flex flex-col items-start border border-[#DBDBDB] p-4 sm:p-7 rounded-2xl sm:rounded-3xl my-4 sm:my-10 gap-3 sm:gap-4 w-full max-w-full overflow-hidden">
+    <div className="flex flex-col items-start border border-[#DBDBDB] p-4 sm:p-7 rounded-2xl sm:rounded-3xl gap-3 sm:gap-4 w-full max-w-full overflow-hidden">
       {/* Top */}
       <div className="flex flex-row justify-between items-start w-full gap-2 sm:gap-0">
         <div className="flex flex-row gap-2 sm:gap-3 flex-1 min-w-0">

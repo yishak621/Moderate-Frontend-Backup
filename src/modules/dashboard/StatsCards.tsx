@@ -11,7 +11,7 @@ export default function StatsCard({
     <div
       className="
     flex flex-col justify-between
-    w-[350px] lg:w-[400px]
+    w-full
     h-[225px]
     rounded-3xl 
     overflow-hidden 

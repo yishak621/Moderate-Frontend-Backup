@@ -89,7 +89,7 @@ export default function ViewAnnouncementDetailModal({
           {(data.type ?? []).map((t: string, i: number) => (
             <span
               key={i}
-              className="px-4 py-1.5 text-sm bg-blue-50 text-blue-700 border border-blue-100 rounded-full"
+              className="px-4 py-1.5 text-sm bg-[#368FFF]/10 text-[#368FFF] border border-[#368FFF]/20 rounded-full"
             >
               {t}
             </span>

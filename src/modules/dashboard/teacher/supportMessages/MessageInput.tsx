@@ -29,7 +29,7 @@ export default function MessageInput({
       />
       <button
         onClick={handleSend}
-        className="cursor-pointer bg-blue-600 hover:bg-blue-700 transition p-2 rounded-lg text-white flex items-center justify-center"
+        className="cursor-pointer bg-[#368FFF] hover:bg-[#2574db] transition p-2 rounded-lg text-white flex items-center justify-center"
       >
         <SendHorizonal size={20} />
       </button>

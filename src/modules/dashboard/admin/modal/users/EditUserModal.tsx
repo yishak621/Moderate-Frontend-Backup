@@ -134,7 +134,7 @@ export default function EditUserModal({ user }: { user: User }) {
         ${
           isEditingDataLoading
             ? "opacity-70 cursor-not-allowed"
-            : "hover:bg-blue-700"
+            : "hover:bg-[#2574db]"
         }`}
             disabled={isEditingDataLoading}
           >

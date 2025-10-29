@@ -91,7 +91,7 @@ export default function SupportForm() {
           <button
             type="submit"
             disabled={isCreatingTicketLoading}
-            className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50"
+            className="px-4 py-2 rounded-lg bg-[#368FFF] text-white hover:bg-[#2574db] disabled:opacity-50"
           >
             {isCreatingTicketLoading ? "Sending..." : "Send"}
           </button>
