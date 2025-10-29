@@ -167,7 +167,11 @@ export default function Navbar() {
 
                   <div className="flex flex-col gap-[4px]">
                     <span className="font-base font-medium text-[#0C0C0C]">
-                      {user?.name || "User"}
+                      {user ? (
+                        user.name || "User"
+                      ) : (
+                        <div className="h-5 w-24 bg-gray-200 rounded-md animate-pulse"></div>
+                      )}
                     </span>
                     <span className="text-sm font-normal text-[#717171]">
                       {user?.email || ""}

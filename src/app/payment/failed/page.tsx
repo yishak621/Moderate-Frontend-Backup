@@ -9,7 +9,7 @@ export default function PaymentFailedPage() {
       status="failed"
       title="Payment Failed"
       message="Unfortunately, your payment could not be processed. Please check your payment details and try again."
-      icon={<XCircle className="w-20 h-20 text-red-600" />}
+      icon={<XCircle className="w-16 h-16 sm:w-20 sm:h-20 text-red-600" />}
       primaryButtonText="Try Again"
       primaryButtonHref="/pricing"
       secondaryButtonText="Contact Support"

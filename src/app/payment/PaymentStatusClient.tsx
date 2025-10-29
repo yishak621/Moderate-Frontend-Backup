@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { ReactNode } from "react";
-import LoginScreen from "@/modules/auth/LoginScreen";
+import { motion } from "framer-motion";
 
 interface PaymentStatusClientProps {
   status: "success" | "failed";
@@ -27,208 +27,155 @@ export default function PaymentStatusClient({
   secondaryButtonHref,
 }: PaymentStatusClientProps) {
   const isSuccess = status === "success";
-  const bgColor = isSuccess ? "bg-green-50" : "bg-red-50";
-  const borderColor = isSuccess ? "border-green-200" : "border-red-200";
-  const iconBg = isSuccess ? "bg-green-100" : "bg-red-100";
-  const textColor = isSuccess ? "text-green-800" : "text-red-800";
+  const accentColor = isSuccess ? "#10b981" : "#ef4444";
+  const lightAccent = isSuccess ? "#d1fae5" : "#fee2e2";
+  const iconBg = isSuccess ? "bg-green-50" : "bg-red-50";
 
   return (
-    <div className="h-screen bg-[#f1f1f1] flex items-center justify-center sm:p-6 lg:p-8">
-      {/* Mobile/Tablet: Only show status card */}
-      <div className="w-full h-screen lg:hidden flex items-center justify-center">
-        <div className="w-full max-w-md">
-          <div
-            className={`
-            bg-[#fdfdfd]
-            px-6 py-8 sm:px-8 sm:py-10
-            rounded-[20px] sm:rounded-[24px]
-            w-full
-            flex flex-col items-center gap-6 sm:gap-7
-            shadow-lg
-            border border-gray-100
-          `}
-          >
-            {/* Header */}
-            <Link
-              href="/"
-              className="flex flex-col items-center text-center gap-2 sm:gap-3"
+    <div className="min-h-screen bg-white flex flex-col items-center justify-center px-4 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-20">
+      <div className="w-full max-w-2xl flex flex-col items-center">
+        {/* Main Content Card */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+          className="w-full bg-white rounded-[32px] sm:rounded-[40px] p-8 sm:p-12 lg:p-16 shadow-[0_4px_24px_rgba(0,0,0,0.06)] border border-gray-100/50"
+        >
+          <div className="flex flex-col items-center gap-8 sm:gap-10 lg:gap-12">
+            {/* Logo and Brand */}
+            <motion.div
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.3 }}
             >
-              <Image
-                src="/images/logo/logo-4.png"
-                alt="Moderate Logo"
-                width={50}
-                height={50}
-                priority
-                className="object-contain select-none"
-              />
-              <h2 className="text-2xl sm:text-3xl font-semibold">Moderate</h2>
-              <p className="text-gray-600 text-base font-normal sm:text-base">
-                Grade moderation made easy
-              </p>
-            </Link>
-
-            {/* Status Icon */}
-            <div
-              className={`${iconBg} rounded-full p-4 flex items-center justify-center`}
-            >
-              {icon}
-            </div>
+              <Link
+                href="/"
+                className="flex flex-col items-center text-center gap-3 sm:gap-4"
+              >
+                <Image
+                  src="/images/logo/logo-4.png"
+                  alt="Moderate Logo"
+                  width={80}
+                  height={80}
+                  priority
+                  className="object-contain select-none"
+                />
+                <div>
+                  <h2 className="text-3xl sm:text-4xl font-semibold text-[#0C0C0C] mb-2">
+                    Moderate
+                  </h2>
+                  <p className="text-[#717171] text-base sm:text-lg font-normal">
+                    Grade moderation made easy
+                  </p>
+                </div>
+              </Link>
+            </motion.div>
 
             {/* Title */}
-            <h1
-              className={`text-2xl sm:text-3xl font-bold text-center ${textColor}`}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.4 }}
+              className="text-center"
             >
-              {title}
-            </h1>
+              <h1
+                className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-4 sm:mb-6"
+                style={{ color: accentColor }}
+              >
+                {title}
+              </h1>
+              <p className="text-[#717171] text-base sm:text-lg lg:text-xl leading-relaxed max-w-xl mx-auto">
+                {message}
+              </p>
+            </motion.div>
 
-            {/* Message */}
-            <p className="text-gray-600 text-base sm:text-lg text-center leading-relaxed">
-              {message}
-            </p>
-
-            {/* Status Card */}
-            <div
-              className={`w-full ${bgColor} border-2 ${borderColor} rounded-xl p-4 sm:p-6`}
+            {/* Status Badge */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.5 }}
+              className="w-full"
             >
-              <div className="flex items-center gap-3">
-                <div className={`flex-shrink-0 ${iconBg} rounded-full p-2`}>
-                  {icon}
-                </div>
-                <div>
+              <div
+                className={`w-full ${iconBg} border-2 rounded-2xl p-6 sm:p-8 flex items-center gap-4 sm:gap-6`}
+                style={{
+                  borderColor: `${accentColor}30`,
+                }}
+              >
+                <div className="flex-shrink-0">{icon}</div>
+                <div className="flex-1 text-left">
                   <p
-                    className={`text-sm sm:text-base font-semibold ${textColor} mb-1`}
+                    className="text-base sm:text-lg font-semibold mb-1"
+                    style={{ color: accentColor }}
                   >
                     {isSuccess ? "Payment Confirmed" : "Payment Unsuccessful"}
                   </p>
-                  <p className="text-xs sm:text-sm text-gray-600">
+                  <p className="text-sm sm:text-base text-[#717171]">
                     {isSuccess
                       ? "Your subscription is now active"
                       : "Please check your payment method"}
                   </p>
                 </div>
               </div>
-            </div>
+            </motion.div>
 
             {/* Action Buttons */}
-            <div className="w-full flex flex-col gap-3">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.6 }}
+              className="w-full flex flex-col sm:flex-row gap-4 sm:gap-6 max-w-md"
+            >
               <Link
                 href={primaryButtonHref}
-                className="w-full inline-flex justify-center items-center gap-2.5 rounded-lg font-normal text-base transition-colors duration-200 cursor-pointer h-12 px-6 py-3 bg-[#368FFF] text-[#FDFDFD] hover:bg-[#2574db]"
+                className="flex-1 group relative overflow-hidden"
               >
-                {primaryButtonText}
+                <div
+                  className="w-full inline-flex justify-center items-center gap-2.5 rounded-full font-medium text-base sm:text-lg transition-all duration-300 cursor-pointer h-14 sm:h-16 px-8 text-white hover:scale-105 hover:shadow-xl transform active:scale-95"
+                  style={{
+                    backgroundColor: accentColor,
+                    boxShadow: `0 4px 14px ${accentColor}40`,
+                  }}
+                >
+                  <span className="relative z-10">{primaryButtonText}</span>
+                  <motion.div
+                    className="absolute inset-0 opacity-0 group-hover:opacity-20"
+                    style={{
+                      background:
+                        "linear-gradient(135deg, transparent 0%, white 100%)",
+                    }}
+                    whileHover={{ opacity: 0.2 }}
+                  />
+                </div>
               </Link>
               <Link
                 href={secondaryButtonHref}
-                className="w-full inline-flex justify-center items-center gap-2.5 rounded-lg font-normal text-base transition-colors duration-200 cursor-pointer h-12 px-6 py-3 bg-[#FDFDFD] text-[#0C0C0C] hover:bg-[#e5e5e5] border border-[#DBDBDB]"
+                className="flex-1 inline-flex justify-center items-center gap-2.5 rounded-full font-medium text-base sm:text-lg transition-all duration-300 cursor-pointer h-14 sm:h-16 px-8 bg-white text-[#0C0C0C] hover:bg-gray-50 border-2 border-gray-200 hover:border-gray-300 hover:scale-105 active:scale-95 shadow-sm hover:shadow-md"
               >
                 {secondaryButtonText}
               </Link>
-            </div>
+            </motion.div>
           </div>
-        </div>
-      </div>
+        </motion.div>
 
-      {/* Desktop: Split layout with LoginScreen */}
-      <div className="hidden lg:grid lg:grid-cols-2 lg:gap-8 xl:gap-12 w-full max-w-7xl h-screen items-center">
-        <LoginScreen />
-        <div className="h-screen flex items-center justify-center">
-          <div className="w-full max-w-md">
-            <div className="w-full max-h-screen overflow-y-auto scrollbar-hide">
-              <div
-                className={`
-                bg-[#fdfdfd]
-                px-6 py-8 sm:px-8 sm:py-10 lg:px-10 lg:py-12
-                rounded-[20px] sm:rounded-[24px]
-                w-full
-                flex flex-col items-center gap-6 sm:gap-7
-                shadow-lg
-                border border-gray-100
-              `}
-              >
-                {/* Header */}
-                <Link
-                  href="/"
-                  className="flex flex-col items-center text-center gap-2 sm:gap-3"
-                >
-                  <Image
-                    src="/images/logo/logo-4.png"
-                    alt="Moderate Logo"
-                    width={50}
-                    height={50}
-                    priority
-                    className="object-contain select-none"
-                  />
-                  <h2 className="text-2xl sm:text-3xl font-semibold">
-                    Moderate
-                  </h2>
-                  <p className="text-gray-600 text-base font-normal sm:text-base">
-                    Grade moderation made easy
-                  </p>
-                </Link>
-
-                {/* Status Icon */}
-                <div
-                  className={`${iconBg} rounded-full p-4 flex items-center justify-center`}
-                >
-                  {icon}
-                </div>
-
-                {/* Title */}
-                <h1
-                  className={`text-2xl sm:text-3xl font-bold text-center ${textColor}`}
-                >
-                  {title}
-                </h1>
-
-                {/* Message */}
-                <p className="text-gray-600 text-base sm:text-lg text-center leading-relaxed">
-                  {message}
-                </p>
-
-                {/* Status Card */}
-                <div
-                  className={`w-full ${bgColor} border-2 ${borderColor} rounded-xl p-4 sm:p-6`}
-                >
-                  <div className="flex items-center gap-3">
-                    <div className={`flex-shrink-0 ${iconBg} rounded-full p-2`}>
-                      {icon}
-                    </div>
-                    <div>
-                      <p
-                        className={`text-sm sm:text-base font-semibold ${textColor} mb-1`}
-                      >
-                        {isSuccess
-                          ? "Payment Confirmed"
-                          : "Payment Unsuccessful"}
-                      </p>
-                      <p className="text-xs sm:text-sm text-gray-600">
-                        {isSuccess
-                          ? "Your subscription is now active"
-                          : "Please check your payment method"}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Action Buttons */}
-                <div className="w-full flex flex-col gap-3">
-                  <Link
-                    href={primaryButtonHref}
-                    className="w-full inline-flex justify-center items-center gap-2.5 rounded-lg font-normal text-base transition-colors duration-200 cursor-pointer h-12 px-6 py-3 bg-[#368FFF] text-[#FDFDFD] hover:bg-[#2574db]"
-                  >
-                    {primaryButtonText}
-                  </Link>
-                  <Link
-                    href={secondaryButtonHref}
-                    className="w-full inline-flex justify-center items-center gap-2.5 rounded-lg font-normal text-base transition-colors duration-200 cursor-pointer h-12 px-6 py-3 bg-[#FDFDFD] text-[#0C0C0C] hover:bg-[#e5e5e5] border border-[#DBDBDB]"
-                  >
-                    {secondaryButtonText}
-                  </Link>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+        {/* Footer Text */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5, delay: 0.7 }}
+          className="mt-8 sm:mt-12 text-center"
+        >
+          <p className="text-sm sm:text-base text-[#717171]">
+            Need help?{" "}
+            <Link
+              href="/contact"
+              className="font-medium hover:underline"
+              style={{ color: accentColor }}
+            >
+              Contact our support team
+            </Link>
+          </p>
+        </motion.div>
       </div>
     </div>
   );

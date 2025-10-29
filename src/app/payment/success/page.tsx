@@ -9,8 +9,10 @@ export default function PaymentSuccessPage() {
       status="success"
       title="Payment Successful!"
       message="Your payment has been processed successfully. You now have full access to all premium features."
-      icon={<CheckCircle2 className="w-20 h-20 text-green-600" />}
-      primaryButtonText="Go to Dashboard"
+      icon={
+        <CheckCircle2 className="w-16 h-16 sm:w-20 sm:h-20 text-green-600" />
+      }
+      primaryButtonText="Dashboard"
       primaryButtonHref="/dashboard/teacher"
       secondaryButtonText="View Plans"
       secondaryButtonHref="/pricing"
