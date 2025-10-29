@@ -360,7 +360,7 @@ export default function DashboardShell({
 
       <main className="flex-1 flex flex-col md:ml-0 min-w-0 max-w-full overflow-hidden">
         {/* Desktop Header - Hidden on mobile */}
-        <header className="hidden md:flex items-center justify-between bg-whiteCard p-4 pt-6 2xl:pt-11 pl-5.5 gap-4 min-w-0 max-w-full overflow-hidden">
+        <header className="hidden md:flex items-center justify-between bg-whiteCard p-4 pt-6 2xl:pt-11 pl-5.5 gap-4 min-w-0 max-w-full overflow-visible">
           <h1 className="text-3xl font-medium text-[#0C0C0C] whitespace-nowrap">
             {title}
           </h1>
@@ -379,7 +379,7 @@ export default function DashboardShell({
         </header>
 
         {/* Mobile Header - Only visible on mobile */}
-        <header className="md:hidden bg-whiteCard p-4 shadow-sm border-b min-w-0 max-w-full overflow-hidden">
+        <header className="md:hidden bg-whiteCard p-4 shadow-sm border-b min-w-0 max-w-full overflow-visible">
           <div className="flex items-center justify-between gap-3">
             {/* Left: Menu Toggle + Title */}
             <div className="flex items-center gap-3 flex-1">

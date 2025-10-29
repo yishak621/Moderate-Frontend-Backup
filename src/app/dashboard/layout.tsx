@@ -202,7 +202,6 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
             isOpen={isPopUpOpen}
             onClose={() => setIsPopUpOpen(false)}
             align="right"
-            className="mt-13"
           >
             <div className="flex flex-col ">
               {menuItems.map((item, idx) => (
@@ -248,7 +247,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
           <div className=" absolute bottom-0 right-0 w-[15px] h-[15px] bg-[#368FFF] rounded-full"></div>
         </div>
         <div
-          className=" flex flex-row gap-2 cursor-pointer "
+          className="relative flex flex-row gap-2 cursor-pointer"
           onClick={() => setIsPopUpOpen(true)}
         >
           {/* 
@@ -286,7 +285,6 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
             isOpen={isPopUpOpen}
             onClose={() => setIsPopUpOpen(false)}
             align="right"
-            className="mt-13"
           >
             <div className="flex flex-col ">
               {menuItems.map((item, idx) => (
