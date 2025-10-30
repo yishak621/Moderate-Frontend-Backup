@@ -44,9 +44,20 @@ export default function CreateNewPlanModal() {
     isCreatingPlanSuccess,
   } = useAdminCreatePlan();
 
+  const [featuresInput, setFeaturesInput] = useState("");
+
   const onSubmit = async (data: Plan) => {
+    // parse feature string to array
+    const featuresArr = featuresInput
+      .split(",")
+      .map((f) => f.trim())
+      .filter(Boolean);
+    const finalData = {
+      ...data,
+      features: featuresArr,
+    };
     try {
-      await createPlanAsync(data);
+      await createPlanAsync(finalData);
       toast.success("Plan created successfully!");
       close();
     } catch (err) {
@@ -145,6 +156,14 @@ export default function CreateNewPlanModal() {
           })}
           error={errors?.stripeProductId?.message}
         /> */}
+        <Input
+          label="Features (comma separated)"
+          placeholder="feature 1, feature 2, more features..."
+          value={featuresInput}
+          onChange={(e) => setFeaturesInput(e.target.value)}
+          className="mt-4"
+          // not using {...register()} because we parse string to array manually
+        />
         <Textarea
           label="Description"
           placeholder="Description of setting "

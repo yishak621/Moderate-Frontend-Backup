@@ -10,6 +10,7 @@ export function middleware(req: NextRequest) {
   const cookieHeader = req.headers.get("cookie") || "";
   const cookies = parse(cookieHeader);
   const token = cookies["jwt"];
+  const role = cookies["role"];
 
   const { pathname } = req.nextUrl;
 
@@ -28,6 +29,17 @@ export function middleware(req: NextRequest) {
   // If user is not logged in and visits protected route, redirect to login
   if (!token && PROTECTED_PAGES.some((page) => pathname.startsWith(page))) {
     console.log("Redirecting unauthenticated user to /login");
+    return NextResponse.redirect(new URL("/auth/login", req.url));
+  }
+
+  // If SYSTEM_ADMIN, allow only their own routes
+  if (
+    role === "SYSTEM_ADMIN" &&
+    !pathname.startsWith("/dashboard/admin") &&
+    !pathname.startsWith("/profile") &&
+    !AUTH_PAGES.includes(pathname)
+  ) {
+    console.log("SYSTEM_ADMIN trying to access non-admin route. Redirecting to /auth/login");
     return NextResponse.redirect(new URL("/auth/login", req.url));
   }
 

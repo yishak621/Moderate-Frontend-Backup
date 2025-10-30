@@ -34,6 +34,16 @@ const loggedInNavigationLinks = [
   { name: "Plans", href: "/pricing" },
 ];
 
+const systemAdminNavigationLinks = [
+  { name: "Dashboard", href: "/dashboard/admin" },
+  { name: "User Management", href: "/dashboard/admin/users" },
+  { name: "Curricular Area Management", href: "/dashboard/admin/curricular" },
+  { name: "Announcements", href: "/dashboard/admin/announcements" },
+  { name: "Support Messages", href: "/dashboard/admin/support-messages" },
+  { name: "Settings", href: "/dashboard/admin/settings" },
+  { name: "Profile", href: "/dashboard/admin/profile" },
+];
+
 export default function Navbar() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -87,6 +97,12 @@ export default function Navbar() {
 
   if (isLoading) return null;
 
+  const navigationLinks = !isLoggedIn
+    ? publicNavigationLinks
+    : role === "SYSTEM_ADMIN"
+    ? systemAdminNavigationLinks
+    : loggedInNavigationLinks;
+
   return (
     <motion.nav
       style={{
@@ -123,10 +139,7 @@ export default function Navbar() {
 
             {/* Links */}
             <div className="hidden md:flex gap-6">
-              {(isLoggedIn
-                ? loggedInNavigationLinks
-                : publicNavigationLinks
-              ).map((link) => (
+              {navigationLinks.map((link) => (
                 <div key={link.name} className="relative">
                   <Link
                     href={link.href}
@@ -323,7 +336,9 @@ export default function Navbar() {
             >
               {/* Mobile Links */}
               {(isLoggedIn
-                ? loggedInNavigationLinks
+                ? role === "SYSTEM_ADMIN"
+                  ? systemAdminNavigationLinks
+                  : loggedInNavigationLinks
                 : publicNavigationLinks
               ).map((link, index) => (
                 <motion.div
