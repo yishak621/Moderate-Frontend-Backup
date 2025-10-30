@@ -472,7 +472,7 @@ export const updateAnnouncment = async (id: string, data: Announcement) => {
   }
 };
 
-//-------------------DELETE EMAIL DOMAINS
+//-------------------DELETE ANNOUNCMENT
 export const deleteAnnouncment = async (id: string) => {
   try {
     const res = await axiosInstance.delete(`/api/announcments/${id}`);

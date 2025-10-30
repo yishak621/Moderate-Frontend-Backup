@@ -48,7 +48,7 @@ export default function EditPlanModal({ Plan }: { Plan: Plan }) {
     isEditingPlanError,
     isEditingPlanLoading,
     isEditingPlanSuccess,
-  } = useAdminUpdatePlan(Plan.id);
+  } = useAdminUpdatePlan(Plan.stripePriceId ?? "");
 
   if (!Plan) return null;
 

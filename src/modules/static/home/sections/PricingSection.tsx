@@ -81,12 +81,41 @@ export default function PricingSection() {
       {!isLoading && isSuccess && filteredPlans.length > 0 && (
         <div className="flex flex-col sm:flex-row justify-center items-center gap-4 sm:gap-6 md:gap-8 lg:gap-[40px] xl:gap-[50px] -mt-4 sm:-mt-12 md:-mt-14 lg:-mt-16 xl:-mt-[72px] 2xl:-mt-20 relative z-10 w-full max-w-full px-2">
           {filteredPlans.map((plan: Plan) => {
-            // Check if this plan matches user's current subscription
-            // Compare plan name with user's subscriptionPlan
-            const isCurrentPlan =
-              user?.subscriptionStatus === "active" &&
+            // Prefer new subscription object when available
+            const subscription: any = (user as any)?.subscription || null;
+            const isActiveNew = subscription?.status === "active";
+            const matchByStripePriceId =
+              !!subscription?.stripePriceId &&
+              !!plan.stripePriceId &&
+              subscription.stripePriceId === plan.stripePriceId;
+            const matchByPlanField =
+              typeof subscription?.plan === "string" &&
+              typeof plan.name === "string" &&
+              subscription.plan.toLowerCase() === plan.name.toLowerCase();
+            const matchByIntervalHeuristic =
+              typeof subscription?.plan === "string" &&
+              typeof plan.interval === "string" &&
+              subscription.plan
+                .toLowerCase()
+                .includes(plan.interval.toLowerCase());
+
+            // Backward compatibility with older user fields
+            const isActiveLegacy = user?.subscriptionStatus === "active";
+            const matchByLegacyName =
+              typeof user?.subscriptionPlan === "string" &&
+              typeof plan.name === "string" &&
               user?.subscriptionPlan?.toLowerCase() ===
                 plan.name?.toLowerCase();
+
+            const isCurrentPlan =
+              (isActiveNew &&
+                (matchByStripePriceId ||
+                  matchByPlanField ||
+                  matchByIntervalHeuristic)) ||
+              (isActiveLegacy && matchByLegacyName);
+
+            const hasActiveSubscription =
+              (isActiveNew || isActiveLegacy) && !isCurrentPlan;
 
             return (
               <PricingCard
@@ -101,10 +130,12 @@ export default function PricingSection() {
                 interval={plan.interval}
                 stripePriceId={plan.stripePriceId}
                 isCurrentPlan={isCurrentPlan}
-                hasActiveSubscription={
-                  user?.subscriptionStatus === "active" && !isCurrentPlan
+                hasActiveSubscription={hasActiveSubscription}
+                userSubscriptionPlan={
+                  (subscription?.plan as string) ||
+                  user?.subscriptionPlan ||
+                  null
                 }
-                userSubscriptionPlan={user?.subscriptionPlan || null}
               />
             );
           })}

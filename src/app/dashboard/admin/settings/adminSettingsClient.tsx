@@ -133,10 +133,9 @@ export default function AdminSettingClient() {
             <Button>Save Changes</Button>
           </div>
         </div>
-      </div> */}
-
-      {/* third section */}
-      <div className=" flex flex-col py-[30px] px-6 rounded-[37px] bg-[#FDFDFD]">
+      </div> 
+      
+       <div className=" flex flex-col py-[30px] px-6 rounded-[37px] bg-[#FDFDFD]">
         <div className="flex flex-col">
           <div className=" flex flex-row justify-between items-center">
             <SectionHeader
@@ -154,7 +153,9 @@ export default function AdminSettingClient() {
 
           <AdminPaymentSetting />
         </div>
-      </div>
+      </div>*/}
+
+      {/* third section */}
 
       {/* forth section */}
       {/* <div className=" flex flex-col py-[30px] px-6 rounded-[37px] bg-[#FDFDFD]">

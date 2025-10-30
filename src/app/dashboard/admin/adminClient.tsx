@@ -186,7 +186,7 @@ export default function AdminPage() {
             <div className="flex flex-row justify-between mb-5 flex-wrap">
               <div className="flex flex-col">
                 <p className="text-xl font-medium text-[#0C0C0C]">
-                  Annual Revenue{`(${annualRevenue}$)`}
+                  Annual Revenue{`(${annualRevenue.toFixed(2)}$)`}
                 </p>
                 <p className="text-base font-normal text-[#717171]">
                   Latest system events and user actions
