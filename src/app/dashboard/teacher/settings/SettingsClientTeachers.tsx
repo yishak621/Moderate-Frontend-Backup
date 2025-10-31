@@ -2,12 +2,13 @@
 
 import { SettingItem } from "@/app/types/user";
 import SectionHeader from "@/components/SectionHeader";
+import SubscriptionDetails from "@/components/SubscriptionDetails";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
 import Textarea from "@/components/ui/Textarea";
 import { useUserData, useUserSaveSettings } from "@/hooks/useUser";
 import ToggleSetting from "@/modules/dashboard/admin/ToggleSetting";
-import { Bell, Globe, Settings, Shield, User } from "lucide-react";
+import { Bell, Globe, Settings, Shield, User, CreditCard } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
@@ -62,8 +63,26 @@ export default function SettingsClientTeachers() {
   }, [isSuccess, user]);
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className=" flex flex-col gap-5">
-      {/* mid section */}
+    <div className="flex flex-col gap-5">
+      {/* Subscription Section */}
+      {user && (
+        <div className=" flex flex-col py-[30px] px-6 rounded-[37px] bg-[#FDFDFD]">
+          <div className="flex flex-col">
+            <SectionHeader
+              title="Subscription & Billing"
+              icon={CreditCard}
+              subheader="View and manage your subscription details"
+            />
+            <div className="mt-6">
+              <SubscriptionDetails user={user} />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Settings Form */}
+      <form onSubmit={handleSubmit(onSubmit)} className=" flex flex-col gap-5">
+        {/* mid section */}
       <div className=" flex flex-col py-[30px] px-6 rounded-[37px] bg-[#FDFDFD]">
         <div className="flex flex-col">
           <SectionHeader
@@ -164,6 +183,7 @@ export default function SettingsClientTeachers() {
           )}
         </Button>
       </div>
-    </form>
+      </form>
+    </div>
   );
 }

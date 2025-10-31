@@ -12,6 +12,7 @@ import { jwtDecode } from "jwt-decode";
 import { customJwtPayload } from "@/types/postAttributes";
 import Link from "next/link";
 import { useUserData } from "@/hooks/useUser";
+import SubscriptionDetails from "@/components/SubscriptionDetails";
 
 export default function PricingSection() {
   //hooks
@@ -141,6 +142,15 @@ export default function PricingSection() {
           })}
         </div>
       )}
+
+      {/* Subscription Details Section - Only show if user is authenticated and has subscription data */}
+      {user &&
+        (user.subscriptionStatus === "active" ||
+          user.subscriptions?.length > 0) && (
+          <div className="w-full max-w-6xl mx-auto mt-20 px-4">
+            <SubscriptionDetails user={user} />
+          </div>
+        )}
     </section>
   );
 }

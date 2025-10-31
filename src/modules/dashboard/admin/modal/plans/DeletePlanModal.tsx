@@ -30,6 +30,16 @@ export default function DeletePlanModal({ Plan }: { Plan: Plan }) {
     }
   }, [isDeletePlanSuccess, close]);
 
+  useEffect(() => {
+    if (isDeletePlanError && deletingPlanError) {
+      const errorMessage =
+        deletingPlanError instanceof Error
+          ? deletingPlanError.message
+          : "Failed to delete plan";
+      toast.error(errorMessage);
+    }
+  }, [isDeletePlanError, deletingPlanError]);
+
   return (
     <div className=" bg-[#FDFDFD] min-w-[551px] p-10 rounded-[27px] flex flex-col">
       {/* Header */}

@@ -134,8 +134,11 @@ export default function AdminSettingClient() {
           </div>
         </div>
       </div> 
-      
-       <div className=" flex flex-col py-[30px] px-6 rounded-[37px] bg-[#FDFDFD]">
+      */}
+
+      {/* third section */}
+
+      <div className=" flex flex-col py-[30px] px-6 rounded-[37px] bg-[#FDFDFD]">
         <div className="flex flex-col">
           <div className=" flex flex-row justify-between items-center">
             <SectionHeader
@@ -143,20 +146,17 @@ export default function AdminSettingClient() {
               icon={Globe}
               subheader="Configure Stripe integration and pricing plans"
             />
-            <Button
+            {/* <Button
               icon={<Plus size={23} />}
               onClick={() => handleOpenModal(CreateNewPlanModal)}
             >
               Create New Plan
-            </Button>
+            </Button> */}
           </div>
 
           <AdminPaymentSetting />
         </div>
-      </div>*/}
-
-      {/* third section */}
-
+      </div>
       {/* forth section */}
       {/* <div className=" flex flex-col py-[30px] px-6 rounded-[37px] bg-[#FDFDFD]">
         <div className="flex flex-col">

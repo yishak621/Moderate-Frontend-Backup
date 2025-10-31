@@ -7,9 +7,9 @@ import Button from "@/components/ui/Button";
 import { Curricular } from "@/app/types/curricular";
 import {
   useAdminCurricularAreaEditData,
-  useAdminUpdatePlan,
   useAdminUpdateSiteSetting,
 } from "@/hooks/UseAdminRoutes";
+import { useUpdatePlansApiData } from "@/hooks/usePublicRoutes";
 import { Controller, useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import ToggleSetting from "../../ToggleSetting";
@@ -43,27 +43,45 @@ export default function EditPlanModal({ Plan }: { Plan: Plan }) {
   } = useForm<Plan>();
 
   const {
-    editPlan,
-    editPlanAsync,
-    isEditingPlanError,
-    isEditingPlanLoading,
-    isEditingPlanSuccess,
-  } = useAdminUpdatePlan(Plan.stripePriceId ?? "");
+    updatePlansApiData,
+    updatePlansApiDataAsync,
+    isLoading: isEditingPlanLoading,
+    isSuccess: isEditingPlanSuccess,
+    isError: isEditingPlanError,
+    error: editingPlanError,
+  } = useUpdatePlansApiData();
 
   if (!Plan) return null;
 
   const onSubmit = async (data: Plan) => {
-    // parse feature string to array
+    // parse feature string to array (can also send as string - server accepts both)
     const featuresArr = featuresInput
       .split(",")
       .map((f) => f.trim())
       .filter(Boolean);
-    const finalData = {
-      ...data,
-      features: featuresArr,
+
+    // Prepare update payload with only allowed fields (matches AllowedPlanUpdate type)
+    const updateData = {
+      name: data.name,
+      description: data.description,
+      price: data.price,
+      currency: data.currency,
+      interval: data.interval,
+      features: featuresArr, // Send as array (server normalizes if needed)
+      savings: data.savings || undefined,
+      sortOrder: data.sortOrder || undefined,
+      isPopular: data.isPopular,
+      isActive: data.isActive,
     };
+
     try {
-      await editPlanAsync(finalData);
+      // Type assertion: updateData matches AllowedPlanUpdate (no id field needed)
+      await updatePlansApiDataAsync({
+        id: Plan.id,
+        data: updateData as Parameters<
+          typeof updatePlansApiDataAsync
+        >[0]["data"],
+      });
       toast.success("Plan updated successfully!");
       close();
     } catch (err) {
@@ -148,7 +166,10 @@ export default function EditPlanModal({ Plan }: { Plan: Plan }) {
                   (option) => option.value === Plan.isActive
                 )}
                 placeholder="Select isActive"
-                onChange={field.onChange}
+                onChange={(selected) => {
+                  const value = selected?.value;
+                  field.onChange(typeof value === "boolean" ? value : false);
+                }}
               />
             )}
           />
@@ -166,8 +187,11 @@ export default function EditPlanModal({ Plan }: { Plan: Plan }) {
                 defaultValue={popularOptions.find(
                   (option) => option.value === Plan.isPopular
                 )}
-                placeholder="Select isActive"
-                onChange={field.onChange}
+                placeholder="Select isPopular"
+                onChange={(selected) => {
+                  const value = selected?.value;
+                  field.onChange(typeof value === "boolean" ? value : false);
+                }}
               />
             )}
           />

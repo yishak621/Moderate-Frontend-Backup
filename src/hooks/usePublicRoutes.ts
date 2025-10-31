@@ -3,8 +3,11 @@ import {
   plansPublic,
   subjectDomains,
   createCheckoutSession,
+  updatePlansApiData,
 } from "@/services/public.service";
 import { useQuery, useMutation } from "@tanstack/react-query";
+import { Plan } from "@/types/admin.type";
+import { queryClient } from "@/lib/queryClient";
 
 export function useSubjectDomains() {
   const { data, isLoading, isSuccess, isError, error } = useQuery({
@@ -51,6 +54,31 @@ export function useCreateCheckoutSession() {
 
   return {
     createCheckout: mutation.mutateAsync,
+    isLoading: mutation.isPending,
+    isSuccess: mutation.isSuccess,
+    isError: mutation.isError,
+    error: mutation.error,
+  };
+}
+
+export function useUpdatePlansApiData() {
+  const mutation = useMutation({
+    mutationFn: ({ id, data }: { id: string; data: Plan }) =>
+      updatePlansApiData(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["allPlans"],
+        exact: false,
+      });
+    },
+    onError: (error) => {
+      console.error(error);
+    },
+  });
+
+  return {
+    updatePlansApiData: mutation.mutate,
+    updatePlansApiDataAsync: mutation.mutateAsync,
     isLoading: mutation.isPending,
     isSuccess: mutation.isSuccess,
     isError: mutation.isError,
