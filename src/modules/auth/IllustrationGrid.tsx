@@ -34,7 +34,10 @@ export default function IllustrationGrid() {
             <div className="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-sm mb-4">
               {index + 1}
             </div>
-
+            {/* Step Title */}
+            <h3 className="text-sm font-semibold text-gray-700 text-center mb-3">
+              {step.title}
+            </h3>
             {/* Illustration Image */}
             <div className=" rounded-full bg-gray-100 flex items-center justify-center mb-4">
               <img
@@ -43,11 +46,6 @@ export default function IllustrationGrid() {
                 className="w-full h-full object-contain"
               />
             </div>
-
-            {/* Step Title */}
-            <h3 className="text-sm font-semibold text-gray-700 text-center">
-              {step.title}
-            </h3>
           </div>
         ))}
       </div>

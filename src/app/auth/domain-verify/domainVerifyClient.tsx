@@ -14,24 +14,32 @@ import { useDomainVerify, useLogin } from "@/hooks/useAuth";
 import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
 import { useSearchParams } from "next/navigation";
+import Link from "next/link";
 
 const steps = [
   {
-    title: "Domain Check",
-    desc: "Enter your school admin email",
+    title: "Domain Verification",
+    desc: "Enter your official school admin email to verify the domain.",
   },
   {
     title: "Verification Sent",
-    desc: "We sent a verification link to the school admin. You can change the email if it was incorrect.",
+    desc: "A verification link has been sent to the school admin’s email. You can update it if the address is incorrect.",
   },
   {
-    title: "Pending Approval",
-    desc: "We received the verification. Your account will be activated once the admin approves it.",
+    title: "Awaiting Approval",
+    desc: "We’ve received the verification. Your account will be activated once approved by the school admin.",
   },
 ];
 
 export default function DomainVerification() {
-  const [step, setStep] = useState(0);
+  const searchParams = useSearchParams();
+  const urlEmail = searchParams.get("email");
+  const urlCode = searchParams.get("code");
+
+  // Check if coming from PENDING_ADMIN_VERIFICATION error
+  const isPendingVerification = urlCode === "PENDING_ADMIN_VERIFICATION";
+
+  const [step, setStep] = useState(isPendingVerification ? 2 : 0);
 
   const nextStep = () => {
     if (step < steps.length - 1) setStep(step + 1);
@@ -43,6 +51,7 @@ export default function DomainVerification() {
     handleSubmit,
     formState: { errors },
     watch,
+    setValue,
   } = useForm<domainVerifyFormDataTypes>();
 
   const schoolDomainAdminEmail = watch("email");
@@ -56,10 +65,16 @@ export default function DomainVerification() {
     error,
   } = useDomainVerify();
 
-  const searchParams = useSearchParams();
+  // Set email from URL if available and code is PENDING_ADMIN_VERIFICATION
+  useEffect(() => {
+    if (isPendingVerification && urlEmail) {
+      setValue("email", urlEmail);
+    }
+  }, [isPendingVerification, urlEmail, setValue]);
 
   const onSubmit = async (data: domainVerifyFormDataTypes) => {
-    const teacherEmail = searchParams.get("email") as string;
+    const teacherEmail =
+      (searchParams.get("email") as string) || urlEmail || "";
     try {
       const res = await domainVerifyAsync({ ...data, teacherEmail });
     } catch (err) {
@@ -77,6 +92,14 @@ export default function DomainVerification() {
       setStep(1);
     }
   }, [isSuccess]);
+
+  const handleResendLink = () => {
+    // Reset to step 0 to allow resending
+    setStep(0);
+    toast.success(
+      "Please enter the admin email to resend the verification link"
+    );
+  };
 
   return (
     <div className="flex flex-col items-center justify-center min-h-[500px] px-4 py-6 sm:px-6 md:py-12 overflow-y-scroll scrollbar-hide">
@@ -175,10 +198,11 @@ export default function DomainVerification() {
           {step === 1 && (
             <div className="flex flex-col gap-3">
               <div className="text-sm text-gray-600">
-                We have send a verification link to the school admin which is{" "}
+                We’ve sent a verification link to the school admin at{" "}
                 <span className="font-medium">{schoolDomainAdminEmail}</span>.
-                You can change the email if it was incorrect.
+                You can change the email if it’s incorrect.
               </div>
+
               <button
                 onClick={nextStep}
                 className="bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700"
@@ -196,41 +220,79 @@ export default function DomainVerification() {
 
           {step === 2 && (
             <div className="flex flex-col items-center text-center py-8">
-              {/* Success Icon */}
-              <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mb-6">
-                <svg
-                  className="w-10 h-10 text-green-600"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M5 13l4 4L19 7"
-                  />
-                </svg>
+              {/* Icon */}
+              <div
+                className={`w-20 h-20 ${
+                  isPendingVerification ? "bg-yellow-100" : "bg-green-100"
+                } rounded-full flex items-center justify-center mb-6`}
+              >
+                {isPendingVerification ? (
+                  <CircleAlert className="w-10 h-10 text-yellow-600" />
+                ) : (
+                  <svg
+                    className="w-10 h-10 text-green-600"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M5 13l4 4L19 7"
+                    />
+                  </svg>
+                )}
               </div>
 
-              {/* Success Title */}
+              {/* Title */}
               <h3 className="text-xl font-semibold text-gray-800 mb-3">
-                Verification Received!
+                {isPendingVerification
+                  ? "Awaiting Admin Verification"
+                  : "Verification Request Received!"}
               </h3>
 
-              {/* Success Description */}
+              {/* Description */}
               <p className="text-gray-600 mb-6 leading-relaxed">
-                We have successfully received your domain verification request.
-                Your account will be activated once the school administrator
-                approves your request.
+                {isPendingVerification ? (
+                  <>
+                    Your account is waiting for school admin verification.
+                    Please wait for your school administrator to verify your
+                    email domain before you can access the platform.
+                    <br />
+                    <br />
+                    You can check your email for updates or resend the
+                    verification link if needed.
+                  </>
+                ) : (
+                  <>
+                    We have successfully received your domain verification
+                    request. Your account will be activated once the school
+                    administrator approves your request.
+                  </>
+                )}
               </p>
 
               {/* Status Card */}
-              <div className="w-full bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+              <div
+                className={`w-full ${
+                  isPendingVerification
+                    ? "bg-yellow-50 border-yellow-200"
+                    : "bg-blue-50 border-blue-200"
+                } border rounded-lg p-4 mb-6`}
+              >
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                  <div
+                    className={`w-8 h-8 ${
+                      isPendingVerification ? "bg-yellow-100" : "bg-blue-100"
+                    } rounded-full flex items-center justify-center`}
+                  >
                     <svg
-                      className="w-4 h-4 text-blue-600"
+                      className={`w-4 h-4 ${
+                        isPendingVerification
+                          ? "text-yellow-600"
+                          : "text-blue-600"
+                      }`}
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -244,11 +306,25 @@ export default function DomainVerification() {
                     </svg>
                   </div>
                   <div className="text-left">
-                    <p className="text-sm font-medium text-blue-800">
+                    <p
+                      className={`text-sm font-medium ${
+                        isPendingVerification
+                          ? "text-yellow-800"
+                          : "text-blue-800"
+                      }`}
+                    >
                       Awaiting Admin Approval
                     </p>
-                    <p className="text-xs text-blue-600">
-                      You will receive an email notification once approved
+                    <p
+                      className={`text-xs ${
+                        isPendingVerification
+                          ? "text-yellow-600"
+                          : "text-blue-600"
+                      }`}
+                    >
+                      {isPendingVerification
+                        ? "Check your email or resend the verification link if needed."
+                        : "You'll receive an email notification once your request is approved."}
                     </p>
                   </div>
                 </div>
@@ -256,18 +332,30 @@ export default function DomainVerification() {
 
               {/* Action Buttons */}
               <div className="flex flex-col gap-3 w-full">
-                <button
-                  onClick={() => (window.location.href = "/auth/login")}
-                  className="w-full bg-blue-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-blue-700 transition-colors duration-200"
+                {isPendingVerification && (
+                  <Button
+                    onClick={handleResendLink}
+                    className="w-full bg-blue-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-blue-700 transition-colors duration-200"
+                  >
+                    Resend Verification Link
+                  </Button>
+                )}
+                <Link
+                  href="/"
+                  className={`w-full ${
+                    isPendingVerification
+                      ? "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                      : "bg-blue-600 text-white hover:bg-blue-700"
+                  } py-3 px-4 rounded-lg font-medium transition-colors duration-200`}
                 >
                   Go to Homepage
-                </button>
-                <button
-                  onClick={() => (window.location.href = "/static/features")}
+                </Link>
+                <Link
+                  href="/features"
                   className="w-full text-blue-600 py-2 px-4 rounded-lg font-medium hover:bg-blue-50 transition-colors duration-200"
                 >
                   Discover our features
-                </button>
+                </Link>
               </div>
             </div>
           )}

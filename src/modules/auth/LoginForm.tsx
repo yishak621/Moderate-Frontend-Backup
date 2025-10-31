@@ -9,7 +9,7 @@ import { AxiosError } from "axios";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 
@@ -20,6 +20,7 @@ interface LoginFormDataTypes {
 
 export default function LoginForm() {
   const router = useRouter();
+  const [submittedEmail, setSubmittedEmail] = useState<string>("");
 
   //react hook form
   const {
@@ -32,6 +33,7 @@ export default function LoginForm() {
     useLogin();
 
   const onSubmit = async (data: LoginFormDataTypes) => {
+    setSubmittedEmail(data.email); // Store email for error handling
     try {
       const res = await loginAsync(data);
     } catch (err) {
@@ -49,8 +51,35 @@ export default function LoginForm() {
       router.push("/dashboard/teacher");
     } else if (isSuccess && user && user.role === "SYSTEM_ADMIN") {
       router.push("/dashboard/admin");
+    } else if (isError && error) {
+      // Check if it's a PENDING_ADMIN_VERIFICATION error
+      // Error code is now preserved by auth.service.ts
+      const errorCode =
+        (error as any)?.code ||
+        (error as any)?.response?.data?.code ||
+        ((error as AxiosError<{ code?: string }>)?.response?.data as any)?.code;
+
+      if (errorCode === "PENDING_ADMIN_VERIFICATION") {
+        // Use submitted email or try to get from error response
+        const axiosError = error as AxiosError<{
+          pendingVerification?: { adminEmail?: string };
+        }>;
+        const email =
+          submittedEmail ||
+          user?.email ||
+          axiosError?.response?.data?.pendingVerification?.adminEmail ||
+          "";
+
+        if (email) {
+          router.push(
+            `/auth/domain-verify?email=${encodeURIComponent(
+              email
+            )}&code=${errorCode}`
+          );
+        }
+      }
     }
-  }, [isSuccess, user, router]);
+  }, [isSuccess, user, router, isError, error, submittedEmail]);
 
   return (
     <form

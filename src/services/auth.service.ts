@@ -25,6 +25,26 @@ export const login = async (data: loginFormDataTypes) => {
     }
     return res.data.user;
   } catch (error) {
+    // Preserve error structure for special error codes
+    if (error && typeof error === "object" && "response" in error) {
+      const axiosError = error as any;
+      const responseData = axiosError.response?.data;
+
+      // If there's a specific error code, preserve the structure
+      if (responseData?.code) {
+        const customError = new Error(
+          responseData.message || axiosError.message || "Something went wrong"
+        ) as Error & { code?: string; response?: any };
+        customError.code = responseData.code;
+        customError.response = axiosError.response;
+        throw customError;
+      }
+
+      throw new Error(
+        responseData?.message || axiosError.message || "Something went wrong"
+      );
+    }
+
     if (error instanceof Error) {
       console.error(error);
       throw new Error(
