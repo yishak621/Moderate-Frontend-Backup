@@ -1,9 +1,33 @@
-"use client";
-
+import type { Metadata } from "next";
 import LoadingFallback from "@/components/LoadingFallback";
 import DomainVerification from "./domainVerifyClient";
 import IllustrationGrid from "@/modules/auth/IllustrationGrid";
 import { Suspense } from "react";
+
+export const metadata: Metadata = {
+  title: "Domain Verification",
+  description:
+    "Verify your school domain email address to complete registration and access your Moderate Tech school management account.",
+  keywords: [
+    "domain verification",
+    "email domain verification",
+    "school domain",
+    "domain verify",
+  ],
+  robots: {
+    index: false,
+    follow: false,
+  },
+  openGraph: {
+    title: "Domain Verification | Moderate Tech",
+    description:
+      "Verify your school domain email address to complete registration.",
+    url: "/auth/domain-verify",
+  },
+  alternates: {
+    canonical: "/auth/domain-verify",
+  },
+};
 
 export default function DomainVerifyPage() {
   return (

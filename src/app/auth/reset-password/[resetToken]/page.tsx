@@ -1,6 +1,30 @@
-"use client";
-
+import type { Metadata } from "next";
 import ResetPasswordForm from "@/modules/auth/ResetPasswordForm";
+
+export const metadata: Metadata = {
+  title: "Reset Password",
+  description:
+    "Reset your Moderate Tech account password using the secure reset link. Create a new password to regain access to your account.",
+  keywords: [
+    "reset password",
+    "password reset",
+    "change password",
+    "new password",
+  ],
+  robots: {
+    index: false,
+    follow: false,
+  },
+  openGraph: {
+    title: "Reset Password | Moderate Tech",
+    description:
+      "Reset your Moderate Tech account password using the secure reset link.",
+    url: "/auth/reset-password",
+  },
+  alternates: {
+    canonical: "/auth/reset-password",
+  },
+};
 
 export default function ResetPasswordPage() {
   return (

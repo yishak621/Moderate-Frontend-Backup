@@ -1,7 +1,33 @@
-"use client";
-
+import type { Metadata } from "next";
 import LoginScreen from "@/modules/auth/LoginScreen";
 import RegisterForm from "@/modules/auth/RegisterForm";
+
+export const metadata: Metadata = {
+  title: "Register",
+  description:
+    "Create your Moderate Tech account. Join schools and educational institutions using our comprehensive school management platform. Start with a free trial.",
+  keywords: [
+    "register",
+    "sign up",
+    "create account",
+    "school management signup",
+    "teacher registration",
+    "education platform signup",
+  ],
+  robots: {
+    index: false,
+    follow: false,
+  },
+  openGraph: {
+    title: "Register | Moderate Tech",
+    description:
+      "Create your Moderate Tech account and start managing your school effectively.",
+    url: "/auth/register",
+  },
+  alternates: {
+    canonical: "/auth/register",
+  },
+};
 
 export default function RegisterPage() {
   return (

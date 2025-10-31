@@ -1,7 +1,31 @@
-"use client";
-
+import type { Metadata } from "next";
 import ForgotPasswordForm from "@/modules/auth/ForgotPassword";
 import LoginScreen from "@/modules/auth/LoginScreen";
+
+export const metadata: Metadata = {
+  title: "Forgot Password",
+  description:
+    "Reset your Moderate Tech account password. Enter your email address to receive password reset instructions.",
+  keywords: [
+    "forgot password",
+    "reset password",
+    "password recovery",
+    "account recovery",
+  ],
+  robots: {
+    index: false,
+    follow: false,
+  },
+  openGraph: {
+    title: "Forgot Password | Moderate Tech",
+    description:
+      "Reset your Moderate Tech account password. Enter your email to receive reset instructions.",
+    url: "/auth/forgot-password",
+  },
+  alternates: {
+    canonical: "/auth/forgot-password",
+  },
+};
 
 export default function ForgotPasswordPage() {
   return (

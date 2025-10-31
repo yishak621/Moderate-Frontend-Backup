@@ -1,7 +1,32 @@
-"use client";
-
+import type { Metadata } from "next";
 import LoginForm from "@/modules/auth/LoginForm";
 import LoginScreen from "@/modules/auth/LoginScreen";
+
+export const metadata: Metadata = {
+  title: "Login",
+  description:
+    "Login to your Moderate Tech account. Access your school management dashboard, grading tools, announcements, and more.",
+  keywords: [
+    "login",
+    "sign in",
+    "school management login",
+    "teacher login",
+    "admin login",
+    "education platform login",
+  ],
+  robots: {
+    index: false,
+    follow: false,
+  },
+  openGraph: {
+    title: "Login | Moderate Tech",
+    description: "Login to your Moderate Tech account to access your dashboard.",
+    url: "/auth/login",
+  },
+  alternates: {
+    canonical: "/auth/login",
+  },
+};
 
 export default function LoginPage() {
   return (

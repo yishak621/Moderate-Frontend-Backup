@@ -1,7 +1,25 @@
-"use client";
-
+import type { Metadata } from "next";
 import PaymentStatusClient from "../PaymentStatusClient";
 import { XCircle } from "lucide-react";
+
+export const metadata: Metadata = {
+  title: "Payment Failed",
+  description:
+    "Your payment could not be processed. Please check your payment details and try again, or contact support for assistance.",
+  robots: {
+    index: false,
+    follow: false,
+  },
+  openGraph: {
+    title: "Payment Failed | Moderate Tech",
+    description:
+      "Your payment could not be processed. Please try again or contact support.",
+    url: "/payment/failed",
+  },
+  alternates: {
+    canonical: "/payment/failed",
+  },
+};
 
 export default function PaymentFailedPage() {
   return (
