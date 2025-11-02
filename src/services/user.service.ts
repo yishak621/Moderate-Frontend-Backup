@@ -329,6 +329,92 @@ export const saveUserSettings = async (data: { settings: SettingItem }) => {
     }
   }
 };
+
+//-------------------UPLOAD PROFILE PICTURE
+
+export const uploadProfilePicture = async (file: File) => {
+  try {
+    const formData = new FormData();
+    formData.append("picture", file);
+
+    const res = await axiosInstance.post("/api/user/profile/picture", formData);
+
+    if (!res) {
+      console.log("error");
+    }
+
+    return res.data.user;
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error(error);
+      throw new Error(
+        // @ts-expect-error: might be Axios error with response
+        error?.response?.data?.message ||
+          error.message ||
+          "Something went wrong"
+      );
+    } else {
+      console.error("Unknown error", error);
+      throw new Error("Something went wrong");
+    }
+  }
+};
+
+//-------------------DELETE PROFILE PICTURE
+
+export const deleteProfilePicture = async () => {
+  try {
+    const res = await axiosInstance.delete("/api/user/profile/picture");
+
+    if (!res) {
+      console.log("error");
+    }
+
+    return res.data.user;
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error(error);
+      throw new Error(
+        // @ts-expect-error: might be Axios error with response
+        error?.response?.data?.message ||
+          error.message ||
+          "Something went wrong"
+      );
+    } else {
+      console.error("Unknown error", error);
+      throw new Error("Something went wrong");
+    }
+  }
+};
+
+//-------------------DELETE ACCOUNT
+
+export const deleteAccount = async (password?: string) => {
+  try {
+    const res = await axiosInstance.delete("/api/user/account", {
+      data: password ? { password } : undefined,
+    });
+
+    if (!res) {
+      console.log("error");
+    }
+
+    return res.data;
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error(error);
+      throw new Error(
+        // @ts-expect-error: might be Axios error with response
+        error?.response?.data?.message ||
+          error.message ||
+          "Something went wrong"
+      );
+    } else {
+      console.error("Unknown error", error);
+      throw new Error("Something went wrong");
+    }
+  }
+};
 // {
 //   title: "Chemistry midterm exam",
 //   description: "Post description",

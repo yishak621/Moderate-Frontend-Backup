@@ -15,6 +15,7 @@ import { useRouter } from "next/navigation";
 import { LogIn, UserPlus, LogOut, User, Shield } from "lucide-react";
 import { useUserData } from "@/hooks/useUser";
 import PopupCard from "@/components/PopCard";
+import UserAvatar from "@/components/UserAvatar";
 
 const publicNavigationLinks = [
   { name: "About", href: "/about" },
@@ -170,12 +171,10 @@ export default function Navbar() {
                 >
                   {/* User Profile */}
                   <div className="flex flex-col justify-center items-center w-[51px] h-[51px] rounded-full bg-white">
-                    <Image
-                      className="w-11 h-11 rounded-full border-2 border-[#368FFF] object-cover"
-                      src="/images/sample-user.png"
-                      alt="user image"
-                      width={44}
-                      height={44}
+                    <UserAvatar
+                      profilePictureUrl={user?.profilePictureUrl}
+                      name={user?.name}
+                      size="md"
                     />
                   </div>
 
@@ -325,10 +324,10 @@ export default function Navbar() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.3, ease: "easeInOut" }}
-            className="md:hidden absolute top-full left-0 right-0 w-full bg-white/80 border-t border-white/20 shadow-2xl py-6 pb-8 sm:pb-auto px-4 z-50"
+            className="md:hidden absolute top-full left-0 right-0 w-full bg-white/80 border-t border-white/20 shadow-2xl z-50 max-h-[calc(100vh-4rem)] overflow-hidden flex flex-col"
           >
             <div
-              className="flex flex-col gap-2 backdrop-blur-2xl w-full h-screen"
+              className="flex flex-col gap-2 backdrop-blur-2xl w-full overflow-y-auto scrollbar-hide px-4 py-6 pb-8"
               style={{
                 backdropFilter: "blur(20px) saturate(180%)",
                 WebkitBackdropFilter: "blur(20px) saturate(180%)",
@@ -367,12 +366,10 @@ export default function Navbar() {
                 >
                   <div className="flex flex-row gap-3 items-center px-4 py-3 bg-gray-50 rounded-lg">
                     <div className="flex flex-col justify-center items-center w-[44px] h-[44px] rounded-full bg-white">
-                      <Image
-                        className="w-10 h-10 rounded-full border-2 border-[#368FFF] object-cover"
-                        src="/images/sample-user.png"
-                        alt="user image"
-                        width={40}
-                        height={40}
+                      <UserAvatar
+                        profilePictureUrl={user?.profilePictureUrl}
+                        name={user?.name}
+                        size="md"
                       />
                     </div>
                     <div className="flex flex-col gap-1 flex-1">

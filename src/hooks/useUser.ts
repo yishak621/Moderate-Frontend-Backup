@@ -2,11 +2,14 @@ import { SettingItem, User } from "@/app/types/user";
 import { queryClient } from "@/lib/queryClient";
 import {
   deleteFileApi,
+  deleteProfilePicture,
+  deleteAccount,
   getAllAnnouncements,
   saveUserGrade,
   saveUserSettings,
   updateUserData,
   uploadFileApi,
+  uploadProfilePicture,
   userCreatePost,
   userData,
   userMyPostsFeeds,
@@ -296,5 +299,77 @@ export const useUpdatePassword = () => {
     isUpdatingPasswordSuccess: isSuccess,
     isUpdatingPasswordError: isError,
     updatingPasswordError: error,
+  };
+};
+
+//--------------------UPLOAD PROFILE PICTURE
+export const useUploadProfilePicture = () => {
+  const { mutate, mutateAsync, data, isPending, isSuccess, isError, error } =
+    useMutation({
+      mutationFn: (file: File) => uploadProfilePicture(file),
+      onSuccess: () => {
+        toast.success("Profile picture uploaded successfully!");
+        queryClient.invalidateQueries({
+          queryKey: ["me"],
+          exact: false,
+        });
+      },
+    });
+
+  return {
+    uploadProfilePicture: mutate,
+    uploadProfilePictureAsync: mutateAsync,
+    data,
+    isUploadingProfilePictureLoading: isPending,
+    isUploadingProfilePictureSuccess: isSuccess,
+    isUploadingProfilePictureError: isError,
+    uploadingProfilePictureError: error,
+  };
+};
+
+//--------------------DELETE PROFILE PICTURE
+export const useDeleteProfilePicture = () => {
+  const { mutate, mutateAsync, data, isPending, isSuccess, isError, error } =
+    useMutation({
+      mutationFn: () => deleteProfilePicture(),
+      onSuccess: () => {
+        toast.success("Profile picture deleted successfully!");
+        queryClient.invalidateQueries({
+          queryKey: ["me"],
+          exact: false,
+        });
+      },
+    });
+
+  return {
+    deleteProfilePicture: mutate,
+    deleteProfilePictureAsync: mutateAsync,
+    data,
+    isDeletingProfilePictureLoading: isPending,
+    isDeletingProfilePictureSuccess: isSuccess,
+    isDeletingProfilePictureError: isError,
+    deletingProfilePictureError: error,
+  };
+};
+
+//--------------------DELETE ACCOUNT
+export const useDeleteAccount = () => {
+  const { mutate, mutateAsync, data, isPending, isSuccess, isError, error } =
+    useMutation({
+      mutationFn: (password?: string) => deleteAccount(password),
+      onSuccess: () => {
+        toast.success("Account deleted successfully!");
+        queryClient.clear();
+      },
+    });
+
+  return {
+    deleteAccount: mutate,
+    deleteAccountAsync: mutateAsync,
+    data,
+    isDeletingAccountLoading: isPending,
+    isDeletingAccountSuccess: isSuccess,
+    isDeletingAccountError: isError,
+    deletingAccountError: error,
   };
 };

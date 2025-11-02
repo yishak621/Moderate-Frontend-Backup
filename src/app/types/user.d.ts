@@ -35,6 +35,7 @@ export interface User {
   role?: string;
   isVerified?: boolean;
   isDisabled?: boolean;
+  profilePictureUrl?: string | null;
   stripeCustomerId?: string | null;
   freeTrialStartDate?: string | null;
   freeTrialEndDate?: string | null;

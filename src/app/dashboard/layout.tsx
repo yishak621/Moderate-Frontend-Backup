@@ -30,6 +30,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useUserData } from "@/hooks/useUser";
 import PopupCard from "@/components/PopCard";
 import { queryClient } from "@/lib/queryClient";
+import UserAvatar from "@/components/UserAvatar";
 
 type Role = "SYSTEM_ADMIN" | "TEACHER";
 
@@ -171,12 +172,10 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
            USER PROFILE
             */}
           <div className=" flex flex-col justify-center items-center  w-[51px] h-[51px] rounded-full bg-white">
-            <Image
-              className="w-11 h-11 rounded-full  border-2 border-[#368FFF] object-cover"
-              src="/images/sample-user.png"
-              alt="sample user image"
-              width={44}
-              height={44}
+            <UserAvatar
+              profilePictureUrl={user?.profilePictureUrl || ""}
+              name={user?.name}
+              size="md"
             />
           </div>
 
@@ -254,12 +253,10 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
            USER PROFILE
             */}
           <div className=" flex flex-col justify-center items-center  w-[51px] h-[51px] rounded-full bg-white">
-            <Image
-              className="w-11 h-11 rounded-full  border-2 border-[#368FFF] object-cover"
-              src="/images/sample-user.png"
-              alt="sample user image"
-              width={44}
-              height={44}
+            <UserAvatar
+              profilePictureUrl={user?.profilePictureUrl || ""}
+              name={user?.name}
+              size="md"
             />
           </div>
 
