@@ -25,7 +25,7 @@ export default function IllustrationGrid() {
   return (
     <div className="flex flex-col items-center justify-center  p-8">
       <h2 className="text-2xl font-bold text-gray-800 mb-8">
-        Verification Process
+        New Domain Verification Process
       </h2>
       <div className="grid grid-cols-2 gap-8 max-w-2xl">
         {steps.map((step, index) => (

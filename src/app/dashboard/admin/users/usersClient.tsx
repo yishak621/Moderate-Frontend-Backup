@@ -107,6 +107,10 @@ export default function UsersClient() {
             placeholder="Search by name or email"
             onChange={(val) => setSearch(val)}
             onSearch={(val) => setSearch(val)}
+            onClear={() => {
+              setSearch("");
+              setPage(1);
+            }}
             value={search}
           />
         </div>

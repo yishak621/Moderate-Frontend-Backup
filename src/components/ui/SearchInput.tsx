@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Search } from "lucide-react";
+import { Search, X } from "lucide-react";
 import clsx from "clsx";
 
 interface SearchInputProps {
@@ -9,6 +9,7 @@ interface SearchInputProps {
   placeholder?: string;
   onSearch: (value: string) => void;
   onChange?: (value: string) => void;
+  onClear?: () => void;
   className?: string;
   error?: string;
   value?: string;
@@ -20,11 +21,18 @@ export default function SearchInput({
   value, // ✅ now defined
   onSearch,
   onChange,
+  onClear,
   className,
   error,
 }: SearchInputProps) {
   const handleSearch = () => {
     onSearch(value || ""); // or just onSearch(value) since value is always string now
+  };
+
+  const handleClear = () => {
+    onChange?.("");
+    onClear?.();
+    onSearch("");
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -64,13 +72,25 @@ export default function SearchInput({
             "rounded-l-[62px] outline-0  text-gray-900"
           )}
         />
-        <button
-          type="button"
-          onClick={handleSearch}
-          className="px-4 pr-6 text-[#717171] cursor-pointer rounded-r-[62px] flex items-center justify-center"
-        >
-          <Search size={20} className="sm:w-5 sm:h-5" />
-        </button>
+        <div className="flex items-center gap-1 pr-2">
+          {value && value.length > 0 && (
+            <button
+              type="button"
+              onClick={handleClear}
+              className="p-1.5 hover:bg-gray-200 bg-gray-100 rounded-full transition-colors flex items-center justify-center"
+              aria-label="Clear search"
+            >
+              <X size={16} className="text-gray-600" />
+            </button>
+          )}
+          <button
+            type="button"
+            onClick={handleSearch}
+            className="px-4 text-[#717171] cursor-pointer rounded-r-[62px] flex items-center justify-center"
+          >
+            <Search size={20} className="sm:w-5 sm:h-5" />
+          </button>
+        </div>
       </div>
 
       {error && <p className="mt-1 text-sm text-red-500">{error}</p>}

@@ -203,10 +203,18 @@ export function useAdminUserDeleteData(id: string) {
 }
 
 // ADMIN CURRICULAR AREAS DATA
-export function useAdminCurricularAreasData(page: number) {
+export function useAdminCurricularAreasData(page: number, search?: string) {
+  // Debounced search
+  const [debouncedSearch, setDebouncedSearch] = useState(search || "");
+
+  useEffect(() => {
+    const handler = setTimeout(() => setDebouncedSearch(search || ""), 1000);
+    return () => clearTimeout(handler);
+  }, [search]);
+
   const query = useQuery({
-    queryKey: ["allCurricularAreas", page],
-    queryFn: () => getAllCurricularAreas(page),
+    queryKey: ["allCurricularAreas", page, debouncedSearch],
+    queryFn: () => getAllCurricularAreas(page, debouncedSearch),
     placeholderData: (prev) => prev,
     staleTime: 5 * 60 * 1000,
   });
@@ -214,17 +222,17 @@ export function useAdminCurricularAreasData(page: number) {
   // Prefetch next and previous pages
   useEffect(() => {
     queryClient.prefetchQuery({
-      queryKey: ["allCurricularAreas", page + 1],
-      queryFn: () => getAllCurricularAreas(page + 1),
+      queryKey: ["allCurricularAreas", page + 1, debouncedSearch],
+      queryFn: () => getAllCurricularAreas(page + 1, debouncedSearch),
     });
 
     if (page > 1) {
       queryClient.prefetchQuery({
-        queryKey: ["allCurricularAreas", page - 1],
-        queryFn: () => getAllCurricularAreas(page - 1),
+        queryKey: ["allCurricularAreas", page - 1, debouncedSearch],
+        queryFn: () => getAllCurricularAreas(page - 1, debouncedSearch),
       });
     }
-  }, [page]);
+  }, [page, debouncedSearch]);
 
   return {
     allCurricularAreas: query.data,
@@ -314,11 +322,19 @@ export function useAdminCurricularAreaDeleteData(id: string) {
   };
 }
 
-// ADMIN CURRICULAR AREAS DATA
-export function useAdminEmailDomainData(page: number) {
+// ADMIN EMAIL DOMAINS DATA
+export function useAdminEmailDomainData(page: number, search?: string) {
+  // Debounced search
+  const [debouncedSearch, setDebouncedSearch] = useState(search || "");
+
+  useEffect(() => {
+    const handler = setTimeout(() => setDebouncedSearch(search || ""), 1000);
+    return () => clearTimeout(handler);
+  }, [search]);
+
   const query = useQuery({
-    queryKey: ["allEmailDomains", page],
-    queryFn: () => getAllEmailDomains(page),
+    queryKey: ["allEmailDomains", page, debouncedSearch],
+    queryFn: () => getAllEmailDomains(page, debouncedSearch),
     placeholderData: (prev) => prev,
     staleTime: 5 * 60 * 1000,
   });
@@ -326,17 +342,17 @@ export function useAdminEmailDomainData(page: number) {
   // Prefetch next and previous pages
   useEffect(() => {
     queryClient.prefetchQuery({
-      queryKey: ["allEmailDomains", page + 1],
-      queryFn: () => getAllEmailDomains(page + 1),
+      queryKey: ["allEmailDomains", page + 1, debouncedSearch],
+      queryFn: () => getAllEmailDomains(page + 1, debouncedSearch),
     });
 
     if (page > 1) {
       queryClient.prefetchQuery({
-        queryKey: ["allEmailDomains", page - 1],
-        queryFn: () => getAllEmailDomains(page - 1),
+        queryKey: ["allEmailDomains", page - 1, debouncedSearch],
+        queryFn: () => getAllEmailDomains(page - 1, debouncedSearch),
       });
     }
-  }, [page]);
+  }, [page, debouncedSearch]);
 
   return {
     allEmailDomains: query.data,

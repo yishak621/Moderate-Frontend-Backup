@@ -18,6 +18,8 @@ import {
   User,
   LogOut,
   Shield,
+  BookOpen,
+  AtSign,
 } from "lucide-react";
 import DashboardShell, { NavItem } from "@/components/DashboardShell";
 import Image from "next/image";
@@ -44,9 +46,14 @@ function getSidebarItems(role: Role): NavItem[] {
       },
       { label: "User Management", icon: Users, href: "/dashboard/admin/users" },
       {
-        label: "Curricular Area Management",
-        icon: Globe,
-        href: "/dashboard/admin/curricular",
+        label: "Subject Areas",
+        icon: BookOpen,
+        href: "/dashboard/admin/subjects",
+      },
+      {
+        label: "Email Domains",
+        icon: AtSign,
+        href: "/dashboard/admin/domains",
       },
       {
         label: "Announcements",

@@ -7,6 +7,7 @@ import EditUserModal from "@/modules/dashboard/admin/modal/users/EditUserModal";
 import DeleteUserModal from "@/modules/dashboard/admin/modal/users/DeleteUserModal";
 import MessageUserModal from "@/modules/dashboard/admin/modal/users/MessageUserModal";
 import { User } from "@/app/types/user";
+import { timeAgo } from "@/lib/timeAgo";
 
 export function getUserColumns(
   handleOpenModal: <P>(component: ComponentType<P>, props?: P) => void
@@ -75,7 +76,9 @@ export function getUserColumns(
       accessorKey: "lastActive",
       header: "Last Active",
       cell: ({ row }) => (
-        <span className="text-gray-700">{row.original.lastSeen || "—"}</span>
+        <span className="text-gray-700">
+          {row.original?.lastSeen ? timeAgo(row.original?.lastSeen) : "Never"}
+        </span>
       ),
     },
     {

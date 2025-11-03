@@ -172,10 +172,15 @@ export const deleteUserData = async (id: string) => {
 };
 
 //-------------------GET ALL CURRICULAR AREAS
-export const getAllCurricularAreas = async (page: number) => {
+export const getAllCurricularAreas = async (page: number, search: string = "") => {
   try {
+    const params = new URLSearchParams({ page: page.toString() });
+    if (search.trim()) {
+      params.append("search", search.trim());
+    }
+    
     const res = await axiosInstance.get(
-      `/api/system/subject-domains/admin?page=${page}`
+      `/api/system/subject-domains/admin?${params.toString()}`
     );
 
     if (!res) {
@@ -281,10 +286,15 @@ export const deleteCurricularArea = async (id: string) => {
 };
 
 //-------------------GET ALL EMAIL DOMAINS
-export const getAllEmailDomains = async (page: number) => {
+export const getAllEmailDomains = async (page: number, search: string = "") => {
   try {
+    const params = new URLSearchParams({ page: page.toString() });
+    if (search.trim()) {
+      params.append("search", search.trim());
+    }
+    
     const res = await axiosInstance.get(
-      `/api/system/allowed-domains?page=${page}`
+      `/api/system/allowed-domains?${params.toString()}`
     );
 
     if (!res) {
