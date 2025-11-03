@@ -1,9 +1,10 @@
 "use client";
 import PopupCard from "@/components/PopCard";
-import { Ban, MoreVertical, Trash2 } from "lucide-react";
+import { Ban, MoreVertical, Trash2, User } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
+import Image from "next/image";
 
 interface ThreadBox {
   chatId?: string;
@@ -12,6 +13,7 @@ interface ThreadBox {
   lastMessage: string;
   isActive?: boolean;
   isOnline?: boolean;
+  profilePictureUrl?: string | null;
   onSelect?: (id: string) => void;
 }
 
@@ -22,6 +24,7 @@ export function ThreadBox({
   lastMessage,
   isActive = false,
   isOnline = false,
+  profilePictureUrl,
   onSelect,
 }: ThreadBox) {
   const router = useRouter();
@@ -57,17 +60,42 @@ export function ThreadBox({
     >
       {/* Top row */}
       <div className="flex flex-row justify-between items-start">
-        <div className="flex-1 min-w-0">
-          <div className=" flex flex-row gap-1 items-center">
-            {" "}
-            {isOnline && (
-              <span className="inline-block h-2 w-2 bg-green-500 rounded-full"></span>
+        <div className="flex-1 min-w-0 flex flex-row gap-3">
+          {/* Profile Picture */}
+          <div className="flex-shrink-0">
+            {profilePictureUrl ? (
+              <Image
+                src={profilePictureUrl}
+                alt={name || "Profile"}
+                width={48}
+                height={48}
+                className="w-12 h-12 rounded-full object-cover border-2 border-[#368FFF]"
+              />
+            ) : (
+              <div className="w-12 h-12 rounded-full bg-[#90BDFD] border-2 border-[#368FFF] flex items-center justify-center">
+                {name ? (
+                  <span className="text-white text-lg font-semibold">
+                    {name[0]?.toUpperCase()}
+                  </span>
+                ) : (
+                  <User className="w-6 h-6 text-white" />
+                )}
+              </div>
             )}
-            <p className="font-medium text-gray-800 truncate">{name}</p>
           </div>
-          <p className="text-[#717171] text-sm font-normal truncate">
-            {lastMessage}
-          </p>
+          {/* Name and Message */}
+          <div className="flex-1 min-w-0">
+            <div className=" flex flex-row gap-1 items-center">
+              {" "}
+              {isOnline && (
+                <span className="inline-block h-2 w-2 bg-green-500 rounded-full"></span>
+              )}
+              <p className="font-medium text-gray-800 truncate">{name}</p>
+            </div>
+            <p className="text-[#717171] text-sm font-normal truncate">
+              {lastMessage}
+            </p>
+          </div>
         </div>
 
         <div className="flex items-center gap-2 flex-shrink-0">

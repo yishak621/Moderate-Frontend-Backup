@@ -32,15 +32,20 @@ export function middleware(req: NextRequest) {
     return NextResponse.redirect(new URL("/auth/login", req.url));
   }
 
-  // If SYSTEM_ADMIN, allow only their own routes
-  if (
-    role === "SYSTEM_ADMIN" &&
-    !pathname.startsWith("/dashboard/admin") &&
-    !pathname.startsWith("/profile") &&
-    !AUTH_PAGES.includes(pathname)
-  ) {
-    console.log("SYSTEM_ADMIN trying to access non-admin route. Redirecting to /auth/login");
-    return NextResponse.redirect(new URL("/auth/login", req.url));
+  // Protect admin routes - only SYSTEM_ADMIN can access
+  if (pathname.startsWith("/dashboard/admin")) {
+    if (role !== "SYSTEM_ADMIN") {
+      console.log("Non-admin user trying to access admin route. Redirecting to /auth/login");
+      return NextResponse.redirect(new URL("/auth/login", req.url));
+    }
+  }
+
+  // Protect teacher routes - only TEACHER can access
+  if (pathname.startsWith("/dashboard/teacher")) {
+    if (role !== "TEACHER") {
+      console.log("Non-teacher user trying to access teacher route. Redirecting to /auth/login");
+      return NextResponse.redirect(new URL("/auth/login", req.url));
+    }
   }
 
   // Allow request

@@ -6,6 +6,8 @@ export type Threads = {
   lastMessageAt: string; // ISO date string
   messages: Message[];
   unreadCount: number;
+  partnerProfilePicture: string | null;
+  senderProfilePicture: string | null;
 };
 
 export interface Thread {

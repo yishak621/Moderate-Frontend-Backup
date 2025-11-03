@@ -25,6 +25,7 @@ import EmojiPicker from "emoji-picker-react";
 import { getToken } from "@/services/tokenService";
 import { useSearchParams } from "next/navigation";
 import { getSocketUrl } from "@/lib/socketConfig";
+import Image from "next/image";
 
 export default function MessagesClientTeachers() {
   const searchParams = useSearchParams();
@@ -36,6 +37,7 @@ export default function MessagesClientTeachers() {
   const [messagesState, setMessagesState] = useState<Message[]>([]);
   const [unreadCounts, setUnreadCounts] = useState<Record<string, number>>({});
   const [threadsState, setThreadsState] = useState<Thread[]>([]);
+  const [activeThread, setActiveThread] = useState<Threads | null>(null);
   const [onlineUsers, setOnlineUsers] = useState<Set<string>>(new Set());
   const [sending, setSending] = useState<boolean>(false);
 
@@ -303,12 +305,30 @@ export default function MessagesClientTeachers() {
       if (existingThread) {
         // ✅ Open existing thread
         setActiveId(existingThread.partnerId);
+        setActiveThread(existingThread);
       }
     };
 
     handleChatInit();
   }, [searchParams, threads?.data]);
 
+  // Sync activeThread whenever activeId changes
+  useEffect(() => {
+    if (!activeId || !threads?.data) {
+      setActiveThread(null);
+      return;
+    }
+
+    const selectedThread = threads.data.find(
+      (thread: Threads) => thread.partnerId === activeId
+    );
+
+    if (selectedThread) {
+      setActiveThread(selectedThread);
+    }
+  }, [activeId, threads?.data]);
+
+  console.log(activeThread, "activeThread");
   return (
     <div className=" grid grid-cols-1 md:grid-cols-[25%_75%] gap-4   max-h-[90vh]">
       <div className="bg-[#FDFDFD] rounded-[22px] py-6 px-7  flex flex-col">
@@ -358,6 +378,7 @@ export default function MessagesClientTeachers() {
                 isActive={activeId === thread.partnerId}
                 onSelect={(id) => setActiveId(id)}
                 isOnline={onlineUsers.has(thread.partnerId)}
+                profilePictureUrl={thread?.partnerProfilePicture}
               />
             ))
           )}
@@ -366,10 +387,17 @@ export default function MessagesClientTeachers() {
       <div className="bg-[#fdfdfd] py-4.5 rounded-[40px] flex flex-col h-[85vh] overflow-hidden">
         {/* top section */}
         <div className="flex flex-row pb-3 px-6 items-center gap-3.5 border-b border-b-[#DBDBDB]">
-          <div className="w-[52px] h-[52px] bg-[#368FFF] rounded-full"></div>
+          <div className="w-[52px] h-[52px] bg-[#368FFF] rounded-full flex items-center justify-center">
+            <MessageSquare className="w-6 h-6 text-white" />
+          </div>
           {isMessagesSuccess && (
             <p className="text-xl text-[#0c0c0c] font-medium">
-              Chat with {messages?.messages[0]?.receiver.name}
+              Chat with{" "}
+              {
+                threads?.data.find(
+                  (thread: Threads) => thread.partnerId === activeId
+                )?.partnerName
+              }
             </p>
           )}
         </div>
@@ -382,16 +410,21 @@ export default function MessagesClientTeachers() {
             {isMessagesLoading ? (
               <MessagesLoading />
             ) : messagesState?.length ? (
-              messagesState.map((message: Message) => {
+              messagesState?.map((message: Message) => {
                 const isSender = message.senderId !== activeId;
 
                 return (
                   <div key={message.id} className="flex items-end gap-2">
                     {!isSender && (
-                      <img
-                        src={"/images/sample-user.png"}
-                        alt="Receiver"
-                        className="w-8 h-8 rounded-full object-cover"
+                      <Image
+                        src={
+                          activeThread?.partnerProfilePicture ||
+                          "/images/sample-user.png"
+                        }
+                        alt={activeThread?.partnerName || "Receiver"}
+                        width={32}
+                        height={32}
+                        className="w-8 h-8 rounded-full object-cover border-2 border-[#368FFF]"
                       />
                     )}
                     <div
