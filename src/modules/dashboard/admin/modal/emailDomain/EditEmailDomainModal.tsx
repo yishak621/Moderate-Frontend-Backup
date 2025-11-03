@@ -75,28 +75,37 @@ export default function EditEmailDomainModal({
       {/* main section */}
       <div className="flex flex-col gap-7 mt-10.5 mb-6.5">
         <Input
-          label="School Name"
+          label="School/Organization Name *"
           type="text"
-          placeholder="Full School Name"
+          placeholder="e.g. Public Authority for Applied Education"
           defaultValue={EmailDomain?.name}
-          {...register("name")}
+          {...register("name", {
+            required: "School/Organization name is required!",
+          })}
+          error={errors?.name?.message}
         />
         <Input
-          label="Catagory"
+          label="Category"
           type="text"
-          placeholder="Schools - Community Schools"
+          placeholder="e.g. Schools - Community Schools"
           defaultValue={EmailDomain.category || ""}
           {...register("category")}
         />
         <Input
           label="Email Domain"
           type="text"
-          placeholder="e.g. archi.edu.uk "
+          placeholder="e.g. @archi.edu.uk"
           defaultValue={EmailDomain?.emailDomain || ""}
           {...register("emailDomain")}
         />
 
-        <Input label="Website" type="text" placeholder="Full School Name" />
+        <Input
+          label="Website"
+          type="url"
+          placeholder="e.g. https://www.example.edu"
+          defaultValue={EmailDomain?.website || ""}
+          {...register("website")}
+        />
         <Controller
           name="status"
           control={control}
@@ -104,7 +113,7 @@ export default function EditEmailDomainModal({
           render={({ field }) => (
             <ToggleSetting
               title="Status"
-              description="Control curricular area status"
+              description="Control email domain status"
               value={field.value === "active"} // convert to boolean for toggle
               onChange={(val) => field.onChange(val ? "active" : "inactive")} // map back
             />

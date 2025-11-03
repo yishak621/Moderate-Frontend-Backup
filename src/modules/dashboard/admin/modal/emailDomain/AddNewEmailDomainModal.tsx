@@ -69,37 +69,33 @@ export default function AddNewEmailDomainModal() {
       {/* main section */}
       <div className="flex flex-col gap-7 mt-10.5 mb-6.5">
         <Input
-          label="School Name *"
+          label="School/Organization Name *"
           type="text"
-          placeholder="Full School Name"
+          placeholder="e.g. Public Authority for Applied Education"
           {...register("name", {
-            required: "Name is required!",
+            required: "School/Organization name is required!",
           })}
           error={errors?.name?.message}
         />
         <Input
-          label="Catagory *"
+          label="Category"
           type="text"
-          placeholder="Schools - Community Schools"
-          {...register("category", {
-            required: "Category is required!",
-          })}
+          placeholder="e.g. Schools - Community Schools"
+          {...register("category")}
           error={errors?.category?.message}
         />
         <Input
-          label="Email Domain *"
+          label="Email Domain"
           type="text"
-          placeholder="e.g. archi.edu.uk "
-          {...register("emailDomain", {
-            required: "Email Domain is required!",
-          })}
+          placeholder="e.g. @archi.edu.uk"
+          {...register("emailDomain")}
           error={errors?.emailDomain?.message}
         />
 
         <Input
           label="Website"
-          type="text"
-          placeholder="Zareyakob Elementary School"
+          type="url"
+          placeholder="e.g. https://www.example.edu"
           {...register("website")}
         />
       </div>
