@@ -1,7 +1,12 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { MessageSquare, MoreVertical, UserPlus } from "lucide-react";
+import {
+  MessageSquare,
+  MessagesSquare,
+  MoreVertical,
+  UserPlus,
+} from "lucide-react";
 import { PostAttributes } from "@/types/postAttributes";
 import PostTags from "./PostTags";
 import { timeAgo } from "@/lib/timeAgo";
@@ -88,17 +93,17 @@ export default function Post({ post }: { post: PostAttributes }) {
   };
 
   return (
-    <div className="flex flex-col items-start border border-[#DBDBDB] p-4 sm:p-7 rounded-2xl sm:rounded-3xl gap-3 sm:gap-4 w-full max-w-full overflow-hidden">
+    <div className=" flex flex-col items-start bg-[#FDFDFD] border border-[#DBDBDB] mb-[17px] p-4 sm:p-7 rounded-2xl sm:rounded-3xl gap-3 sm:gap-4 w-full max-w-full overflow-hidden">
       {/* Top */}
       <div className="flex flex-row justify-between items-start w-full gap-2 sm:gap-0">
         <div className="flex flex-row gap-2 sm:gap-3 flex-1 min-w-0">
           <div className="w-1 sm:w-2 flex-shrink-0"></div>
           <div className="flex flex-col gap-1 items-start min-w-0 flex-1">
             <div className="flex flex-col relative w-full">
-              <p className="font-medium text-sm sm:text-base truncate w-full">
+              <p className="font-medium text-sm text-[#0C0C0C] sm:text-base truncate w-full">
                 {title}
               </p>
-              <p className="text-xs sm:text-sm text-gray-500 truncate w-full">
+              <p className="text-[13px] font-normal sm:text-sm text-gray-500 truncate w-full">
                 by {post.author.name} • {timeAgo(createdAt)}
               </p>
               <div className="absolute top-2 left-[-12px] sm:left-[-15px] w-1.5 sm:w-2 h-1.5 sm:h-2 rounded-full bg-[#368FFF] flex-shrink-0"></div>
@@ -111,8 +116,11 @@ export default function Post({ post }: { post: PostAttributes }) {
         {currentUserId !== createdBy ? (
           <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
             {/* Follow Button */}
-            <div className="flex flex-row gap-1 sm:gap-1.5 items-center text-[#368FFF] cursor-pointer hover:opacity-80">
-              <UserPlus size={16} className="sm:w-[19px] sm:h-[19px]" />
+            <div className="flex flex-row gap-1 sm:gap-1.5 items-center text-[#717171] cursor-pointer hover:opacity-80">
+              <UserPlus
+                size={16}
+                className="sm:w-[19px] sm:h-[19px] text-[#717171]"
+              />
               <p className="text-xs sm:text-sm hidden sm:block">Follow</p>
             </div>
 
@@ -124,9 +132,9 @@ export default function Post({ post }: { post: PostAttributes }) {
                   : () => handleOpenModal(ComposeNewMessageModal, { post })
               }
             >
-              <MessageSquare
+              <MessagesSquare
                 size={16}
-                className="text-[#368FFF] cursor-pointer hover:opacity-80 sm:w-[19px] sm:h-[19px]"
+                className="text-[#717171] cursor-pointer hover:opacity-80 sm:w-[19px] sm:h-[19px]"
               />
             </div>
             <Modal isOpen={open} onOpenChange={setOpen}>

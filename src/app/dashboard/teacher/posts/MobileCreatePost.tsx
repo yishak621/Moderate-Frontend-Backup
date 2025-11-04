@@ -1,5 +1,5 @@
-import { useState, useCallback } from "react";
-import { ArrowLeft } from "lucide-react";
+import { useState, useCallback, useRef } from "react";
+import { ArrowLeft, Camera, Upload, X, FileText } from "lucide-react";
 import MobileInput from "@/components/ui/MobileInput";
 import MobileButton from "@/components/ui/MobileButton";
 import MobileCustomSelect from "@/components/ui/MobileCustomSelect";
@@ -14,6 +14,8 @@ import {
 } from "@/hooks/useUser";
 import { useForm, Controller } from "react-hook-form";
 import { PostCreateInput } from "@/types/postAttributes";
+import Image from "next/image";
+import toast from "react-hot-toast";
 
 interface MobileCreatePostProps {
   onBack: () => void;
@@ -23,6 +25,9 @@ export default function MobileCreatePost({ onBack }: MobileCreatePostProps) {
   const [files, setFiles] = useState<File[]>([]);
   const [uploadedFiles, setUploadedFiles] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [capturedImages, setCapturedImages] = useState<string[]>([]);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
 
   const { subjectDomains } = useSubjectDomains();
   const { user } = useUserData();
@@ -78,6 +83,47 @@ export default function MobileCreatePost({ onBack }: MobileCreatePostProps) {
     },
     [deleteFileAsync]
   );
+
+  const handleCameraCapture = async (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const capturedFiles = e.target.files;
+    if (!capturedFiles || capturedFiles.length === 0) return;
+
+    const file = capturedFiles[0];
+
+    // Validate file type
+    if (!file.type.startsWith("image/")) {
+      toast.error("Please capture an image");
+      return;
+    }
+
+    try {
+      // Create preview URL
+      const previewUrl = URL.createObjectURL(file);
+      setCapturedImages((prev) => [...prev, previewUrl]);
+
+      // Add to files list for upload
+      setFiles((prev) => [...prev, file]);
+
+      toast.success("Image captured successfully!");
+    } catch (error) {
+      console.error("Error processing image:", error);
+      toast.error("Failed to process image");
+    }
+  };
+
+  const handleRemoveCapturedImage = (index: number) => {
+    setCapturedImages((prev) => prev.filter((_, i) => i !== index));
+    setFiles((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      const newFiles = Array.from(e.target.files);
+      setFiles((prev) => [...prev, ...newFiles]);
+    }
+  };
 
   const onSubmit = async (data: any) => {
     setIsSubmitting(true);
@@ -170,21 +216,13 @@ export default function MobileCreatePost({ onBack }: MobileCreatePostProps) {
                   Subject Domain
                 </label>
                 <MobileCustomSelect
-                  options={optionsSubjectDomains.map(
-                    (option: { value: string; label: string }) => option.label
+                  options={optionsSubjectDomains}
+                  defaultValue={optionsSubjectDomains.find(
+                    (opt: { value: string; label: string }) =>
+                      opt.value === field.value
                   )}
-                  value={
-                    optionsSubjectDomains.find(
-                      (opt: { value: string; label: string }) =>
-                        opt.value === field.value
-                    )?.label || ""
-                  }
-                  onChange={(selectedLabel) => {
-                    const selectedOption = optionsSubjectDomains.find(
-                      (opt: { value: string; label: string }) =>
-                        opt.label === selectedLabel
-                    );
-                    field.onChange(selectedOption?.value || "");
+                  onChange={(selected) => {
+                    field.onChange(selected?.value || "");
                   }}
                   placeholder="Select subject domain"
                 />
@@ -220,38 +258,115 @@ export default function MobileCreatePost({ onBack }: MobileCreatePostProps) {
           />
         </div>
 
-        {/* File Upload */}
+        {/* File Upload with Camera */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
             Attachments
           </label>
+
+          {/* Upload Buttons */}
+          <div className="flex gap-3 mb-3">
+            {/* Camera Button */}
+            <button
+              type="button"
+              onClick={() => cameraInputRef.current?.click()}
+              className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-[24.5px] hover:from-blue-600 hover:to-blue-700 transition-all shadow-md"
+            >
+              <Camera className="w-5 h-5" />
+              <span className="text-sm font-medium">Take Photo</span>
+            </button>
+
+            {/* File Upload Button */}
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-white border-2 border-gray-300 text-gray-700 rounded-[24.5px] hover:bg-gray-50 transition-all"
+            >
+              <Upload className="w-5 h-5" />
+              <span className="text-sm font-medium">Upload File</span>
+            </button>
+          </div>
+
+          {/* Hidden Camera Input - Opens camera on mobile devices */}
+          {/* Note: Requires HTTPS in production. Works on Android/iOS Safari/Chrome */}
           <input
+            ref={cameraInputRef}
+            type="file"
+            accept="image/*"
+            capture="environment"
+            onChange={handleCameraCapture}
+            className="hidden"
+            aria-label="Capture photo with camera"
+          />
+
+          {/* Hidden File Input */}
+          <input
+            ref={fileInputRef}
             type="file"
             multiple
-            onChange={(e) => {
-              if (e.target.files) {
-                setFiles(Array.from(e.target.files));
-              }
-            }}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            accept="image/*,application/pdf,.doc,.docx"
+            onChange={handleFileSelect}
+            className="hidden"
           />
-          {files.length > 0 && (
-            <div className="mt-2">
-              <p className="text-sm text-gray-600">Selected files:</p>
-              {files.map((file, index) => (
+
+          {/* Captured Images Preview */}
+          {capturedImages.length > 0 && (
+            <div className="mt-3">
+              <p className="text-sm font-medium text-gray-700 mb-2">
+                Captured Images:
+              </p>
+              <div className="grid grid-cols-2 gap-3">
+                {capturedImages.map((imageUrl, index) => (
+                  <div key={index} className="relative group">
+                    <Image
+                      src={imageUrl}
+                      alt={`Captured ${index + 1}`}
+                      width={200}
+                      height={150}
+                      className="w-full h-32 object-cover rounded-lg border-2 border-blue-200"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveCapturedImage(index)}
+                      className="absolute top-1 right-1 p-1.5 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors shadow-lg"
+                    >
+                      <X size={14} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Other Files List */}
+          {files.length > capturedImages.length && (
+            <div className="mt-3">
+              <p className="text-sm font-medium text-gray-700 mb-2">
+                Other Files:
+              </p>
+              {files.slice(capturedImages.length).map((file, index) => (
                 <div
                   key={index}
-                  className="flex items-center justify-between text-sm text-gray-700"
+                  className="flex items-center justify-between p-2 bg-gray-50 rounded-lg mb-2"
                 >
-                  <span>{file.name}</span>
+                  <div className="flex items-center gap-2">
+                    <FileText className="w-4 h-4 text-gray-500" />
+                    <span className="text-sm text-gray-700 truncate max-w-[200px]">
+                      {file.name}
+                    </span>
+                  </div>
                   <button
                     type="button"
                     onClick={() =>
-                      setFiles(files.filter((_, i) => i !== index))
+                      setFiles(
+                        files.filter(
+                          (_, i) => i !== index + capturedImages.length
+                        )
+                      )
                     }
-                    className="text-red-500 hover:text-red-700"
+                    className="text-red-500 hover:text-red-700 p-1"
                   >
-                    Remove
+                    <X size={16} />
                   </button>
                 </div>
               ))}

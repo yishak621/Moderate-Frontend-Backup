@@ -1,12 +1,13 @@
 "use client";
 
-import CustomSelect from "@/components/ui/CustomSelect";
+import MobileCustomSelect from "@/components/ui/MobileCustomSelect";
 import Post from "@/modules/dashboard/teacher/PostSection";
 import { PostAttributes } from "@/types/postAttributes";
 import { ChevronUp } from "lucide-react";
 import SectionLoading from "@/components/SectionLoading";
 import { EmptyState } from "@/components/EmptyStateProps";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 interface MobileGradingClientProps {
   filters: string[];
@@ -27,31 +28,53 @@ export default function MobileGradingClient({
   handleLoadMore,
   scrollToTop,
 }: MobileGradingClientProps) {
+  const pathname = usePathname();
+
   // Convert string filters to Option format for CustomSelect
   const filterOptions = filters.map((filter) => ({
     value: filter,
     label: filter,
   }));
 
+  const isGradingActive = pathname === "/dashboard/teacher/grading";
+  const isPostsActive = pathname === "/dashboard/teacher/posts";
+
   return (
-    <div className="bg-[#FDFDFD] py-3 px-3 flex flex-col gap-3 rounded-[20px] w-full max-w-full overflow-hidden">
+    <div className="py-3 px-3 flex flex-col gap-3 rounded-[20px] w-full max-w-full overflow-hidden">
       {/* Mobile Header with Tabs and Filter */}
       <div className="flex items-center justify-between mb-4">
-        <div className="flex gap-2">
-          <button className="px-3 py-2 rounded-lg text-sm font-medium bg-blue-500 text-white">
-            Grading Feeds
-          </button>
+        <div className="flex gap-4 border-b border-gray-200">
+          <Link
+            href="/dashboard/teacher/grading"
+            className={`px-3 py-2 text-sm font-medium transition-all relative ${
+              isGradingActive
+                ? "text-[#0C0C0C] font-semibold"
+                : "text-[#717171] hover:text-[#0C0C0C]"
+            }`}
+          >
+            Moderate
+            {isGradingActive && (
+              <span className="absolute bottom-0 left-0 w-full h-[2px] bg-[#0C0C0C]" />
+            )}
+          </Link>
           <Link
             href="/dashboard/teacher/posts"
-            className="px-3 py-2 rounded-lg text-sm font-medium bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors"
+            className={`px-3 py-2 text-sm font-medium transition-all relative ${
+              isPostsActive
+                ? "text-[#0C0C0C] font-semibold"
+                : "text-[#717171] hover:text-[#0C0C0C]"
+            }`}
           >
             My Posts
+            {isPostsActive && (
+              <span className="absolute bottom-0 left-0 w-full h-[2px] bg-[#0C0C0C]" />
+            )}
           </Link>
         </div>
 
         {/* Mobile Filter */}
         <div className="w-32">
-          <CustomSelect
+          <MobileCustomSelect
             options={filterOptions}
             defaultValue={filterOptions.find(
               (opt) => opt.value === activeFilter

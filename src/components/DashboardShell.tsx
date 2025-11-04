@@ -26,6 +26,7 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import { AnimatePresence, motion } from "framer-motion";
+import { useUserData } from "@/hooks/useUser";
 
 // theme icons removed since theme toggle is disabled
 
@@ -42,6 +43,7 @@ type DashboardShellProps = {
   onSearchChange?: (value: string) => void;
   initialSearch?: string;
   rightContent?: React.ReactNode;
+  mobileSidebarItems?: NavItem[];
   place?: string;
 };
 
@@ -55,6 +57,7 @@ function checkIsActive(pathname: string, href: string) {
 export default function DashboardShell({
   children,
   sidebarItems,
+  mobileSidebarItems = [],
   title = "Dashboard",
   onSearchChange,
   initialSearch = "",
@@ -67,6 +70,7 @@ export default function DashboardShell({
   const [search, setSearch] = useState(initialSearch);
   const [showMobileSearch, setShowMobileSearch] = useState(false);
   const debounceTimerRef = useRef<number | null>(null);
+  const { user } = useUserData();
 
   // const [theme] = useState<"light" | "dark">(() => {
   //   if (typeof window === "undefined") return "light";
@@ -301,7 +305,7 @@ export default function DashboardShell({
               style={{ backgroundColor: "#EFF3F7" }}
             >
               {/* Mobile Sidebar Header */}
-              <div className="flex items-center justify-between p-4 border-b">
+              <div className="flex items-center justify-between p-4 border-b border-gray-200">
                 <Link
                   href="/"
                   className="flex items-center gap-2"
@@ -319,21 +323,15 @@ export default function DashboardShell({
                       Moderate
                     </span>
                     <span className="text-xs font-normal text-[#717171]">
-                      Grade moderation
+                      Grade moderation made easy
                     </span>
                   </div>
                 </Link>
-                <button
-                  onClick={() => setIsMobileSidebarOpen(false)}
-                  className="p-2 rounded-lg hover:bg-gray-100"
-                >
-                  <X size={24} className="text-gray-600" />
-                </button>
               </div>
 
               {/* Mobile Sidebar Nav */}
               <nav className="flex-1 overflow-y-auto p-4 space-y-2">
-                {sidebarItems.map(({ label, icon: Icon, href }) => {
+                {mobileSidebarItems.map(({ label, icon: Icon, href }) => {
                   const isActive = checkIsActive(pathname, href);
                   return (
                     <Link
@@ -379,7 +377,7 @@ export default function DashboardShell({
         </header>
 
         {/* Mobile Header - Only visible on mobile */}
-        <header className="md:hidden bg-whiteCard p-4 shadow-sm border-b min-w-0 max-w-full overflow-visible">
+        <header className="md:hidden bg-whiteCard p-4   min-w-0 max-w-full overflow-visible">
           <div className="flex items-center justify-between gap-3">
             {/* Left: Menu Toggle + Title */}
             <div className="flex items-center gap-3 flex-1">
@@ -387,22 +385,26 @@ export default function DashboardShell({
                 onClick={() => setIsMobileSidebarOpen(true)}
                 className="p-2 rounded-lg hover:bg-gray-100"
               >
-                <Menu size={24} className="text-gray-600" />
+                <Menu size={22} className="text-gray-600" />
               </button>
               <div className="flex-1 min-w-0">
-                <h1 className="text-lg font-semibold text-gray-900 truncate">
-                  {title}
+                <h1 className="text-base font-medium text-[#0C0C0C] truncate ">
+                  Good Morning,{" "}
+                  {user?.name && user.name.length > 10
+                    ? user.name.substring(0, 10) + "…"
+                    : user?.name}{" "}
+                  <span className="text-gray-500">🖐</span>
                 </h1>
-                <p className="text-xs text-gray-500">Welcome back!</p>
+                <p className="text-xs text-[#717171]">Welcome to Moderate!</p>
               </div>
             </div>
 
             {/* Right: Search Button */}
             <button
               onClick={() => setShowMobileSearch(!showMobileSearch)}
-              className="p-2 rounded-lg hover:bg-gray-100 flex-shrink-0"
+              className="p-2 rounded-full hover:bg-gray-100 border border-[#DBDBDB] flex-shrink-0 w-[42px] h-[42px] flex items-center justify-center"
             >
-              <Search size={20} className="text-gray-600" />
+              <Search size={12} className="text-[#000000]" />
             </button>
           </div>
 

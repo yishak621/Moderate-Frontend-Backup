@@ -4,7 +4,15 @@ import Modal from "@/components/ui/Modal";
 import DashboardButton from "@/modules/dashboard/DashboardButton";
 import StatsCard from "@/modules/dashboard/StatsCards";
 import MobileStatsCards from "@/modules/dashboard/MobileStatsCards";
-import { Megaphone, HelpCircle, PlusSquare, Filter } from "lucide-react";
+import {
+  Megaphone,
+  HelpCircle,
+  PlusSquare,
+  Filter,
+  FileText,
+  Star,
+  Upload,
+} from "lucide-react";
 import { useState } from "react";
 import CreateNewAnnouncementModal from "@/modules/dashboard/admin/modal/announcements/CreateNewAnnouncementModal";
 import NewTicketModal from "@/modules/dashboard/teacher/supportMessages/NewTicketModal";
@@ -24,6 +32,7 @@ import Button from "@/components/ui/Button";
 import Link from "next/link";
 import AnnouncementBox from "@/modules/dashboard/teacher/AnnouncementsBox";
 import { Announcement } from "@/app/types/announcement";
+import { useRouter } from "next/navigation";
 
 const buttonData = [
   {
@@ -54,6 +63,7 @@ export default function UserClient() {
   //MODAL STATES
   const [open, setOpen] = useState(false);
   const [ModalComponent, setModalComponent] = useState<React.FC | null>(null);
+  const router = useRouter();
 
   const handleOpenModal = (Component: React.FC) => {
     setModalComponent(() => Component); // store the component to render
@@ -100,18 +110,54 @@ export default function UserClient() {
       count: userOverviewStatsData?.data.postCount || 0,
       description: "0% from last month",
       colored: true,
+      children: (
+        <Button
+          variant="black"
+          className="w-full"
+          onClick={() => router.push("/dashboard/teacher/posts")}
+        >
+          <FileText className="w-3 h-3 text-[#FDFDFD]" />
+          <span className="text-[12.94px] font-normal text-[#FDFDFD]">
+            View Posts
+          </span>
+        </Button>
+      ),
     },
     {
       title: "Posts Moderated ",
       count: userOverviewStatsData?.data.moderatedCount || 0,
       description: "0 from last month",
       colored: false,
+      children: (
+        <Button
+          variant="black"
+          className="w-full"
+          onClick={() => router.push("/dashboard/teacher/grading")}
+        >
+          <Star className="w-3 h-3 text-[#FDFDFD]" />
+          <span className="text-[12.94px] font-normal text-[#FDFDFD]">
+            Grade Now
+          </span>
+        </Button>
+      ),
     },
     {
       title: "Documents Uploaded",
       count: userOverviewStatsData?.data.uploadCount || 0,
       description: "0% from last month",
       colored: false,
+      children: (
+        <Button
+          variant="black"
+          className="w-full"
+          onClick={() => handleOpenModal(CreatPostModal)}
+        >
+          <Upload className="w-3 h-3 text-[#FDFDFD]" />
+          <span className="text-[12.94px] font-normal text-[#FDFDFD]">
+            Upload
+          </span>
+        </Button>
+      ),
     },
   ];
 
@@ -263,12 +309,20 @@ export default function UserClient() {
       </div>
 
       {/* Recent Posts Section - Mobile Only */}
-      <div className="md:hidden bg-[#FDFDFD] rounded-[20px] sm:rounded-[24px] p-4 sm:p-6 w-full max-w-full overflow-hidden">
-        {/* Section Header with Filter */}
+      <div className="md:hidden   sm:rounded-[24px] p-4 sm:p-6 w-full max-w-full overflow-hidden">
+        {/* Section Header with View More Button */}
         <div className="flex items-center justify-between mb-4 sm:mb-6">
-          <h2 className="text-lg sm:text-xl font-semibold text-gray-900">
+          <h2 className="text-sm font-medium sm:text-xl  text-[#0C0C0C]">
             Recent Posts
           </h2>
+          {userPostFeedsData?.posts.length > 0 && (
+            <Link
+              href={"/dashboard/teacher/grading"}
+              className="text-sm font-normal text-[#717171]"
+            >
+              See All
+            </Link>
+          )}
         </div>
 
         {/* Posts List */}
@@ -311,19 +365,11 @@ export default function UserClient() {
               <Post post={post} key={idx} />
             ))
           )}
-
-          {userPostFeedsData?.posts.length > 0 && (
-            <Link href={"/dashboard/teacher/grading"}>
-              <Button className="w-full" variant="secondary">
-                View More Posts
-              </Button>
-            </Link>
-          )}
         </div>
       </div>
 
       {/* Action Buttons - Mobile Layout */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 w-full max-w-full">
+      <div className="hidden sm:grid sm:grid-cols-3 gap-3 sm:gap-4 w-full max-w-full">
         {buttonData.map((btn, idx) => (
           <DashboardButton
             key={idx}

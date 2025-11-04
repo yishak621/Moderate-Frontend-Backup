@@ -99,6 +99,20 @@ function getSidebarItems(role: Role): NavItem[] {
   ];
 }
 
+function getMobileSidebarItems(role: Role): NavItem[] {
+  // Only show mobile sidebar for teachers, not admins
+  if (role !== "TEACHER") {
+    return []; // No mobile sidebar for admin
+  }
+
+  // Return only 4 specific items for teachers on mobile
+  const allTeacherItems = getSidebarItems(role);
+
+  const mobileItems = ["Overview", "Grading Feeds", "Messages", "Settings"];
+
+  return allTeacherItems.filter((item) => mobileItems.includes(item.label));
+}
+
 function getDashboardTitle(
   pathname: string,
   role: Role,
@@ -153,6 +167,8 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   ];
 
   const sidebarItems = useMemo(() => getSidebarItems(role), [role]);
+  const mobileSidebarItems = useMemo(() => getMobileSidebarItems(role), [role]);
+
   const pathname = usePathname();
   const title = getDashboardTitle(pathname, role, sidebarItems);
 
@@ -314,10 +330,12 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
       </div>
     );
   };
+
   return (
     <DashboardShell
       title={title}
       sidebarItems={sidebarItems}
+      mobileSidebarItems={mobileSidebarItems}
       onSearchChange={() => {}}
       rightContent={
         role === "SYSTEM_ADMIN" ? adminRightContent() : userRightContent()

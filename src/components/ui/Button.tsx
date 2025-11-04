@@ -4,7 +4,7 @@ import { ReactNode, ButtonHTMLAttributes } from "react";
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   children: ReactNode;
   icon?: ReactNode;
-  variant?: "primary" | "secondary" | "red" | "green" | "outline";
+  variant?: "primary" | "secondary" | "red" | "green" | "outline" | "black";
 
   className?: string;
 }
@@ -27,6 +27,7 @@ const Button: React.FC<ButtonProps> = ({
     green: "bg-[#4CAF50] text-white hover:bg-[#3e9e43]",
     outline:
       "border border-[#368FFF] text-[#368FFF] bg-transparent hover:bg-[#e8f1ff]",
+    black: "bg-[#0C0C0C] text-[#FDFDFD] hover:bg-[#1a1a1a] rounded-[75px]",
   };
 
   return (

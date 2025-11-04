@@ -6,31 +6,31 @@ import { useEffect, useState } from "react";
 
 const animatedComponents = makeAnimated();
 
-type Option = { value: string | boolean; label: string };
+type Option = { value: string; label: string };
 
-interface MobileCustomSelectProps {
+interface MobileCustomMultiSelectProps {
   options: Option[];
-  defaultValue?: Option;
-  onChange?: (selected: Option | null) => void;
+  defaultValue?: Option[];
+  onChange?: (selected: Option[]) => void;
   placeholder?: string;
-  isClearable?: boolean;
+  isSearchable?: boolean;
 }
 
-export default function MobileCustomSelect({
+export function MobileCustomMultiSelect({
   options,
   defaultValue,
   onChange,
   placeholder,
-  isClearable,
-}: MobileCustomSelectProps) {
-  const [selected, setSelected] = useState<Option | null>(defaultValue || null);
+  isSearchable,
+}: MobileCustomMultiSelectProps) {
+  const [selected, setSelected] = useState<Option[]>(defaultValue || []);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => setMounted(true), []);
 
-  const handleChange = (newValue: Option | null) => {
-    setSelected(newValue || null);
-    onChange?.(newValue || null);
+  const handleChange = (newValue: any) => {
+    setSelected(newValue || []);
+    onChange?.(newValue || []);
   };
 
   if (!mounted) return null;
@@ -38,20 +38,21 @@ export default function MobileCustomSelect({
   return (
     <Select
       options={options}
-      isMulti={false}
-      closeMenuOnSelect={true}
+      isMulti
+      closeMenuOnSelect={false}
       components={animatedComponents}
       defaultValue={defaultValue}
       value={selected}
       onChange={handleChange}
       placeholder={placeholder}
-      isClearable={isClearable}
+      isSearchable={isSearchable}
       styles={{
         control: (base, state) => ({
           ...base,
           minHeight: "38px",
           borderRadius: "24.5px",
           borderColor: state.isFocused ? "#3b82f6" : "#d1d5db",
+          borderWidth: "1px",
           boxShadow: state.isFocused
             ? "0 0 0 2px rgba(59, 130, 246, 0.2)"
             : "none",
@@ -76,10 +77,17 @@ export default function MobileCustomSelect({
           fontSize: "13px",
           fontWeight: "400",
         }),
-        singleValue: (base) => ({
+        multiValue: (base) => ({
+          ...base,
+          borderRadius: "12px",
+          backgroundColor: "#eff6ff",
+          fontSize: "13px",
+        }),
+        multiValueLabel: (base) => ({
           ...base,
           fontSize: "13px",
           fontWeight: "400",
+          color: "#1f2937",
         }),
         indicatorsContainer: (base) => ({
           ...base,

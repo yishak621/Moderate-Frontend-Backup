@@ -1,4 +1,5 @@
 import { LucideIcon } from "lucide-react";
+import { ReactNode } from "react";
 
 export interface StatsCardProps {
   title: string;
@@ -6,4 +7,5 @@ export interface StatsCardProps {
   description?: string;
   colored?: boolean;
   icon?: LucideIcon;
+  children?: ReactNode;
 }
