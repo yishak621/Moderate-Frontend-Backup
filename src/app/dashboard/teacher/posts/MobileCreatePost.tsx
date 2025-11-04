@@ -1,11 +1,12 @@
-import { useState, useCallback, useRef } from "react";
-import { ArrowLeft, Camera, Upload, X, FileText } from "lucide-react";
+import { useState, useCallback } from "react";
+import { ArrowLeft, Plus, Trash } from "lucide-react";
 import MobileInput from "@/components/ui/MobileInput";
 import MobileButton from "@/components/ui/MobileButton";
 import MobileCustomSelect from "@/components/ui/MobileCustomSelect";
 import MobileTextarea from "@/components/ui/MobileTextarea";
 import { useSubjectDomains } from "@/hooks/usePublicRoutes";
 import { SubjectDomain } from "@/types/typeLog";
+import { User } from "@/app/types/user";
 import {
   useUserCreatePost,
   useUserData,
@@ -14,365 +15,575 @@ import {
 } from "@/hooks/useUser";
 import { useForm, Controller } from "react-hook-form";
 import { PostCreateInput } from "@/types/postAttributes";
-import Image from "next/image";
 import toast from "react-hot-toast";
+import { gradingTypeOptions } from "@/lib/gradingTypeOptions";
+import FileUploader from "@/components/FileUploader";
 
 interface MobileCreatePostProps {
   onBack: () => void;
 }
 
 export default function MobileCreatePost({ onBack }: MobileCreatePostProps) {
-  const [files, setFiles] = useState<File[]>([]);
-  const [uploadedFiles, setUploadedFiles] = useState<string[]>([]);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [capturedImages, setCapturedImages] = useState<string[]>([]);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const cameraInputRef = useRef<HTMLInputElement>(null);
+  const [uploadIds, setUploadIds] = useState<string[]>([]);
+  const [isFileBusy, setIsFileBusy] = useState(false);
+
+  const [domain, setDomain] = useState<string | boolean>("");
+  const [selectedGradingType, setSelectedGradingType] = useState<
+    string | boolean
+  >("numeric");
+  const [gradingTemplate, setGradingTemplate] = useState<Record<string, any>>(
+    {}
+  );
+  const [userGrade, setUserGrade] = useState<Record<string, any>>({});
+
+  const [numericCriteria, setNumericCriteria] = useState<any>({});
+  const [letterRanges, setLetterRanges] = useState([
+    { letter: "A", min: 90, max: 100 },
+  ]);
+  const [rubricCriteria, setRubricCriteria] = useState([
+    { label: "Criterion 1", maxPoints: 10, weight: 0 },
+  ]);
+  const [checklistItems, setChecklistItems] = useState<string[]>([""]);
 
   const { subjectDomains } = useSubjectDomains();
   const { user } = useUserData();
-  const { createPostAsync } = useUserCreatePost("all");
-  const { uploadFileAsync } = useUserUploadFile();
-  const { deleteFileAsync } = useUserRemoveUploadedFile();
+  const { createPostAsync, isCreatingPostLoading } = useUserCreatePost(domain);
 
   const optionsSubjectDomains =
-    subjectDomains?.map((domain: SubjectDomain) => ({
-      value: domain.id,
-      label: domain.name,
-    })) || [];
+    subjectDomains
+      ?.filter((sd: SubjectDomain) =>
+        (user as User)?.domains?.some((d: SubjectDomain) => d.id === sd.id)
+      )
+      .map((sd: SubjectDomain) => ({
+        value: sd.id,
+        label: sd.name,
+      })) ?? [];
 
   const {
     control,
     handleSubmit,
     formState: { errors },
+    register,
     reset,
-  } = useForm({
-    defaultValues: {
-      title: "",
-      description: "",
-      subjectDomainId: "",
-      tags: [] as string[],
-    },
-  });
+  } = useForm<PostCreateInput>();
 
-  const handleFileUpload = useCallback(
-    async (file: File) => {
-      try {
-        const formData = new FormData();
-        formData.append("file", file);
-
-        const response = await uploadFileAsync(file);
-        setUploadedFiles((prev) => [...prev, response.data.fileUrl]);
-        return response.data.fileUrl;
-      } catch (error) {
-        console.error("File upload failed:", error);
-        throw error;
+  const handleUploadIdsChange = useCallback((ids: string[]) => {
+    setUploadIds((prev) => {
+      if (JSON.stringify(prev) !== JSON.stringify(ids)) {
+        return ids;
       }
-    },
-    [uploadFileAsync]
-  );
+      return prev;
+    });
+  }, []);
 
-  const handleFileRemove = useCallback(
-    async (fileUrl: string) => {
-      try {
-        await deleteFileAsync(fileUrl);
-        setUploadedFiles((prev) => prev.filter((url) => url !== fileUrl));
-      } catch (error) {
-        console.error("File removal failed:", error);
-      }
-    },
-    [deleteFileAsync]
-  );
+  const addLetterRange = () =>
+    setLetterRanges([...letterRanges, { letter: "", min: 0, max: 0 }]);
 
-  const handleCameraCapture = async (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    const capturedFiles = e.target.files;
-    if (!capturedFiles || capturedFiles.length === 0) return;
+  const updateLetterRange = (index: number, field: string, value: any) => {
+    const updated = [...letterRanges];
+    (updated[index] as any)[field] = value;
+    setLetterRanges(updated);
+  };
 
-    const file = capturedFiles[0];
+  const addRubricItem = () =>
+    setRubricCriteria([
+      ...rubricCriteria,
+      { label: "", maxPoints: 10, weight: 0 },
+    ]);
 
-    // Validate file type
-    if (!file.type.startsWith("image/")) {
-      toast.error("Please capture an image");
-      return;
+  const updateRubric = (index: number, field: string, value: any) => {
+    const updated = [...rubricCriteria];
+    (updated[index] as any)[field] = value;
+    setRubricCriteria(updated);
+  };
+
+  const handleChecklistChange = (index: number, value: string) => {
+    const updated = [...checklistItems];
+    updated[index] = value;
+    setChecklistItems(updated);
+  };
+
+  const addChecklistItem = () => setChecklistItems([...checklistItems, ""]);
+  const removeChecklistItem = (index: number) =>
+    setChecklistItems(checklistItems.filter((_, i) => i !== index));
+
+  const onSubmit = async (data: PostCreateInput) => {
+    // Compose gradingTemplate based on selected type
+    let composedGradingTemplate: Record<string, any> = {};
+
+    switch (selectedGradingType) {
+      case "numeric":
+        composedGradingTemplate = { numericCriteria };
+        break;
+      case "letter":
+        composedGradingTemplate = { letterRanges };
+        break;
+      case "rubric":
+      case "weightedRubric":
+        composedGradingTemplate = { rubricCriteria };
+        break;
+      case "checklist":
+        composedGradingTemplate = { checklistItems };
+        break;
+      case "passFail":
+        composedGradingTemplate = {};
+        break;
     }
 
     try {
-      // Create preview URL
-      const previewUrl = URL.createObjectURL(file);
-      setCapturedImages((prev) => [...prev, previewUrl]);
+      if (uploadIds.length === 0) {
+        toast.error("Please upload at least one file!");
+        return;
+      }
 
-      // Add to files list for upload
-      setFiles((prev) => [...prev, file]);
-
-      toast.success("Image captured successfully!");
-    } catch (error) {
-      console.error("Error processing image:", error);
-      toast.error("Failed to process image");
-    }
-  };
-
-  const handleRemoveCapturedImage = (index: number) => {
-    setCapturedImages((prev) => prev.filter((_, i) => i !== index));
-    setFiles((prev) => prev.filter((_, i) => i !== index));
-  };
-
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      const newFiles = Array.from(e.target.files);
-      setFiles((prev) => [...prev, ...newFiles]);
-    }
-  };
-
-  const onSubmit = async (data: any) => {
-    setIsSubmitting(true);
-    try {
-      // Upload files first
-      const fileUrls = await Promise.all(
-        files.map((file) => handleFileUpload(file))
-      );
-
-      const postData: PostCreateInput = {
-        title: data.title,
-        description: data.description,
-        domain: data.subjectDomainId,
-        gradingType: "numeric",
-        gradingTemplate: {},
-        postCreatorGrade: {},
-        uploadIds: [...uploadedFiles, ...fileUrls],
-        tags: data.tags,
+      const postData = {
+        ...data,
+        grading: {
+          criteria: composedGradingTemplate,
+          gradingType: selectedGradingType,
+        },
+        uploadIds,
+        userGrade,
       };
 
       await createPostAsync(postData);
+      toast.success("Post created successfully!");
 
       // Reset form and go back
       reset();
-      setFiles([]);
-      setUploadedFiles([]);
+      setUploadIds([]);
       onBack();
-    } catch (error) {
-      console.error("Post creation failed:", error);
-    } finally {
-      setIsSubmitting(false);
+    } catch (err) {
+      if (err instanceof Error) {
+        console.error(err.message);
+        toast.error(err.message);
+      } else {
+        toast.error("Something went wrong");
+      }
     }
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4">
+    <div className="min-h-screen bg-[#F1F1F1] p-4">
       {/* Mobile Header */}
-      <div className="flex items-center gap-3 mb-6">
-        <button onClick={onBack} className="p-2 rounded-lg bg-white shadow-sm">
-          <ArrowLeft size={20} />
+      <div className="flex items-center gap-3 mb-4">
+        <button
+          onClick={onBack}
+          className="p-2 rounded-full bg-white shadow-sm hover:bg-gray-50 transition-colors"
+        >
+          <ArrowLeft size={20} className="text-gray-700" />
         </button>
-        <h1 className="text-lg font-semibold text-gray-900">Create New Post</h1>
+        <div>
+          <h1 className="text-lg font-semibold text-[#0C0C0C]">
+            Create New Post
+          </h1>
+          <p className="text-xs text-[#717171]">
+            Upload exams & share with teachers
+          </p>
+        </div>
       </div>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        className="bg-[#FDFDFD] rounded-[27px] p-6 space-y-5"
+      >
         {/* Title */}
-        <div>
-          <Controller
-            name="title"
-            control={control}
-            rules={{ required: "Title is required" }}
-            render={({ field }) => (
-              <MobileInput
-                {...field}
-                label="Post Title"
-                placeholder="Enter post title"
-                error={errors.title?.message}
-              />
-            )}
-          />
-        </div>
+        <MobileInput
+          label="Title *"
+          type="text"
+          placeholder="Chemistry midterm exam"
+          {...register("title", { required: "Title is required!" })}
+          error={errors?.title?.message}
+        />
 
         {/* Description */}
-        <div>
-          <Controller
-            name="description"
-            control={control}
-            rules={{ required: "Description is required" }}
-            render={({ field }) => (
-              <MobileTextarea
-                {...field}
-                label="Description"
-                placeholder="Describe your post..."
-                rows={4}
-                error={errors.description?.message}
-              />
-            )}
-          />
-        </div>
+        <MobileTextarea
+          label="Description *"
+          placeholder="Post description"
+          {...register("description", { required: "Description is required!" })}
+          error={errors?.description?.message}
+          rows={4}
+        />
+
+        {/* Tags */}
+        <MobileInput
+          label="Tags"
+          type="text"
+          placeholder="Enter tags separated by commas"
+          {...register("tags", {
+            setValueAs: (v: unknown) =>
+              typeof v === "string" && v.length > 0
+                ? v
+                    .split(",")
+                    .map((tag) => tag.trim())
+                    .filter(Boolean)
+                : [],
+          })}
+          error={errors?.tags?.message}
+        />
 
         {/* Subject Domain */}
         <div>
+          <label className="block text-sm font-medium text-[#0C0C0C] mb-2">
+            Subject Domain *
+          </label>
           <Controller
-            name="subjectDomainId"
-            control={control}
-            rules={{ required: "Subject domain is required" }}
-            render={({ field }) => (
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Subject Domain
-                </label>
-                <MobileCustomSelect
-                  options={optionsSubjectDomains}
-                  defaultValue={optionsSubjectDomains.find(
-                    (opt: { value: string; label: string }) =>
-                      opt.value === field.value
-                  )}
-                  onChange={(selected) => {
-                    field.onChange(selected?.value || "");
-                  }}
-                  placeholder="Select subject domain"
-                />
-                {errors.subjectDomainId && (
-                  <p className="text-red-500 text-xs mt-1">
-                    {errors.subjectDomainId.message}
-                  </p>
-                )}
-              </div>
-            )}
-          />
-        </div>
-
-        {/* Tags */}
-        <div>
-          <Controller
-            name="tags"
+            name="domain"
             control={control}
             render={({ field }) => (
-              <MobileInput
-                {...field}
-                label="Tags (Optional)"
-                placeholder="Add tags separated by commas"
-                onChange={(e) => {
-                  const tags = e.target.value
-                    .split(",")
-                    .map((tag) => tag.trim())
-                    .filter((tag) => tag);
-                  field.onChange(tags);
+              <MobileCustomSelect
+                options={optionsSubjectDomains}
+                onChange={(val) => {
+                  field.onChange(val?.value);
+                  setDomain(val?.value || "");
                 }}
+                placeholder="Select subject..."
               />
             )}
           />
         </div>
 
-        {/* File Upload with Camera */}
+        {/* Grading Type */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Attachments
+          <label className="block text-sm font-medium text-[#0C0C0C] mb-2">
+            Grading Logic Type *
           </label>
-
-          {/* Upload Buttons */}
-          <div className="flex gap-3 mb-3">
-            {/* Camera Button */}
-            <button
-              type="button"
-              onClick={() => cameraInputRef.current?.click()}
-              className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-[24.5px] hover:from-blue-600 hover:to-blue-700 transition-all shadow-md"
-            >
-              <Camera className="w-5 h-5" />
-              <span className="text-sm font-medium">Take Photo</span>
-            </button>
-
-            {/* File Upload Button */}
-            <button
-              type="button"
-              onClick={() => fileInputRef.current?.click()}
-              className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-white border-2 border-gray-300 text-gray-700 rounded-[24.5px] hover:bg-gray-50 transition-all"
-            >
-              <Upload className="w-5 h-5" />
-              <span className="text-sm font-medium">Upload File</span>
-            </button>
-          </div>
-
-          {/* Hidden Camera Input - Opens camera on mobile devices */}
-          {/* Note: Requires HTTPS in production. Works on Android/iOS Safari/Chrome */}
-          <input
-            ref={cameraInputRef}
-            type="file"
-            accept="image/*"
-            capture="environment"
-            onChange={handleCameraCapture}
-            className="hidden"
-            aria-label="Capture photo with camera"
+          <Controller
+            name="gradingType"
+            control={control}
+            render={({ field }) => (
+              <MobileCustomSelect
+                options={gradingTypeOptions}
+                defaultValue={gradingTypeOptions[0]}
+                onChange={(val) => {
+                  field.onChange(val?.value);
+                  setSelectedGradingType(val?.value || "");
+                  setGradingTemplate({});
+                }}
+                placeholder="Select grading type..."
+              />
+            )}
           />
-
-          {/* Hidden File Input */}
-          <input
-            ref={fileInputRef}
-            type="file"
-            multiple
-            accept="image/*,application/pdf,.doc,.docx"
-            onChange={handleFileSelect}
-            className="hidden"
-          />
-
-          {/* Captured Images Preview */}
-          {capturedImages.length > 0 && (
-            <div className="mt-3">
-              <p className="text-sm font-medium text-gray-700 mb-2">
-                Captured Images:
-              </p>
-              <div className="grid grid-cols-2 gap-3">
-                {capturedImages.map((imageUrl, index) => (
-                  <div key={index} className="relative group">
-                    <Image
-                      src={imageUrl}
-                      alt={`Captured ${index + 1}`}
-                      width={200}
-                      height={150}
-                      className="w-full h-32 object-cover rounded-lg border-2 border-blue-200"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => handleRemoveCapturedImage(index)}
-                      className="absolute top-1 right-1 p-1.5 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors shadow-lg"
-                    >
-                      <X size={14} />
-                    </button>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Other Files List */}
-          {files.length > capturedImages.length && (
-            <div className="mt-3">
-              <p className="text-sm font-medium text-gray-700 mb-2">
-                Other Files:
-              </p>
-              {files.slice(capturedImages.length).map((file, index) => (
-                <div
-                  key={index}
-                  className="flex items-center justify-between p-2 bg-gray-50 rounded-lg mb-2"
-                >
-                  <div className="flex items-center gap-2">
-                    <FileText className="w-4 h-4 text-gray-500" />
-                    <span className="text-sm text-gray-700 truncate max-w-[200px]">
-                      {file.name}
-                    </span>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setFiles(
-                        files.filter(
-                          (_, i) => i !== index + capturedImages.length
-                        )
-                      )
-                    }
-                    className="text-red-500 hover:text-red-700 p-1"
-                  >
-                    <X size={16} />
-                  </button>
-                </div>
-              ))}
-            </div>
-          )}
         </div>
+
+        {/* Dynamic Grading Inputs - Numeric */}
+        {selectedGradingType === "numeric" && (
+          <div className="flex gap-3">
+            <MobileInput
+              label="Min Points"
+              type="number"
+              placeholder="0"
+              onChange={(e) =>
+                setNumericCriteria((prev: any) => ({
+                  ...prev,
+                  min: Number(e.target.value),
+                }))
+              }
+            />
+            <MobileInput
+              label="Max Points"
+              type="number"
+              placeholder="100"
+              onChange={(e) =>
+                setNumericCriteria((prev: any) => ({
+                  ...prev,
+                  max: Number(e.target.value),
+                }))
+              }
+            />
+          </div>
+        )}
+
+        {/* Letter Grading */}
+        {selectedGradingType === "letter" && (
+          <div className="flex flex-col gap-3">
+            <label className="text-sm font-medium text-[#0C0C0C]">
+              Letter Ranges
+            </label>
+            {letterRanges.map((range, idx) => (
+              <div key={idx} className="flex gap-2">
+                <MobileInput
+                  label="Letter"
+                  type="text"
+                  value={range.letter}
+                  onChange={(e) =>
+                    updateLetterRange(idx, "letter", e.target.value)
+                  }
+                />
+                <MobileInput
+                  label="Min"
+                  type="number"
+                  value={range.min}
+                  onChange={(e) =>
+                    updateLetterRange(idx, "min", Number(e.target.value))
+                  }
+                />
+                <MobileInput
+                  label="Max"
+                  type="number"
+                  value={range.max}
+                  onChange={(e) =>
+                    updateLetterRange(idx, "max", Number(e.target.value))
+                  }
+                />
+              </div>
+            ))}
+            <MobileButton
+              type="button"
+              onClick={addLetterRange}
+              variant="outline"
+            >
+              <Plus size={16} /> Add Range
+            </MobileButton>
+          </div>
+        )}
+
+        {/* Rubric & Weighted Rubric */}
+        {(selectedGradingType === "rubric" ||
+          selectedGradingType === "weightedRubric") && (
+          <div className="flex flex-col gap-3">
+            <label className="text-sm font-medium text-[#0C0C0C]">
+              Rubric Criteria
+            </label>
+            {rubricCriteria.map((item, idx) => (
+              <div
+                key={idx}
+                className="flex flex-col gap-2 p-3 bg-gray-50 rounded-lg"
+              >
+                <MobileInput
+                  label="Label"
+                  value={item.label}
+                  onChange={(e) => updateRubric(idx, "label", e.target.value)}
+                />
+                <div className="flex gap-2">
+                  <MobileInput
+                    label="Min Points"
+                    type="number"
+                    value={item.maxPoints}
+                    onChange={(e) =>
+                      updateRubric(idx, "minPoints", Number(e.target.value))
+                    }
+                  />
+                  <MobileInput
+                    label="Max Points"
+                    type="number"
+                    value={item.maxPoints}
+                    onChange={(e) =>
+                      updateRubric(idx, "maxPoints", Number(e.target.value))
+                    }
+                  />
+                  {selectedGradingType === "weightedRubric" && (
+                    <MobileInput
+                      label="Weight (%)"
+                      type="number"
+                      value={item.weight}
+                      onChange={(e) =>
+                        updateRubric(idx, "weight", Number(e.target.value))
+                      }
+                    />
+                  )}
+                </div>
+              </div>
+            ))}
+            <MobileButton
+              type="button"
+              onClick={addRubricItem}
+              variant="outline"
+            >
+              <Plus size={16} /> Add Criterion
+            </MobileButton>
+          </div>
+        )}
+
+        {/* Checklist */}
+        {selectedGradingType === "checklist" && (
+          <div className="space-y-3">
+            <label className="text-sm font-medium text-[#0C0C0C]">
+              Checklist Items
+            </label>
+            {checklistItems.map((item, idx) => (
+              <div key={idx} className="flex items-center gap-2">
+                <MobileInput
+                  type="text"
+                  placeholder={`Criterion ${idx + 1}`}
+                  value={item}
+                  onChange={(e) => handleChecklistChange(idx, e.target.value)}
+                />
+                <MobileButton
+                  type="button"
+                  variant="red"
+                  onClick={() => removeChecklistItem(idx)}
+                  className="px-3"
+                >
+                  <Trash size={16} />
+                </MobileButton>
+              </div>
+            ))}
+            <MobileButton
+              type="button"
+              variant="outline"
+              onClick={addChecklistItem}
+            >
+              <Plus size={16} /> Add Item
+            </MobileButton>
+          </div>
+        )}
+
+        {/* Pass/Fail */}
+        {selectedGradingType === "passFail" && (
+          <div>
+            <label className="text-sm font-medium text-[#0C0C0C] mb-2 block">
+              Pass/Fail Criteria
+            </label>
+            <p className="text-xs text-[#717171] mb-2">
+              Simple pass/fail grading - no additional criteria needed
+            </p>
+          </div>
+        )}
+
+        {/* User's Grade - Numeric */}
+        {selectedGradingType === "numeric" && (
+          <MobileInput
+            label="Your Grade"
+            type="number"
+            placeholder="Enter your grade"
+            value={userGrade.numeric || ""}
+            onChange={(e) =>
+              setUserGrade((prev) => ({
+                ...prev,
+                numeric: Number(e.target.value),
+              }))
+            }
+          />
+        )}
+
+        {/* User's Grade - Letter */}
+        {selectedGradingType === "letter" && (
+          <div>
+            <label className="block text-sm font-medium text-[#0C0C0C] mb-2">
+              Your Grade (Letter)
+            </label>
+            <MobileCustomSelect
+              options={letterRanges.map((r) => ({
+                value: r.letter,
+                label: r.letter,
+              }))}
+              defaultValue={
+                userGrade.letter
+                  ? { value: userGrade.letter, label: userGrade.letter }
+                  : undefined
+              }
+              onChange={(val) =>
+                setUserGrade((prev) => ({
+                  ...prev,
+                  letter: typeof val?.value === "string" ? val.value : "",
+                }))
+              }
+              placeholder="Select grade..."
+            />
+          </div>
+        )}
+
+        {/* User's Grade - Rubric */}
+        {(selectedGradingType === "rubric" ||
+          selectedGradingType === "weightedRubric") && (
+          <div className="flex flex-col gap-2">
+            <label className="text-sm font-medium text-[#0C0C0C]">
+              Your Grade (Rubric)
+            </label>
+            {rubricCriteria.map((item, idx) => (
+              <div key={idx} className="flex gap-2 items-center">
+                <span className="text-xs text-[#717171] w-32 truncate">
+                  {item.label}
+                </span>
+                <MobileInput
+                  label="Score"
+                  type="number"
+                  placeholder={`0 - ${item.maxPoints}`}
+                  value={userGrade.rubric?.[idx] || ""}
+                  onChange={(e) => {
+                    const value = Number(e.target.value);
+                    setUserGrade((prev) => {
+                      const updated = [...(prev.rubric || [])];
+                      updated[idx] = value;
+                      return { ...prev, rubric: updated };
+                    });
+                  }}
+                />
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* User's Grade - Checklist */}
+        {selectedGradingType === "checklist" && (
+          <div className="space-y-3">
+            <label className="text-sm font-medium text-[#0C0C0C]">
+              Checklist Grades
+            </label>
+            {checklistItems.map((item, idx) => (
+              <div key={idx} className="flex items-center gap-2">
+                <span className="text-xs text-[#717171] w-32 truncate">
+                  {item}
+                </span>
+                <MobileCustomSelect
+                  options={[
+                    { value: "done", label: "Done" },
+                    { value: "pending", label: "Pending" },
+                  ]}
+                  defaultValue={
+                    userGrade.checklist?.[idx]
+                      ? {
+                          value: userGrade.checklist[idx],
+                          label: userGrade.checklist[idx],
+                        }
+                      : undefined
+                  }
+                  onChange={(val) => {
+                    const value = val?.value;
+                    setUserGrade((prev) => {
+                      const updated = [...(prev.checklist || [])];
+                      updated[idx] = value;
+                      return { ...prev, checklist: updated };
+                    });
+                  }}
+                  placeholder="Select..."
+                />
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* User's Grade - Pass/Fail */}
+        {selectedGradingType === "passFail" && (
+          <div>
+            <label className="block text-sm font-medium text-[#0C0C0C] mb-2">
+              Your Grade (Pass/Fail)
+            </label>
+            <MobileCustomSelect
+              options={[
+                { value: "pass", label: "Pass" },
+                { value: "fail", label: "Fail" },
+              ]}
+              defaultValue={{ value: "pass", label: "Pass" }}
+              onChange={(val) =>
+                setUserGrade((prev) => ({
+                  ...prev,
+                  passFail: typeof val?.value === "string" ? val.value : "",
+                }))
+              }
+              placeholder="Select..."
+            />
+          </div>
+        )}
+
+        {/* File Upload */}
+        <FileUploader
+          label="Upload Documents *"
+          accept="image/*,application/pdf,.doc,.docx"
+          onUploadIdsChange={handleUploadIdsChange}
+          onLoadingChange={setIsFileBusy}
+        />
 
         {/* Action Buttons */}
         <div className="flex gap-3 pt-4">
@@ -387,10 +598,12 @@ export default function MobileCreatePost({ onBack }: MobileCreatePostProps) {
           <MobileButton
             type="submit"
             variant="primary"
-            disabled={isSubmitting}
-            className="flex-1"
+            disabled={isCreatingPostLoading || isFileBusy}
+            className={`flex-1 ${
+              isCreatingPostLoading || isFileBusy ? "opacity-70" : ""
+            }`}
           >
-            {isSubmitting ? "Creating..." : "Create Post"}
+            {isCreatingPostLoading ? "Creating..." : "Create Post"}
           </MobileButton>
         </div>
       </form>
