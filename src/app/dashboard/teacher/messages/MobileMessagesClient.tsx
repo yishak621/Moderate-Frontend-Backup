@@ -215,6 +215,7 @@ export default function MobileMessagesClient() {
     ]);
 
     setNewMessage("");
+    setSending(false); // Reset immediately after clearing input
 
     socketRef.current.emit(
       "message:send",
@@ -232,8 +233,7 @@ export default function MobileMessagesClient() {
                   m.id === tempId ? ({ ...m, failed: true } as any) : m
                 )
               );
-            })
-            .finally(() => setSending(false));
+            });
           return;
         }
         if (ack.ok && ack.message) {
@@ -248,7 +248,6 @@ export default function MobileMessagesClient() {
           );
           console.error("send failed", ack.error);
         }
-        setSending(false);
       }
     );
   }
@@ -463,7 +462,7 @@ export default function MobileMessagesClient() {
                 <button
                   type="button"
                   onClick={() => setShowPicker((prev) => !prev)}
-                  className="absolute left-3 top-1/2 -translate-y-1/2 p-1.5 hover:bg-gray-100 rounded-full transition"
+                  className="absolute left-3 top-1/2 -translate-y-1/2 p-1.5 hover:bg-gray-100 rounded-full transition flex items-center justify-center"
                 >
                   <SmileIcon size={22} className="text-gray-500" />
                 </button>
@@ -488,7 +487,7 @@ export default function MobileMessagesClient() {
           </div>
           <button
             onClick={handleSendMessage}
-            disabled={!newMessage.trim() || sending}
+            disabled={!newMessage.trim()}
             className="bg-[#368FFF] hover:bg-[#2574db] disabled:bg-gray-300 text-white rounded-lg transition-colors duration-200 flex items-center justify-center w-[50px] h-[50px]"
           >
             <Send size={20} />

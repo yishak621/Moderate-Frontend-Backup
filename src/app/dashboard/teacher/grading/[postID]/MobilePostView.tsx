@@ -312,8 +312,10 @@ export default function MobilePostView({
                 {/* File Viewer */}
                 {ext === "pdf" ? (
                   <iframe
-                    src={currentFile}
+                    src={`${currentFile}#toolbar=0`}
                     className="w-full h-[60vh] rounded-[24.5px]"
+                    loading="lazy"
+                    allow="fullscreen"
                   />
                 ) : (
                   <Image

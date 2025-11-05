@@ -252,9 +252,11 @@ export default function Post({ post }: { post: PostAttributes }) {
                 className="cursor-pointer border rounded-xl overflow-hidden shadow-sm hover:shadow-md transition bg-gray-50 flex flex-col"
               >
                 <iframe
-                  src={file.fileUrl}
+                  src={`${file.fileUrl}#toolbar=0`}
                   className="w-full h-32 xl:h-64 pointer-events-none"
                   title="PDF Preview"
+                  loading="lazy"
+                  allow="fullscreen"
                 />
                 <p className="p-2 text-xs truncate">
                   {file.fileName.split("/").pop()}

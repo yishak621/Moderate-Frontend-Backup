@@ -165,7 +165,12 @@ export default function PostViewClient() {
 
               {/* File content */}
               {ext === "pdf" ? (
-                <iframe src={currentFile} className="w-full h-[80vh]" />
+                <iframe
+                  src={`${currentFile}#toolbar=0`}
+                  className="w-full h-[80vh]"
+                  loading="lazy"
+                  allow="fullscreen"
+                />
               ) : (
                 <img src={currentFile} alt="viewer" className="max-h-[90vh]" />
               )}
