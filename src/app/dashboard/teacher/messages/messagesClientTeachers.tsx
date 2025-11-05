@@ -26,6 +26,21 @@ import { getToken } from "@/services/tokenService";
 import { useSearchParams } from "next/navigation";
 import { getSocketUrl } from "@/lib/socketConfig";
 import Image from "next/image";
+import MobileTabNavigation from "@/components/ui/MobileTabNavigation";
+import MobileMessagesClient from "./MobileMessagesClient";
+
+const tabs = [
+  {
+    id: "messages",
+    label: "Messages",
+    route: "/dashboard/teacher/messages",
+  },
+  {
+    id: "announcements",
+    label: "Announcements",
+    route: "/dashboard/teacher/announcements",
+  },
+];
 
 export default function MessagesClientTeachers() {
   const searchParams = useSearchParams();
@@ -51,7 +66,9 @@ export default function MessagesClientTeachers() {
     null
   );
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
-  const audioRef = useRef<HTMLAudioElement>(new Audio("/audio/ping.mp3"));
+  const audioRef = useRef<HTMLAudioElement | null>(
+    typeof window !== "undefined" ? new Audio("/audio/ping.mp3") : null
+  );
 
   // HOOKS
   const { isThreadsLoading, isThreadsSuccess, threads } = useThreads(userId);
@@ -330,193 +347,203 @@ export default function MessagesClientTeachers() {
 
   console.log(activeThread, "activeThread");
   return (
-    <div className=" grid grid-cols-1 md:grid-cols-[25%_75%] gap-4   max-h-[90vh]">
-      <div className="bg-[#FDFDFD] rounded-[22px] py-6 px-7  flex flex-col">
-        <h4 className="text-[#0C0C0C] text-xl font-medium mb-5">Inbox</h4>
-
-        <div className="flex flex-col gap-3">
-          {isThreadsLoading ? (
-            <div className="flex flex-col gap-4 p-5">
-              {/* Header shimmer */}
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Brain className="h-5 w-5 text-primary animate-pulse" />
-                  <p className="text-sm text-muted-foreground">
-                    Fetching threads...
-                  </p>
-                </div>
-                <Loader2 className="h-4 w-4 text-primary animate-spin" />
-              </div>
-
-              {/* Thread boxes placeholder */}
-              {Array.from({ length: 5 }).map((_, i) => (
-                <div
-                  key={i}
-                  className="group flex items-center justify-between rounded-xl bg-muted/30 dark:bg-gray-800 p-3 animate-pulse"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="h-10 w-10 rounded-full bg-muted/50 dark:bg-gray-700 flex items-center justify-center">
-                      <Users className="h-4 w-4 text-muted-foreground" />
-                    </div>
-                    <div className="space-y-2">
-                      <div className="h-3 w-28 rounded bg-muted/50 dark:bg-gray-700" />
-                      <div className="h-2 w-40 rounded bg-muted/40 dark:bg-gray-600" />
-                    </div>
-                  </div>
-                  <MessageSquare className="h-4 w-4 text-muted-foreground opacity-50" />
-                </div>
-              ))}
-            </div>
-          ) : (
-            threads?.data.map((thread: Threads, idx: number) => (
-              <ThreadBox
-                chatId={thread?.partnerId}
-                key={idx}
-                name={thread.partnerName}
-                unreadCount={thread.unreadCount}
-                lastMessage={thread.lastMessage}
-                isActive={activeId === thread.partnerId}
-                onSelect={(id) => setActiveId(id)}
-                isOnline={onlineUsers.has(thread.partnerId)}
-                profilePictureUrl={thread?.partnerProfilePicture}
-              />
-            ))
-          )}
-        </div>
+    <>
+      {/* Mobile Version */}
+      <div className="md:hidden flex flex-col h-screen ">
+        <MobileMessagesClient />
       </div>
-      <div className="bg-[#fdfdfd] py-4.5 rounded-[40px] flex flex-col h-[85vh] overflow-hidden">
-        {/* top section */}
-        <div className="flex flex-row pb-3 px-6 items-center gap-3.5 border-b border-b-[#DBDBDB]">
-          <div className="w-[52px] h-[52px] bg-[#368FFF] rounded-full flex items-center justify-center">
-            <MessageSquare className="w-6 h-6 text-white" />
-          </div>
-          {isMessagesSuccess && (
-            <p className="text-xl text-[#0c0c0c] font-medium">
-              Chat with{" "}
-              {
-                threads?.data.find(
-                  (thread: Threads) => thread.partnerId === activeId
-                )?.partnerName
-              }
-            </p>
-          )}
-        </div>
 
-        {/* Chat messages area */}
+      {/* Desktop Version */}
+      <div className="hidden md:block">
+        <div className=" grid grid-cols-1 md:grid-cols-[25%_75%] gap-4   max-h-[90vh]">
+          <div className="bg-[#FDFDFD] rounded-[22px] py-6 px-7  flex flex-col">
+            <h4 className="text-[#0C0C0C] text-xl font-medium mb-5">Inbox</h4>
 
-        <div className="flex-1 min-h-0 p-6 flex flex-col justify-end">
-          {/* Scroll container */}
-          <div className="flex flex-col gap-2 overflow-y-scroll max-h-full scrollbar-hide px-4">
-            {isMessagesLoading ? (
-              <MessagesLoading />
-            ) : messagesState?.length ? (
-              messagesState?.map((message: Message) => {
-                const isSender = message.senderId !== activeId;
-
-                return (
-                  <div key={message.id} className="flex items-end gap-2">
-                    {!isSender && (
-                      <Image
-                        src={
-                          activeThread?.partnerProfilePicture ||
-                          "/images/sample-user.png"
-                        }
-                        alt={activeThread?.partnerName || "Receiver"}
-                        width={32}
-                        height={32}
-                        className="w-8 h-8 rounded-full object-cover border-2 border-[#368FFF]"
-                      />
-                    )}
-                    <div
-                      className={`max-w-[70%] p-3 my-1 rounded-xl relative break-words ${
-                        isSender
-                          ? "bg-blue-500 text-white self-end ml-auto"
-                          : "bg-gray-200 text-black self-start mr-auto"
-                      }`}
-                    >
-                      <div
-                        className={`absolute w-3 h-3 bg-inherit transform rotate-45 ${
-                          isSender
-                            ? "bottom-0 right-[-6px]"
-                            : "bottom-0 left-[-6px]"
-                        }`}
-                      />
-                      {message.content}
-                      <span className="block text-[10px] mt-1 text-black text-right">
-                        {new Date(
-                          message.createdAt ?? Date.now()
-                        ).toLocaleTimeString([], {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })}
-                      </span>
+            <div className="flex flex-col gap-3">
+              {isThreadsLoading ? (
+                <div className="flex flex-col gap-4 p-5">
+                  {/* Header shimmer */}
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Brain className="h-5 w-5 text-primary animate-pulse" />
+                      <p className="text-sm text-muted-foreground">
+                        Fetching threads...
+                      </p>
                     </div>
-                    <div ref={messagesEndRef} />
+                    <Loader2 className="h-4 w-4 text-primary animate-spin" />
                   </div>
-                );
-              })
-            ) : (
-              <div className="text-gray-500 text-center py-8">
-                Chat room – Messages will appear here
-              </div>
-            )}
-          </div>
-        </div>
 
-        {/* chat input */}
-        <div className="px-6 py-4">
-          <div className="flex gap-3 items-start ">
-            <div className="flex-1 ">
-              <div className="relative flex flex-row items-center">
-                {/* Emoji picker dropdown */}
-                {showPicker && (
-                  <div className="absolute bottom-14 left-0">
-                    <EmojiPicker
-                      onEmojiClick={(emojiObject) =>
-                        setNewMessage((prev) => prev + emojiObject.emoji)
-                      }
-                    />
+                  {/* Thread boxes placeholder */}
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <div
+                      key={i}
+                      className="group flex items-center justify-between rounded-xl bg-muted/30 dark:bg-gray-800 p-3 animate-pulse"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="h-10 w-10 rounded-full bg-muted/50 dark:bg-gray-700 flex items-center justify-center">
+                          <Users className="h-4 w-4 text-muted-foreground" />
+                        </div>
+                        <div className="space-y-2">
+                          <div className="h-3 w-28 rounded bg-muted/50 dark:bg-gray-700" />
+                          <div className="h-2 w-40 rounded bg-muted/40 dark:bg-gray-600" />
+                        </div>
+                      </div>
+                      <MessageSquare className="h-4 w-4 text-muted-foreground opacity-50" />
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                threads?.data.map((thread: Threads, idx: number) => (
+                  <ThreadBox
+                    chatId={thread?.partnerId}
+                    key={idx}
+                    name={thread.partnerName}
+                    unreadCount={thread.unreadCount}
+                    lastMessage={thread.lastMessage}
+                    isActive={activeId === thread.partnerId}
+                    onSelect={(id) => setActiveId(id)}
+                    isOnline={onlineUsers.has(thread.partnerId)}
+                    profilePictureUrl={thread?.partnerProfilePicture}
+                  />
+                ))
+              )}
+            </div>
+          </div>
+          <div className="bg-[#fdfdfd] py-4.5 rounded-[40px] flex flex-col h-[85vh] overflow-hidden">
+            {/* top section */}
+            <div className="flex flex-row pb-3 px-6 items-center gap-3.5 border-b border-b-[#DBDBDB]">
+              <div className="w-[52px] h-[52px] bg-[#368FFF] rounded-full flex items-center justify-center">
+                <MessageSquare className="w-6 h-6 text-white" />
+              </div>
+              {isMessagesSuccess && (
+                <p className="text-xl text-[#0c0c0c] font-medium">
+                  Chat with{" "}
+                  {
+                    threads?.data.find(
+                      (thread: Threads) => thread.partnerId === activeId
+                    )?.partnerName
+                  }
+                </p>
+              )}
+            </div>
+
+            {/* Chat messages area */}
+
+            <div className="flex-1 min-h-0 p-6 flex flex-col justify-end">
+              {/* Scroll container */}
+              <div className="flex flex-col gap-2 overflow-y-scroll max-h-full scrollbar-hide px-4">
+                {isMessagesLoading ? (
+                  <MessagesLoading />
+                ) : messagesState?.length ? (
+                  messagesState?.map((message: Message) => {
+                    const isSender = message.senderId !== activeId;
+
+                    return (
+                      <div key={message.id} className="flex items-end gap-2">
+                        {!isSender && (
+                          <Image
+                            src={
+                              activeThread?.partnerProfilePicture ||
+                              "/images/sample-user.png"
+                            }
+                            alt={activeThread?.partnerName || "Receiver"}
+                            width={32}
+                            height={32}
+                            className="w-8 h-8 rounded-full object-cover border-2 border-[#368FFF]"
+                          />
+                        )}
+                        <div
+                          className={`max-w-[70%] p-3 my-1 rounded-xl relative break-words ${
+                            isSender
+                              ? "bg-blue-500 text-white self-end ml-auto"
+                              : "bg-gray-200 text-black self-start mr-auto"
+                          }`}
+                        >
+                          <div
+                            className={`absolute w-3 h-3 bg-inherit transform rotate-45 ${
+                              isSender
+                                ? "bottom-0 right-[-6px]"
+                                : "bottom-0 left-[-6px]"
+                            }`}
+                          />
+                          {message.content}
+                          <span className="block text-[10px] mt-1 text-black text-right">
+                            {new Date(
+                              message.createdAt ?? Date.now()
+                            ).toLocaleTimeString([], {
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            })}
+                          </span>
+                        </div>
+                        <div ref={messagesEndRef} />
+                      </div>
+                    );
+                  })
+                ) : (
+                  <div className="text-gray-500 text-center py-8">
+                    Chat room – Messages will appear here
                   </div>
                 )}
-                <div className="relative w-full">
-                  {/* Emoji toggle button */}
-                  <button
-                    type="button"
-                    onClick={() => setShowPicker((prev) => !prev)}
-                    className="absolute left-3 top-1/2 -translate-y-1/2 p-1.5 hover:bg-gray-100 rounded-full transition"
-                  >
-                    <SmileIcon size={22} className="text-gray-500" />
-                  </button>
-
-                  {/* Message input */}
-                  <textarea
-                    ref={inputRef}
-                    value={newMessage}
-                    onChange={(e) => setNewMessage(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter" && !e.shiftKey) {
-                        e.preventDefault();
-                        sendMessage();
-                      }
-                    }}
-                    placeholder="Type your message..."
-                    className="w-full pl-14 pr-3 py-2 border border-[#DBDBDB] rounded-lg resize-none focus:outline-none focus:border-[#368FFF] h-[50px] leading-6"
-                    rows={1}
-                  />
-                </div>
               </div>
             </div>
-            <button
-              onClick={sendMessage}
-              disabled={!newMessage.trim()}
-              className="bg-[#368FFF] hover:bg-[#2574db] disabled:bg-gray-300 text-white rounded-lg transition-colors duration-200 flex items-center justify-center w-[50px] h-[50px]"
-            >
-              <Send size={20} />
-            </button>
+
+            {/* chat input */}
+            <div className="px-6 py-4">
+              <div className="flex gap-3 items-start ">
+                <div className="flex-1 ">
+                  <div className="relative flex flex-row items-center">
+                    {/* Emoji picker dropdown */}
+                    {showPicker && (
+                      <div className="absolute bottom-14 left-0">
+                        <EmojiPicker
+                          onEmojiClick={(emojiObject) =>
+                            setNewMessage((prev) => prev + emojiObject.emoji)
+                          }
+                        />
+                      </div>
+                    )}
+                    <div className="relative w-full">
+                      {/* Emoji toggle button */}
+                      <button
+                        type="button"
+                        onClick={() => setShowPicker((prev) => !prev)}
+                        className="absolute left-3 top-1/2 -translate-y-1/2 p-1.5 hover:bg-gray-100 rounded-full transition"
+                      >
+                        <SmileIcon size={22} className="text-gray-500" />
+                      </button>
+
+                      {/* Message input */}
+                      <textarea
+                        ref={inputRef}
+                        value={newMessage}
+                        onChange={(e) => setNewMessage(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter" && !e.shiftKey) {
+                            e.preventDefault();
+                            sendMessage();
+                          }
+                        }}
+                        placeholder="Type your message..."
+                        className="w-full pl-14 pr-3 py-2 border border-[#DBDBDB] rounded-lg resize-none focus:outline-none focus:border-[#368FFF] h-[50px] leading-6"
+                        rows={1}
+                      />
+                    </div>
+                  </div>
+                </div>
+                <button
+                  onClick={sendMessage}
+                  disabled={!newMessage.trim()}
+                  className="bg-[#368FFF] hover:bg-[#2574db] disabled:bg-gray-300 text-white rounded-lg transition-colors duration-200 flex items-center justify-center w-[50px] h-[50px]"
+                >
+                  <Send size={20} />
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }
 

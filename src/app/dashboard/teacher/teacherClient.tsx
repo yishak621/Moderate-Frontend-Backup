@@ -33,6 +33,7 @@ import Link from "next/link";
 import AnnouncementBox from "@/modules/dashboard/teacher/AnnouncementsBox";
 import { Announcement } from "@/app/types/announcement";
 import { useRouter } from "next/navigation";
+import ResponsiveModal from "@/components/ui/ResponsiveModal";
 
 const buttonData = [
   {
@@ -381,9 +382,9 @@ export default function UserClient() {
       </div>
 
       {/* Modal */}
-      <Modal isOpen={open} onOpenChange={setOpen}>
+      <ResponsiveModal isOpen={open} onOpenChange={setOpen}>
         <Modal.Content>{ModalComponent && <ModalComponent />}</Modal.Content>
-      </Modal>
+      </ResponsiveModal>
     </div>
   );
 }

@@ -2,6 +2,7 @@
 
 import Input from "@/components/ui/Input";
 import { useModal } from "@/components/ui/Modal";
+import { useResponsiveModal } from "@/hooks/useResponsiveModal";
 import { Trash, Plus, X } from "lucide-react";
 import { CustomMultiSelect } from "@/components/ui/MultiSelectInput";
 import Button from "@/components/ui/Button";
@@ -27,6 +28,8 @@ export default function EditPostModal({ post }: { post: PostAttributes }) {
   const [uploadIds, setUploadIds] = useState<string[]>([]);
   const [isFileBusy, setIsFileBusy] = useState(false);
 
+  const { close } = useResponsiveModal();
+
   const [domain, setDomain] = useState<string | boolean>("");
   const [selectedGradingType, setSelectedGradingType] = useState<
     string | boolean
@@ -51,7 +54,7 @@ export default function EditPostModal({ post }: { post: PostAttributes }) {
 
   const [files, setFiles] = useState<File[]>([]);
 
-  const { close } = useModal();
+  // const { close } = useModal();
   const handleSelected = (values: { value: string; label: string }[]) => {
     console.log("Selected values:", values);
     // you can use these in real-time (e.g. store in state, send to API, etc.)
@@ -233,7 +236,7 @@ export default function EditPostModal({ post }: { post: PostAttributes }) {
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
-      className=" bg-[#FDFDFD] min-w-[551px] max-h-screen overflow-y-scroll scrollbar-hide p-10 rounded-[27px] flex flex-col"
+      className="bg-[#FDFDFD] w-full min-w-0 sm:min-w-[551px] max-h-screen overflow-y-scroll scrollbar-hide p-6 sm:p-10 rounded-[27px] flex flex-col"
     >
       {/* Header */}
       <div className="flex flex-row justify-between">
@@ -247,7 +250,7 @@ export default function EditPostModal({ post }: { post: PostAttributes }) {
           </p>
         </div>
 
-        <div onClick={close}>
+        <div className="hidden sm:block" onClick={close}>
           <X width={22} height={22} className="text-[#000000] cursor-pointer" />
         </div>
       </div>

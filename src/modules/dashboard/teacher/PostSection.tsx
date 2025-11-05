@@ -6,6 +6,7 @@ import {
   MessagesSquare,
   MoreVertical,
   UserPlus,
+  Flag,
 } from "lucide-react";
 import { PostAttributes } from "@/types/postAttributes";
 import PostTags from "./PostTags";
@@ -16,6 +17,7 @@ import PopupCard from "@/components/PopCard";
 import PostActionsList from "./post/PostActionsList";
 import AddNewCurricularAreaModal from "../admin/modal/curricular/AddNewCurricularAreaModal";
 import Modal from "@/components/ui/Modal";
+import ResponsiveModal from "@/components/ui/ResponsiveModal";
 import CreatPostModal from "./post/CreatPostModal";
 import EditPostModal from "./post/EditPostModal";
 import DeletePostModal from "./post/DeletePostModal";
@@ -86,10 +88,26 @@ export default function Post({ post }: { post: PostAttributes }) {
   };
 
   const handleOpen = () => {
-    window.open(`/dashboard/teacher/messages?chatId=${author?.id}`, "_blank");
+    const isDesktop =
+      typeof window !== "undefined" &&
+      window.matchMedia("(min-width: 768px)").matches;
+    const url = `/dashboard/teacher/messages?chatId=${author?.id}`;
+    if (isDesktop) {
+      window.open(url, "_blank");
+    } else {
+      router.push(url);
+    }
   };
   const handlePostOpen = () => {
-    window.open(`/dashboard/teacher/grading/${id}`, "_blank");
+    const isDesktop =
+      typeof window !== "undefined" &&
+      window.matchMedia("(min-width: 768px)").matches;
+    const url = `/dashboard/teacher/grading/${id}`;
+    if (isDesktop) {
+      window.open(url, "_blank");
+    } else {
+      router.push(url);
+    }
   };
 
   return (
@@ -114,35 +132,91 @@ export default function Post({ post }: { post: PostAttributes }) {
           </div>
         </div>
         {currentUserId !== createdBy ? (
-          <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
-            {/* Follow Button */}
-            <div className="flex flex-row gap-1 sm:gap-1.5 items-center text-[#717171] cursor-pointer hover:opacity-80">
-              <UserPlus
-                size={16}
-                className="sm:w-[19px] sm:h-[19px] text-[#717171]"
-              />
-              <p className="text-xs sm:text-sm hidden sm:block">Follow</p>
+          <>
+            {/* Desktop: Follow & Message Icons */}
+            <div className="hidden sm:flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
+              {/* Follow Button */}
+              <div className="flex flex-row gap-1 sm:gap-1.5 items-center text-[#717171] cursor-pointer hover:opacity-80">
+                <UserPlus
+                  size={16}
+                  className="sm:w-[19px] sm:h-[19px] text-[#717171]"
+                />
+                <p className="text-xs sm:text-sm hidden sm:block">Follow</p>
+              </div>
+
+              {/* Message Icon */}
+              <div
+                onClick={
+                  didUserChatWithMe
+                    ? handleOpen
+                    : () => handleOpenModal(ComposeNewMessageModal, { post })
+                }
+              >
+                <MessagesSquare
+                  size={16}
+                  className="text-[#717171] cursor-pointer hover:opacity-80 sm:w-[19px] sm:h-[19px]"
+                />
+              </div>
             </div>
 
-            {/* Message Icon */}
-            <div
-              onClick={
-                didUserChatWithMe
-                  ? handleOpen
-                  : () => handleOpenModal(ComposeNewMessageModal, { post })
-              }
-            >
-              <MessagesSquare
-                size={16}
-                className="text-[#717171] cursor-pointer hover:opacity-80 sm:w-[19px] sm:h-[19px]"
-              />
+            {/* Mobile: 3-Dot Menu */}
+            <div className="sm:hidden relative">
+              <button
+                onClick={() => setIsPopUpOpen((v) => !v)}
+                className="p-2 rounded-full hover:bg-gray-100 transition-colors"
+              >
+                <MoreVertical size={20} className="text-gray-600" />
+              </button>
+              <PopupCard
+                isOpen={isPopUpOpen}
+                onClose={() => setIsPopUpOpen(false)}
+                align="right"
+              >
+                <div className="flex flex-col">
+                  <button
+                    onClick={() => {
+                      setIsPopUpOpen(false);
+                      // TODO: Handle follow
+                    }}
+                    className="flex items-center gap-3 px-4 py-3 cursor-pointer rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors"
+                  >
+                    <UserPlus size={18} />
+                    <span>Follow</span>
+                  </button>
+                  <button
+                    onClick={() => {
+                      setIsPopUpOpen(false);
+                      if (didUserChatWithMe) {
+                        handleOpen();
+                      } else {
+                        handleOpenModal(ComposeNewMessageModal, { post });
+                      }
+                    }}
+                    className="flex items-center gap-3 px-4 py-3 cursor-pointer rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors"
+                  >
+                    <MessagesSquare size={18} />
+                    <span>
+                      Message {post.author?.name?.split(" ")[0] || "User"}
+                    </span>
+                  </button>
+                  <button
+                    onClick={() => {
+                      setIsPopUpOpen(false);
+                      // TODO: Handle report flag user
+                    }}
+                    className="flex items-center gap-3 px-4 py-3 cursor-pointer rounded-lg text-sm font-medium text-red-500 hover:bg-red-50 transition-colors"
+                  >
+                    <Flag size={18} />
+                    <span>Report Flag User</span>
+                  </button>
+                </div>
+              </PopupCard>
             </div>
-            <Modal isOpen={open} onOpenChange={setOpen}>
-              <Modal.Content>
-                {ModalComponent && <ModalComponent {...modalProps} />}
-              </Modal.Content>
-            </Modal>
-          </div>
+
+            <ResponsiveModal isOpen={open} onOpenChange={setOpen}>
+              {ModalComponent && <ModalComponent {...modalProps} />}
+            </ResponsiveModal>
+          </>
         ) : (
           <div className="relative" onClick={() => setIsPopUpOpen((v) => !v)}>
             <MoreVertical
@@ -158,11 +232,9 @@ export default function Post({ post }: { post: PostAttributes }) {
               <PostActionsList onSelect={handleActionSelect} />
             </PopupCard>
 
-            <Modal isOpen={open} onOpenChange={setOpen}>
-              <Modal.Content>
-                {ModalComponent && <ModalComponent {...modalProps} />}
-              </Modal.Content>
-            </Modal>
+            <ResponsiveModal isOpen={open} onOpenChange={setOpen}>
+              {ModalComponent && <ModalComponent {...modalProps} />}
+            </ResponsiveModal>
           </div>
         )}
       </div>

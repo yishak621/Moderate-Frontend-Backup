@@ -1,0 +1,666 @@
+"use client";
+
+import React, { useState } from "react";
+import {
+  ArrowLeft,
+  ChevronLeft,
+  ChevronRight,
+  UserPlus,
+  MoreVertical,
+  Edit3,
+  BarChart3,
+  Trash2,
+  Flag,
+  MessagesSquare,
+} from "lucide-react";
+import { useRouter } from "next/navigation";
+import { motion, AnimatePresence } from "framer-motion";
+import { PostType } from "@/types/Post";
+import { GroupedGrade } from "@/app/types/user";
+import PostTags from "@/modules/dashboard/teacher/PostTags";
+import GradeGivenSection from "@/modules/dashboard/teacher/GradeGivenSection";
+import { timeAgo } from "@/lib/timeAgo";
+import { GradeTemplateNumeric } from "@/modules/dashboard/teacher/GradingLogics/GradeTemplateNumeric";
+import { GradeTemplateLetter } from "@/modules/dashboard/teacher/GradingLogics/GradeTemplateLetter";
+import GradeTemplateWeightedRubric from "@/modules/dashboard/teacher/GradingLogics/GradeTemplateWeightedRubric";
+import { GradeTemplatePassFail } from "@/modules/dashboard/teacher/GradingLogics/GradeTemplatePassFail";
+import { GradeTemplateChecklist } from "@/modules/dashboard/teacher/GradingLogics/GradeTemplateChecklist";
+import GradeTemplateRubric from "@/modules/dashboard/teacher/GradingLogics/GradeTemplateRubric";
+import { decoded } from "@/lib/currentUser";
+import AlreadyGradedNotice from "@/modules/dashboard/teacher/AlreadyGradedSection";
+import Image from "next/image";
+import PopupCard from "@/components/PopCard";
+import BottomSheet from "@/components/ui/BottomSheet";
+import EditPostModal from "@/modules/dashboard/teacher/post/EditPostModal";
+import DeletePostModal from "@/modules/dashboard/teacher/post/DeletePostModal";
+import ViewStatPostModal from "@/modules/dashboard/teacher/post/ViewDetailPostModal";
+
+interface MobilePostViewProps {
+  post: PostType & {
+    averageGrade?: number;
+    userGrade?: any;
+    gradingTemplate?: any;
+  };
+  groupedGrades: GroupedGrade[];
+}
+
+type TabType = "documents" | "grades" | "gradeTest";
+
+export default function MobilePostView({
+  post,
+  groupedGrades,
+}: MobilePostViewProps) {
+  const router = useRouter();
+  const [activeTab, setActiveTab] = useState<TabType>("documents");
+  const [currentFileIndex, setCurrentFileIndex] = useState(0);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalComponent, setModalComponent] =
+    useState<React.ComponentType<any> | null>(null);
+  const [modalProps, setModalProps] = useState<Record<string, any>>({});
+
+  const postData = post as any;
+  const {
+    title = "",
+    description = "",
+    author = null,
+    createdAt = "",
+    uploads = [],
+    tags = [],
+    averageGrade = 0,
+    userGrade,
+    gradingTemplate,
+  } = postData || {};
+
+  const checkPostIsNotThisUser = author?.id === decoded?.id;
+  const checkPostIsGradedByThisUser = groupedGrades?.some(
+    (grade) => grade?.gradedBy?.id === decoded?.id
+  );
+  const isCurrentUserPost = author?.id === decoded?.id;
+
+  const handleOpenModal = <P,>(
+    component: React.ComponentType<P>,
+    props?: P
+  ) => {
+    setModalComponent(() => component);
+    setModalProps(props || {});
+    setIsModalOpen(true);
+  };
+
+  const handleActionSelect = (action: string) => {
+    setIsMenuOpen(false);
+    switch (action) {
+      case "edit":
+        handleOpenModal(EditPostModal, { post: postData });
+        break;
+      case "stats":
+        handleOpenModal(ViewStatPostModal, { post: postData });
+        break;
+      case "delete":
+        handleOpenModal(DeletePostModal, { post: postData });
+        break;
+      case "follow":
+        // TODO: Handle follow
+        console.log("Follow user");
+        break;
+      case "message":
+        router.push(`/dashboard/teacher/messages?chatId=${author?.id}`);
+        break;
+      case "report":
+        // TODO: Handle report
+        console.log("Report user");
+        break;
+      default:
+        break;
+    }
+  };
+
+  const nextFile = () => {
+    setCurrentFileIndex((prev) => (prev + 1) % uploads.length);
+  };
+
+  const prevFile = () => {
+    setCurrentFileIndex((prev) => (prev - 1 + uploads.length) % uploads.length);
+  };
+
+  const currentFile = uploads[currentFileIndex]?.fileUrl;
+  const ext = currentFile?.split(".").pop()?.toLowerCase();
+
+  const givenGrade = (() => {
+    switch (gradingTemplate?.type) {
+      case "numeric":
+        return userGrade?.numeric;
+      case "letter":
+        return userGrade?.letter;
+      case "rubric":
+        const rubricMaxScore =
+          gradingTemplate?.criteria?.rubricCriteria?.reduce(
+            (sum: number, c: any) => sum + c.maxPoints,
+            0
+          );
+        return `${userGrade?.rubric.reduce(
+          (acc: number, val: any) => acc + Number(val),
+          0
+        )}/${rubricMaxScore}`;
+      case "passFail":
+        return userGrade?.passFail;
+      case "checklist":
+        return userGrade?.checklist;
+      default:
+        return null;
+    }
+  })();
+
+  const tabs = [
+    { id: "documents" as TabType, label: "Documents" },
+    { id: "grades" as TabType, label: "Grades" },
+    { id: "gradeTest" as TabType, label: "Grade Test" },
+  ];
+
+  return (
+    <div className="min-h-screen bg-[#F1F1F1]">
+      {/* Header with Back Button */}
+      <div className="sticky top-0 z-30 bg-[#FDFDFD] border-b border-gray-200 rounded-[27px]">
+        <div className="flex items-center gap-3 p-4">
+          <button
+            onClick={() => router.back()}
+            className="p-2 rounded-full bg-white shadow-sm hover:bg-gray-50 transition-colors border border-gray-200"
+          >
+            <ArrowLeft size={20} className="text-gray-700" />
+          </button>
+          <div className="flex-1 min-w-0">
+            <h1 className="text-base font-semibold text-[#0C0C0C] truncate">
+              {title}
+            </h1>
+            <p className="text-xs text-[#717171]">
+              by {checkPostIsNotThisUser ? "You" : author?.name} •{" "}
+              {timeAgo(createdAt)}
+            </p>
+          </div>
+          <div className="relative">
+            <button
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              className="p-2 rounded-full hover:bg-gray-100 transition-colors"
+            >
+              <MoreVertical size={20} className="text-gray-600" />
+            </button>
+            <PopupCard
+              isOpen={isMenuOpen}
+              onClose={() => setIsMenuOpen(false)}
+              align="right"
+            >
+              {isCurrentUserPost ? (
+                <div className="flex flex-col">
+                  <button
+                    onClick={() => handleActionSelect("edit")}
+                    className="flex items-center gap-3 px-4 py-3 cursor-pointer rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors"
+                  >
+                    <Edit3 size={18} />
+                    <span>Edit Post</span>
+                  </button>
+                  <button
+                    onClick={() => handleActionSelect("stats")}
+                    className="flex items-center gap-3 px-4 py-3 cursor-pointer rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors"
+                  >
+                    <BarChart3 size={18} />
+                    <span>View Stats</span>
+                  </button>
+                  <button
+                    onClick={() => handleActionSelect("delete")}
+                    className="flex items-center gap-3 px-4 py-3 cursor-pointer rounded-lg text-sm font-medium text-red-500 hover:bg-red-50 transition-colors"
+                  >
+                    <Trash2 size={18} />
+                    <span>Delete Post</span>
+                  </button>
+                </div>
+              ) : (
+                <div className="flex flex-col">
+                  <button
+                    onClick={() => handleActionSelect("follow")}
+                    className="flex items-center gap-3 px-4 py-3 cursor-pointer rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors"
+                  >
+                    <UserPlus size={18} />
+                    <span>Follow</span>
+                  </button>
+                  <button
+                    onClick={() => handleActionSelect("message")}
+                    className="flex items-center gap-3 px-4 py-3 cursor-pointer rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors"
+                  >
+                    <MessagesSquare size={18} />
+                    <span>Message {author?.name?.split(" ")[0] || "User"}</span>
+                  </button>
+                  <button
+                    onClick={() => handleActionSelect("report")}
+                    className="flex items-center gap-3 px-4 py-3 cursor-pointer rounded-lg text-sm font-medium text-red-500 hover:bg-red-50 transition-colors"
+                  >
+                    <Flag size={18} />
+                    <span>Report Flag User</span>
+                  </button>
+                </div>
+              )}
+            </PopupCard>
+          </div>
+        </div>
+
+        {/* Tabs */}
+        <div className="flex gap-0 px-4 relative">
+          {tabs.map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`flex-1 px-4 py-3 text-sm font-medium transition-all relative ${
+                activeTab === tab.id
+                  ? "text-[#0C0C0C] font-semibold"
+                  : "text-[#717171]"
+              }`}
+            >
+              {tab.label}
+              {activeTab === tab.id && (
+                <motion.div
+                  layoutId="activeTab"
+                  className="absolute bottom-0 left-0 right-0 h-[2px] bg-[#0C0C0C]"
+                  transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                />
+              )}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Tab Content with Animations */}
+      <div className="py-4 space-y-4">
+        <AnimatePresence mode="wait">
+          {activeTab === "documents" && (
+            <motion.div
+              key="documents"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 20 }}
+              transition={{ duration: 0.3 }}
+              className="bg-[#FDFDFD] rounded-[27px] p-4 space-y-4 w-full"
+            >
+              <div className="flex flex-col gap-1">
+                <p className="text-base font-semibold text-[#0C0C0C]">
+                  {title}
+                </p>
+                {/* Description */}
+
+                <p className="text-sm text-[#0C0C0C] leading-relaxed">
+                  {description}
+                </p>
+              </div>
+
+              {/* File Preview */}
+              <div className="relative bg-gray-100 rounded-[24.5px] overflow-hidden">
+                {uploads.length > 1 && (
+                  <>
+                    <button
+                      onClick={prevFile}
+                      className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/90 p-2 rounded-full shadow-lg z-10 hover:bg-white"
+                    >
+                      <ChevronLeft size={20} />
+                    </button>
+                    <button
+                      onClick={nextFile}
+                      className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/90 p-2 rounded-full shadow-lg z-10 hover:bg-white"
+                    >
+                      <ChevronRight size={20} />
+                    </button>
+                  </>
+                )}
+
+                {/* File Viewer */}
+                {ext === "pdf" ? (
+                  <iframe
+                    src={currentFile}
+                    className="w-full h-[60vh] rounded-[24.5px]"
+                  />
+                ) : (
+                  <Image
+                    src={currentFile || "/images/placeholder.png"}
+                    alt="Document"
+                    width={600}
+                    height={800}
+                    className="w-full h-auto max-h-[60vh] object-contain"
+                  />
+                )}
+
+                {/* File Counter */}
+                {uploads.length > 1 && (
+                  <div className="absolute bottom-3 left-1/2 -translate-x-1/2 bg-black/60 text-white text-xs px-3 py-1 rounded-full">
+                    {currentFileIndex + 1} / {uploads.length}
+                  </div>
+                )}
+              </div>
+
+              {/* Tags & Stats */}
+              <div className="flex flex-wrap gap-2 items-center">
+                {tags?.map((tag: string, idx: number) => (
+                  <PostTags
+                    key={idx}
+                    text={tag}
+                    type={idx % 2 === 1 ? "colored" : undefined}
+                  />
+                ))}
+              </div>
+
+              <div className="flex gap-4 text-sm">
+                <div className="bg-blue-50 px-3 py-2 rounded-full">
+                  <span className="text-blue-700 font-medium">
+                    Avg: {averageGrade}
+                  </span>
+                </div>
+                {givenGrade && (
+                  <div className="bg-green-50 px-3 py-2 rounded-full">
+                    <span className="text-green-700 font-medium">
+                      Your Grade: {givenGrade}
+                    </span>
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          )}
+
+          {activeTab === "grades" && (
+            <motion.div
+              key="grades"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 20 }}
+              transition={{ duration: 0.3 }}
+              className="space-y-3"
+            >
+              {groupedGrades?.length > 0 && (
+                <>
+                  {groupedGrades.map((grader, idx) => {
+                    const type = gradingTemplate?.type;
+
+                    switch (type) {
+                      case "numeric":
+                        return (
+                          <GradeGivenSection
+                            key={idx}
+                            grade={grader}
+                            gradingTemplate={gradingTemplate}
+                          >
+                            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 bg-[#FDFDFD] border border-gray-200 rounded-[24.5px] px-4 py-4 shadow-sm">
+                              <div>
+                                <p className="text-sm text-gray-600">Score</p>
+                                <p className="text-base font-semibold text-gray-800">
+                                  {grader.grade.numeric} /{" "}
+                                  {
+                                    gradingTemplate?.criteria?.numericCriteria
+                                      ?.max
+                                  }
+                                </p>
+                              </div>
+
+                              <div className="flex items-center justify-center w-10 h-10 rounded-full bg-green-100 text-green-600 font-semibold text-lg">
+                                {Math.round(
+                                  (grader.grade.numeric /
+                                    (gradingTemplate?.criteria?.numericCriteria
+                                      ?.max || 1)) *
+                                    100
+                                )}
+                                %
+                              </div>
+                            </div>
+                          </GradeGivenSection>
+                        );
+
+                      case "letter":
+                        return (
+                          <GradeGivenSection
+                            key={idx}
+                            grade={grader}
+                            gradingTemplate={gradingTemplate}
+                          >
+                            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 bg-[#FDFDFD] border border-gray-200 rounded-[24.5px] px-4 py-4 shadow-sm">
+                              <div className="flex items-center gap-3">
+                                <div className="flex items-center justify-center w-10 h-10 rounded-full bg-blue-100 text-blue-600 font-semibold text-lg">
+                                  {grader?.grade.letter.letterGrade.letter}
+                                </div>
+                                <div>
+                                  <p className="text-sm text-gray-600">Grade</p>
+                                  <p className="text-base font-semibold text-gray-800">
+                                    {grader?.grade.letter.letterGrade.letter}
+                                  </p>
+                                </div>
+                              </div>
+
+                              <div className="text-right">
+                                <p className="text-sm text-gray-600">Score</p>
+                                <p className="text-base font-semibold text-gray-800">
+                                  {grader?.grade.letter.score}
+                                </p>
+                              </div>
+                            </div>
+                          </GradeGivenSection>
+                        );
+
+                      case "rubric":
+                        return (
+                          <GradeGivenSection
+                            key={idx}
+                            grade={grader}
+                            gradingTemplate={gradingTemplate}
+                          >
+                            <div className="bg-[#FDFDFD] border border-gray-200 rounded-[24.5px] p-4 shadow-sm">
+                              <p className="text-sm font-semibold text-gray-800 mb-3">
+                                Rubric Breakdown
+                              </p>
+
+                              <div className="grid grid-cols-1 gap-3">
+                                {Array.isArray(
+                                  grader?.grade?.rubric?.rubricData
+                                ) &&
+                                  grader.grade.rubric.rubricData.map(
+                                    (
+                                      item: { label: string; value: string },
+                                      i: number
+                                    ) => (
+                                      <div
+                                        key={i}
+                                        className="flex items-center justify-between bg-white border border-gray-100 rounded-lg px-4 py-3 shadow-sm"
+                                      >
+                                        <span className="text-sm font-medium text-gray-700">
+                                          {item.label}
+                                        </span>
+                                        <span className="text-sm font-semibold text-blue-600">
+                                          {item.value}
+                                        </span>
+                                      </div>
+                                    )
+                                  )}
+                              </div>
+
+                              <div className="flex justify-between items-center mt-5 pt-3 border-t border-gray-200">
+                                <p className="text-sm text-gray-600">
+                                  Total Score
+                                </p>
+                                <p className="text-base font-bold text-gray-800">
+                                  {grader?.grade?.rubric?.totalScore ?? 0}
+                                </p>
+                              </div>
+
+                              <p className="text-xs text-gray-500 mt-1">
+                                Overall Percentage:{" "}
+                                <span className="font-semibold text-blue-600">
+                                  {grader?.grade?.rubric?.percentage ?? 0}%
+                                </span>
+                              </p>
+                            </div>
+                          </GradeGivenSection>
+                        );
+
+                      case "weightedRubric":
+                        return (
+                          <GradeGivenSection
+                            key={idx}
+                            grade={grader}
+                            gradingTemplate={gradingTemplate}
+                          >
+                            <div className="bg-[#FDFDFD] border border-gray-200 rounded-[24.5px] p-4 shadow-sm">
+                              <p className="text-base font-semibold text-gray-800 mb-4">
+                                Weighted Rubric Breakdown
+                              </p>
+
+                              <div className="grid grid-cols-1 gap-3">
+                                {Array.isArray(
+                                  grader?.grade?.weightedRubric?.rubricData
+                                ) &&
+                                  grader.grade.weightedRubric.rubricData.map(
+                                    (w: any, i: number) => (
+                                      <div
+                                        key={i}
+                                        className="flex items-center justify-between bg-white border border-gray-100 rounded-lg px-4 py-3 shadow-sm"
+                                      >
+                                        <span className="text-sm font-medium text-gray-700">
+                                          {w.label}
+                                        </span>
+                                        <span className="text-sm font-semibold text-blue-600">
+                                          {w.value} ({w.weight}%)
+                                        </span>
+                                      </div>
+                                    )
+                                  )}
+                              </div>
+
+                              <div className="flex justify-between items-center mt-5 pt-4 border-t border-gray-200">
+                                <p className="text-sm text-gray-600">
+                                  Total Score
+                                </p>
+                                <p className="text-base font-bold text-gray-800">
+                                  {grader?.grade?.weightedRubric?.totalScore ??
+                                    0}
+                                </p>
+                              </div>
+
+                              <p className="text-xs text-gray-500 mt-1">
+                                Overall Percentage:{" "}
+                                <span className="font-semibold text-blue-600">
+                                  {grader?.grade?.weightedRubric?.percentage ??
+                                    0}
+                                  %
+                                </span>
+                              </p>
+                            </div>
+                          </GradeGivenSection>
+                        );
+
+                      default:
+                        return null;
+                    }
+                  })}
+                </>
+              )}
+
+              {groupedGrades?.length === 0 && (
+                <div className="flex flex-col items-center justify-center mt-8 py-16 px-6 bg-[#FDFDFD] border border-dashed border-gray-300 rounded-[24.5px] space-y-4">
+                  <svg
+                    className="w-16 h-16 text-gray-400"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 17v-6h6v6M12 3v4m-7 4h14m-7 4v4"
+                    />
+                  </svg>
+                  <h3 className="text-lg font-semibold text-gray-700">
+                    No grades yet
+                  </h3>
+                  <p className="text-sm text-gray-500 text-center">
+                    Once teachers grade the submissions, you&apos;ll see them
+                    here. Be the first one to grade this test 🙂
+                  </p>
+                </div>
+              )}
+            </motion.div>
+          )}
+
+          {activeTab === "gradeTest" && (
+            <motion.div
+              key="gradeTest"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 20 }}
+              transition={{ duration: 0.3 }}
+              className="bg-[#FDFDFD] rounded-[27px] p-5 space-y-4"
+            >
+              {checkPostIsNotThisUser ? (
+                <div className="bg-yellow-50 border border-yellow-200 rounded-[24.5px] p-4">
+                  <p className="text-sm text-yellow-800">
+                    You cannot grade your own post
+                  </p>
+                </div>
+              ) : checkPostIsGradedByThisUser ? (
+                <AlreadyGradedNotice onEdit={() => {}} />
+              ) : (
+                <>
+                  {/* Show grading section if NOT graded */}
+                  {!checkPostIsGradedByThisUser && (
+                    <div className="mt-2 flex flex-col items-start w-full">
+                      {gradingTemplate?.type === "rubric" && (
+                        <GradeTemplateRubric
+                          criteria={gradingTemplate.criteria}
+                          totalRange={gradingTemplate.criteria.total}
+                          gradingTemplate={gradingTemplate}
+                          postId={postData?.id}
+                        />
+                      )}
+
+                      {gradingTemplate?.type === "numeric" && (
+                        <GradeTemplateNumeric
+                          label="Score"
+                          min={gradingTemplate.criteria.numericCriteria.min}
+                          max={gradingTemplate.criteria.numericCriteria.max}
+                          gradingTemplate={gradingTemplate}
+                          postId={postData?.id}
+                        />
+                      )}
+
+                      {gradingTemplate?.type === "letter" && (
+                        <GradeTemplateLetter
+                          ranges={gradingTemplate.criteria.letterRanges}
+                          gradingTemplate={gradingTemplate}
+                          postId={postData?.id}
+                        />
+                      )}
+
+                      {gradingTemplate?.type === "weightedRubric" && (
+                        <GradeTemplateWeightedRubric
+                          criteria={gradingTemplate.criteria}
+                          totalRange={gradingTemplate.criteria.total}
+                          gradingTemplate={gradingTemplate}
+                          postId={postData?.id}
+                        />
+                      )}
+                    </div>
+                  )}
+                </>
+              )}
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+
+      {/* Bottom Sheet for Modals */}
+      {modalComponent && (
+        <BottomSheet
+          isOpen={isModalOpen}
+          onClose={() => {
+            setIsModalOpen(false);
+            setModalComponent(null);
+            setModalProps({});
+          }}
+        >
+          {React.createElement(modalComponent, modalProps)}
+        </BottomSheet>
+      )}
+    </div>
+  );
+}

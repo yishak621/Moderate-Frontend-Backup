@@ -17,13 +17,13 @@ import MobilePostsClient from "./MobilePostsClient";
 type YearOption = { value: string | boolean; label: string };
 
 export default function PostsClientTeachers() {
-  const [activeFilter, setActiveFilter] = useState<string | boolean>("All"); // ✅ default "All"
+  const [activeFilter, setActiveFilter] = useState<string | boolean>("all"); // Default "all" to show all posts
   const [visiblePostsCount, setVisiblePostsCount] = useState(5); // Start with 5 posts
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [open, setOpen] = useState(false);
 
   const handleSelect = (selected: YearOption | null) => {
-    setActiveFilter(selected?.value ?? "");
+    setActiveFilter(selected?.value ?? "all");
   };
 
   const {
@@ -68,14 +68,14 @@ export default function PostsClientTeachers() {
     }
   );
   const visiblePosts =
-    activeFilter === "All"
-      ? userMyPostFeedsData?.posts.slice(0, visiblePostsCount)
-      : filteredYearMyPosts?.slice(0, visiblePostsCount);
+    activeFilter === "all" || activeFilter === "All"
+      ? userMyPostFeedsData?.posts?.slice(0, visiblePostsCount) || []
+      : filteredYearMyPosts?.slice(0, visiblePostsCount) || [];
 
   const hasMorePosts =
-    activeFilter === "All"
-      ? visiblePostsCount < userMyPostFeedsData?.posts.length
-      : visiblePostsCount < filteredYearMyPosts?.length;
+    activeFilter === "all" || activeFilter === "All"
+      ? visiblePostsCount < (userMyPostFeedsData?.posts?.length || 0)
+      : visiblePostsCount < (filteredYearMyPosts?.length || 0);
 
   console.log(activeFilter, visiblePosts);
   return (
@@ -114,6 +114,7 @@ export default function PostsClientTeachers() {
                       : val.value
                     : "all";
                   setActiveFilter(value);
+                  setVisiblePostsCount(5); // Reset to 5 posts when filter changes
                 }}
                 placeholder="Select a year"
               />

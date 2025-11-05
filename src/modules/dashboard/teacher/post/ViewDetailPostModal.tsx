@@ -1,5 +1,6 @@
 "use client";
 import { useModal } from "@/components/ui/Modal";
+import { useResponsiveModal } from "@/hooks/useResponsiveModal";
 import { X } from "lucide-react";
 import Button from "@/components/ui/Button";
 import { Announcement } from "@/app/types/announcement";
@@ -18,10 +19,10 @@ export default function ViewStatPostModal({ post }: { post: PostAttributes }) {
   //     isDeletingAnnouncementError,
   //     deletingAnnouncementError,
   //   } = useAdminAnnouncementDeleteData(announcement?.id ?? "");
-  const { close } = useModal();
+  const { close } = useResponsiveModal();
 
   return (
-    <div className=" bg-[#FDFDFD] min-w-[551px] p-10 rounded-[27px] flex flex-col">
+    <div className="bg-[#FDFDFD] w-full min-w-0 sm:min-w-[551px] p-6 sm:p-10 rounded-[27px] flex flex-col">
       {/* Header */}
       <div className="flex flex-row justify-between">
         <div className=" flex flex-col gap-1.5">
@@ -33,7 +34,7 @@ export default function ViewStatPostModal({ post }: { post: PostAttributes }) {
           </p>
         </div>
 
-        <div onClick={close}>
+        <div className="hidden sm:block" onClick={close}>
           <X width={22} height={22} className="text-[#000000] cursor-pointer" />
         </div>
       </div>

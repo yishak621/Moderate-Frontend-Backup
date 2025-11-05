@@ -1,6 +1,6 @@
 "use client";
 
-import { ReactNode, useMemo, useState } from "react";
+import { ReactNode, useMemo, useState, useEffect, Suspense } from "react";
 import {
   LayoutDashboard,
   Settings,
@@ -23,7 +23,7 @@ import {
 } from "lucide-react";
 import DashboardShell, { NavItem } from "@/components/DashboardShell";
 import Image from "next/image";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import SearchInputTeacher from "@/modules/dashboard/teacher/SearchInputTeacher";
 import { getRole, removeToken } from "@/services/tokenService";
 import { useRouter } from "next/navigation";
@@ -132,7 +132,7 @@ function getDashboardTitle(
   return "Dashboard";
 }
 
-export default function DashboardLayout({ children }: { children: ReactNode }) {
+function DashboardLayoutContent({ children }: { children: ReactNode }) {
   const [isPopUpOpen, setIsPopUpOpen] = useState(false);
 
   const [query, setQuery] = useState("");
@@ -170,7 +170,39 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   const mobileSidebarItems = useMemo(() => getMobileSidebarItems(role), [role]);
 
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const title = getDashboardTitle(pathname, role, sidebarItems);
+
+  // Check if we're on a detail page (messages detail, announcement detail, etc.) - MOBILE ONLY
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768); // md breakpoint
+    };
+
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
+
+  const isDetailPage = useMemo(() => {
+    // Only hide layout on mobile
+    if (!isMobile) return false;
+
+    const hasChatId = searchParams.has("chatId");
+    const hasAnnouncementId = searchParams.has("id");
+
+    // Check if pathname indicates detail view
+    const isPostDetail =
+      pathname.includes("/grading/") &&
+      pathname !== "/dashboard/teacher/grading";
+    const isMessagesDetail = pathname.includes("/messages") && hasChatId;
+    const isAnnouncementDetail =
+      pathname.includes("/announcements") && hasAnnouncementId;
+
+    return isPostDetail || isMessagesDetail || isAnnouncementDetail;
+  }, [pathname, searchParams, isMobile]);
 
   const handleSearch = () => {
     console.log("Searching for:", query);
@@ -331,6 +363,11 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
     );
   };
 
+  // Hide dashboard layout for detail pages on mobile
+  if (isDetailPage) {
+    return <>{children}</>;
+  }
+
   return (
     <DashboardShell
       title={title}
@@ -344,5 +381,13 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
     >
       {children}
     </DashboardShell>
+  );
+}
+
+export default function DashboardLayout({ children }: { children: ReactNode }) {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <DashboardLayoutContent>{children}</DashboardLayoutContent>
+    </Suspense>
   );
 }

@@ -51,7 +51,7 @@ export function ThreadBox({
   return (
     <div
       onClick={handleClick}
-      className={`relative flex flex-col items-left py-[15px] px-[18px] gap-1.5 border rounded-[9px] cursor-pointer transition-all duration-300 ease-in-out
+      className={`relative flex flex-col items-left py-[15px] px-[18px] gap-1.5 border rounded-[9px] bg-[#FDFDFD] cursor-pointer transition-all duration-300 ease-in-out
         ${
           isActive
             ? "border-[#368FFF] bg-[#F7FAFF] shadow-sm"

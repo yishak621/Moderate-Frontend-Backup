@@ -1,5 +1,6 @@
 "use client";
 import { useModal } from "@/components/ui/Modal";
+import { useResponsiveModal } from "@/hooks/useResponsiveModal";
 import { X } from "lucide-react";
 import Button from "@/components/ui/Button";
 import { Announcement } from "@/app/types/announcement";
@@ -12,13 +13,15 @@ import Textarea from "@/components/ui/Textarea";
 import { useForm } from "react-hook-form";
 import { useSendMessageAPI } from "@/hooks/useMessage";
 import { Message } from "@/app/types/threads";
+import { useRouter } from "next/navigation";
 
 export default function ComposeNewMessageModal({
   post,
 }: {
   post: PostAttributes;
 }) {
-  const { close } = useModal();
+  const { close } = useResponsiveModal();
+  const router = useRouter();
 
   //HOOKS
 
@@ -46,17 +49,35 @@ export default function ComposeNewMessageModal({
   };
 
   useEffect(() => {
-    if (!isSendMessageAPILoading) return;
-    window.open(
-      `/dashboard/teacher/messages?chatId=${post?.author.id}`,
-      "_blank"
-    );
-  }, [isSendMessageAPILoading]);
+    if (isSendMessageAPISuccess && !isSendMessageAPILoading) {
+      const isDesktop =
+        typeof window !== "undefined" &&
+        window.matchMedia("(min-width: 768px)").matches;
+      const url = `/dashboard/teacher/messages?chatId=${post?.author.id}`;
+
+      close(); // Close modal first
+
+      // Small delay to allow modal to close smoothly
+      setTimeout(() => {
+        if (isDesktop) {
+          window.open(url, "_blank");
+        } else {
+          router.push(url);
+        }
+      }, 100);
+    }
+  }, [
+    isSendMessageAPISuccess,
+    isSendMessageAPILoading,
+    post?.author.id,
+    close,
+    router,
+  ]);
 
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
-      className=" bg-[#FDFDFD] min-w-[551px] p-10 rounded-[27px] flex flex-col"
+      className="bg-[#FDFDFD] w-full min-w-0 sm:min-w-[551px] p-6 sm:p-10 rounded-[27px] flex flex-col"
     >
       {/* Header */}
       <div className="flex flex-row justify-between">
@@ -69,7 +90,7 @@ export default function ComposeNewMessageModal({
           </p>
         </div>
 
-        <div onClick={close}>
+        <div className="hidden sm:block" onClick={close}>
           <X width={22} height={22} className="text-[#000000] cursor-pointer" />
         </div>
       </div>

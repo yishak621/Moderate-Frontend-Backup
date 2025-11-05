@@ -2,6 +2,7 @@
 
 import Input from "@/components/ui/Input";
 import { useModal } from "@/components/ui/Modal";
+import { useResponsiveModal } from "@/hooks/useResponsiveModal";
 import { Trash, Plus, X } from "lucide-react";
 import { CustomMultiSelect } from "@/components/ui/MultiSelectInput";
 import Button from "@/components/ui/Button";
@@ -51,7 +52,7 @@ export default function CreatPostModal() {
 
   const [files, setFiles] = useState<File[]>([]);
 
-  const { close } = useModal();
+  const { close } = useResponsiveModal();
   const handleSelected = (values: { value: string; label: string }[]) => {
     console.log("Selected values:", values);
     // you can use these in real-time (e.g. store in state, send to API, etc.)
@@ -233,7 +234,7 @@ export default function CreatPostModal() {
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
-      className=" bg-[#FDFDFD] min-w-[551px] max-h-screen overflow-y-scroll scrollbar-hide p-10 rounded-[27px] flex flex-col"
+      className="bg-[#FDFDFD] w-full min-w-0 sm:min-w-[551px] max-h-screen overflow-y-scroll scrollbar-hide p-6 sm:p-10 rounded-[27px] flex flex-col"
     >
       {/* Header */}
       <div className="flex flex-row justify-between">

@@ -121,9 +121,10 @@ export function useUserMyPostsFeeds() {
 
 export function useUserSinglePostData(postId: string) {
   const { data, isPending, isSuccess, isError, error } = useQuery({
-    queryKey: ["userSinglePostData"],
+    queryKey: ["userSinglePostData", postId],
     queryFn: () => userSinglePostData(postId),
     staleTime: 5 * 60 * 1000,
+    enabled: !!postId,
   });
 
   return {

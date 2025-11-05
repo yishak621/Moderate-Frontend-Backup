@@ -21,7 +21,10 @@ type ModalContextType = {
 const ModalContext = createContext<ModalContextType | null>(null);
 export const useModal = () => {
   const ctx = useContext(ModalContext);
-  if (!ctx) throw new Error("useModal must be used inside Modal");
+  if (!ctx) {
+    // Return a no-op object instead of throwing (for compatibility with BottomSheet)
+    return { open: false, setOpen: () => {}, close: () => {}, isOpen: false };
+  }
   return ctx;
 };
 
