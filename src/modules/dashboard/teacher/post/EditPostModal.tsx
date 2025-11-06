@@ -15,18 +15,26 @@ import {
   useUserCreatePost,
   useUserData,
   useUserRemoveUploadedFile,
+  useUserUpdatePost,
   useUserUploadFile,
 } from "@/hooks/useUser";
 import { User } from "@/app/types/user";
-import { useCallback, useState } from "react";
+import { useCallback, useState, useEffect, useMemo } from "react";
 import { gradingTypeOptions } from "@/lib/gradingTypeOptions";
 import { Controller, useForm } from "react-hook-form";
-import { PostAttributes, PostCreateInput } from "@/types/postAttributes";
+import {
+  PostAttributes,
+  PostCreateInput,
+  UploadAttributes,
+} from "@/types/postAttributes";
 import toast from "react-hot-toast";
+import Image from "next/image";
 
 export default function EditPostModal({ post }: { post: PostAttributes }) {
   const [uploadIds, setUploadIds] = useState<string[]>([]);
   const [isFileBusy, setIsFileBusy] = useState(false);
+  const [existingFiles, setExistingFiles] = useState<UploadAttributes[]>([]);
+  const [newUploadIds, setNewUploadIds] = useState<string[]>([]);
 
   const { close } = useResponsiveModal();
 
@@ -40,7 +48,10 @@ export default function EditPostModal({ post }: { post: PostAttributes }) {
   const [userGrade, setUserGrade] = useState<Record<string, any>>({});
 
   const [maxPoints, setMaxPoints] = useState<number | null>(null);
-  const [numericCriteria, setNumericCriteria] = useState([{}]);
+  const [numericCriteria, setNumericCriteria] = useState<{
+    min?: number;
+    max?: number;
+  }>({});
   const [letterRanges, setLetterRanges] = useState([
     { letter: "A", min: 90, max: 100 },
   ]);
@@ -62,7 +73,6 @@ export default function EditPostModal({ post }: { post: PostAttributes }) {
 
   //HOOKS
 
-  //react hook form
   const {
     handleSubmit,
     formState: { errors },
@@ -80,35 +90,117 @@ export default function EditPostModal({ post }: { post: PostAttributes }) {
     error,
   } = useSubjectDomains();
 
+  const {
+    updatePostAsync,
+    isUpdatingPostLoading,
+    isUpdatingPostSuccess,
+    isUpdatingPostError,
+    updatingPostError,
+  } = useUserUpdatePost();
+
   const { user } = useUserData();
 
-  const {
-    createPost,
-    createPostAsync,
-    creatingPostError,
-    isCreatingPostLoading,
-    isCreatingPostError,
-    isCreatingPostSuccess,
-  } = useUserCreatePost(domain);
-
   const { isUploadingFileLoading } = useUserUploadFile();
-  const { isDeletingFileLoading } = useUserRemoveUploadedFile();
+  const { deleteFileAsync, isDeletingFileLoading } =
+    useUserRemoveUploadedFile();
 
-  console.log(
-    isCreatingPostLoading,
-    isCreatingPostLoading,
-    isDeletingFileLoading
+  // Initialize with existing files
+  useEffect(() => {
+    if (post?.uploads && post.uploads.length > 0) {
+      const existingIds = post.uploads.map((upload) => upload.id);
+      setUploadIds(existingIds);
+      setExistingFiles(post.uploads);
+    }
+  }, [post]);
+
+  const optionsSubjectDomains = useMemo(
+    () =>
+      subjectDomains
+        ?.filter((sd: SubjectDomain) =>
+          (user as User)?.domains?.some((d: SubjectDomain) => d.id === sd.id)
+        )
+        .map((sd: SubjectDomain) => ({
+          value: sd.id,
+          label: sd.name,
+        })) ?? [],
+    [subjectDomains, user]
   );
 
-  const optionsSubjectDomains =
-    subjectDomains
-      ?.filter((sd: SubjectDomain) =>
-        (user as User)?.domains?.some((d: SubjectDomain) => d.id === sd.id)
-      )
-      .map((sd: SubjectDomain) => ({
-        value: sd.id,
-        label: sd.name,
-      })) ?? [];
+  // Initialize domain value when options are loaded
+  useEffect(() => {
+    if (post?.domain && optionsSubjectDomains.length > 0 && !domain) {
+      const defaultDomainOption = optionsSubjectDomains.find(
+        (sd: { value: string; label: string }) => sd.value === post.domain
+      );
+      if (defaultDomainOption) {
+        setDomain(defaultDomainOption.value as string);
+        setValue("domain", defaultDomainOption.value as string);
+      }
+    }
+  }, [post?.domain, optionsSubjectDomains, domain, setValue]);
+
+  // Initialize grading data from post
+  useEffect(() => {
+    if (!post) return;
+
+    // Initialize grading type
+    const postGradingType = (post as any).gradingType;
+    if (postGradingType) {
+      setSelectedGradingType(postGradingType);
+      setValue("gradingType", postGradingType);
+    }
+
+    // Initialize user grade
+    const postUserGrade = (post as any).userGrade;
+    if (postUserGrade) {
+      setUserGrade(postUserGrade);
+    }
+
+    // Initialize grading criteria based on type
+    const firstGrade = post.grades?.[0] as any;
+    const gradingType = postGradingType || firstGrade?.gradeType;
+
+    if (gradingType === "numeric") {
+      // Get min/max from grades criteria or from post gradingTemplate
+      const criteria =
+        firstGrade?.criteria?.numericCriteria ||
+        (post as any).gradingTemplate?.criteria?.numericCriteria;
+
+      if (criteria) {
+        const min = criteria.min;
+        const max = criteria.max;
+        setNumericCriteria({ min, max });
+      }
+    } else if (gradingType === "letter") {
+      const letterRangesData =
+        firstGrade?.criteria?.letterRanges ||
+        (post as any).gradingTemplate?.criteria?.letterRanges;
+      if (letterRangesData && Array.isArray(letterRangesData)) {
+        setLetterRanges(letterRangesData);
+      }
+    } else if (gradingType === "rubric" || gradingType === "weightedRubric") {
+      const rubricData =
+        firstGrade?.criteria?.rubricCriteria ||
+        (post as any).gradingTemplate?.criteria?.rubricCriteria;
+      if (rubricData && Array.isArray(rubricData)) {
+        setRubricCriteria(rubricData);
+      }
+    } else if (gradingType === "checklist") {
+      const checklistData =
+        firstGrade?.criteria?.checklistItems ||
+        (post as any).gradingTemplate?.criteria?.checklistItems;
+      if (checklistData && Array.isArray(checklistData)) {
+        setChecklistItems(checklistData);
+      }
+    } else if (gradingType === "passFail") {
+      const passFailData =
+        firstGrade?.criteria?.passFail ||
+        (post as any).gradingTemplate?.criteria?.passFail;
+      if (passFailData) {
+        setPassFailCriteria(passFailData);
+      }
+    }
+  }, [post, setValue]);
 
   // Handlers
   // const handleSelectedDomains = (values: any[]) =>
@@ -176,15 +268,38 @@ export default function EditPostModal({ post }: { post: PostAttributes }) {
     console.log("Selected grading criteria:", selected);
   };
 
-  const handleUploadIdsChange = useCallback((ids: string[]) => {
-    setUploadIds((prev) => {
-      // only update if different — prevents unnecessary re-renders
-      if (JSON.stringify(prev) !== JSON.stringify(ids)) {
-        return ids;
+  const handleUploadIdsChange = useCallback(
+    (ids: string[]) => {
+      // FileUploader passes IDs of files it manages (new uploads)
+      setNewUploadIds(ids);
+      // Merge existing file IDs with new upload IDs
+      const existingIds = existingFiles.map((f) => f.id);
+      const merged = [...existingIds, ...ids];
+      const unique = Array.from(new Set(merged));
+      setUploadIds(unique);
+    },
+    [existingFiles]
+  );
+
+  // Handle deletion of existing files
+  const handleDeleteExistingFile = async (fileId: string) => {
+    try {
+      setIsFileBusy(true);
+      await deleteFileAsync(fileId);
+      // Remove from existing files and uploadIds
+      setExistingFiles((prev) => prev.filter((f) => f.id !== fileId));
+      setUploadIds((prev) => prev.filter((id) => id !== fileId));
+      toast.success("File deleted successfully");
+    } catch (err) {
+      if (err instanceof Error) {
+        toast.error(err.message);
+      } else {
+        toast.error("Failed to delete file");
       }
-      return prev;
-    });
-  }, []);
+    } finally {
+      setIsFileBusy(false);
+    }
+  };
 
   const onSubmit = async (data: PostCreateInput) => {
     // Compose gradingTemplate based on selected type
@@ -211,7 +326,6 @@ export default function EditPostModal({ post }: { post: PostAttributes }) {
 
     try {
       if (uploadIds.length === 0) toast.error("There is no files uploaded!");
-      console.log(uploadIds, "uploadids");
       const postData = {
         ...data,
         grading: {
@@ -223,8 +337,9 @@ export default function EditPostModal({ post }: { post: PostAttributes }) {
       };
       console.log(postData);
       if (uploadIds.length > 0) {
-        await createPostAsync(postData);
-        toast.success("Post created successfully!");
+        console.log(postData, "postData");
+        await updatePostAsync({ postId: post.id.toString(), data: postData });
+        toast.success("Post updated successfully!");
         close();
       }
     } catch (err) {
@@ -260,7 +375,7 @@ export default function EditPostModal({ post }: { post: PostAttributes }) {
         <Input
           label="Title"
           type="text"
-          placeholder="Chemistry midterm exam"
+          placeholder="Moderate Post Title"
           defaultValue={post?.title}
           {...register("title", { required: "Title is required!" })}
           error={errors?.title?.message}
@@ -278,6 +393,7 @@ export default function EditPostModal({ post }: { post: PostAttributes }) {
         <Input
           label="Tags"
           type="text"
+          defaultValue={post?.tags?.join(",")}
           placeholder="Enter tags separated by commas"
           {...register("tags", {
             setValueAs: (v: unknown) =>
@@ -298,17 +414,29 @@ export default function EditPostModal({ post }: { post: PostAttributes }) {
           <Controller
             name="domain"
             control={control}
-            render={({ field }) => (
-              <CustomSelect
-                options={optionsSubjectDomains} // array of {value, label}
-                onChange={(val) => {
-                  console.log(val);
-                  field.onChange(val?.value);
-                  setDomain(val?.value || "");
-                }}
-                placeholder="System, Report ..."
-              />
-            )}
+            render={({ field }) => {
+              const defaultDomainOption = optionsSubjectDomains.find(
+                (sd: { value: string; label: string }) =>
+                  sd.value === post?.domain
+              );
+              return (
+                <CustomSelect
+                  key={
+                    defaultDomainOption
+                      ? `domain-${defaultDomainOption.value}`
+                      : `domain-loading-${optionsSubjectDomains.length}`
+                  }
+                  defaultValue={defaultDomainOption}
+                  options={optionsSubjectDomains} // array of {value, label}
+                  onChange={(val) => {
+                    console.log(val);
+                    field.onChange(val?.value);
+                    setDomain(val?.value || "");
+                  }}
+                  placeholder="System, Report ..."
+                />
+              );
+            }}
           />
         </div>
 
@@ -320,17 +448,29 @@ export default function EditPostModal({ post }: { post: PostAttributes }) {
           <Controller
             name="gradingType"
             control={control}
-            render={({ field }) => (
-              <CustomSelect
-                options={gradingTypeOptions} // numeric, letter, rubric, checklist, weightedRubric, passFail
-                defaultValue={gradingTypeOptions[0]}
-                onChange={(val) => {
-                  field.onChange(val?.value);
-                  setSelectedGradingType(val?.value || "");
-                  setGradingTemplate({}); // reset template when type changes
-                }}
-              />
-            )}
+            render={({ field }) => {
+              const defaultGradingTypeOption = gradingTypeOptions.find(
+                (option) => option.value === selectedGradingType
+              );
+              return (
+                <CustomSelect
+                  key={
+                    defaultGradingTypeOption
+                      ? `grading-${defaultGradingTypeOption.value}`
+                      : `grading-loading-${selectedGradingType}`
+                  }
+                  options={gradingTypeOptions} // numeric, letter, rubric, checklist, weightedRubric, passFail
+                  defaultValue={
+                    defaultGradingTypeOption || gradingTypeOptions[0]
+                  }
+                  onChange={(val) => {
+                    field.onChange(val?.value);
+                    setSelectedGradingType(val?.value || "");
+                    setGradingTemplate({}); // reset template when type changes
+                  }}
+                />
+              );
+            }}
           />
         </div>
 
@@ -340,7 +480,7 @@ export default function EditPostModal({ post }: { post: PostAttributes }) {
             <Input
               label="Min Points"
               type="number"
-              defaultValue={gradingTemplate.min || ""}
+              defaultValue={numericCriteria.min || ""}
               onChange={(e) =>
                 setNumericCriteria((prev) => ({
                   ...prev,
@@ -351,7 +491,7 @@ export default function EditPostModal({ post }: { post: PostAttributes }) {
             <Input
               label="Max Points"
               type="number"
-              defaultValue={gradingTemplate.max || ""}
+              defaultValue={numericCriteria.max || ""}
               onChange={(e) =>
                 setNumericCriteria((prev) => ({
                   ...prev,
@@ -620,6 +760,65 @@ export default function EditPostModal({ post }: { post: PostAttributes }) {
           </div>
         )}
 
+        {/* Existing Files */}
+        {existingFiles.length > 0 && (
+          <div className="w-full">
+            <h3 className="text-sm font-medium mb-3 text-gray-700">
+              Existing Files ({existingFiles.length})
+            </h3>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-4">
+              {existingFiles.map((file) => {
+                const isImage =
+                  file.fileType?.startsWith("image/") ||
+                  file.fileUrl?.match(/\.(jpg|jpeg|png|gif|webp)$/i);
+                return (
+                  <div
+                    key={file.id}
+                    className="relative border rounded-lg overflow-hidden shadow-sm bg-white"
+                  >
+                    {isImage ? (
+                      <div className="relative w-full h-32">
+                        <Image
+                          src={
+                            file.fileUrl ||
+                            file.preview ||
+                            "/images/placeholder.png"
+                          }
+                          alt={file.fileName}
+                          fill
+                          className="object-cover"
+                        />
+                      </div>
+                    ) : (
+                      <div className="w-full h-32 bg-gray-100 flex items-center justify-center">
+                        <span className="text-gray-500 text-sm">PDF</span>
+                      </div>
+                    )}
+
+                    {/* Delete Button */}
+                    <button
+                      type="button"
+                      onClick={() => handleDeleteExistingFile(file.id)}
+                      disabled={isDeletingFileLoading || isFileBusy}
+                      className="absolute top-1 right-1 bg-red-500 hover:bg-red-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold transition-colors"
+                      title="Delete file"
+                    >
+                      ×
+                    </button>
+
+                    {/* File Name */}
+                    <div className="p-2 bg-white border-t">
+                      <p className="text-xs text-gray-600 truncate">
+                        {file.fileName}
+                      </p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
         {/* File Upload */}
         <FileUploader
           label="Upload Documents"
@@ -641,13 +840,13 @@ export default function EditPostModal({ post }: { post: PostAttributes }) {
             type="submit"
             className={`justify-center text-base w-full transition
     ${
-      isCreatingPostLoading || isFileBusy
+      isUpdatingPostLoading || isFileBusy
         ? "opacity-70 cursor-not-allowed"
         : "cursor-pointer"
     }`}
-            disabled={isCreatingPostLoading || isFileBusy}
+            disabled={isUpdatingPostLoading || isFileBusy}
           >
-            {isCreatingPostLoading ? (
+            {isUpdatingPostLoading ? (
               <>
                 <svg
                   className="h-5 w-5 animate-spin text-white"

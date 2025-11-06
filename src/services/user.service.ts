@@ -192,6 +192,32 @@ export const userCreatePost = async (
     }
   }
 };
+
+//-------------------UPDATE USER POST
+export const updateUserPost = async (postId: string, data: PostCreateInput) => {
+  try {
+    const res = await axiosInstance.patch(`/api/user/post/${postId}`, data);
+    if (!res) {
+      console.log("error");
+    }
+
+    return res.data;
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error(error);
+      throw new Error(
+        // @ts-expect-error: might be Axios error with response
+        error?.response?.data?.message ||
+          error.message ||
+          "Something went wrong"
+      );
+    } else {
+      console.error("Unknown error", error);
+      throw new Error("Something went wrong");
+    }
+  }
+};
+
 //-------------------UPLOAD FILE TO THE API
 export const uploadFileApi = async (file: File) => {
   try {
@@ -416,7 +442,7 @@ export const deleteAccount = async (password?: string) => {
   }
 };
 // {
-//   title: "Chemistry midterm exam",
+//   title: "Moderate Post Title",
 //   description: "Post description",
 //   domains: ["domainId1", "domainId2"],
 //   grading: {

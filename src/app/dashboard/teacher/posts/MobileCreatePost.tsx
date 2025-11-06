@@ -191,7 +191,7 @@ export default function MobileCreatePost({ onBack }: MobileCreatePostProps) {
         <MobileInput
           label="Title *"
           type="text"
-          placeholder="Chemistry midterm exam"
+          placeholder="Moderate Post Title"
           {...register("title", { required: "Title is required!" })}
           error={errors?.title?.message}
         />

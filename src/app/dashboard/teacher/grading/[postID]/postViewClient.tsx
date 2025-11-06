@@ -22,6 +22,7 @@ import { decoded } from "@/lib/currentUser";
 import AlreadyGradedNotice from "@/modules/dashboard/teacher/AlreadyGradedSection";
 import MobilePostView from "./MobilePostView";
 import { ensureHttps } from "@/lib/urlHelpers";
+import Image from "next/image";
 
 export default function PostViewClient() {
   const params = useParams();
@@ -173,8 +174,10 @@ export default function PostViewClient() {
                   allow="fullscreen"
                 />
               ) : (
-                <img
-                  src={ensureHttps(currentFile)}
+                <Image
+                  width={100}
+                  height={100}
+                  src={currentFile}
                   alt="viewer"
                   className="max-h-[90vh]"
                 />

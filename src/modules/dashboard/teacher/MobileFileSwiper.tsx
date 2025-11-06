@@ -3,6 +3,7 @@
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useState, useRef } from "react";
 import { ensureHttps } from "@/lib/urlHelpers";
+import Image from "next/image";
 
 interface File {
   fileUrl: string;
@@ -96,9 +97,12 @@ export default function MobileFileSwiper({
                 onClick={onPostOpen}
                 className="flex-shrink-0 w-full snap-start cursor-pointer border rounded-xl overflow-hidden shadow-sm hover:shadow-md transition bg-gray-50"
               >
-                <img
-                  src={ensureHttps(file.fileUrl)}
+                <Image
+                  width={100}
+                  height={100}
+                  src={file.fileUrl}
                   alt="preview"
+                  loading="lazy"
                   className="w-full h-40 object-cover"
                 />
                 <p className="p-2 text-xs truncate">

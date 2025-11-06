@@ -20,6 +20,7 @@ export interface PostAttributes {
   description?: string;
   createdBy: string;
   createdAt: string;
+  domain?: string;
   uploads: UploadAttributes[];
   tags: string[];
   post_status: "draft" | "published" | "archived";
@@ -32,7 +33,7 @@ export interface PostAttributes {
 export interface PostCreateInput {
   title: string;
   description?: string;
-  domain: string;
+  domain?: string;
   gradingType:
     | "numeric"
     | "letter"

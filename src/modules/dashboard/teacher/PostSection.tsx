@@ -27,6 +27,8 @@ import { useThreads } from "@/hooks/useMessage";
 import { Thread, Threads } from "@/app/types/threads";
 import MobileFileSwiper from "./MobileFileSwiper";
 import { ensureHttps } from "@/lib/urlHelpers";
+import { useUserUpdatePost } from "@/hooks/useUser";
+import Image from "next/image";
 
 export default function Post({ post }: { post: PostAttributes }) {
   const router = useRouter();
@@ -70,7 +72,6 @@ export default function Post({ post }: { post: PostAttributes }) {
     )
   );
 
-  console.log(author?.name, didUserChatWithMe);
   const handleActionSelect = (action: string) => {
     setIsPopUpOpen(false);
     switch (action) {
@@ -273,8 +274,10 @@ export default function Post({ post }: { post: PostAttributes }) {
                 onClick={handlePostOpen}
                 className="cursor-pointer border rounded-xl overflow-hidden shadow-sm hover:shadow-md transition bg-gray-50"
               >
-                <img
-                  src={ensureHttps(file.fileUrl)}
+                <Image
+                  width={100}
+                  height={100}
+                  src={file.fileUrl}
                   alt="preview"
                   className="w-full h-32 xl:h-64 object-cover"
                 />

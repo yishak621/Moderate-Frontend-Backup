@@ -320,7 +320,7 @@ export default function MobilePostView({
                   />
                 ) : (
                   <Image
-                    src={ensureHttps(currentFile) || "/images/placeholder.png"}
+                    src={currentFile || "/images/placeholder.png"}
                     alt="Document"
                     width={600}
                     height={800}

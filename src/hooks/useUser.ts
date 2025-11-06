@@ -16,6 +16,7 @@ import {
   userOverviewStats,
   userPostFeeds,
   userSinglePostData,
+  updateUserPost,
 } from "@/services/user.service";
 import { Grade, GradeData } from "@/types/Post";
 import { PostCreateInput } from "@/types/postAttributes";
@@ -158,6 +159,42 @@ export const useUserCreatePost = (domainId: string | boolean) => {
     isCreatingPostSuccess: isSuccess,
     isCreatingPostError: isError,
     creatingPostError: error,
+  };
+};
+
+//--------------------USER UPDATE POST
+export const useUserUpdatePost = () => {
+  const { mutate, mutateAsync, data, isPending, isSuccess, isError, error } =
+    useMutation({
+      mutationFn: ({
+        postId,
+        data,
+      }: {
+        postId: string;
+        data: PostCreateInput;
+      }) => updateUserPost(postId, data),
+      onSuccess: () => {
+        // Invalidate user posts list
+        queryClient.invalidateQueries({
+          queryKey: ["userMyPostsFeeds"],
+          exact: false,
+        });
+        // Invalidate all single post queries (for any postId)
+        queryClient.invalidateQueries({
+          queryKey: ["userSinglePostData"],
+          exact: false,
+        });
+      },
+    });
+
+  return {
+    updatePost: mutate,
+    updatePostAsync: mutateAsync,
+    data,
+    isUpdatingPostLoading: isPending,
+    isUpdatingPostSuccess: isSuccess,
+    isUpdatingPostError: isError,
+    updatingPostError: error,
   };
 };
 
