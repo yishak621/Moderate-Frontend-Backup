@@ -18,6 +18,9 @@ import {
   userSinglePostData,
   updateUserPost,
   deleteUserPost,
+  addToFavorites,
+  removeFromFavorites,
+  getFavoritePosts,
 } from "@/services/user.service";
 import { Grade, GradeData } from "@/types/Post";
 import { PostCreateInput } from "@/types/postAttributes";
@@ -228,6 +231,84 @@ export const useUserDeletePost = () => {
     deletingPostError: error,
   };
 };
+
+//--------------------ADD TO FAVORITES
+export const useAddToFavorites = () => {
+  const { mutate, mutateAsync, data, isPending, isSuccess, isError, error } =
+    useMutation({
+      mutationFn: (postId: string) => addToFavorites(postId),
+      onSuccess: () => {
+        toast.success("Added to favorites!");
+        // Refetch immediately to update UI
+        queryClient.refetchQueries({
+          queryKey: ["favoritePosts"],
+          exact: false,
+        });
+        queryClient.invalidateQueries({
+          queryKey: ["userPostFeeds"],
+          exact: false,
+        });
+      },
+    });
+
+  return {
+    addToFavorites: mutate,
+    addToFavoritesAsync: mutateAsync,
+    data,
+    isAddingToFavoritesLoading: isPending,
+    isAddingToFavoritesSuccess: isSuccess,
+    isAddingToFavoritesError: isError,
+    addingToFavoritesError: error,
+  };
+};
+
+//--------------------REMOVE FROM FAVORITES
+export const useRemoveFromFavorites = () => {
+  const { mutate, mutateAsync, data, isPending, isSuccess, isError, error } =
+    useMutation({
+      mutationFn: (postId: string) => removeFromFavorites(postId),
+      onSuccess: () => {
+        toast.success("Removed from favorites!");
+        // Refetch immediately to update UI
+        queryClient.refetchQueries({
+          queryKey: ["favoritePosts"],
+          exact: false,
+        });
+        queryClient.invalidateQueries({
+          queryKey: ["userPostFeeds"],
+          exact: false,
+        });
+      },
+    });
+
+  return {
+    removeFromFavorites: mutate,
+    removeFromFavoritesAsync: mutateAsync,
+    data,
+    isRemovingFromFavoritesLoading: isPending,
+    isRemovingFromFavoritesSuccess: isSuccess,
+    isRemovingFromFavoritesError: isError,
+    removingFromFavoritesError: error,
+  };
+};
+
+//--------------------GET FAVORITE POSTS
+export function useFavoritePosts() {
+  const { data, isPending, isSuccess, isError, error } = useQuery({
+    queryKey: ["favoritePosts"],
+    queryFn: getFavoritePosts,
+    staleTime: 5 * 60 * 1000,
+  });
+
+  return {
+    favoritePostsData: data,
+    isFavoritePostsDataLoading: isPending,
+    isFavoritePostsDataSuccess: isSuccess,
+    isFavoritePostsDataError: isError,
+    isFavoritePostsError: error,
+  };
+}
+
 //--------------------USER UPLOAD FILE
 export const useUserUploadFile = () => {
   const { mutate, mutateAsync, data, isPending, isSuccess, isError, error } =

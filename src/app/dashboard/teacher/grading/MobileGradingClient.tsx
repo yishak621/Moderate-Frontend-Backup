@@ -17,6 +17,8 @@ interface MobileGradingClientProps {
   hasMorePosts: boolean;
   handleLoadMore: () => void;
   scrollToTop: () => void;
+  isFavoritePostsDataLoading?: boolean;
+  isUserPostFeedsDataLoading?: boolean;
 }
 
 export default function MobileGradingClient({
@@ -27,6 +29,8 @@ export default function MobileGradingClient({
   hasMorePosts,
   handleLoadMore,
   scrollToTop,
+  isFavoritePostsDataLoading = false,
+  isUserPostFeedsDataLoading = false,
 }: MobileGradingClientProps) {
   const pathname = usePathname();
 
@@ -97,9 +101,9 @@ export default function MobileGradingClient({
         className="w-full overflow-x-auto max-h-[600px] overflow-y-auto scrollbar-thin scrollbar-thumb-blue-500 scrollbar-track-blue-100 scrollbar-thumb-rounded-full scrollbar-track-rounded-full"
         id="posts-container"
       >
-        {!visiblePosts && <SectionLoading />}
-        {visiblePosts?.length === 0 && <EmptyState />}
-        {visiblePosts?.map((post: PostAttributes, idx: number) => {
+        {(isUserPostFeedsDataLoading || (activeFilter === "Favorites" && isFavoritePostsDataLoading)) && <SectionLoading />}
+        {!isUserPostFeedsDataLoading && !(activeFilter === "Favorites" && isFavoritePostsDataLoading) && visiblePosts?.length === 0 && <EmptyState />}
+        {!isUserPostFeedsDataLoading && !(activeFilter === "Favorites" && isFavoritePostsDataLoading) && visiblePosts?.map((post: PostAttributes, idx: number) => {
           return <Post post={post} key={idx} />;
         })}
       </div>

@@ -175,11 +175,11 @@ export default function PostViewClient() {
                 />
               ) : (
                 <Image
-                  width={100}
-                  height={100}
+                  width={1000}
+                  height={1000}
                   src={currentFile}
                   alt="viewer"
-                  className="max-h-[90vh]"
+                  className="h-[90vh] w-auto object-contain"
                 />
               )}
             </div>

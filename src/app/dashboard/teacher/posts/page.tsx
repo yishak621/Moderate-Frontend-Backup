@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import PostsClientTeachers from "./postsClientTeachers";
+import SuspenseLoading from "@/components/ui/SuspenseLoading";
 
 export const metadata: Metadata = {
   title: "My Posts",
@@ -13,8 +15,8 @@ export const metadata: Metadata = {
 
 export default function page() {
   return (
-    <>
+    <Suspense fallback={<SuspenseLoading fullscreen message="Loading posts, please wait..." />}>
       <PostsClientTeachers />
-    </>
+    </Suspense>
   );
 }

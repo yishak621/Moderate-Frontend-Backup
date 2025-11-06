@@ -6,7 +6,7 @@ import Post from "@/modules/dashboard/teacher/PostSection";
 import { customJwtPayload, PostAttributes } from "@/types/postAttributes";
 import { useState } from "react";
 import { ChevronUp } from "lucide-react";
-import { useUserPostFeeds } from "@/hooks/useUser";
+import { useUserPostFeeds, useFavoritePosts } from "@/hooks/useUser";
 import SectionLoading from "@/components/SectionLoading";
 import { getToken } from "@/services/tokenService";
 import { jwtDecode } from "jwt-decode";
@@ -16,7 +16,7 @@ import MobileGradingClient from "./MobileGradingClient";
 
 //this page collects all posts
 export default function GradingClientTeachers() {
-  const filters = ["All", "Moderated", "Pending"];
+  const filters = ["All", "Moderated", "Pending", "Favorites"];
   const [activeFilter, setActiveFilter] = useState("Pending"); // ✅ default "All"
   const [visiblePostsCount, setVisiblePostsCount] = useState(5); // Start with 5 posts
 
@@ -27,6 +27,8 @@ export default function GradingClientTeachers() {
     isUserPostFeedsDataSuccess,
     isUserPostFeedsError,
   } = useUserPostFeeds();
+
+  const { favoritePostsData, isFavoritePostsDataLoading } = useFavoritePosts();
 
   const filteredModeratedPostFeedsData = userPostFeedsData?.posts.filter(
     (post: PostAttributes) => {
@@ -72,6 +74,12 @@ export default function GradingClientTeachers() {
     }
   };
 
+  // Handle API response structure: { json: { favoritePosts: [...] } }
+  const favoritePostsList =
+    favoritePostsData?.json?.favoritePosts ||
+    favoritePostsData?.favoritePosts ||
+    (Array.isArray(favoritePostsData) ? favoritePostsData : []);
+
   const visiblePosts =
     activeFilter === "All"
       ? userPostFeedsData?.posts.slice(0, visiblePostsCount)
@@ -79,8 +87,16 @@ export default function GradingClientTeachers() {
       ? filteredModeratedPostFeedsData?.slice(0, visiblePostsCount)
       : activeFilter === "Pending"
       ? filteredPendingPostFeedsData?.slice(0, visiblePostsCount)
+      : activeFilter === "Favorites"
+      ? favoritePostsList.slice(0, visiblePostsCount)
       : [];
-  console.log(activeFilter, "filter", visiblePosts);
+  console.log(
+    activeFilter,
+    "filter",
+    visiblePosts,
+    "favoritePostsData",
+    favoritePostsData
+  );
 
   const hasMorePosts =
     activeFilter === "All"
@@ -89,6 +105,8 @@ export default function GradingClientTeachers() {
       ? visiblePostsCount < (filteredModeratedPostFeedsData?.length || 0)
       : activeFilter === "Pending"
       ? visiblePostsCount < (filteredPendingPostFeedsData?.length || 0)
+      : activeFilter === "Favorites"
+      ? visiblePostsCount < (favoritePostsList.length || 0)
       : false;
   return (
     <>
@@ -102,6 +120,8 @@ export default function GradingClientTeachers() {
           hasMorePosts={hasMorePosts}
           handleLoadMore={handleLoadMore}
           scrollToTop={scrollToTop}
+          isFavoritePostsDataLoading={isFavoritePostsDataLoading}
+          isUserPostFeedsDataLoading={isUserPostFeedsDataLoading}
         />
       </div>
 
@@ -130,11 +150,18 @@ export default function GradingClientTeachers() {
             className="w-full overflow-x-auto max-h-[600px] overflow-y-auto scrollbar-thin scrollbar-thumb-blue-500 scrollbar-track-blue-100 scrollbar-thumb-rounded-full scrollbar-track-rounded-full"
             id="posts-container"
           >
-            {!visiblePosts && <SectionLoading />}{" "}
-            {visiblePosts?.length === 0 && <EmptyState />}
-            {visiblePosts?.map((post: PostAttributes, idx: number) => {
-              return <Post post={post} key={idx} />;
-            })}
+            {(isUserPostFeedsDataLoading ||
+              (activeFilter === "Favorites" && isFavoritePostsDataLoading)) && (
+              <SectionLoading />
+            )}
+            {!isUserPostFeedsDataLoading &&
+              !(activeFilter === "Favorites" && isFavoritePostsDataLoading) &&
+              visiblePosts?.length === 0 && <EmptyState />}
+            {!isUserPostFeedsDataLoading &&
+              !(activeFilter === "Favorites" && isFavoritePostsDataLoading) &&
+              visiblePosts?.map((post: PostAttributes, idx: number) => {
+                return <Post post={post} key={idx} />;
+              })}
           </div>
 
           {/* Load More Button */}

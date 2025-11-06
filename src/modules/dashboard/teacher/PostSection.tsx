@@ -7,6 +7,7 @@ import {
   MoreVertical,
   UserPlus,
   Flag,
+  Heart,
 } from "lucide-react";
 import { PostAttributes } from "@/types/postAttributes";
 import PostTags from "./PostTags";
@@ -27,8 +28,14 @@ import { useThreads } from "@/hooks/useMessage";
 import { Thread, Threads } from "@/app/types/threads";
 import MobileFileSwiper from "./MobileFileSwiper";
 import { ensureHttps } from "@/lib/urlHelpers";
-import { useUserUpdatePost } from "@/hooks/useUser";
+import {
+  useUserUpdatePost,
+  useAddToFavorites,
+  useRemoveFromFavorites,
+  useFavoritePosts,
+} from "@/hooks/useUser";
 import Image from "next/image";
+import Tooltip from "@/components/ui/Tooltip";
 
 export default function Post({ post }: { post: PostAttributes }) {
   const router = useRouter();
@@ -51,6 +58,9 @@ export default function Post({ post }: { post: PostAttributes }) {
   // HOOKS
   const { isThreadsLoading, isThreadsSuccess, threads } =
     useThreads(currentUserId);
+  const { addToFavorites } = useAddToFavorites();
+  const { removeFromFavorites } = useRemoveFromFavorites();
+  const { favoritePostsData } = useFavoritePosts();
 
   if (!post) return null;
 
@@ -71,6 +81,23 @@ export default function Post({ post }: { post: PostAttributes }) {
       (msg) => msg.senderId === author?.id || msg.receiverId === author?.id
     )
   );
+
+  // Check if post is favorited - handle API response structure: { json: { favoritePosts: [...] } }
+  const favoritePostsList =
+    favoritePostsData?.json?.favoritePosts ||
+    favoritePostsData?.favoritePosts ||
+    (Array.isArray(favoritePostsData) ? favoritePostsData : []);
+  const isFavorited =
+    favoritePostsList.some((favPost: PostAttributes) => favPost.id === id) ||
+    false;
+
+  const handleFavoriteToggle = () => {
+    if (isFavorited) {
+      removeFromFavorites(String(id));
+    } else {
+      addToFavorites(String(id));
+    }
+  };
 
   const handleActionSelect = (action: string) => {
     setIsPopUpOpen(false);
@@ -135,30 +162,74 @@ export default function Post({ post }: { post: PostAttributes }) {
         </div>
         {currentUserId !== createdBy ? (
           <>
-            {/* Desktop: Follow & Message Icons */}
+            {/* Desktop: Follow, Message & Favorite Icons */}
             <div className="hidden sm:flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
               {/* Follow Button */}
-              <div className="flex flex-row gap-1 sm:gap-1.5 items-center text-[#717171] cursor-pointer hover:opacity-80">
-                <UserPlus
-                  size={16}
-                  className="sm:w-[19px] sm:h-[19px] text-[#717171]"
-                />
-                <p className="text-xs sm:text-sm hidden sm:block">Follow</p>
-              </div>
+              <Tooltip text="Follow User" position="top">
+                <div className="flex flex-row gap-1 sm:gap-1.5 items-center text-[#717171] cursor-pointer hover:opacity-80">
+                  <UserPlus
+                    size={16}
+                    className="sm:w-[19px] sm:h-[19px] text-[#717171]"
+                  />
+                </div>
+              </Tooltip>
 
               {/* Message Icon */}
-              <div
-                onClick={
-                  didUserChatWithMe
-                    ? handleOpen
-                    : () => handleOpenModal(ComposeNewMessageModal, { post })
+              <Tooltip text="Message" position="top">
+                <div
+                  onClick={
+                    didUserChatWithMe
+                      ? handleOpen
+                      : () => handleOpenModal(ComposeNewMessageModal, { post })
+                  }
+                >
+                  <MessagesSquare
+                    size={16}
+                    className="text-[#717171] cursor-pointer hover:opacity-80 sm:w-[19px] sm:h-[19px]"
+                  />
+                </div>
+              </Tooltip>
+
+              {/* Favorite Button */}
+              <Tooltip
+                text={
+                  isFavorited ? "Remove from Favorites" : "Add to Favorites"
                 }
+                position="top"
               >
-                <MessagesSquare
-                  size={16}
-                  className="text-[#717171] cursor-pointer hover:opacity-80 sm:w-[19px] sm:h-[19px]"
-                />
-              </div>
+                <button
+                  onClick={handleFavoriteToggle}
+                  className="flex items-center justify-center p-1 rounded-full hover:bg-gray-100 transition-colors"
+                  aria-label={
+                    isFavorited ? "Remove from favorites" : "Add to favorites"
+                  }
+                >
+                  <Heart
+                    size={16}
+                    className={`sm:w-[19px] sm:h-[19px] cursor-pointer transition-colors ${
+                      isFavorited
+                        ? "text-[#368FFF] fill-[#368FFF]"
+                        : "text-[#717171] hover:text-[#368FFF]"
+                    }`}
+                  />
+                </button>
+              </Tooltip>
+
+              {/* Flag User Button */}
+              <Tooltip text="Report Flag User" position="top">
+                <button
+                  onClick={() => {
+                    // TODO: Handle report/flag user
+                  }}
+                  className="flex items-center justify-center p-1 rounded-full hover:bg-red-50 transition-colors"
+                  aria-label="Report flag user"
+                >
+                  <Flag
+                    size={16}
+                    className="sm:w-[19px] sm:h-[19px] cursor-pointer text-red-500 transition-colors"
+                  />
+                </button>
+              </Tooltip>
             </div>
 
             {/* Mobile: 3-Dot Menu */}
@@ -199,6 +270,29 @@ export default function Post({ post }: { post: PostAttributes }) {
                     <MessagesSquare size={18} />
                     <span>
                       Message {post.author?.name?.split(" ")[0] || "User"}
+                    </span>
+                  </button>
+                  <button
+                    onClick={() => {
+                      setIsPopUpOpen(false);
+                      handleFavoriteToggle();
+                    }}
+                    className={`flex items-center gap-3 px-4 py-3 cursor-pointer rounded-lg text-sm font-medium transition-colors ${
+                      isFavorited
+                        ? "text-[#368FFF] hover:bg-blue-50"
+                        : "text-gray-700 hover:bg-gray-100"
+                    }`}
+                  >
+                    <Heart
+                      size={18}
+                      className={
+                        isFavorited ? "fill-[#368FFF] text-[#368FFF]" : ""
+                      }
+                    />
+                    <span>
+                      {isFavorited
+                        ? "Remove from Favorites"
+                        : "Add to Favorites"}
                     </span>
                   </button>
                   <button
@@ -275,11 +369,13 @@ export default function Post({ post }: { post: PostAttributes }) {
                 className="cursor-pointer border rounded-xl overflow-hidden shadow-sm hover:shadow-md transition bg-gray-50"
               >
                 <Image
-                  width={100}
-                  height={100}
+                  width={400}
+                  height={256}
                   src={file.fileUrl}
                   alt="preview"
                   className="w-full h-32 xl:h-64 object-cover"
+                  quality={100}
+                  unoptimized={false}
                 />
                 <p className="p-2 text-xs truncate">
                   {file.fileName.split("/").pop()}

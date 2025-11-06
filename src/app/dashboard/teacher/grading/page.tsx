@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import GradingClientTeachers from "./gradingClientTeachers";
+import SuspenseLoading from "@/components/ui/SuspenseLoading";
 
 export const metadata: Metadata = {
   title: "Grading Feeds",
@@ -13,8 +15,15 @@ export const metadata: Metadata = {
 
 export default function page() {
   return (
-    <>
+    <Suspense
+      fallback={
+        <SuspenseLoading
+          fullscreen
+          message="Loading grading feeds, please wait..."
+        />
+      }
+    >
       <GradingClientTeachers />
-    </>
+    </Suspense>
   );
 }
