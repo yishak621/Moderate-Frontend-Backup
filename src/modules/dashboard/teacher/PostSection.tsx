@@ -26,6 +26,7 @@ import ComposeNewMessageModal from "./messages/ComposeNewMessageModal";
 import { useThreads } from "@/hooks/useMessage";
 import { Thread, Threads } from "@/app/types/threads";
 import MobileFileSwiper from "./MobileFileSwiper";
+import { ensureHttps } from "@/lib/urlHelpers";
 
 export default function Post({ post }: { post: PostAttributes }) {
   const router = useRouter();
@@ -252,7 +253,7 @@ export default function Post({ post }: { post: PostAttributes }) {
                 className="cursor-pointer border rounded-xl overflow-hidden shadow-sm hover:shadow-md transition bg-gray-50 flex flex-col"
               >
                 <iframe
-                  src={`${file.fileUrl}#toolbar=0`}
+                  src={`${ensureHttps(file.fileUrl)}#toolbar=0`}
                   className="w-full h-32 xl:h-64 pointer-events-none"
                   title="PDF Preview"
                   loading="lazy"
@@ -273,7 +274,7 @@ export default function Post({ post }: { post: PostAttributes }) {
                 className="cursor-pointer border rounded-xl overflow-hidden shadow-sm hover:shadow-md transition bg-gray-50"
               >
                 <img
-                  src={file.fileUrl}
+                  src={ensureHttps(file.fileUrl)}
                   alt="preview"
                   className="w-full h-32 xl:h-64 object-cover"
                 />

@@ -21,6 +21,7 @@ import { GradeTemplateChecklist } from "@/modules/dashboard/teacher/GradingLogic
 import { decoded } from "@/lib/currentUser";
 import AlreadyGradedNotice from "@/modules/dashboard/teacher/AlreadyGradedSection";
 import MobilePostView from "./MobilePostView";
+import { ensureHttps } from "@/lib/urlHelpers";
 
 export default function PostViewClient() {
   const params = useParams();
@@ -166,13 +167,17 @@ export default function PostViewClient() {
               {/* File content */}
               {ext === "pdf" ? (
                 <iframe
-                  src={`${currentFile}#toolbar=0`}
+                  src={`${ensureHttps(currentFile)}#toolbar=0`}
                   className="w-full h-[80vh]"
                   loading="lazy"
                   allow="fullscreen"
                 />
               ) : (
-                <img src={currentFile} alt="viewer" className="max-h-[90vh]" />
+                <img
+                  src={ensureHttps(currentFile)}
+                  alt="viewer"
+                  className="max-h-[90vh]"
+                />
               )}
             </div>
             {/* Bottom tags */}

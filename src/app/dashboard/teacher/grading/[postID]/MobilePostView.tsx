@@ -34,6 +34,7 @@ import BottomSheet from "@/components/ui/BottomSheet";
 import EditPostModal from "@/modules/dashboard/teacher/post/EditPostModal";
 import DeletePostModal from "@/modules/dashboard/teacher/post/DeletePostModal";
 import ViewStatPostModal from "@/modules/dashboard/teacher/post/ViewDetailPostModal";
+import { ensureHttps } from "@/lib/urlHelpers";
 
 interface MobilePostViewProps {
   post: PostType & {
@@ -312,14 +313,14 @@ export default function MobilePostView({
                 {/* File Viewer */}
                 {ext === "pdf" ? (
                   <iframe
-                    src={`${currentFile}#toolbar=0`}
+                    src={`${ensureHttps(currentFile)}#toolbar=0`}
                     className="w-full h-[60vh] rounded-[24.5px]"
                     loading="lazy"
                     allow="fullscreen"
                   />
                 ) : (
                   <Image
-                    src={currentFile || "/images/placeholder.png"}
+                    src={ensureHttps(currentFile) || "/images/placeholder.png"}
                     alt="Document"
                     width={600}
                     height={800}

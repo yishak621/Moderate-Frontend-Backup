@@ -2,6 +2,7 @@
 
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useState, useRef } from "react";
+import { ensureHttps } from "@/lib/urlHelpers";
 
 interface File {
   fileUrl: string;
@@ -75,7 +76,7 @@ export default function MobileFileSwiper({
                 className="flex-shrink-0 w-full snap-start cursor-pointer border rounded-xl overflow-hidden shadow-sm hover:shadow-md transition bg-gray-50 flex flex-col"
               >
                 <iframe
-                  src={`${file.fileUrl}#toolbar=0`}
+                  src={`${ensureHttps(file.fileUrl)}#toolbar=0`}
                   className="w-full h-40 pointer-events-none"
                   title="PDF Preview"
                   loading="lazy"
@@ -96,7 +97,7 @@ export default function MobileFileSwiper({
                 className="flex-shrink-0 w-full snap-start cursor-pointer border rounded-xl overflow-hidden shadow-sm hover:shadow-md transition bg-gray-50"
               >
                 <img
-                  src={file.fileUrl}
+                  src={ensureHttps(file.fileUrl)}
                   alt="preview"
                   className="w-full h-40 object-cover"
                 />
