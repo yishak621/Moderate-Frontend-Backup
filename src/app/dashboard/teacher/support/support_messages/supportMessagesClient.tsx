@@ -44,9 +44,9 @@ export default function SupportMessagesClient() {
   };
 
   return (
-    <div className="flex flex-col md:flex-row gap-4 md:gap-6 bg-[#FDFDFD] min-h-[90vh] rounded-xl md:rounded-[22px] p-4 md:p-8">
+    <div className="flex flex-col md:flex-row gap-3 md:gap-6 bg-[#FDFDFD] min-h-[90vh] rounded-xl md:rounded-[22px] p-3 md:p-8">
       {/* Mobile Header Back Button */}
-      <div className="md:hidden -mt-2 -mx-2 mb-2 sticky top-0 z-20 bg-[#FDFDFD]">
+      <div className="md:hidden -mt-1 -mx-1 mb-2 sticky top-0 z-20 bg-[#FDFDFD]">
         <button
           onClick={() => router.back()}
           className="p-2 rounded-full bg-white shadow-sm hover:bg-gray-50 transition-colors border border-gray-200"
@@ -55,22 +55,23 @@ export default function SupportMessagesClient() {
         </button>
       </div>
       {/* Left Section - Tickets List */}
-      <div className="md:w-1/3 bg-[#FFFFFF] border border-[#EDEDED] rounded-xl md:rounded-[22px] p-4 md:p-6 flex flex-col ">
+      <div className="md:w-1/3 bg-[#FFFFFF] border border-[#EDEDED] rounded-xl md:rounded-[22px] p-3 md:p-6 flex flex-col">
         {/* Header */}
-        <div className="flex flex-row justify-between items-center mb-4 md:mb-6">
-          <div>
-            <p className="text-[#0C0C0C] text-base md:text-lg font-medium">
+        <div className="flex flex-row justify-between items-start sm:items-center mb-3 md:mb-6 gap-2">
+          <div className="min-w-0 flex-1">
+            <p className="text-[#0C0C0C] text-sm md:text-lg font-medium">
               Your Tickets
             </p>
-            <p className="text-[#717171] text-xs md:text-sm font-normal">
+            <p className="text-[#717171] text-[11px] md:text-sm font-normal">
               Track and manage your requests
             </p>
           </div>
           <Button
             onClick={() => handleOpenModal(NewTicketModal)}
-            className="flex items-center gap-1 bg-[#0560FD] hover:bg-[#004DE6] text-white rounded-[10px] px-3 md:px-4 py-2 text-sm font-medium"
+            className="flex items-center gap-1 bg-[#0560FD] hover:bg-[#004DE6] text-white rounded-[10px] px-2 md:px-4 py-1.5 md:py-2 text-xs md:text-sm font-medium flex-shrink-0"
           >
-            <Plus size={18} /> New
+            <Plus size={16} className="md:w-[18px] md:h-[18px]" />{" "}
+            <span className="hidden sm:inline">New</span>
           </Button>
         </div>
         {isMobile ? (
@@ -101,23 +102,23 @@ export default function SupportMessagesClient() {
             <div
               key={ticket.id}
               onClick={() => setSelectedTicket(ticket)}
-              className={`p-3 md:p-4 rounded-[14px] md:rounded-[18px] cursor-pointer border transition-all ${
+              className={`p-2.5 md:p-4 rounded-[12px] md:rounded-[18px] cursor-pointer border transition-all ${
                 selectedTicket?.id === ticket.id
                   ? "bg-[#F3F7FF] border-[#0560FD]"
                   : "bg-[#FAFAFA] border-[#EDEDED] hover:bg-[#F5F5F5]"
               }`}
             >
-              <div className="flex justify-between items-center">
-                <div className="min-w-0 flex flex-col items-left ">
-                  <p className="text-[#0C0C0C] text-sm md:text-base font-medium truncate">
+              <div className="flex justify-between items-start gap-2">
+                <div className="min-w-0 flex-1">
+                  <p className="text-[#0C0C0C] text-sm md:text-base font-medium break-words">
                     {ticket.subject}
                   </p>
-                  <p className="text-[#9A9A9A] text-[11px] md:text-xs mt-0.5 truncate">
+                  <p className="text-[#9A9A9A] text-[10px] md:text-xs mt-0.5 break-all">
                     ID: {ticket.id}
                   </p>
                 </div>
                 <Badge
-                  className={`text-xs capitalize ${
+                  className={`text-[10px] md:text-xs capitalize flex-shrink-0 ${
                     ticket.status === "closed"
                       ? "bg-[#EAFEF1] text-[#1E874B]"
                       : ticket.status === "pending"
@@ -128,7 +129,7 @@ export default function SupportMessagesClient() {
                   {ticket.status}
                 </Badge>
               </div>
-              <p className="text-[#717171] text-[11px] md:text-xs font-normal mt-1">
+              <p className="text-[#717171] text-[10px] md:text-xs font-normal mt-1.5">
                 Updated {ticket.lastUpdated}
               </p>
             </div>
@@ -137,19 +138,19 @@ export default function SupportMessagesClient() {
       </div>
 
       {/* Right Section - Ticket Conversation */}
-      <div className="flex-1 bg-[#FFFFFF] border border-[#EDEDED] rounded-xl md:rounded-[22px]  p-4 md:p-8">
+      <div className="flex-1 bg-[#FFFFFF] border border-[#EDEDED] rounded-xl md:rounded-[22px] p-3 md:p-8">
         {selectedTicket ? (
           <TicketMessages ticket={selectedTicket} />
         ) : (
-          <div className="flex flex-col items-center justify-center h-full text-center py-16 md:py-24">
+          <div className="flex flex-col items-center justify-center h-full text-center py-12 md:py-24">
             <MessageCircle
-              size={40}
-              className="text-[#BFBFBF] mb-4 opacity-80"
+              size={36}
+              className="text-[#BFBFBF] mb-3 md:mb-4 opacity-80"
             />
-            <p className="text-[#0C0C0C] text-base md:text-lg font-medium">
+            <p className="text-[#0C0C0C] text-sm md:text-lg font-medium">
               Select a ticket to view details
             </p>
-            <p className="text-[#717171] text-xs md:text-sm font-normal mt-1 max-w-[320px]">
+            <p className="text-[#717171] text-xs md:text-sm font-normal mt-1 max-w-[280px] md:max-w-[320px]">
               View your messages, replies, and track progress from admins.
             </p>
           </div>
