@@ -58,14 +58,17 @@ export default function TicketMessages({ ticket }: TicketMessagesProps) {
   };
 
   return (
-    <div className="flex flex-col h-[80vh]">
+    <div className="flex flex-col h-[75vh] md:h-[80vh]">
       {/* Ticket Header */}
-      <div className="flex flex-row gap-2 items-center border-b border-[#EDEDED] p-4">
-        <h2 className="text-[#0C0C0C] text-xl font-semibold">
-          {ticket?.subject}
-        </h2>
+      <div className="flex flex-wro gap-2 items-center border-b border-[#EDEDED] p-3 md:p-4 sticky top-0 bg-white z-10">
+        <div className="flex flex-col items-left">
+          <h2 className="text-[#0C0C0C] text-base md:text-xl font-semibold truncate">
+            {ticket?.subject}
+          </h2>
+        </div>
+
         <div
-          className={`px-4.5 py-2 text-sm font-semibold rounded-full ${
+          className={`px-3 md:px-4.5 py-1.5 md:py-2 text-xs md:text-sm font-semibold rounded-full ${
             {
               closed: "bg-green-100 text-green-700",
               open: "bg-[#368FFF]/10 text-[#368FFF]",
@@ -75,11 +78,11 @@ export default function TicketMessages({ ticket }: TicketMessagesProps) {
         >
           {ticket.status.replace("_", " ")}
         </div>
-        <div className=" self-end">
+        <div className="ml-auto">
           <button
             onClick={() => refetchMessages()}
             disabled={isMessagesLoading}
-            className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium rounded-lg bg-gray-100 hover:bg-gray-200 transition"
+            className="flex items-center gap-1.5 md:gap-2 px-2.5 md:px-3 py-1.5 text-xs md:text-sm font-medium rounded-lg bg-gray-100 hover:bg-gray-200 transition"
           >
             <RefreshCw
               className={`w-4 h-4 ${isMessagesLoading ? "animate-spin" : ""}`}
@@ -91,7 +94,7 @@ export default function TicketMessages({ ticket }: TicketMessagesProps) {
 
       {/* Messages List */}
       <div className="flex-1 min-h-0 overflow-hidden">
-        <div className="h-full overflow-y-auto flex flex-col p-2 gap-2">
+        <div className="h-full overflow-y-auto flex flex-col p-2 md:p-3 gap-1.5 md:gap-2">
           {isMessagesLoading && (
             <div className="flex justify-center items-center h-full">
               <Loading text="Loading Messages..." />
@@ -110,7 +113,10 @@ export default function TicketMessages({ ticket }: TicketMessagesProps) {
       {/* Message Input */}
       <form
         onSubmit={handleSubmit(onSubmit)}
-        className="w-full border-t border-gray-200 p-3 flex items-center gap-3"
+        className="w-full border-t border-gray-200 p-2.5 md:p-3 flex items-center gap-2 md:gap-3 sticky bottom-0 bg-white"
+        style={{
+          paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 10px)",
+        }}
       >
         <Textarea
           placeholder="Type your message..."
@@ -119,7 +125,7 @@ export default function TicketMessages({ ticket }: TicketMessagesProps) {
             !e.shiftKey &&
             (e.preventDefault(), handleSubmit(onSubmit)())
           }
-          className="flex-1 bg-transparent resize-none outline-none p-2 rounded-md text-gray-900 placeholder-gray-400"
+          className="flex-1 bg-transparent resize-none outline-none p-2 rounded-md text-sm md:text-base text-gray-900 placeholder-gray-400"
           rows={1}
           {...register("message", { required: "Message is required!" })}
           error={errors?.message?.message}
@@ -128,13 +134,13 @@ export default function TicketMessages({ ticket }: TicketMessagesProps) {
         <button
           type="submit"
           disabled={isSendingMessageLoading || ticket.status === "closed"}
-          className={`flex items-center justify-center p-2 rounded-lg text-white transition ${
+          className={`flex items-center justify-center p-2.5 md:p-3 rounded-lg text-white transition ${
             isSendingMessageLoading
               ? "bg-gray-400 cursor-not-allowed"
               : "bg-[#368FFF] hover:bg-[#2574db]"
           }`}
         >
-          <SendHorizonal size={20} />
+          <SendHorizonal size={18} className="md:w-5 md:h-5" />
         </button>
       </form>
     </div>

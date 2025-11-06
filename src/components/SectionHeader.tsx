@@ -15,12 +15,23 @@ const SectionHeader: React.FC<SectionHeaderProps> = ({
   subheader,
 }) => {
   return (
-    <div className=" flex flex-col gap-1.5">
-      <div className="flex flex-row items-center gap-2">
-        {Icon && <Icon size={22} className="text-[#0C0C0C]" />}
-        <h4 className="text-[#0C0C0C] text-xl font-medium">{title}</h4>
+    <div className="flex flex-col items-center md:items-start  gap-1 sm:gap-1.5">
+      <div className="flex flex-row items-center gap-1.5 sm:gap-2">
+        {Icon && (
+          <Icon
+            size={18}
+            className="sm:w-[20px] sm:h-[20px] md:w-[22px] md:h-[22px] text-[#0C0C0C]"
+          />
+        )}
+        <h4 className="text-[#0C0C0C] text-base sm:text-lg md:text-xl font-medium">
+          {title}
+        </h4>
       </div>
-      <p className=" text-[16px] text-[#717171] font-normal">{subheader}</p>
+      {subheader && (
+        <p className="text-sm sm:text-[15px] md:text-[16px] text-[#717171] font-normal leading-relaxed">
+          {subheader}
+        </p>
+      )}
     </div>
   );
 };

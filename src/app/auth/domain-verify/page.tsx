@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import LoadingFallback from "@/components/LoadingFallback";
 import DomainVerification from "./domainVerifyClient";
 import IllustrationGrid from "@/modules/auth/IllustrationGrid";
 import { Suspense } from "react";
+import SuspenseLoading from "@/components/ui/SuspenseLoading";
 
 export const metadata: Metadata = {
   title: "Domain Verification",
@@ -34,7 +34,7 @@ export default function DomainVerifyPage() {
     <div className="min-h-screen bg-[#f1f1f1] flex items-center justify-center p-4 sm:p-6 lg:p-8">
       {/* Mobile/Tablet: Only show form */}
       <div className="w-full max-w-md lg:hidden">
-        <Suspense fallback={<LoadingFallback />}>
+        <Suspense fallback={<SuspenseLoading fullscreen message="Loading..." />}>
           <DomainVerification />
         </Suspense>
       </div>
@@ -44,7 +44,7 @@ export default function DomainVerifyPage() {
         <IllustrationGrid />
         <div className="flex items-center justify-center">
           <div className="w-full max-w-md lg:max-w-lg xl:max-w-xl">
-            <Suspense fallback={<LoadingFallback />}>
+            <Suspense fallback={<SuspenseLoading fullscreen message="Loading..." />}>
               <DomainVerification />
             </Suspense>
           </div>

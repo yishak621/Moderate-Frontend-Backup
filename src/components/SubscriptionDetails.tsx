@@ -99,9 +99,9 @@ export default function SubscriptionDetails({
 
     return (
       <div
-        className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full ${config.bg} ${config.text} ${config.border} border text-sm font-medium`}
+        className={`inline-flex items-center gap-1 sm:gap-1.5 px-2 py-1 sm:px-3 sm:py-1.5 rounded-full ${config.bg} ${config.text} ${config.border} border text-xs sm:text-sm font-medium`}
       >
-        <Icon size={14} />
+        <Icon size={12} className="sm:w-[14px] sm:h-[14px]" />
         <span>{config.label}</span>
       </div>
     );
@@ -111,29 +111,32 @@ export default function SubscriptionDetails({
     const isYearly = plan.toLowerCase() === "yearly";
     return (
       <div
-        className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full ${
+        className={`inline-flex items-center gap-1 sm:gap-1.5 px-2 py-1 sm:px-3 sm:py-1.5 rounded-full ${
           isYearly
             ? "bg-purple-100 text-purple-700 border-purple-300"
             : "bg-blue-100 text-blue-700 border-blue-300"
-        } border text-sm font-semibold`}
+        } border text-xs sm:text-sm font-semibold`}
       >
-        <Crown size={14} />
-        <span className="uppercase">{plan}</span>
+        <Crown size={12} className="sm:w-[14px] sm:h-[14px]" />
+        <span className="uppercase text-[10px] sm:text-xs">{plan}</span>
       </div>
     );
   };
 
   if (!activeSubscription && user.subscriptionStatus !== "active") {
     return (
-      <div className="w-full max-w-4xl mx-auto space-y-6">
-        <div className="bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-2xl p-8 text-center">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-blue-100 mb-4">
-            <Info size={32} className="text-blue-600" />
+      <div className="w-full max-w-4xl mx-auto space-y-4 sm:space-y-6">
+        <div className="bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-xl sm:rounded-2xl p-4 sm:p-6 md:p-8 text-center">
+          <div className="inline-flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-full bg-blue-100 mb-3 sm:mb-4">
+            <Info
+              size={24}
+              className="sm:w-[28px] sm:h-[28px] md:w-[32px] md:h-[32px] text-blue-600"
+            />
           </div>
-          <h3 className="text-2xl font-bold text-gray-900 mb-2">
+          <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 mb-2">
             No Active Subscription
           </h3>
-          <p className="text-gray-600 mb-6">
+          <p className="text-sm sm:text-base text-gray-600 mb-4 sm:mb-6 leading-relaxed px-2">
             {user.hasUsedFreeTrial
               ? "Your free trial has ended. Upgrade to continue using Moderate Tech."
               : "Start your free trial or choose a plan to get started."}
@@ -150,13 +153,13 @@ export default function SubscriptionDetails({
     : 0;
 
   return (
-    <div className="w-full max-w-6xl mx-auto space-y-6">
+    <div className="w-full max-w-6xl mx-auto space-y-4 sm:space-y-5 md:space-y-6">
       {/* Current Active Subscription Card */}
-      <div className="bg-gradient-to-br from-white to-gray-50 border-2 border-gray-200 rounded-2xl p-6 sm:p-8 shadow-lg">
-        <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-6">
+      <div className="bg-gradient-to-br from-white to-gray-50 border-2 border-gray-200 rounded-xl sm:rounded-2xl p-4 sm:p-6 md:p-8 shadow-lg">
+        <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4 sm:gap-5 md:gap-6">
           {/* Left Section - Main Info */}
-          <div className="flex-1 space-y-4">
-            <div className="flex flex-wrap items-center gap-3">
+          <div className="flex-1 space-y-3 sm:space-y-4">
+            <div className="flex flex-wrap items-center gap-2 sm:gap-3">
               {getStatusBadge(
                 activeSubscription?.status ||
                   user.subscriptionStatus ||
@@ -168,10 +171,10 @@ export default function SubscriptionDetails({
             </div>
 
             <div>
-              <h2 className="text-3xl font-bold text-gray-900 mb-2">
+              <h2 className="text-xl sm:text-xl md:text-2xl font-bold text-gray-900 mb-1 sm:mb-2">
                 Current Subscription
               </h2>
-              <p className="text-gray-600">
+              <p className="text-sm sm:text-base text-gray-600 leading-relaxed">
                 {activeSubscription?.plan === "yearly"
                   ? "Annual Plan - Best Value"
                   : "Monthly Plan - Flexible Billing"}
@@ -179,13 +182,13 @@ export default function SubscriptionDetails({
             </div>
 
             {/* Key Metrics Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-6">
-              <div className="bg-white rounded-xl p-4 border border-gray-200">
-                <div className="flex items-center gap-2 text-gray-500 mb-2">
-                  <DollarSign size={18} />
-                  <span className="text-sm font-medium">Amount</span>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mt-4 sm:mt-5 md:mt-6">
+              <div className="bg-white rounded-lg sm:rounded-xl p-3 sm:p-4 border border-gray-200">
+                <div className="flex items-center gap-1.5 sm:gap-2 text-gray-500 mb-1.5 sm:mb-2">
+                  <DollarSign size={16} className="sm:w-[18px] sm:h-[18px]" />
+                  <span className="text-xs sm:text-sm font-medium">Amount</span>
                 </div>
-                <p className="text-2xl font-bold text-gray-900">
+                <p className="text-xl sm:text-2xl font-bold text-gray-900">
                   {activeSubscription
                     ? formatCurrency(
                         activeSubscription.amount,
@@ -193,69 +196,83 @@ export default function SubscriptionDetails({
                       )
                     : "$4.99"}
                 </p>
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="text-[10px] sm:text-xs text-gray-500 mt-0.5 sm:mt-1">
                   {activeSubscription?.plan === "yearly" ? "/year" : "/month"}
                 </p>
               </div>
 
-              <div className="bg-white rounded-xl p-4 border border-gray-200">
-                <div className="flex items-center gap-2 text-gray-500 mb-2">
-                  <Calendar size={18} />
-                  <span className="text-sm font-medium">Renews</span>
+              <div className="bg-white rounded-lg sm:rounded-xl p-3 sm:p-4 border border-gray-200">
+                <div className="flex items-center gap-1.5 sm:gap-2 text-gray-500 mb-1.5 sm:mb-2">
+                  <Calendar size={16} className="sm:w-[18px] sm:h-[18px]" />
+                  <span className="text-xs sm:text-sm font-medium">Renews</span>
                 </div>
-                <p className="text-2xl font-bold text-gray-900">
+                <p className="text-lg sm:text-xl  font-bold text-gray-900">
                   {activeSubscription
                     ? formatDate(activeSubscription.currentPeriodEnd)
                     : user.subscriptionEndDate
                     ? formatDate(user.subscriptionEndDate)
                     : "—"}
                 </p>
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="text-[10px] sm:text-xs text-gray-500 mt-0.5 sm:mt-1">
                   {daysRemaining > 0 ? `${daysRemaining} days left` : "Expired"}
                 </p>
               </div>
 
-              <div className="bg-white rounded-xl p-4 border border-gray-200">
-                <div className="flex items-center gap-2 text-gray-500 mb-2">
-                  <Clock size={18} />
-                  <span className="text-sm font-medium">Started</span>
+              <div className="bg-white rounded-lg sm:rounded-xl p-3 sm:p-4 border border-gray-200">
+                <div className="flex items-center gap-1.5 sm:gap-2 text-gray-500 mb-1.5 sm:mb-2">
+                  <Clock size={16} className="sm:w-[18px] sm:h-[18px]" />
+                  <span className="text-xs sm:text-sm font-medium">
+                    Started
+                  </span>
                 </div>
-                <p className="text-2xl font-bold text-gray-900">
+                <p className="text-lg sm:text-xl font-bold text-gray-900">
                   {activeSubscription
                     ? formatDate(activeSubscription.currentPeriodStart)
                     : "—"}
                 </p>
-                <p className="text-xs text-gray-500 mt-1">Period start</p>
+                <p className="text-[10px] sm:text-xs text-gray-500 mt-0.5 sm:mt-1">
+                  Period start
+                </p>
               </div>
 
-              <div className="bg-white rounded-xl p-4 border border-gray-200">
-                <div className="flex items-center gap-2 text-gray-500 mb-2">
-                  <CreditCard size={18} />
-                  <span className="text-sm font-medium">Customer ID</span>
+              <div className="bg-white rounded-lg sm:rounded-xl p-3 sm:p-4 border border-gray-200">
+                <div className="flex items-center gap-1.5 sm:gap-2 text-gray-500 mb-1.5 sm:mb-2">
+                  <CreditCard size={16} className="sm:w-[18px] sm:h-[18px]" />
+                  <span className="text-xs sm:text-sm font-medium">
+                    Customer ID
+                  </span>
                 </div>
-                <p className="text-sm font-mono font-semibold text-gray-700 truncate">
+                <p className="text-xs sm:text-sm font-mono font-semibold text-gray-700 truncate">
                   {activeSubscription?.stripeCustomerId || "—"}
                 </p>
-                <p className="text-xs text-gray-500 mt-1">Stripe</p>
+                <p className="text-[10px] sm:text-xs text-gray-500 mt-0.5 sm:mt-1">
+                  Stripe
+                </p>
               </div>
             </div>
           </div>
 
           {/* Right Section - Visual Indicator */}
-          <div className="flex flex-col items-center justify-center md:min-w-[200px]">
+          <div className=" hidden md:flex flex-col items-center justify-center md:min-w-[200px] mt-4 md:mt-0">
             <div className="relative">
-              <div className="w-32 h-32 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-lg">
-                <Crown size={48} className="text-white" />
+              <div className="w-20 h-20 sm:w-24 sm:h-24 md:w-32 md:h-32 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-lg">
+                <Crown
+                  size={32}
+                  className="sm:w-[40px] sm:h-[40px] md:w-[48px] md:h-[48px] text-white"
+                />
               </div>
               {daysRemaining > 0 && daysRemaining <= 7 && (
-                <div className="absolute -top-2 -right-2 w-8 h-8 bg-red-500 rounded-full flex items-center justify-center animate-pulse">
-                  <Clock size={16} className="text-white" />
+                <div className="absolute -top-1 -right-1 sm:-top-2 sm:-right-2 w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 bg-red-500 rounded-full flex items-center justify-center animate-pulse">
+                  <Clock
+                    size={12}
+                    className="sm:w-[14px] sm:h-[14px] md:w-[16px] md:h-[16px] text-white"
+                  />
                 </div>
               )}
             </div>
             {activeSubscription?.cancelAtPeriodEnd && (
-              <div className="mt-4 px-4 py-2 bg-yellow-50 border border-yellow-200 rounded-lg text-center">
-                <p className="text-sm font-medium text-yellow-800">
+              <div className="mt-3 sm:mt-4 px-3 py-1.5 sm:px-4 sm:py-2 bg-yellow-50 border border-yellow-200 rounded-lg text-center max-w-full">
+                <p className="text-xs sm:text-sm font-medium text-yellow-800">
                   ⚠️ Cancels at period end
                 </p>
               </div>
@@ -266,38 +283,43 @@ export default function SubscriptionDetails({
 
       {/* Subscription History */}
       {subscriptionHistory.length > 0 && (
-        <div className="bg-white border border-gray-200 rounded-2xl p-6 sm:p-8 shadow-md">
-          <div className="flex items-center gap-3 mb-6">
-            <History size={24} className="text-gray-700" />
-            <h3 className="text-2xl font-bold text-gray-900">
+        <div className="bg-white border border-gray-200 rounded-xl sm:rounded-2xl p-4 sm:p-6 md:p-8 shadow-md">
+          <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-5 md:mb-6">
+            <History
+              size={20}
+              className="sm:w-[22px] sm:h-[22px] md:w-[24px] md:h-[24px] text-gray-700"
+            />
+            <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900">
               Subscription History
             </h3>
           </div>
 
-          <div className="space-y-4">
+          <div className="space-y-3 sm:space-y-4">
             {subscriptionHistory.map((sub) => (
               <div
                 key={sub.id}
-                className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-4 bg-gray-50 rounded-xl border border-gray-200 hover:bg-gray-100 transition-colors"
+                className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4 p-3 sm:p-4 bg-gray-50 rounded-lg sm:rounded-xl border border-gray-200 hover:bg-gray-100 transition-colors"
               >
                 <div className="flex-1 space-y-2">
-                  <div className="flex flex-wrap items-center gap-2">
+                  <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
                     {getPlanBadge(sub.plan)}
                     {getStatusBadge(sub.status)}
                   </div>
-                  <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600">
+                  <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-2 sm:gap-4 text-xs sm:text-sm text-gray-600">
                     <span className="flex items-center gap-1">
-                      <Calendar size={14} />
-                      {formatDate(sub.currentPeriodStart)} -{" "}
-                      {formatDate(sub.currentPeriodEnd)}
+                      <Calendar size={12} className="sm:w-[14px] sm:h-[14px]" />
+                      <span className="break-words">
+                        {formatDate(sub.currentPeriodStart)} -{" "}
+                        {formatDate(sub.currentPeriodEnd)}
+                      </span>
                     </span>
                     <span className="flex items-center gap-1">
                       {formatCurrency(sub.amount, sub.currency)}
                     </span>
                   </div>
                 </div>
-                <div className="text-right">
-                  <p className="text-xs text-gray-500">
+                <div className="text-left sm:text-right">
+                  <p className="text-[10px] sm:text-xs text-gray-500">
                     {formatDate(sub.createdAt)}
                   </p>
                 </div>
@@ -309,18 +331,21 @@ export default function SubscriptionDetails({
 
       {/* Free Trial Info */}
       {user.hasUsedFreeTrial && (
-        <div className="bg-gradient-to-r from-purple-50 to-indigo-50 border-2 border-purple-200 rounded-xl p-6">
-          <div className="flex items-start gap-4">
+        <div className="bg-gradient-to-r from-purple-50 to-indigo-50 border-2 border-purple-200 rounded-lg sm:rounded-xl p-4 sm:p-5 md:p-6">
+          <div className="flex items-start gap-3 sm:gap-4">
             <div className="flex-shrink-0">
-              <div className="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center">
-                <TrendingUp size={24} className="text-purple-600" />
+              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-purple-100 flex items-center justify-center">
+                <TrendingUp
+                  size={20}
+                  className="sm:w-[22px] sm:h-[22px] md:w-[24px] md:h-[24px] text-purple-600"
+                />
               </div>
             </div>
-            <div className="flex-1">
-              <h4 className="text-lg font-semibold text-gray-900 mb-1">
+            <div className="flex-1 min-w-0">
+              <h4 className="text-base sm:text-lg font-semibold text-gray-900 mb-1">
                 Free Trial Completed
               </h4>
-              <p className="text-gray-600 text-sm">
+              <p className="text-xs sm:text-sm text-gray-600 leading-relaxed">
                 You&apos;ve already used your free trial. Upgrade to a paid plan
                 to continue accessing all features.
               </p>

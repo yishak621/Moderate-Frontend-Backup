@@ -6,13 +6,16 @@ import {
   Camera,
   AlertTriangle,
   User2Icon,
+  ArrowLeft,
 } from "lucide-react";
-import { useState, useRef } from "react";
+import { useRouter } from "next/navigation";
+import { useState, useRef, useEffect } from "react";
 
 import SectionHeader from "@/components/SectionHeader";
 import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
 import Modal from "@/components/ui/Modal";
+import BottomSheet from "@/components/ui/BottomSheet";
 import {
   useUpdateUserData,
   useUpdatePassword,
@@ -27,6 +30,7 @@ import DeleteAccountModal from "@/modules/dashboard/shared/modals/DeleteAccountM
 import UserAvatar from "@/components/UserAvatar";
 
 export default function TeacheProfileClient() {
+  const router = useRouter();
   const { user, isLoading, isSuccess, isError } = useUserData();
   const {
     editUser,
@@ -47,6 +51,15 @@ export default function TeacheProfileClient() {
 
   const [isDeleteAccountModalOpen, setIsDeleteAccountModalOpen] =
     useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  // detect mobile for bottom sheet
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   //react hook form
@@ -160,15 +173,25 @@ export default function TeacheProfileClient() {
   };
 
   return (
-    <div className="flex flex-col gap-5">
+    <div className="flex flex-col gap-4 sm:gap-5">
+      {/* Mobile Back Button */}
+      <div className="md:hidden -mt-2  mb-2 sticky top-0 z-20 ">
+        <button
+          onClick={() => router.back()}
+          className="p-2 rounded-full bg-white shadow-sm hover:bg-gray-50 transition-colors border border-gray-200"
+          aria-label="Go back"
+        >
+          <ArrowLeft size={20} className="text-gray-700" />
+        </button>
+      </div>
       {/* Profile Picture Section */}
-      <div className="flex flex-col py-[30px] px-6 rounded-[37px] bg-[#FDFDFD]">
+      <div className="flex flex-col py-4 px-4 sm:py-6 sm:px-6 rounded-2xl sm:rounded-[37px] bg-none sm:bg-[#FDFDFD]">
         <SectionHeader
           title="Profile Picture"
           icon={Camera}
           subheader="Update your profile picture"
         />
-        <div className="mt-6 flex flex-col items-center gap-4">
+        <div className="mt-4 sm:mt-6 flex flex-col items-center gap-3 sm:gap-4">
           <UserAvatar
             profilePictureUrl={user?.profilePictureUrl || ""}
             name={user?.name}
@@ -189,7 +212,7 @@ export default function TeacheProfileClient() {
               type="button"
               onClick={() => fileInputRef.current?.click()}
               disabled={isUploadingProfilePictureLoading}
-              className="justify-center text-base cursor-pointer transition"
+              className="justify-center h-11 sm:h-12 text-sm sm:text-base w-full sm:w-auto cursor-pointer transition"
             >
               {isUploadingProfilePictureLoading ? (
                 <>
@@ -221,7 +244,7 @@ export default function TeacheProfileClient() {
                 "Upload Picture"
               )}
             </Button>
-            <p className="text-xs text-gray-500">
+            <p className="text-[12px] sm:text-xs text-gray-500">
               Recommended: Square image, max 5MB
             </p>
           </div>
@@ -230,7 +253,7 @@ export default function TeacheProfileClient() {
       {/* Personal Information Section */}
       <form
         onSubmit={handleSubmit(onSubmitPersonalInfo)}
-        className="flex flex-col py-[30px] px-6 rounded-[37px] bg-[#FDFDFD] mb-5"
+        className="flex flex-col py-4 px-4 sm:py-6 sm:px-6 rounded-2xl sm:rounded-[37px] bg-[#FDFDFD] mb-4 sm:mb-5"
       >
         <div className="flex flex-col">
           <SectionHeader
@@ -238,7 +261,7 @@ export default function TeacheProfileClient() {
             icon={User2Icon}
             subheader="Update your name and email"
           />
-          <div className="mt-4 flex flex-col md:flex-row gap-4">
+          <div className="mt-3 sm:mt-4 flex flex-col md:flex-row gap-3 sm:gap-4">
             <Input
               type="text"
               placeholder="Your Name"
@@ -254,10 +277,10 @@ export default function TeacheProfileClient() {
               defaultValue={user.email}
             />
           </div>
-          <div className="mt-6 flex justify-end">
+          <div className="mt-4 sm:mt-6 flex justify-end">
             <Button
               type="submit"
-              className={`justify-center mt-2.5 sm:mt-4 text-base cursor-pointer  transition 
+              className={`justify-center mt-2.5 sm:mt-4 h-11 sm:h-12 text-sm sm:text-base w-full sm:w-auto cursor-pointer  transition 
         ${
           isEditingUserLoading
             ? "opacity-70 cursor-not-allowed"
@@ -299,7 +322,7 @@ export default function TeacheProfileClient() {
       {/* Password Section */}
       <form
         onSubmit={handleSubmit(onSubmitPassword)}
-        className="flex flex-col py-[30px] px-6 rounded-[37px] bg-[#FDFDFD]"
+        className="flex flex-col py-4 px-4 sm:py-6 sm:px-6 rounded-2xl sm:rounded-[37px] bg-[#FDFDFD]"
       >
         <div className="flex flex-col">
           <SectionHeader
@@ -307,7 +330,7 @@ export default function TeacheProfileClient() {
             icon={Settings}
             subheader="Update your password"
           />
-          <div className="mt-4 flex flex-col md:flex-row gap-4">
+          <div className="mt-3 sm:mt-4 flex flex-col md:flex-row gap-3 sm:gap-4">
             <Input
               type="password"
               placeholder="New Password"
@@ -326,10 +349,10 @@ export default function TeacheProfileClient() {
               })}
             />
           </div>
-          <div className="mt-6 flex justify-end">
+          <div className="mt-4 sm:mt-6 flex justify-end">
             <Button
               type="submit"
-              className={`justify-center mt-2.5 sm:mt-4 text-base cursor-pointer  transition 
+              className={`justify-center mt-2.5 sm:mt-4 h-11 sm:h-12 text-sm sm:text-base w-full sm:w-auto cursor-pointer  transition 
         ${
           isUpdatingPasswordLoading
             ? "opacity-70 cursor-not-allowed"
@@ -369,21 +392,21 @@ export default function TeacheProfileClient() {
       </form>
 
       {/* Delete Account Section */}
-      <div className="flex flex-col py-[30px] px-6 rounded-[37px] bg-[#FDFDFD] border-2 border-red-100">
+      <div className="flex flex-col py-4 px-4 sm:py-6 sm:px-6 rounded-2xl sm:rounded-[37px] bg-[#FDFDFD] border-2 border-red-100">
         <SectionHeader
           title="Delete Account"
           icon={AlertTriangle}
           subheader="Permanently delete your account"
         />
-        <div className="mt-6 flex flex-col gap-4">
-          <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+        <div className="mt-4 sm:mt-6 flex flex-col gap-3 sm:gap-4">
+          <div className="bg-red-50 border border-red-200 rounded-lg p-3 sm:p-4">
             <div className="flex items-start gap-3">
               <AlertTriangle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
               <div className="flex flex-col gap-1">
-                <p className="text-sm font-medium text-red-800">
+                <p className="text-[13px] sm:text-sm font-medium text-red-800">
                   Warning: This action cannot be undone
                 </p>
-                <p className="text-xs text-red-700">
+                <p className="text-[12px] sm:text-xs text-red-700">
                   Deleting your account will permanently remove all your data,
                   including posts, grades, comments, and profile information.
                 </p>
@@ -394,7 +417,7 @@ export default function TeacheProfileClient() {
             type="button"
             variant="red"
             onClick={() => setIsDeleteAccountModalOpen(true)}
-            className="justify-center mt-2 text-base cursor-pointer w-full sm:w-auto self-start"
+            className="justify-center mt-2 h-11 sm:h-12 text-sm sm:text-base cursor-pointer w-full sm:w-auto self-start"
           >
             Delete Account
           </Button>
@@ -402,14 +425,26 @@ export default function TeacheProfileClient() {
       </div>
 
       {/* Delete Account Modal */}
-      <Modal
-        isOpen={isDeleteAccountModalOpen}
-        onOpenChange={setIsDeleteAccountModalOpen}
-      >
-        <Modal.Content>
-          <DeleteAccountModal />
-        </Modal.Content>
-      </Modal>
+      {isMobile ? (
+        <BottomSheet
+          isOpen={isDeleteAccountModalOpen}
+          onClose={() => setIsDeleteAccountModalOpen(false)}
+          title="Delete Account"
+        >
+          <div className="p-4">
+            <DeleteAccountModal />
+          </div>
+        </BottomSheet>
+      ) : (
+        <Modal
+          isOpen={isDeleteAccountModalOpen}
+          onOpenChange={setIsDeleteAccountModalOpen}
+        >
+          <Modal.Content>
+            <DeleteAccountModal />
+          </Modal.Content>
+        </Modal>
+      )}
     </div>
   );
 }

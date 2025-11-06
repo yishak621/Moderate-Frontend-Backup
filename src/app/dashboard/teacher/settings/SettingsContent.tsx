@@ -1,0 +1,188 @@
+"use client";
+
+import { SettingItem } from "@/app/types/user";
+import SectionHeader from "@/components/SectionHeader";
+import SubscriptionDetails from "@/components/SubscriptionDetails";
+import Button from "@/components/ui/Button";
+import { useUserData, useUserSaveSettings } from "@/hooks/useUser";
+import ToggleSetting from "@/modules/dashboard/admin/ToggleSetting";
+import { Bell, Settings, CreditCard } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import toast from "react-hot-toast";
+
+export default function SettingsContent() {
+  const { user, isLoading, isSuccess } = useUserData();
+  const [settings, setSettings] = useState<SettingItem>({});
+
+  const handleToggleChange = (value: boolean, field?: string) => {
+    if (!field) return;
+    setSettings((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+  };
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    watch,
+    control,
+  } = useForm();
+
+  const {
+    saveSettings,
+    saveSettingsAsync,
+    isSavingSettingsLoading,
+    isSavingSettingsSuccess,
+  } = useUserSaveSettings();
+
+  const onSubmit = async () => {
+    try {
+      const res = await saveSettingsAsync({ settings });
+    } catch (err) {
+      if (err instanceof Error) {
+        console.error(err.message);
+        toast.error(err.message);
+      } else {
+        console.error("Unknown error", err);
+        toast.error("Something went wrong");
+      }
+    }
+  };
+
+  useEffect(() => {
+    if (isSuccess && user?.settings) {
+      setSettings(user.settings);
+    }
+  }, [isSuccess, user]);
+
+  return (
+    <div className="flex flex-col gap-3 sm:gap-4 md:gap-5">
+      {/* Subscription Section */}
+      {user && (
+        <div className="flex flex-col py-4 px-4 sm:py-6 sm:px-5 md:py-[30px] md:px-6 rounded-2xl sm:rounded-3xl md:rounded-[37px] bg-[#FDFDFD]">
+          <div className="flex flex-col">
+            <SectionHeader
+              title="Subscription & Billing"
+              icon={CreditCard}
+              subheader="View and manage your subscription details"
+            />
+            <div className="mt-3 sm:mt-4 md:mt-6">
+              <SubscriptionDetails user={user} />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Settings Form */}
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        className="flex flex-col gap-3 sm:gap-4 md:gap-5"
+      >
+        {/* Configure section */}
+        <div className="flex flex-col py-4 px-4 sm:py-6 sm:px-5 md:py-[30px] md:px-6 rounded-2xl sm:rounded-3xl md:rounded-[37px] bg-[#FDFDFD]">
+          <div className="flex flex-col">
+            <SectionHeader
+              title="Configure"
+              icon={Settings}
+              subheader="Control user registration and security settings"
+            />
+
+            <div className="flex flex-col mt-3 sm:mt-4">
+              <ToggleSetting
+                title="Enable private messaging"
+                description="Control user registration and security settings"
+                field="private_messaging"
+                value={settings?.private_messaging ? true : false}
+                onChange={handleToggleChange}
+              />
+            </div>
+
+            <div className="flex flex-col mt-3 sm:mt-4">
+              <ToggleSetting
+                title="Online status"
+                description="Show your online status to other users"
+                field="online_status"
+                value={settings?.online_status}
+                onChange={handleToggleChange}
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Notification section */}
+        <div className="flex flex-col py-4 px-4 sm:py-6 sm:px-5 md:py-[30px] md:px-6 rounded-2xl sm:rounded-3xl md:rounded-[37px] bg-[#FDFDFD]">
+          <div className="flex flex-col">
+            <SectionHeader
+              title="Notification"
+              icon={Bell}
+              subheader="Control user registration and security settings"
+            />
+
+            <div className="flex flex-col mt-3 sm:mt-4">
+              <ToggleSetting
+                title="Email alerts"
+                description="Get notification through email"
+                field="email_alert"
+                value={settings?.email_alert}
+                onChange={handleToggleChange}
+              />
+              <ToggleSetting
+                title="Push notification"
+                description="Manage notification"
+                field="push_notifications"
+                value={settings?.push_notifications}
+                onChange={handleToggleChange}
+              />
+              <ToggleSetting
+                title="Weekly summary"
+                description="Get summary info"
+                field="weekly_summary"
+                value={settings?.weekly_summary}
+                onChange={handleToggleChange}
+              />
+            </div>
+          </div>
+        </div>
+
+        <div className="flex justify-end px-2 sm:px-0">
+          <Button
+            type="submit"
+            className={`justify-center text-sm sm:text-base cursor-pointer transition w-full sm:w-auto
+              ${isSavingSettingsLoading && "opacity-70 cursor-not-allowed"}`}
+          >
+            {isSavingSettingsLoading ? (
+              <>
+                <svg
+                  className="h-5 w-5 animate-spin text-white"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  ></circle>
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8v4l3-3-3-3v4a12 12 0 00-12 12h4z"
+                  ></path>
+                </svg>
+                Saving Settings...
+              </>
+            ) : (
+              "Save Settings"
+            )}
+          </Button>
+        </div>
+      </form>
+    </div>
+  );
+}

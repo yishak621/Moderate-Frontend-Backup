@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import SupportAdminMessagesClient from "./supportAdminMessagesClient";
-import Loading from "@/components/ui/Loading";
+import SuspenseLoading from "@/components/ui/SuspenseLoading";
 
 export const metadata: Metadata = {
   title: "Support Messages",
@@ -15,13 +15,7 @@ export const metadata: Metadata = {
 
 export default function page() {
   return (
-    <Suspense
-      fallback={
-        <div className="h-screen w-screen">
-          <Loading text="Loading Support Messages..." className="h-full" />
-        </div>
-      }
-    >
+    <Suspense fallback={<SuspenseLoading fullscreen message="Loading Support Messages..." />}>
       <SupportAdminMessagesClient />
     </Suspense>
   );

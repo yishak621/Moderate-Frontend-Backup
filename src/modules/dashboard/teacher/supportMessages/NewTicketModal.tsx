@@ -6,13 +6,16 @@ import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
 import Textarea from "@/components/ui/Textarea";
 import { useModal } from "@/components/ui/Modal";
+import BottomSheet, { useBottomSheet } from "@/components/ui/BottomSheet";
 import { useCreateSupportTicket } from "@/hooks/useSupportTickets";
 import { CreateTicketInput, Ticket } from "@/app/types/support_tickets";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 
 export default function NewTicketModal() {
-  const { close } = useModal();
+  const modalCtx = useModal();
+  const sheetCtx = useBottomSheet();
+  const close = sheetCtx?.isOpen ? sheetCtx.close : modalCtx.close;
   const [subject, setSubject] = useState("");
   const [message, setMessage] = useState("");
   const { createTicket, createTicketAsync, isCreatingTicketLoading } =
@@ -49,25 +52,28 @@ export default function NewTicketModal() {
     }
   };
   return (
-    <div className="bg-[#FDFDFD] min-w-[551px] p-10 rounded-[27px] flex flex-col">
+    <div className="bg-[#FDFDFD] w-full max-w-[600px] mx-auto p-4 sm:p-6 md:p-10 rounded-2xl md:rounded-[27px] flex flex-col">
       {/* Header */}
-      <div className="flex flex-row justify-between mb-6">
+      <div className="flex flex-row justify-between mb-4 md:mb-6">
         <div className="flex flex-col gap-1.5">
-          <p className="text-xl text-[#0c0c0c] font-medium">
+          <p className="hidden md:block text-lg md:text-xl text-[#0c0c0c] font-medium">
             Create Support Ticket
           </p>
-          <p className="text-base font-normal text-[#717171]">
+          <p className="text-sm md:text-base font-normal text-[#717171]">
             Describe your issue and our team will respond soon.
           </p>
         </div>
 
-        <div onClick={close}>
-          <X width={22} height={22} className="text-[#000000] cursor-pointer" />
+        <div className="hidden md:block" onClick={close}>
+          <X width={20} height={20} className="text-[#000000] cursor-pointer" />
         </div>
       </div>
 
       {/* Form */}
-      <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        className="flex flex-col gap-3 md:gap-4"
+      >
         <Input
           placeholder="Subject"
           className="border border-[#E3E3E3] rounded-[12px] p-3 text-sm"
@@ -85,7 +91,7 @@ export default function NewTicketModal() {
         {/* Update Button */}
         <Button
           type="submit"
-          className={`justify-center text-base w-full transition
+          className={`justify-center h-11 md:h-12 text-sm md:text-base w-full transition
     ${
       isCreatingTicketLoading
         ? "opacity-70 cursor-not-allowed"

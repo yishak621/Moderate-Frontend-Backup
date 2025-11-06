@@ -1,4 +1,5 @@
 import { useModal } from "@/components/ui/Modal";
+import { useBottomSheet } from "@/components/ui/BottomSheet";
 import { X, AlertTriangle } from "lucide-react";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
@@ -17,7 +18,9 @@ export default function DeleteAccountModal() {
     isDeletingAccountError,
     deletingAccountError,
   } = useDeleteAccount();
-  const { close } = useModal();
+  const modalCtx = useModal();
+  const sheetCtx = useBottomSheet();
+  const close = sheetCtx?.isOpen ? sheetCtx.close : modalCtx.close;
   const router = useRouter();
   const [password, setPassword] = useState("");
   const [confirmDelete, setConfirmDelete] = useState("");
@@ -56,34 +59,36 @@ export default function DeleteAccountModal() {
   };
 
   return (
-    <div className="bg-[#FDFDFD] min-w-[551px] p-10 rounded-[27px] flex flex-col">
+    <div className="bg-[#FDFDFD] w-full max-w-[600px] mx-auto p-4 sm:p-6 md:p-10 rounded-2xl md:rounded-[27px] flex flex-col">
       {/* Header */}
-      <div className="flex flex-row justify-between items-start mb-6">
-        <div className="flex flex-col gap-1.5">
-          <div className="flex items-center gap-3">
-            <AlertTriangle className="w-6 h-6 text-red-600" />
-            <p className="text-xl text-[#0c0c0c] font-medium">Delete Account</p>
+      <div className="flex flex-row justify-between items-start mb-4 md:mb-6">
+        <div className=" hidden md:flex flex-col gap-1.5">
+          <div className="flex items-center gap-2 md:gap-3">
+            <AlertTriangle className="w-5 h-5 md:w-6 md:h-6 text-red-600" />
+            <p className="text-lg md:text-xl text-[#0c0c0c] font-medium">
+              Delete Account
+            </p>
           </div>
-          <p className="text-base font-normal text-[#717171] max-w-[450px]">
+          <p className="text-sm md:text-base font-normal text-[#717171] md:max-w-[450px]">
             This action cannot be undone. This will permanently delete your
             account and remove all associated data from our servers.
           </p>
         </div>
 
-        <div onClick={close}>
-          <X width={22} height={22} className="text-[#000000] cursor-pointer" />
+        <div className="hidden md:block" onClick={close}>
+          <X width={20} height={20} className="text-[#000000] cursor-pointer" />
         </div>
       </div>
 
       {/* Warning Box */}
-      <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+      <div className="bg-red-50 border border-red-200 rounded-lg p-3 md:p-4 mb-4 md:mb-6">
         <div className="flex items-start gap-3">
-          <AlertTriangle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+          <AlertTriangle className="w-4 h-4 md:w-5 md:h-5 text-red-600 flex-shrink-0 mt-0.5" />
           <div className="flex flex-col gap-1">
-            <p className="text-sm font-medium text-red-800">
+            <p className="text-[13px] md:text-sm font-medium text-red-800">
               Warning: Permanent Action
             </p>
-            <p className="text-xs text-red-700">
+            <p className="text-[12px] md:text-xs text-red-700">
               All your posts, grades, comments, and profile data will be
               permanently deleted. This action cannot be reversed.
             </p>
@@ -92,7 +97,7 @@ export default function DeleteAccountModal() {
       </div>
 
       {/* Password Confirmation */}
-      <div className="mb-4">
+      <div className="mb-3 md:mb-4">
         <Input
           type="password"
           label="Password (Optional)"
@@ -101,14 +106,14 @@ export default function DeleteAccountModal() {
           onChange={(e) => setPassword(e.target.value)}
           className="w-full"
         />
-        <p className="text-xs text-gray-500 mt-1">
+        <p className="text-[12px] md:text-xs text-gray-500 mt-1">
           Some accounts may require password confirmation for security.
         </p>
       </div>
 
       {/* Confirmation Text */}
-      <div className="mb-6">
-        <label className="block text-sm font-medium text-gray-700 mb-2">
+      <div className="mb-4 md:mb-6">
+        <label className="block text-[13px] md:text-sm font-medium text-gray-700 mb-2">
           Type <span className="font-bold">DELETE</span> to confirm:
         </label>
         <Input
@@ -121,16 +126,20 @@ export default function DeleteAccountModal() {
       </div>
 
       {/* Action Buttons */}
-      <div className="flex justify-center gap-3 items-center w-full">
-        <div className="w-1/3">
-          <Button className="w-full" variant="secondary" onClick={close}>
+      <div className="flex flex-col sm:flex-row justify-center gap-2 md:gap-3 items-center w-full">
+        <div className="w-full sm:w-1/3">
+          <Button
+            className="w-full h-11 md:h-12 text-sm md:text-base"
+            variant="secondary"
+            onClick={close}
+          >
             Cancel
           </Button>
         </div>
-        <div className="w-2/3">
+        <div className="w-full sm:w-2/3">
           <Button
             variant="red"
-            className={`justify-center text-base cursor-pointer w-full transition 
+            className={`justify-center h-11 md:h-12 text-sm md:text-base cursor-pointer w-full transition 
         ${isDeletingAccountLoading && "opacity-70 cursor-not-allowed"}`}
             disabled={isDeletingAccountLoading || confirmDelete !== "DELETE"}
             onClick={handleDelete}

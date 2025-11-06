@@ -1,6 +1,7 @@
 "use client";
 
 import { ReactNode, useMemo, useState, useEffect, Suspense } from "react";
+import SuspenseLoading from "@/components/ui/SuspenseLoading";
 import {
   LayoutDashboard,
   Settings,
@@ -386,7 +387,7 @@ function DashboardLayoutContent({ children }: { children: ReactNode }) {
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense fallback={<SuspenseLoading fullscreen message="Loading dashboard..." />}>
       <DashboardLayoutContent>{children}</DashboardLayoutContent>
     </Suspense>
   );
