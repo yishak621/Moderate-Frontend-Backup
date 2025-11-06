@@ -8,6 +8,7 @@ import { useEffect } from "react";
 import toast from "react-hot-toast";
 import { useAdminAnnouncementDeleteData } from "@/hooks/UseAdminRoutes";
 import { PostAttributes } from "@/types/postAttributes";
+import { useUserDeletePost } from "@/hooks/useUser";
 
 export default function DeletePostModal({ post }: { post: PostAttributes }) {
   //   const {
@@ -20,6 +21,21 @@ export default function DeletePostModal({ post }: { post: PostAttributes }) {
   //     deletingAnnouncementError,
   //   } = useAdminAnnouncementDeleteData(announcement?.id ?? "");
   const { close } = useResponsiveModal();
+  const {
+    deletePost,
+    deletePostAsync,
+    data,
+    isDeletingPostLoading,
+    isDeletingPostSuccess,
+    isDeletingPostError,
+    deletingPostError,
+  } = useUserDeletePost();
+
+  useEffect(() => {
+    if (isDeletingPostSuccess) {
+      close();
+    }
+  }, [isDeletingPostSuccess, close]);
 
   return (
     <div className="bg-[#FDFDFD] w-full min-w-0 sm:min-w-[551px] p-6 sm:p-10 rounded-[27px] flex flex-col">
@@ -48,20 +64,14 @@ export default function DeletePostModal({ post }: { post: PostAttributes }) {
         <div className="w-2/3">
           <Button
             variant="red"
-            className="justify-center  text-base cursor-pointer w-full transition"
-          >
-            Delete Post
-          </Button>{" "}
-          {/* <Button
-            variant="red"
             className={`justify-center  text-base cursor-pointer w-full transition 
-        ${isDeletingAnnouncementLoading && "opacity-70 cursor-not-allowed"}`}
-            disabled={isDeletingAnnouncementLoading}
+        ${isDeletingPostLoading && "opacity-70 cursor-not-allowed"}`}
+            disabled={isDeletingPostLoading}
             onClick={() => {
-              deleteAnnouncementAsync();
+              deletePostAsync(post.id.toString());
             }}
           >
-            {isDeletingAnnouncementLoading ? (
+            {isDeletingPostLoading ? (
               <>
                 <svg
                   className="h-5 w-5 animate-spin text-white"
@@ -86,9 +96,9 @@ export default function DeletePostModal({ post }: { post: PostAttributes }) {
                 Deleting...
               </>
             ) : (
-              "Delete Announcement"
+              "Delete Post"
             )}
-          </Button>{" "} */}
+          </Button>{" "}
         </div>
       </div>
     </div>

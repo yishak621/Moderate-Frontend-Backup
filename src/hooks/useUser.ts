@@ -17,6 +17,7 @@ import {
   userPostFeeds,
   userSinglePostData,
   updateUserPost,
+  deleteUserPost,
 } from "@/services/user.service";
 import { Grade, GradeData } from "@/types/Post";
 import { PostCreateInput } from "@/types/postAttributes";
@@ -198,6 +199,35 @@ export const useUserUpdatePost = () => {
   };
 };
 
+//--------------------USER DELETE POST
+
+export const useUserDeletePost = () => {
+  const { mutate, mutateAsync, data, isPending, isSuccess, isError, error } =
+    useMutation({
+      mutationFn: (postId: string) => deleteUserPost(postId),
+      onSuccess: () => {
+        toast.success("Post deleted successfully!");
+        queryClient.invalidateQueries({
+          queryKey: ["userMyPostsFeeds"],
+          exact: false,
+        });
+        queryClient.invalidateQueries({
+          queryKey: ["userPostFeeds"],
+          exact: false,
+        });
+      },
+    });
+
+  return {
+    deletePost: mutate,
+    deletePostAsync: mutateAsync,
+    data,
+    isDeletingPostLoading: isPending,
+    isDeletingPostSuccess: isSuccess,
+    isDeletingPostError: isError,
+    deletingPostError: error,
+  };
+};
 //--------------------USER UPLOAD FILE
 export const useUserUploadFile = () => {
   const { mutate, mutateAsync, data, isPending, isSuccess, isError, error } =
