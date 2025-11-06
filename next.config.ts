@@ -13,6 +13,11 @@ const nextConfig: NextConfig = {
         hostname: "api.moderatetech.co.uk",
         pathname: "/**",
       },
+      {
+        protocol: "https",
+        hostname: "api.moderatetech.co.uk",
+        pathname: "/**",
+      },
     ],
   },
 };
