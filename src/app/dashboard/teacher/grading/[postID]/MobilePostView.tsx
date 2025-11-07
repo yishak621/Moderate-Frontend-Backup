@@ -35,6 +35,8 @@ import EditPostModal from "@/modules/dashboard/teacher/post/EditPostModal";
 import DeletePostModal from "@/modules/dashboard/teacher/post/DeletePostModal";
 import ViewStatPostModal from "@/modules/dashboard/teacher/post/ViewDetailPostModal";
 import { ensureHttps } from "@/lib/urlHelpers";
+import { useUserDeleteGrade } from "@/hooks/useUser";
+import toast from "react-hot-toast";
 
 interface MobilePostViewProps {
   post: PostType & {
@@ -73,11 +75,40 @@ export default function MobilePostView({
     gradingTemplate,
   } = postData || {};
 
+  const { deleteGradeAsync } = useUserDeleteGrade();
+  
   const checkPostIsNotThisUser = author?.id === decoded?.id;
   const checkPostIsGradedByThisUser = groupedGrades?.some(
     (grade) => grade?.gradedBy?.id === decoded?.id
   );
   const isCurrentUserPost = author?.id === decoded?.id;
+
+  // Find current user's grade
+  const currentUserGrade = (post as any)?.grades?.find(
+    (grade: any) => grade.gradedBy === decoded?.id
+  );
+
+  const handleEditGrade = () => {
+    setActiveTab("gradeTest");
+  };
+
+  const handleDeleteGrade = async () => {
+    if (!currentUserGrade?.id) {
+      toast.error("Grade ID not found");
+      return;
+    }
+    
+    if (confirm("Are you sure you want to delete this grade? This action cannot be undone.")) {
+      try {
+        await deleteGradeAsync({
+          postId: post.id.toString(),
+          gradeId: currentUserGrade.id,
+        });
+      } catch (err) {
+        // Error is handled by the hook
+      }
+    }
+  };
 
   const handleOpenModal = <P,>(
     component: React.ComponentType<P>,
@@ -601,7 +632,10 @@ export default function MobilePostView({
                   </p>
                 </div>
               ) : checkPostIsGradedByThisUser ? (
-                <AlreadyGradedNotice onEdit={() => {}} />
+                <AlreadyGradedNotice 
+                  onEdit={handleEditGrade}
+                  onDelete={handleDeleteGrade}
+                />
               ) : (
                 <>
                   {/* Show grading section if NOT graded */}

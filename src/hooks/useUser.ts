@@ -21,6 +21,7 @@ import {
   addToFavorites,
   removeFromFavorites,
   getFavoritePosts,
+  deleteUserGrade,
 } from "@/services/user.service";
 import { Grade, GradeData } from "@/types/Post";
 import { PostCreateInput } from "@/types/postAttributes";
@@ -386,6 +387,32 @@ export const useUserSaveGrade = () => {
     isSavingGradeSuccess: isSuccess,
     isSavingGradeError: isError,
     savingGradeError: error,
+  };
+};
+
+//--------------------DELETE USER GRADE
+export const useUserDeleteGrade = () => {
+  const { mutate, mutateAsync, data, isPending, isSuccess, isError, error } =
+    useMutation({
+      mutationFn: ({ postId, gradeId }: { postId: string; gradeId: string }) =>
+        deleteUserGrade(postId, gradeId),
+      onSuccess: () => {
+        toast.success("Grade deleted successfully!");
+        queryClient.invalidateQueries({
+          queryKey: ["userSinglePostData"],
+          exact: false,
+        });
+      },
+    });
+
+  return {
+    deleteGrade: mutate,
+    deleteGradeAsync: mutateAsync,
+    data,
+    isDeletingGradeLoading: isPending,
+    isDeletingGradeSuccess: isSuccess,
+    isDeletingGradeError: isError,
+    deletingGradeError: error,
   };
 };
 

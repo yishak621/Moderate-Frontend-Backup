@@ -64,6 +64,7 @@ type GroupedGrade = {
   grade: any;
   comment: string | null;
   createdAt: string;
+  gradeId?: string;
 };
 export interface StatsCardProps {
   title: string;

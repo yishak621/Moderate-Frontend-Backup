@@ -10,7 +10,7 @@ import { PostType } from "@/types/Post"; // <-- your post type
 import GradeTemplateRubric from "@/modules/dashboard/teacher/GradingLogics/GradeTemplateRubric";
 import { GroupedGrade } from "@/app/types/user";
 import { userSinglePostData } from "@/services/user.service";
-import { useUserSinglePostData } from "@/hooks/useUser";
+import { useUserSinglePostData, useUserDeleteGrade } from "@/hooks/useUser";
 import { timeAgo } from "@/lib/timeAgo";
 import SectionLoading from "@/components/SectionLoading";
 import { GradeTemplateNumeric } from "@/modules/dashboard/teacher/GradingLogics/GradeTemplateNumeric";
@@ -23,6 +23,7 @@ import AlreadyGradedNotice from "@/modules/dashboard/teacher/AlreadyGradedSectio
 import MobilePostView from "./MobilePostView";
 import { ensureHttps } from "@/lib/urlHelpers";
 import Image from "next/image";
+import toast from "react-hot-toast";
 
 export default function PostViewClient() {
   const params = useParams();
@@ -49,10 +50,16 @@ export default function PostViewClient() {
         grade: grade.grade,
         createdAt: grade.createdAt,
         comment: comment?.comment || null,
+        gradeId: grade.id, // Include grade ID for deletion
       };
     }
   );
   console.log(groupedGrades, "grouped");
+
+  // Find current user's grade
+  const currentUserGrade = (post as PostType)?.grades?.find(
+    (grade: any) => grade.gradedBy === decoded?.id
+  );
   const {
     title = "",
     description = "",
@@ -68,11 +75,39 @@ export default function PostViewClient() {
   const [currentFileIndex, setCurrentFileIndex] = useState(0);
   const filters = ["Grades", "Grade Test"];
   const [activeFilter, setActiveFilter] = useState("Grades");
+  const { deleteGradeAsync, isDeletingGradeLoading } = useUserDeleteGrade();
+
   const checkPostIsNotThisUser = author?.id === decoded?.id;
   const checkPostIsGradedByThisUser = groupedGrades?.some((grade) => {
     return grade?.gradedBy?.id === decoded?.id;
   });
   console.log(groupedGrades, "grades");
+
+  const handleEditGrade = () => {
+    setActiveFilter("Grade Test");
+  };
+
+  const handleDeleteGrade = async () => {
+    if (!currentUserGrade?.id) {
+      toast.error("Grade ID not found");
+      return;
+    }
+
+    if (
+      confirm(
+        "Are you sure you want to delete this grade? This action cannot be undone."
+      )
+    ) {
+      try {
+        await deleteGradeAsync({
+          postId,
+          gradeId: currentUserGrade.id,
+        });
+      } catch (err) {
+        // Error is handled by the hook
+      }
+    }
+  };
 
   const nextFile = () => {
     setCurrentFileIndex((prev) => (prev + 1) % uploads.length);
@@ -385,41 +420,92 @@ export default function PostViewClient() {
                         </GradeGivenSection>
                       );
 
-                    // case "checklist":
-                    //   return (
-                    //     <GradeGivenSection
-                    //       key={idx}
-                    //       grade={grader}
-                    //       gradingTemplate={post?.gradingTemplate}
-                    //     >
-                    //       <ul className="list-disc ml-6 space-y-1 text-sm text-gray-700">
-                    //         {grader.grade.items?.map(
-                    //           (item: string, i: number) => (
-                    //             <li key={i}>{item}</li>
-                    //           )
-                    //         )}
-                    //       </ul>
-                    //     </GradeGivenSection>
-                    //   );
+                    case "checklist":
+                      const checklistGrade = grader.grade?.checklist;
+                      const checklistItems = checklistGrade?.items || [];
+                      const checklistTotal = checklistGrade?.totalScore || 0;
+                      const checklistMax = checklistGrade?.maxScore || 0;
+                      const checklistPercent = checklistGrade?.percentage || 0;
 
-                    // case "passfail":
-                    //   return (
-                    //     <GradeGivenSection
-                    //       key={idx}
-                    //       grade={grader}
-                    //       gradingTemplate={post?.gradingTemplate}
-                    //     >
-                    //       <div
-                    //         className={`px-3 py-1 rounded-full text-sm font-medium ${
-                    //           grader.grade.pass
-                    //             ? "bg-green-100 text-green-700"
-                    //             : "bg-red-100 text-red-700"
-                    //         }`}
-                    //       >
-                    //         {grader.grade.pass ? "Passed" : "Failed"}
-                    //       </div>
-                    //     </GradeGivenSection>
-                    //   );
+                      return (
+                        <GradeGivenSection
+                          key={idx}
+                          grade={grader}
+                          gradingTemplate={post?.gradingTemplate}
+                        >
+                          <div className="space-y-3">
+                            <div className="flex flex-col gap-2">
+                              {checklistItems.length > 0 ? (
+                                <div className="space-y-2">
+                                  <p className="text-sm font-medium text-gray-700 mb-2">
+                                    Completed Items:
+                                  </p>
+                                  <ul className="space-y-2">
+                                    {checklistItems.map(
+                                      (item: string, i: number) => (
+                                        <li
+                                          key={i}
+                                          className="flex items-center gap-2 text-sm text-gray-700"
+                                        >
+                                          <span className="w-2 h-2 bg-green-500 rounded-full"></span>
+                                          <span>{item}</span>
+                                        </li>
+                                      )
+                                    )}
+                                  </ul>
+                                </div>
+                              ) : (
+                                <p className="text-sm text-gray-500">
+                                  No items completed
+                                </p>
+                              )}
+                            </div>
+
+                            <div className="mt-4 pt-4 border-t border-gray-200">
+                              <div className="flex justify-between items-center mb-2">
+                                <p className="text-sm font-medium text-gray-700">
+                                  Score
+                                </p>
+                                <p className="text-base font-bold text-gray-900">
+                                  {checklistTotal} / {checklistMax}
+                                </p>
+                              </div>
+                              <div className="flex justify-between items-center">
+                                <p className="text-sm text-gray-600">
+                                  Percentage
+                                </p>
+                                <p className="text-base font-semibold text-blue-600">
+                                  {checklistPercent}%
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        </GradeGivenSection>
+                      );
+
+                    case "passFail":
+                      const passFailGrade = grader.grade?.passfail;
+                      const isPass = passFailGrade?.pass ?? false;
+                      console.log(grader.grade, "passFailGrade");
+                      return (
+                        <GradeGivenSection
+                          key={idx}
+                          grade={grader}
+                          gradingTemplate={post?.gradingTemplate}
+                        >
+                          <div className="space-y-3">
+                            <div
+                              className={`inline-flex items-center px-4 py-2 rounded-lg text-sm font-semibold ${
+                                isPass
+                                  ? "bg-green-100 text-green-700"
+                                  : "bg-red-100 text-red-700"
+                              }`}
+                            >
+                              {isPass ? "✓ Passed" : "✗ Failed"}
+                            </div>
+                          </div>
+                        </GradeGivenSection>
+                      );
 
                     default:
                       return null;
@@ -494,29 +580,39 @@ export default function PostViewClient() {
                       postId={postId}
                     />
                   )}
+
+                  {post?.gradingTemplate?.type === "checklist" && (
+                    <GradeTemplateChecklist
+                      items={post?.gradingTemplate.criteria.checklistItems}
+                      criteria={post?.gradingTemplate.criteria}
+                      gradingTemplate={post?.gradingTemplate}
+                      postId={postId}
+                    />
+                  )}
+
+                  {post?.gradingTemplate?.type === "passFail" && (
+                    <GradeTemplatePassFail
+                      criteria={post?.gradingTemplate.criteria}
+                      gradingTemplate={post?.gradingTemplate}
+                      postId={postId}
+                    />
+                  )}
                 </div>
               )}
 
               {/* Show "Already graded" notice if graded */}
               {checkPostIsGradedByThisUser && (
-                <AlreadyGradedNotice onEdit={() => {}} />
+                <AlreadyGradedNotice
+                  onEdit={handleEditGrade}
+                  onDelete={handleDeleteGrade}
+                />
               )}
             </>
           )}
 
-          {/* {post?.gradingTemplate?.type === "letter" && (
-              <GradeTemplateLetter />
-            )}
-            {post?.gradingTemplate?.type === "weightedRubric" && (
-              <GradeTemplateWeightedRubric />
-            )}
-            {post?.gradingTemplate?.type === "passFail" && (
-              <GradeTemplatePassFail />
-            )}
-
-            {post?.gradingTemplate?.type === "checklist" && (
-              <GradeTemplateChecklist />
-            )} */}
+          {/* {post?.gradingTemplate?.type === "passFail" && (
+            <GradeTemplatePassFail />
+          )} */}
         </div>
       </div>
     </>

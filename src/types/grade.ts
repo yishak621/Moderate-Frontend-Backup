@@ -6,7 +6,12 @@ export type Criterion = {
 };
 
 export type WeightedCriterion = Criterion & { weight: number }; // weight as fraction or percent
-
+export type ChecklistCriteria = {
+  key: string;
+  label: string;
+  maxPoints: number;
+  checklistItems: any;
+};
 export type LetterRange = { letter: string; min: number; max: number };
 
 export type GradeResult = {

@@ -402,6 +402,35 @@ export const saveUserGrade = async (postId: string, data: GradeData) => {
   }
 };
 
+//-------------------DELETE USER GRADE
+
+export const deleteUserGrade = async (postId: string, gradeId: string) => {
+  try {
+    const res = await axiosInstance.delete(
+      `/api/user/post/${postId}/grade/${gradeId}`
+    );
+
+    if (!res) {
+      console.log("error");
+    }
+
+    return res.data;
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error(error);
+      throw new Error(
+        // @ts-expect-error: might be Axios error with response
+        error?.response?.data?.message ||
+          error.message ||
+          "Something went wrong"
+      );
+    } else {
+      console.error("Unknown error", error);
+      throw new Error("Something went wrong");
+    }
+  }
+};
+
 //-------------------GET USER DATA
 
 export const getAllAnnouncements = async () => {
