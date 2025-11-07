@@ -3,6 +3,7 @@
 import Input from "@/components/ui/Input";
 import Textarea from "@/components/ui/Textarea";
 import Button from "@/components/ui/Button";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import { useUserSaveGrade } from "@/hooks/useUser";
@@ -11,7 +12,7 @@ import {
   GradeTemplateRubricProps,
   WeightedCriterion,
 } from "@/types/grade";
-
+import { useGradeEditStore } from "@/store/gradeEditStore";
 type WeightedRubricFormValues = {
   criteria: Record<string, number>;
   comment: string;
@@ -21,17 +22,29 @@ export default function GradeTemplateWeightedRubric({
   criteria,
   postId,
   gradingTemplate,
+  defaultCriteria,
+  defaultComment = "",
+  commentId,
+  gradeId,
 }: GradeTemplateRubricProps & {
   criteria: { rubricCriteria: WeightedCriterion[] };
+  defaultCriteria?: Record<string, number>;
+  defaultComment?: string;
+  commentId?: string;
+  gradeId?: string;
 }) {
-  const { saveGradeAsync, isSavingGradeLoading } = useUserSaveGrade();
+  const { saveGradeAsync, isSavingGradeLoading, isSavingGradeSuccess } =
+    useUserSaveGrade();
+  const { setEditingGrade } = useGradeEditStore();
   console.log(criteria);
   const defaultValues = {
-    criteria: criteria?.rubricCriteria.reduce((acc: any, c: any) => {
-      acc[c.label] = 0;
-      return acc;
-    }, {} as Record<string, number>),
-    comment: "",
+    criteria:
+      defaultCriteria ||
+      criteria?.rubricCriteria.reduce((acc: any, c: any) => {
+        acc[c.label] = 0;
+        return acc;
+      }, {} as Record<string, number>),
+    comment: defaultComment,
   };
 
   const {
@@ -39,6 +52,7 @@ export default function GradeTemplateWeightedRubric({
     handleSubmit,
     formState: { errors },
     watch,
+    setValue,
   } = useForm<WeightedRubricFormValues>({ defaultValues });
 
   const watchedCriteria = watch("criteria");
@@ -71,6 +85,8 @@ export default function GradeTemplateWeightedRubric({
       return {
         label: criterion?.label || key,
         value,
+        maxPoints: criterion?.maxPoints,
+        minPoints: criterion?.minPoints,
         weight: criterion?.weight,
       };
     });
@@ -90,12 +106,20 @@ export default function GradeTemplateWeightedRubric({
           gradeTemplateId: gradingTemplate.id,
           criteria: gradingTemplate.criteria,
           comment: data.comment,
+          commentId: commentId,
+          gradeId: gradeId,
         },
       });
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Something went wrong");
     }
   };
+
+  useEffect(() => {
+    if (isSavingGradeSuccess) {
+      setEditingGrade(postId, false);
+    }
+  }, [isSavingGradeSuccess, postId]);
 
   return (
     <form
@@ -117,6 +141,7 @@ export default function GradeTemplateWeightedRubric({
 
           <Input
             type="number"
+            min="0"
             className="w-24"
             placeholder="0"
             defaultValue=""
@@ -128,6 +153,19 @@ export default function GradeTemplateWeightedRubric({
               },
               max: { value: c.maxPoints, message: `Max ${c.maxPoints}` },
             })}
+            onKeyDown={(e) => {
+              // Prevent negative sign, 'e', 'E' (scientific notation)
+              if (e.key === "-" || e.key === "e" || e.key === "E") {
+                e.preventDefault();
+              }
+            }}
+            onChange={(e) => {
+              // Clamp to 0 if negative value is entered (handles paste)
+              const val = Number(e.target.value);
+              if (val < 0) {
+                setValue(`criteria.${c.label}`, 0);
+              }
+            }}
           />
 
           {errors.criteria?.[c.label] && (

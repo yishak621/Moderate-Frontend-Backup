@@ -3,16 +3,20 @@
 import Button from "@/components/ui/Button";
 import Textarea from "@/components/ui/Textarea";
 import { GradeResult } from "@/types/grade";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useUserSaveGrade } from "@/hooks/useUser";
 import toast from "react-hot-toast";
-
+import { useGradeEditStore } from "@/store/gradeEditStore";
 type Props = {
   criteria: any;
   gradingTemplate: any;
   postId: string;
   passLabel?: string;
   failLabel?: string;
+  defaultPass?: boolean | null;
+  defaultComment?: string;
+  commentId?: string;
+  gradeId?: string;
 };
 
 export function GradeTemplatePassFail({
@@ -21,10 +25,16 @@ export function GradeTemplatePassFail({
   postId,
   passLabel = "Pass",
   failLabel = "Fail",
+  defaultPass = null,
+  defaultComment = "",
+  commentId,
+  gradeId,
 }: Props) {
-  const { saveGradeAsync, isSavingGradeLoading } = useUserSaveGrade();
-  const [pass, setPass] = useState<boolean | null>(null);
-  const [comment, setComment] = useState("");
+  const { saveGradeAsync, isSavingGradeLoading, isSavingGradeSuccess } =
+    useUserSaveGrade();
+  const { setEditingGrade } = useGradeEditStore();
+  const [pass, setPass] = useState<boolean | null>(defaultPass);
+  const [comment, setComment] = useState(defaultComment);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -47,12 +57,20 @@ export function GradeTemplatePassFail({
           gradeTemplateId: gradingTemplate?.id,
           criteria: gradingTemplate?.criteria || criteria,
           comment: comment.trim() || undefined,
+          commentId: commentId,
+          gradeId: gradeId,
         },
       });
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Failed to save grade");
     }
   };
+
+  useEffect(() => {
+    if (isSavingGradeSuccess) {
+      setEditingGrade(postId, false);
+    }
+  }, [isSavingGradeSuccess, postId]);
 
   return (
     <form onSubmit={handleSubmit} className="p-6 space-y-6 w-full">

@@ -24,6 +24,9 @@ import MobilePostView from "./MobilePostView";
 import { ensureHttps } from "@/lib/urlHelpers";
 import Image from "next/image";
 import toast from "react-hot-toast";
+import ResponsiveModal from "@/components/ui/ResponsiveModal";
+import DeleteGradeModal from "@/modules/dashboard/teacher/DeleteGradeModal";
+import { useGradeEditStore } from "@/store/gradeEditStore";
 
 export default function PostViewClient() {
   const params = useParams();
@@ -40,8 +43,8 @@ export default function PostViewClient() {
     isUserSinglePostError,
   } = useUserSinglePostData(postId);
 
-  const groupedGrades: GroupedGrade[] = (post as PostType)?.grades.map(
-    (grade: any) => {
+  const groupedGrades: GroupedGrade[] =
+    (post as PostType)?.grades?.map((grade: any) => {
       const comment = post?.comments.find(
         (c: any) => c.commentedBy === grade.gradedBy
       );
@@ -52,8 +55,7 @@ export default function PostViewClient() {
         comment: comment?.comment || null,
         gradeId: grade.id, // Include grade ID for deletion
       };
-    }
-  );
+    }) || [];
   console.log(groupedGrades, "grouped");
 
   // Find current user's grade
@@ -75,38 +77,100 @@ export default function PostViewClient() {
   const [currentFileIndex, setCurrentFileIndex] = useState(0);
   const filters = ["Grades", "Grade Test"];
   const [activeFilter, setActiveFilter] = useState("Grades");
-  const { deleteGradeAsync, isDeletingGradeLoading } = useUserDeleteGrade();
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+
+  // zustand store
+  const { isEditingGrade: isEditingGradeInStore, setEditingGrade } =
+    useGradeEditStore();
+  const isEditingGrade = isEditingGradeInStore(postId);
 
   const checkPostIsNotThisUser = author?.id === decoded?.id;
   const checkPostIsGradedByThisUser = groupedGrades?.some((grade) => {
+    console.log(grade, "grade");
     return grade?.gradedBy?.id === decoded?.id;
   });
-  console.log(groupedGrades, "grades");
+  console.log(checkPostIsNotThisUser, "checkPostIsNotThisUser");
+
+  // Extract existing grade data for editing
+  const existingGradeData = currentUserGrade
+    ? (() => {
+        const gradeType = post?.gradingTemplate?.type;
+        const gradeData: any = currentUserGrade.grade || {};
+        const existingComment = groupedGrades?.find(
+          (g) => g.gradedBy?.id === decoded?.id
+        );
+        const comment = existingComment?.comment || "";
+
+        // Find the comment ID from post.comments
+        const commentObj = post?.comments?.find(
+          (c: any) => c.commentedBy === currentUserGrade.gradedBy
+        );
+        const commentId = commentObj?.id;
+
+        switch (gradeType) {
+          case "numeric":
+            return {
+              defaultValue: Number(gradeData.numeric) || 0,
+              defaultComment: comment || "",
+              commentId: commentId,
+              gradeId: currentUserGrade.id,
+            };
+          case "letter":
+            return {
+              defaultValue: Number(gradeData.letter?.score) || 0,
+              defaultComment: comment || "",
+              commentId: commentId,
+              gradeId: currentUserGrade.id,
+            };
+          case "rubric":
+          case "weightedRubric":
+            const rubricData = gradeData.rubric || gradeData.weightedRubric;
+            const defaultCriteria: Record<string, number> = {};
+            if (rubricData?.rubricData) {
+              rubricData.rubricData.forEach((item: any) => {
+                defaultCriteria[item.label] = Number(item.value) || 0;
+              });
+            }
+            return {
+              defaultCriteria,
+              defaultComment: comment || "",
+              commentId: commentId,
+              gradeId: currentUserGrade.id,
+            };
+          case "checklist":
+            return {
+              defaultCheckedItems: gradeData.checklist?.items || [],
+              defaultComment: comment || "",
+              commentId: commentId,
+              gradeId: currentUserGrade.id,
+            };
+          case "passFail":
+            return {
+              defaultPass: gradeData.passFail?.pass ?? null,
+              defaultComment: comment || "",
+              commentId: commentId,
+              gradeId: currentUserGrade.id,
+            };
+          default:
+            return {
+              commentId: commentId,
+              gradeId: currentUserGrade.id,
+            };
+        }
+      })()
+    : {};
 
   const handleEditGrade = () => {
     setActiveFilter("Grade Test");
+    setEditingGrade(postId, true);
   };
 
-  const handleDeleteGrade = async () => {
+  const handleDeleteGrade = () => {
     if (!currentUserGrade?.id) {
       toast.error("Grade ID not found");
       return;
     }
-
-    if (
-      confirm(
-        "Are you sure you want to delete this grade? This action cannot be undone."
-      )
-    ) {
-      try {
-        await deleteGradeAsync({
-          postId,
-          gradeId: currentUserGrade.id,
-        });
-      } catch (err) {
-        // Error is handled by the hook
-      }
-    }
+    setIsDeleteModalOpen(true);
   };
 
   const nextFile = () => {
@@ -330,7 +394,11 @@ export default function PostViewClient() {
                               ) &&
                                 grader.grade.rubric.rubricData.map(
                                   (
-                                    item: { label: string; value: string },
+                                    item: {
+                                      label: string;
+                                      value: string;
+                                      maxPoints: number;
+                                    },
                                     i: number
                                   ) => (
                                     <div
@@ -341,7 +409,7 @@ export default function PostViewClient() {
                                         {item.label}
                                       </span>
                                       <span className="text-sm font-semibold text-blue-600">
-                                        {item.value}
+                                        {item.value} / {item.maxPoints} --
                                       </span>
                                     </div>
                                   )
@@ -387,13 +455,16 @@ export default function PostViewClient() {
                                   (w: any, i: number) => (
                                     <div
                                       key={i}
-                                      className="flex items-center justify-between bg-white border border-gray-100 rounded-lg px-4 py-3 shadow-sm hover:bg-gray-50 transition-colors"
+                                      className="flex items-center flex-col justify-between bg-white border border-gray-100 rounded-lg px-4 py-3 shadow-sm hover:bg-gray-50 transition-colors"
                                     >
                                       <span className="text-sm font-medium text-gray-700">
                                         {w.label}
                                       </span>
                                       <span className="text-sm font-semibold text-blue-600">
-                                        {w.value} ({w.weight}%)
+                                        {w.value} / {w.maxPoints} --
+                                        <span className="text-xs text-gray-500">
+                                          ({w.weight}%)
+                                        </span>
                                       </span>
                                     </div>
                                   )
@@ -514,36 +585,43 @@ export default function PostViewClient() {
               </>
             )}
 
-            {activeFilter === "Grades" && !groupedGrades?.length && (
-              <div className="flex flex-col items-center justify-center mt-8 py-16 px-6 bg-gray-50 border border-dashed border-gray-300 rounded-xl space-y-4">
-                <svg
-                  className="w-16 h-16 text-gray-400"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9 17v-6h6v6M12 3v4m-7 4h14m-7 4v4"
-                  />
-                </svg>
-                <h3 className="text-lg font-semibold text-gray-700">
-                  No grades yet
-                </h3>
-                <p className="text-sm text-gray-500 text-center">
-                  Once teachers grade the submissions, you’ll see them here. Be
-                  the first one to grade this test 🙂
-                </p>
-              </div>
+            {activeFilter === "Grades" && (
+              <>
+                {isUserSinglePostDataLoading ? (
+                  <div className="flex flex-col items-center justify-center mt-8 py-16 px-6">
+                    <SectionLoading />
+                  </div>
+                ) : !groupedGrades?.length ? (
+                  <div className="flex flex-col items-center justify-center mt-8 py-16 px-6 bg-gray-50 border border-dashed border-gray-300 rounded-xl space-y-4">
+                    <svg
+                      className="w-16 h-16 text-gray-400"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M9 17v-6h6v6M12 3v4m-7 4h14m-7 4v4"
+                      />
+                    </svg>
+                    <h3 className="text-lg font-semibold text-gray-700">
+                      No grades yet
+                    </h3>
+                    <p className="text-sm text-gray-500 text-center">
+                      Once teachers grade the submissions, you&apos;ll see them
+                      here. Be the first one to grade this test 🙂
+                    </p>
+                  </div>
+                ) : null}
+              </>
             )}
           </div>
 
           {activeFilter === "Grade Test" && !checkPostIsNotThisUser && (
             <>
-              {/* Show grading section if NOT graded */}
-              {!checkPostIsGradedByThisUser && (
+              {(!checkPostIsGradedByThisUser || isEditingGrade) && (
                 <div className="mt-8 flex flex-col items-start w-full">
                   {post?.gradingTemplate?.type === "rubric" && (
                     <GradeTemplateRubric
@@ -551,6 +629,22 @@ export default function PostViewClient() {
                       totalRange={post?.gradingTemplate.criteria.total}
                       gradingTemplate={post?.gradingTemplate}
                       postId={postId}
+                      defaultCriteria={
+                        (existingGradeData as any).defaultCriteria as
+                          | Record<string, number>
+                          | undefined
+                      }
+                      defaultComment={
+                        (existingGradeData as any).defaultComment as string
+                      }
+                      commentId={
+                        (existingGradeData as any).commentId as
+                          | string
+                          | undefined
+                      }
+                      gradeId={
+                        (existingGradeData as any).gradeId as string | undefined
+                      }
                     />
                   )}
 
@@ -561,6 +655,20 @@ export default function PostViewClient() {
                       max={post?.gradingTemplate.criteria.numericCriteria.max}
                       gradingTemplate={post?.gradingTemplate}
                       postId={postId}
+                      defaultValue={
+                        (existingGradeData as any).defaultValue as number
+                      }
+                      defaultComment={
+                        (existingGradeData as any).defaultComment as string
+                      }
+                      commentId={
+                        (existingGradeData as any).commentId as
+                          | string
+                          | undefined
+                      }
+                      gradeId={
+                        (existingGradeData as any).gradeId as string | undefined
+                      }
                     />
                   )}
 
@@ -569,6 +677,20 @@ export default function PostViewClient() {
                       ranges={post?.gradingTemplate.criteria.letterRanges}
                       gradingTemplate={post?.gradingTemplate}
                       postId={postId}
+                      defaultValue={
+                        (existingGradeData as any).defaultValue as number
+                      }
+                      defaultComment={
+                        (existingGradeData as any).defaultComment as string
+                      }
+                      commentId={
+                        (existingGradeData as any).commentId as
+                          | string
+                          | undefined
+                      }
+                      gradeId={
+                        (existingGradeData as any).gradeId as string | undefined
+                      }
                     />
                   )}
 
@@ -578,6 +700,22 @@ export default function PostViewClient() {
                       totalRange={post?.gradingTemplate.criteria.total}
                       gradingTemplate={post?.gradingTemplate}
                       postId={postId}
+                      defaultCriteria={
+                        (existingGradeData as any).defaultCriteria as
+                          | Record<string, number>
+                          | undefined
+                      }
+                      defaultComment={
+                        (existingGradeData as any).defaultComment as string
+                      }
+                      commentId={
+                        (existingGradeData as any).commentId as
+                          | string
+                          | undefined
+                      }
+                      gradeId={
+                        (existingGradeData as any).gradeId as string | undefined
+                      }
                     />
                   )}
 
@@ -587,6 +725,21 @@ export default function PostViewClient() {
                       criteria={post?.gradingTemplate.criteria}
                       gradingTemplate={post?.gradingTemplate}
                       postId={postId}
+                      defaultCheckedItems={
+                        (existingGradeData as any)
+                          .defaultCheckedItems as string[]
+                      }
+                      defaultComment={
+                        (existingGradeData as any).defaultComment as string
+                      }
+                      commentId={
+                        (existingGradeData as any).commentId as
+                          | string
+                          | undefined
+                      }
+                      gradeId={
+                        (existingGradeData as any).gradeId as string | undefined
+                      }
                     />
                   )}
 
@@ -595,13 +748,27 @@ export default function PostViewClient() {
                       criteria={post?.gradingTemplate.criteria}
                       gradingTemplate={post?.gradingTemplate}
                       postId={postId}
+                      defaultPass={
+                        (existingGradeData as any).defaultPass as boolean | null
+                      }
+                      defaultComment={
+                        (existingGradeData as any).defaultComment as string
+                      }
+                      commentId={
+                        (existingGradeData as any).commentId as
+                          | string
+                          | undefined
+                      }
+                      gradeId={
+                        (existingGradeData as any).gradeId as string | undefined
+                      }
                     />
                   )}
                 </div>
               )}
 
-              {/* Show "Already graded" notice if graded */}
-              {checkPostIsGradedByThisUser && (
+              {/* Show "Already graded" notice if graded and NOT in edit mode */}
+              {checkPostIsGradedByThisUser && !isEditingGrade && (
                 <AlreadyGradedNotice
                   onEdit={handleEditGrade}
                   onDelete={handleDeleteGrade}
@@ -610,11 +777,30 @@ export default function PostViewClient() {
             </>
           )}
 
+          {activeFilter === "Grade Test" && checkPostIsNotThisUser && (
+            <div className="mt-8 flex flex-col items-center justify-center border border-gray-200 rounded-lg p-4 w-full">
+              <p className="text-sm text-gray-500 text-center">
+                You are not allowed to grade your own moderation post.
+              </p>
+            </div>
+          )}
+
           {/* {post?.gradingTemplate?.type === "passFail" && (
             <GradeTemplatePassFail />
           )} */}
         </div>
       </div>
+
+      {/* Delete Grade Modal */}
+      {currentUserGrade?.id && (
+        <ResponsiveModal
+          isOpen={isDeleteModalOpen}
+          onOpenChange={setIsDeleteModalOpen}
+          title="Delete Grade"
+        >
+          <DeleteGradeModal postId={postId} gradeId={currentUserGrade.id} />
+        </ResponsiveModal>
+      )}
     </>
   );
 }

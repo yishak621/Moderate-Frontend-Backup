@@ -1,5 +1,6 @@
 import { SettingItem, User } from "@/app/types/user";
 import { queryClient } from "@/lib/queryClient";
+import { useGradeEditStore } from "@/store/gradeEditStore";
 import {
   deleteFileApi,
   deleteProfilePicture,
@@ -354,6 +355,7 @@ export const useUserRemoveUploadedFile = () => {
 
 //--------------------USER SAVE GRADE
 export const useUserSaveGrade = () => {
+  const { clearEditingGrade } = useGradeEditStore();
   const {
     mutate,
     mutateAsync,
@@ -370,8 +372,10 @@ export const useUserSaveGrade = () => {
       postId: string;
       gradeData: GradeData;
     }) => saveUserGrade(postId, gradeData),
-    onSuccess: () => {
+    onSuccess: (data, variables) => {
       toast.success("Grade saved successfully!");
+      // Clear edit mode after successful save
+      clearEditingGrade(variables.postId);
       queryClient.invalidateQueries({
         queryKey: ["userSinglePostData"],
         exact: false,
@@ -392,12 +396,15 @@ export const useUserSaveGrade = () => {
 
 //--------------------DELETE USER GRADE
 export const useUserDeleteGrade = () => {
+  const { clearEditingGrade } = useGradeEditStore();
   const { mutate, mutateAsync, data, isPending, isSuccess, isError, error } =
     useMutation({
       mutationFn: ({ postId, gradeId }: { postId: string; gradeId: string }) =>
         deleteUserGrade(postId, gradeId),
-      onSuccess: () => {
+      onSuccess: (data, variables) => {
         toast.success("Grade deleted successfully!");
+        // Clear edit mode after successful deletion
+        clearEditingGrade(variables.postId);
         queryClient.invalidateQueries({
           queryKey: ["userSinglePostData"],
           exact: false,

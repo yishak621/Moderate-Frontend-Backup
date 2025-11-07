@@ -6,9 +6,10 @@ import Textarea from "@/components/ui/Textarea";
 import { useUserSaveGrade } from "@/hooks/useUser";
 import { GradeResult, LetterRange } from "@/types/grade";
 import { Info } from "lucide-react";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
+import { useGradeEditStore } from "@/store/gradeEditStore";
 
 type Props = {
   label?: string;
@@ -17,6 +18,9 @@ type Props = {
   value?: number;
   comment?: string;
   defaultValue?: number;
+  defaultComment?: string;
+  commentId?: string;
+  gradeId?: string;
   onSave?: (result: GradeResult) => void;
   onPublish?: (result: GradeResult) => void;
   gradingTemplate: any;
@@ -32,10 +36,14 @@ export function GradeTemplateLetter({
   ranges,
   max = 100,
   defaultValue = 0,
+  defaultComment = "",
+  commentId,
+  gradeId,
   onSave,
 }: Props) {
   console.log(ranges);
-  const [feedback, setFeedback] = useState("");
+  const { setEditingGrade } = useGradeEditStore();
+  const [feedback, setFeedback] = useState(defaultComment);
 
   //react hook form
   const {
@@ -45,7 +53,12 @@ export function GradeTemplateLetter({
     control,
     watch,
     setValue: setValueRHF,
-  } = useForm<Props>();
+  } = useForm<Props>({
+    defaultValues: {
+      value: defaultValue,
+      comment: defaultComment,
+    },
+  });
   const {
     saveGradeAsync,
     saveGrade,
@@ -86,12 +99,20 @@ export function GradeTemplateLetter({
           gradeTemplateId: gradingTemplate?.id,
           criteria: gradingTemplate?.criteria,
           comment: data.comment,
+          commentId: commentId,
+          gradeId: gradeId,
         },
       });
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Something went wrong");
     }
   };
+
+  useEffect(() => {
+    if (isSavingGradeSuccess) {
+      setEditingGrade(postId, false);
+    }
+  }, [isSavingGradeSuccess, postId]);
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
@@ -169,6 +190,7 @@ export function GradeTemplateLetter({
         <div className="md:w-2/3">
           <Input
             type="number"
+            min="0"
             placeholder="Enter score"
             className="w-full text-lg font-medium"
             {...register("value", {
@@ -183,6 +205,19 @@ export function GradeTemplateLetter({
               // },
             })}
             error={errors?.value?.message}
+            onKeyDown={(e) => {
+              // Prevent negative sign, 'e', 'E' (scientific notation)
+              if (e.key === "-" || e.key === "e" || e.key === "E") {
+                e.preventDefault();
+              }
+            }}
+            onChange={(e) => {
+              // Clamp to 0 if negative value is entered (handles paste)
+              const val = Number(e.target.value);
+              if (val < 0) {
+                setValueRHF("value", 0);
+              }
+            }}
           />
         </div>
         <div className="md:w-1/3 flex flex-col md:justify-center text-sm text-muted-foreground">
@@ -196,7 +231,7 @@ export function GradeTemplateLetter({
       {/* Feedback */}
       <Textarea
         placeholder="Write a short comment explaining this grade..."
-        defaultValue={feedback}
+        defaultValue={defaultComment}
         className="w-full mt-4 resize-none min-h-[100px]"
         maxLength={400}
         {...register("comment")}

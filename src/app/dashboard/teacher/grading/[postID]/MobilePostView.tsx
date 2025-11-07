@@ -37,6 +37,9 @@ import ViewStatPostModal from "@/modules/dashboard/teacher/post/ViewDetailPostMo
 import { ensureHttps } from "@/lib/urlHelpers";
 import { useUserDeleteGrade } from "@/hooks/useUser";
 import toast from "react-hot-toast";
+import ResponsiveModal from "@/components/ui/ResponsiveModal";
+import DeleteGradeModal from "@/modules/dashboard/teacher/DeleteGradeModal";
+import { useGradeEditStore } from "@/store/gradeEditStore";
 
 interface MobilePostViewProps {
   post: PostType & {
@@ -61,8 +64,16 @@ export default function MobilePostView({
   const [modalComponent, setModalComponent] =
     useState<React.ComponentType<any> | null>(null);
   const [modalProps, setModalProps] = useState<Record<string, any>>({});
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
   const postData = post as any;
+
+  // Use Zustand store for grade edit state
+  const { isEditingGrade: isEditingGradeInStore, setEditingGrade } =
+    useGradeEditStore();
+  // Get post ID from postData to ensure consistency
+  const postId = postData?.id || post?.id || "";
+  const isEditingGrade = isEditingGradeInStore(postId);
   const {
     title = "",
     description = "",
@@ -76,7 +87,7 @@ export default function MobilePostView({
   } = postData || {};
 
   const { deleteGradeAsync } = useUserDeleteGrade();
-  
+
   const checkPostIsNotThisUser = author?.id === decoded?.id;
   const checkPostIsGradedByThisUser = groupedGrades?.some(
     (grade) => grade?.gradedBy?.id === decoded?.id
@@ -88,26 +99,86 @@ export default function MobilePostView({
     (grade: any) => grade.gradedBy === decoded?.id
   );
 
+  // Extract existing grade data for editing
+  const existingGradeData = currentUserGrade
+    ? (() => {
+        const gradeType = gradingTemplate?.type;
+        const gradeData: any = currentUserGrade.grade || {};
+        const existingComment = groupedGrades?.find(
+          (g) => g.gradedBy?.id === decoded?.id
+        );
+        const comment = existingComment?.comment || "";
+
+        // Find the comment ID from post.comments
+        const commentObj = postData?.comments?.find(
+          (c: any) => c.commentedBy === currentUserGrade.gradedBy
+        );
+        const commentId = commentObj?.id;
+
+        switch (gradeType) {
+          case "numeric":
+            return {
+              defaultValue: Number(gradeData.numeric) || 0,
+              defaultComment: comment || "",
+              commentId: commentId,
+              gradeId: currentUserGrade.id,
+            };
+          case "letter":
+            return {
+              defaultValue: Number(gradeData.letter?.score) || 0,
+              defaultComment: comment || "",
+              commentId: commentId,
+              gradeId: currentUserGrade.id,
+            };
+          case "rubric":
+          case "weightedRubric":
+            const rubricData = gradeData.rubric || gradeData.weightedRubric;
+            const defaultCriteria: Record<string, number> = {};
+            if (rubricData?.rubricData) {
+              rubricData.rubricData.forEach((item: any) => {
+                defaultCriteria[item.label] = Number(item.value) || 0;
+              });
+            }
+            return {
+              defaultCriteria,
+              defaultComment: comment || "",
+              commentId: commentId,
+              gradeId: currentUserGrade.id,
+            };
+          case "checklist":
+            return {
+              defaultCheckedItems: gradeData.checklist?.items || [],
+              defaultComment: comment || "",
+              commentId: commentId,
+              gradeId: currentUserGrade.id,
+            };
+          case "passFail":
+            return {
+              defaultPass: gradeData.passFail?.pass ?? null,
+              defaultComment: comment || "",
+              commentId: commentId,
+              gradeId: currentUserGrade.id,
+            };
+          default:
+            return {
+              commentId: commentId,
+              gradeId: currentUserGrade.id,
+            };
+        }
+      })()
+    : {};
+
   const handleEditGrade = () => {
     setActiveTab("gradeTest");
+    setEditingGrade(postId, true);
   };
 
-  const handleDeleteGrade = async () => {
+  const handleDeleteGrade = () => {
     if (!currentUserGrade?.id) {
       toast.error("Grade ID not found");
       return;
     }
-    
-    if (confirm("Are you sure you want to delete this grade? This action cannot be undone.")) {
-      try {
-        await deleteGradeAsync({
-          postId: post.id.toString(),
-          gradeId: currentUserGrade.id,
-        });
-      } catch (err) {
-        // Error is handled by the hook
-      }
-    }
+    setIsDeleteModalOpen(true);
   };
 
   const handleOpenModal = <P,>(
@@ -631,22 +702,35 @@ export default function MobilePostView({
                     You cannot grade your own post
                   </p>
                 </div>
-              ) : checkPostIsGradedByThisUser ? (
-                <AlreadyGradedNotice 
-                  onEdit={handleEditGrade}
-                  onDelete={handleDeleteGrade}
-                />
               ) : (
                 <>
-                  {/* Show grading section if NOT graded */}
-                  {!checkPostIsGradedByThisUser && (
+                  {/* Show grading section if NOT graded OR if editing existing grade */}
+                  {(!checkPostIsGradedByThisUser || isEditingGrade) && (
                     <div className="mt-2 flex flex-col items-start w-full">
                       {gradingTemplate?.type === "rubric" && (
                         <GradeTemplateRubric
                           criteria={gradingTemplate.criteria}
                           totalRange={gradingTemplate.criteria.total}
                           gradingTemplate={gradingTemplate}
-                          postId={postData?.id}
+                          postId={postId}
+                          defaultCriteria={
+                            (existingGradeData as any).defaultCriteria as
+                              | Record<string, number>
+                              | undefined
+                          }
+                          defaultComment={
+                            (existingGradeData as any).defaultComment as string
+                          }
+                          commentId={
+                            (existingGradeData as any).commentId as
+                              | string
+                              | undefined
+                          }
+                          gradeId={
+                            (existingGradeData as any).gradeId as
+                              | string
+                              | undefined
+                          }
                         />
                       )}
 
@@ -656,7 +740,23 @@ export default function MobilePostView({
                           min={gradingTemplate.criteria.numericCriteria.min}
                           max={gradingTemplate.criteria.numericCriteria.max}
                           gradingTemplate={gradingTemplate}
-                          postId={postData?.id}
+                          postId={postId}
+                          defaultValue={
+                            (existingGradeData as any).defaultValue as number
+                          }
+                          defaultComment={
+                            (existingGradeData as any).defaultComment as string
+                          }
+                          commentId={
+                            (existingGradeData as any).commentId as
+                              | string
+                              | undefined
+                          }
+                          gradeId={
+                            (existingGradeData as any).gradeId as
+                              | string
+                              | undefined
+                          }
                         />
                       )}
 
@@ -664,7 +764,23 @@ export default function MobilePostView({
                         <GradeTemplateLetter
                           ranges={gradingTemplate.criteria.letterRanges}
                           gradingTemplate={gradingTemplate}
-                          postId={postData?.id}
+                          postId={postId}
+                          defaultValue={
+                            (existingGradeData as any).defaultValue as number
+                          }
+                          defaultComment={
+                            (existingGradeData as any).defaultComment as string
+                          }
+                          commentId={
+                            (existingGradeData as any).commentId as
+                              | string
+                              | undefined
+                          }
+                          gradeId={
+                            (existingGradeData as any).gradeId as
+                              | string
+                              | undefined
+                          }
                         />
                       )}
 
@@ -673,10 +789,88 @@ export default function MobilePostView({
                           criteria={gradingTemplate.criteria}
                           totalRange={gradingTemplate.criteria.total}
                           gradingTemplate={gradingTemplate}
-                          postId={postData?.id}
+                          postId={postId}
+                          defaultCriteria={
+                            (existingGradeData as any).defaultCriteria as
+                              | Record<string, number>
+                              | undefined
+                          }
+                          defaultComment={
+                            (existingGradeData as any).defaultComment as string
+                          }
+                          commentId={
+                            (existingGradeData as any).commentId as
+                              | string
+                              | undefined
+                          }
+                          gradeId={
+                            (existingGradeData as any).gradeId as
+                              | string
+                              | undefined
+                          }
+                        />
+                      )}
+
+                      {gradingTemplate?.type === "checklist" && (
+                        <GradeTemplateChecklist
+                          items={gradingTemplate.criteria.checklistItems}
+                          criteria={gradingTemplate.criteria}
+                          gradingTemplate={gradingTemplate}
+                          postId={postId}
+                          defaultCheckedItems={
+                            (existingGradeData as any)
+                              .defaultCheckedItems as string[]
+                          }
+                          defaultComment={
+                            (existingGradeData as any).defaultComment as string
+                          }
+                          commentId={
+                            (existingGradeData as any).commentId as
+                              | string
+                              | undefined
+                          }
+                          gradeId={
+                            (existingGradeData as any).gradeId as
+                              | string
+                              | undefined
+                          }
+                        />
+                      )}
+
+                      {gradingTemplate?.type === "passFail" && (
+                        <GradeTemplatePassFail
+                          criteria={gradingTemplate.criteria}
+                          gradingTemplate={gradingTemplate}
+                          postId={postId}
+                          defaultPass={
+                            (existingGradeData as any).defaultPass as
+                              | boolean
+                              | null
+                          }
+                          defaultComment={
+                            (existingGradeData as any).defaultComment as string
+                          }
+                          commentId={
+                            (existingGradeData as any).commentId as
+                              | string
+                              | undefined
+                          }
+                          gradeId={
+                            (existingGradeData as any).gradeId as
+                              | string
+                              | undefined
+                          }
                         />
                       )}
                     </div>
+                  )}
+
+                  {/* Show "Already graded" notice if graded and NOT editing */}
+                  {checkPostIsGradedByThisUser && !isEditingGrade && (
+                    <AlreadyGradedNotice
+                      onEdit={handleEditGrade}
+                      onDelete={handleDeleteGrade}
+                    />
                   )}
                 </>
               )}
@@ -697,6 +891,17 @@ export default function MobilePostView({
         >
           {React.createElement(modalComponent, modalProps)}
         </BottomSheet>
+      )}
+
+      {/* Delete Grade Modal */}
+      {currentUserGrade?.id && (
+        <ResponsiveModal
+          isOpen={isDeleteModalOpen}
+          onOpenChange={setIsDeleteModalOpen}
+          title="Delete Grade"
+        >
+          <DeleteGradeModal postId={postId} gradeId={currentUserGrade.id} />
+        </ResponsiveModal>
       )}
     </div>
   );

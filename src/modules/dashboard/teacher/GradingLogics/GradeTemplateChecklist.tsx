@@ -3,9 +3,10 @@
 import Button from "@/components/ui/Button";
 import Textarea from "@/components/ui/Textarea";
 import { GradeResult } from "@/types/grade";
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { useUserSaveGrade } from "@/hooks/useUser";
 import toast from "react-hot-toast";
+import { useGradeEditStore } from "@/store/gradeEditStore";
 
 type Item = { key: string; label: string; points?: number };
 
@@ -14,6 +15,10 @@ type Props = {
   criteria: any;
   gradingTemplate: any;
   postId: string;
+  defaultCheckedItems?: string[];
+  defaultComment?: string;
+  commentId?: string;
+  gradeId?: string;
 };
 
 export function GradeTemplateChecklist({
@@ -21,9 +26,15 @@ export function GradeTemplateChecklist({
   criteria,
   gradingTemplate,
   postId,
+  defaultCheckedItems = [],
+  defaultComment = "",
+  commentId,
+  gradeId,
 }: Props) {
-  const { saveGradeAsync, isSavingGradeLoading } = useUserSaveGrade();
-  const [comment, setComment] = useState("");
+  const { saveGradeAsync, isSavingGradeLoading, isSavingGradeSuccess } =
+    useUserSaveGrade();
+  const { setEditingGrade } = useGradeEditStore();
+  const [comment, setComment] = useState(defaultComment);
 
   // Transform items - handle both string array and Item array
   const checklistItems: Item[] = useMemo(() => {
@@ -43,10 +54,12 @@ export function GradeTemplateChecklist({
   }, [items]);
 
   const [checked, setChecked] = useState<Record<string, boolean>>(() => {
-    return checklistItems.reduce((acc, item) => {
-      acc[item.key] = false;
-      return acc;
-    }, {} as Record<string, boolean>);
+    const initialChecked: Record<string, boolean> = {};
+    checklistItems.forEach((item) => {
+      // Check if this item's label is in the defaultCheckedItems array
+      initialChecked[item.key] = defaultCheckedItems.includes(item.label);
+    });
+    return initialChecked;
   });
 
   const toggle = (key: string) => {
@@ -89,12 +102,20 @@ export function GradeTemplateChecklist({
           gradeTemplateId: gradingTemplate?.id,
           criteria: gradingTemplate?.criteria || criteria,
           comment: comment.trim() || undefined,
+          commentId: commentId,
+          gradeId: gradeId,
         },
       });
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Failed to save grade");
     }
   };
+
+  useEffect(() => {
+    if (isSavingGradeSuccess) {
+      setEditingGrade(postId, false);
+    }
+  }, [isSavingGradeSuccess, postId]);
 
   return (
     <form onSubmit={handleSubmit} className="p-4 space-y-4 w-full">

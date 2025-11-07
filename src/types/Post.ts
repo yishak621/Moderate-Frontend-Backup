@@ -75,4 +75,6 @@ export type GradeData = {
   gradeTemplateId?: string;
   criteria?: Record<string, any>;
   comment?: string;
+  commentId?: string;
+  gradeId?: string; // For updating existing grades
 };

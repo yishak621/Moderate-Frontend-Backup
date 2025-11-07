@@ -169,6 +169,7 @@ export const userCreatePost = async (
   data: PostCreateInput,
   domainId: string | boolean
 ) => {
+  console.log(data, "data");
   try {
     const res = await axiosInstance.post(`/api/user/post/${domainId}`, data);
 
@@ -372,14 +373,17 @@ export const deleteFileApi = async (id: string) => {
     }
   }
 };
-//-------------------SAVE USER GRADE AND COMMENT
+//-------------------SAVE /UPDATE USER GRADE AND COMMENT
 
 export const saveUserGrade = async (postId: string, data: GradeData) => {
   try {
-    const res = await axiosInstance.post(
-      `/api/user/post/${postId}/grade`,
-      data
-    );
+    // If gradeId exists, use PUT to update, otherwise POST to create
+    const method = data.gradeId ? "patch" : "post";
+    const url = data.gradeId
+      ? `/api/user/post/${postId}/grade/${data.gradeId}/comment/${data.commentId}`
+      : `/api/user/post/${postId}/grade`;
+
+    const res = await axiosInstance[method](url, data);
 
     if (!res) {
       console.log("error");
