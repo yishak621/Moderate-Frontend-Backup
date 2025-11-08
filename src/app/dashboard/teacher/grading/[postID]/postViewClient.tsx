@@ -2,7 +2,7 @@
 
 import { useParams, useRouter } from "next/navigation";
 import { ChevronLeft, ChevronRight, UserPlus } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { FilterButtons } from "@/components/ui/FilterButtons";
 import PostTags from "@/modules/dashboard/teacher/PostTags";
 import GradeGivenSection from "@/modules/dashboard/teacher/GradeGivenSection";
@@ -10,7 +10,12 @@ import { PostType } from "@/types/Post"; // <-- your post type
 import GradeTemplateRubric from "@/modules/dashboard/teacher/GradingLogics/GradeTemplateRubric";
 import { GroupedGrade } from "@/app/types/user";
 import { userSinglePostData } from "@/services/user.service";
-import { useUserSinglePostData, useUserDeleteGrade } from "@/hooks/useUser";
+import {
+  useUserSinglePostData,
+  useUserDeleteGrade,
+  useFollowUser,
+  useGetFollowingUsers,
+} from "@/hooks/useUser";
 import { timeAgo } from "@/lib/timeAgo";
 import SectionLoading from "@/components/SectionLoading";
 import { GradeTemplateNumeric } from "@/modules/dashboard/teacher/GradingLogics/GradeTemplateNumeric";
@@ -30,6 +35,7 @@ import { useGradeEditStore } from "@/store/gradeEditStore";
 
 export default function PostViewClient() {
   const params = useParams();
+  const router = useRouter();
 
   const postId = Array.isArray(params.postID)
     ? params.postID[0]!
@@ -164,6 +170,35 @@ export default function PostViewClient() {
     | string
     | undefined;
 
+  const { followUserAsync, isFollowingUserLoading } = useFollowUser();
+  const { followingUsers } = useGetFollowingUsers();
+  const isAuthor = checkPostIsNotThisUser;
+  const initialIsFollowing = useMemo(() => {
+    if (!author?.id) return false;
+    return (
+      followingUsers?.following?.some((user: any) => user.id === author?.id) ||
+      false
+    );
+  }, [followingUsers, author?.id]);
+  const [isFollowingAuthor, setIsFollowingAuthor] =
+    useState(initialIsFollowing);
+
+  useEffect(() => {
+    setIsFollowingAuthor(initialIsFollowing);
+  }, [initialIsFollowing]);
+
+  const handleFollowAuthor = async () => {
+    if (!author?.id || isFollowingAuthor) return;
+    try {
+      await followUserAsync(String(author.id));
+      setIsFollowingAuthor(true);
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Failed to follow user"
+      );
+    }
+  };
+
   const handleEditGrade = () => {
     setActiveFilter("Grade Test");
     setEditingGrade(postId, true);
@@ -225,8 +260,22 @@ export default function PostViewClient() {
           <MobilePostView
             post={post as PostType}
             groupedGrades={groupedGrades}
+            isFollowingAuthor={isFollowingAuthor}
+            onFollowAuthor={handleFollowAuthor}
+            isFollowLoading={isFollowingUserLoading}
           />
         )}
+      </div>
+
+      {/* Desktop Back Button */}
+      <div className="hidden md:flex mb-4">
+        <button
+          onClick={() => router.back()}
+          className="inline-flex items-center cursor-pointer gap-2 px-4 py-2 rounded-full bg-white border border-gray-200 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+        >
+          <ChevronLeft className="w-4 h-4" />
+          Back to grading feed
+        </button>
       </div>
 
       {/* Desktop View */}
@@ -251,26 +300,44 @@ export default function PostViewClient() {
                   <p className=" mt-2.5 ">{description}</p>
                 </div>
               </div>
-              <div className="flex flex-row gap-1.5 items-center text-[#368FFF] cursor-pointer">
-                <UserPlus size={19} />
-                <p>Follow</p>
-              </div>
+              {!isAuthor && (
+                <div className="flex items-center gap-2">
+                  {isFollowingAuthor ? (
+                    <span className="px-4 py-2 rounded-full bg-green-50 text-green-600 text-sm font-medium">
+                      Following
+                    </span>
+                  ) : (
+                    <button
+                      onClick={handleFollowAuthor}
+                      disabled={isFollowingUserLoading}
+                      className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-[#2563EB] via-[#3B82F6] to-[#60A5FA] text-white text-sm font-medium shadow-lg shadow-blue-200 transition-all duration-200 hover:shadow-xl hover:-translate-y-0.5 disabled:opacity-60 disabled:cursor-not-allowed"
+                    >
+                      <UserPlus size={18} />
+                      {isFollowingUserLoading ? "Following..." : "Follow user"}
+                    </button>
+                  )}
+                </div>
+              )}
             </div>
             {/* full file preview */}
             <div className="relative bg-gray-100 w-full rounded-3xl flex items-center justify-center overflow-hidden">
               {/* Navigation */}
-              <button
-                onClick={prevFile}
-                className="absolute left-4 bg-white/80 p-2 rounded-full shadow hover:bg-white"
-              >
-                <ChevronLeft size={20} />
-              </button>
-              <button
-                onClick={nextFile}
-                className="absolute right-4 bg-white/80 p-2 rounded-full shadow hover:bg-white"
-              >
-                <ChevronRight size={20} />
-              </button>
+              {uploads.length > 1 && (
+                <>
+                  <button
+                    onClick={prevFile}
+                    className="absolute left-4 bg-white/80 p-2 rounded-full shadow hover:bg-white"
+                  >
+                    <ChevronLeft size={20} />
+                  </button>
+                  <button
+                    onClick={nextFile}
+                    className="absolute right-4 bg-white/80 p-2 rounded-full shadow hover:bg-white"
+                  >
+                    <ChevronRight size={20} />
+                  </button>
+                </>
+              )}
 
               {/* File content */}
               {ext === "pdf" ? (

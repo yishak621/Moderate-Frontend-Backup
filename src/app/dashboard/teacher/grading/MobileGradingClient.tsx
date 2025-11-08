@@ -3,7 +3,7 @@
 import MobileCustomSelect from "@/components/ui/MobileCustomSelect";
 import Post from "@/modules/dashboard/teacher/PostSection";
 import { PostAttributes } from "@/types/postAttributes";
-import { ChevronUp } from "lucide-react";
+import { ChevronUp, ChevronDown, Loader2 } from "lucide-react";
 import SectionLoading from "@/components/SectionLoading";
 import { EmptyState } from "@/components/EmptyStateProps";
 import Link from "next/link";
@@ -114,15 +114,23 @@ export default function MobileGradingClient({
 
       {/* Load More Button */}
       {hasMorePosts && (
-        <div className="flex justify-center mt-4">
+        <div className="flex justify-center mt-5">
           <button
             onClick={handleLoadMore}
             disabled={isFetchingNextPage}
-            className={`bg-[#3B82F6] hover:bg-[#2563EB] text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 ${
-              isFetchingNextPage ? "opacity-70 cursor-not-allowed" : ""
-            }`}
+            className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-full bg-gradient-to-r from-[#2563EB] via-[#3B82F6] to-[#60A5FA] text-white text-sm font-medium shadow-md shadow-blue-200 transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5 disabled:opacity-60 disabled:cursor-not-allowed"
           >
-            {isFetchingNextPage ? "Loading..." : "Load More Posts"}
+            {isFetchingNextPage ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                <span>Loading...</span>
+              </>
+            ) : (
+              <>
+                <span>Load More</span>
+                <ChevronDown className="w-3.5 h-3.5" />
+              </>
+            )}
           </button>
         </div>
       )}

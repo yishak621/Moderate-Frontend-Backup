@@ -12,6 +12,7 @@ import {
   Trash2,
   Flag,
   MessagesSquare,
+  Loader2,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
@@ -48,6 +49,9 @@ interface MobilePostViewProps {
     gradingTemplate?: any;
   };
   groupedGrades: GroupedGrade[];
+  isFollowingAuthor?: boolean;
+  onFollowAuthor?: () => void;
+  isFollowLoading?: boolean;
 }
 
 type TabType = "documents" | "grades" | "gradeTest";
@@ -55,6 +59,9 @@ type TabType = "documents" | "grades" | "gradeTest";
 export default function MobilePostView({
   post,
   groupedGrades,
+  isFollowingAuthor = false,
+  onFollowAuthor,
+  isFollowLoading = false,
 }: MobilePostViewProps) {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<TabType>("documents");
@@ -211,8 +218,14 @@ export default function MobilePostView({
         handleOpenModal(DeletePostModal, { post: postData });
         break;
       case "follow":
-        // TODO: Handle follow
-        console.log("Follow user");
+        if (
+          !isCurrentUserPost &&
+          !isFollowingAuthor &&
+          onFollowAuthor &&
+          !isFollowLoading
+        ) {
+          onFollowAuthor();
+        }
         break;
       case "message":
         router.push(`/dashboard/teacher/messages?chatId=${author?.id}`);
@@ -288,68 +301,105 @@ export default function MobilePostView({
               {timeAgo(createdAt)}
             </p>
           </div>
-          <div className="relative">
-            <button
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="p-2 rounded-full hover:bg-gray-100 transition-colors"
-            >
-              <MoreVertical size={20} className="text-gray-600" />
-            </button>
-            <PopupCard
-              isOpen={isMenuOpen}
-              onClose={() => setIsMenuOpen(false)}
-              align="right"
-            >
-              {isCurrentUserPost ? (
-                <div className="flex flex-col">
-                  <button
-                    onClick={() => handleActionSelect("edit")}
-                    className="flex items-center gap-3 px-4 py-3 cursor-pointer rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors"
-                  >
-                    <Edit3 size={18} />
-                    <span>Edit Post</span>
-                  </button>
-                  <button
-                    onClick={() => handleActionSelect("stats")}
-                    className="flex items-center gap-3 px-4 py-3 cursor-pointer rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors"
-                  >
-                    <BarChart3 size={18} />
-                    <span>View Stats</span>
-                  </button>
-                  <button
-                    onClick={() => handleActionSelect("delete")}
-                    className="flex items-center gap-3 px-4 py-3 cursor-pointer rounded-lg text-sm font-medium text-red-500 hover:bg-red-50 transition-colors"
-                  >
-                    <Trash2 size={18} />
-                    <span>Delete Post</span>
-                  </button>
-                </div>
+          <div className="flex items-center gap-2">
+            {!isCurrentUserPost &&
+              (isFollowingAuthor ? (
+                <span className="px-3 py-1.5 rounded-full bg-green-50 text-green-600 text-xs font-medium">
+                  Following
+                </span>
               ) : (
-                <div className="flex flex-col">
-                  <button
-                    onClick={() => handleActionSelect("follow")}
-                    className="flex items-center gap-3 px-4 py-3 cursor-pointer rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors"
-                  >
-                    <UserPlus size={18} />
-                    <span>Follow</span>
-                  </button>
-                  <button
-                    onClick={() => handleActionSelect("message")}
-                    className="flex items-center gap-3 px-4 py-3 cursor-pointer rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors"
-                  >
-                    <MessagesSquare size={18} />
-                    <span>Message {author?.name?.split(" ")[0] || "User"}</span>
-                  </button>
-                  <button
-                    onClick={() => handleActionSelect("report")}
-                    className="flex items-center gap-3 px-4 py-3 cursor-pointer rounded-lg text-sm font-medium text-red-500 hover:bg-red-50 transition-colors"
-                  >
-                    <Flag size={18} />
-                    <span>Report Flag User</span>
-                  </button>
-                </div>
-              )}
-            </PopupCard>
+                <button
+                  onClick={() => onFollowAuthor && onFollowAuthor()}
+                  disabled={isFollowLoading}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gradient-to-r from-[#2563EB] via-[#3B82F6] to-[#60A5FA] text-white text-xs font-medium shadow-md shadow-blue-200 transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5 disabled:opacity-60 disabled:cursor-not-allowed"
+                >
+                  {isFollowLoading ? (
+                    <>
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                      <span>Following...</span>
+                    </>
+                  ) : (
+                    <>
+                      <UserPlus size={14} />
+                      <span>Follow</span>
+                    </>
+                  )}
+                </button>
+              ))}
+            <div className="relative">
+              <button
+                onClick={() => setIsMenuOpen(!isMenuOpen)}
+                className="p-2 rounded-full hover:bg-gray-100 transition-colors"
+              >
+                <MoreVertical size={20} className="text-gray-600" />
+              </button>
+              <PopupCard
+                isOpen={isMenuOpen}
+                onClose={() => setIsMenuOpen(false)}
+                align="right"
+              >
+                {isCurrentUserPost ? (
+                  <div className="flex flex-col">
+                    <button
+                      onClick={() => handleActionSelect("edit")}
+                      className="flex items-center gap-3 px-4 py-3 cursor-pointer rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors"
+                    >
+                      <Edit3 size={18} />
+                      <span>Edit Post</span>
+                    </button>
+                    <button
+                      onClick={() => handleActionSelect("stats")}
+                      className="flex items-center gap-3 px-4 py-3 cursor-pointer rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors"
+                    >
+                      <BarChart3 size={18} />
+                      <span>View Stats</span>
+                    </button>
+                    <button
+                      onClick={() => handleActionSelect("delete")}
+                      className="flex items-center gap-3 px-4 py-3 cursor-pointer rounded-lg text-sm font-medium text-red-500 hover:bg-red-50 transition-colors"
+                    >
+                      <Trash2 size={18} />
+                      <span>Delete Post</span>
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex flex-col">
+                    {!isFollowingAuthor && (
+                      <button
+                        onClick={() => handleActionSelect("follow")}
+                        className="flex items-center gap-3 px-4 py-3 cursor-pointer rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors"
+                        disabled={isFollowLoading}
+                      >
+                        {isFollowLoading ? (
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                        ) : (
+                          <UserPlus size={18} />
+                        )}
+                        <span>
+                          {isFollowLoading ? "Following..." : "Follow"}
+                        </span>
+                      </button>
+                    )}
+                    <button
+                      onClick={() => handleActionSelect("message")}
+                      className="flex items-center gap-3 px-4 py-3 cursor-pointer rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors"
+                    >
+                      <MessagesSquare size={18} />
+                      <span>
+                        Message {author?.name?.split(" ")[0] || "User"}
+                      </span>
+                    </button>
+                    <button
+                      onClick={() => handleActionSelect("report")}
+                      className="flex items-center gap-3 px-4 py-3 cursor-pointer rounded-lg text-sm font-medium text-red-500 hover:bg-red-50 transition-colors"
+                    >
+                      <Flag size={18} />
+                      <span>Report Flag User</span>
+                    </button>
+                  </div>
+                )}
+              </PopupCard>
+            </div>
           </div>
         </div>
 

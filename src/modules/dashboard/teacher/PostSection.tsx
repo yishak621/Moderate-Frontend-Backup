@@ -185,15 +185,13 @@ export default function Post({ post }: { post: PostAttributes }) {
     }
   };
   const handlePostOpen = () => {
-    const isDesktop =
-      typeof window !== "undefined" &&
-      window.matchMedia("(min-width: 768px)").matches;
-    const url = `/dashboard/teacher/grading/${id}`;
-    if (isDesktop) {
-      window.open(url, "_blank");
-    } else {
-      router.push(url);
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem(
+        "gradingScroll",
+        window.scrollY?.toString() ?? "0"
+      );
     }
+    router.push(`/dashboard/teacher/grading/${id}`);
   };
 
   const handleFollowUser = () => {

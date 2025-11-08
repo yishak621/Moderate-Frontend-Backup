@@ -4,8 +4,8 @@ import SectionHeader from "@/components/SectionHeader";
 import { FilterButtons } from "@/components/ui/FilterButtons";
 import Post from "@/modules/dashboard/teacher/PostSection";
 import { customJwtPayload, PostAttributes } from "@/types/postAttributes";
-import { useMemo, useState } from "react";
-import { ChevronUp } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { ChevronUp, ChevronDown, Loader2 } from "lucide-react";
 import {
   useUserPostFeeds,
   useFavoritePosts,
@@ -21,7 +21,33 @@ import MobileGradingClient from "./MobileGradingClient";
 //this page collects all posts
 export default function GradingClientTeachers() {
   const filters = ["All", "Moderated", "Pending", "Following", "Favorites"];
-  const [activeFilter, setActiveFilter] = useState("Pending"); // ✅ default "All"
+  const [activeFilter, setActiveFilterState] = useState<string>(() => {
+    if (typeof window !== "undefined") {
+      return sessionStorage.getItem("gradingActiveFilter") || "Pending";
+    }
+    return "Pending";
+  }); // ✅ default "Pending"
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const storedScroll = sessionStorage.getItem("gradingScroll");
+    if (storedScroll) {
+      requestAnimationFrame(() => {
+        window.scrollTo({
+          top: Number(storedScroll) || 0,
+          behavior: "auto",
+        });
+      });
+      sessionStorage.removeItem("gradingScroll");
+    }
+  }, []);
+
+  const setActiveFilter = (filter: string) => {
+    setActiveFilterState(filter);
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("gradingActiveFilter", filter);
+    }
+  };
 
   const {
     userPostFeedsData,
@@ -119,8 +145,9 @@ export default function GradingClientTeachers() {
       ? favoritePostsList
       : [];
 
-  const hasMorePosts =
-    activeFilter === "Favorites" ? false : Boolean(hasNextPage);
+  const shouldShowLoadMore =
+    (visiblePosts?.length || 0) > 0 &&
+    (activeFilter === "Favorites" ? false : hasNextPage);
 
   const isActiveFilterLoading =
     (activeFilter === "Favorites" && isFavoritePostsDataLoading) ||
@@ -134,7 +161,7 @@ export default function GradingClientTeachers() {
           activeFilter={activeFilter}
           setActiveFilter={setActiveFilter}
           visiblePosts={visiblePosts}
-          hasMorePosts={hasMorePosts}
+          hasMorePosts={shouldShowLoadMore}
           handleLoadMore={handleLoadMore}
           scrollToTop={scrollToTop}
           isFavoritePostsDataLoading={isFavoritePostsDataLoading}
@@ -183,16 +210,24 @@ export default function GradingClientTeachers() {
           </div>
 
           {/* Load More Button */}
-          {hasMorePosts && (
-            <div className="flex justify-center mt-6">
+          {shouldShowLoadMore && (
+            <div className="flex justify-center mt-8">
               <button
                 onClick={handleLoadMore}
                 disabled={isFetchingNextPage}
-                className={`bg-[#3B82F6] hover:bg-[#2563EB] text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200 ${
-                  isFetchingNextPage ? "opacity-70 cursor-not-allowed" : ""
-                }`}
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-gradient-to-r from-[#2563EB] via-[#3B82F6] to-[#60A5FA] text-white font-medium shadow-lg shadow-blue-200 transition-all duration-200 hover:shadow-xl hover:-translate-y-0.5 disabled:opacity-60 disabled:cursor-not-allowed"
               >
-                {isFetchingNextPage ? "Loading..." : "Load More Posts"}
+                {isFetchingNextPage ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <span>Loading...</span>
+                  </>
+                ) : (
+                  <>
+                    <span>Load More Posts</span>
+                    <ChevronDown className="w-4 h-4" />
+                  </>
+                )}
               </button>
             </div>
           )}
