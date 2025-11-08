@@ -2,6 +2,11 @@ import { SettingItem, User } from "@/app/types/user";
 import { axiosInstance } from "@/lib/axiosInstance";
 import { Grade, GradeData } from "@/types/Post";
 import { PostCreateInput } from "@/types/postAttributes";
+import {
+  GradingTemplate,
+  CreateGradingTemplateInput,
+  UpdateGradingTemplateInput,
+} from "@/types/gradingTemplate";
 
 //-------------------GET USER DATA
 
@@ -408,10 +413,14 @@ export const saveUserGrade = async (postId: string, data: GradeData) => {
 
 //-------------------DELETE USER GRADE
 
-export const deleteUserGrade = async (postId: string, gradeId: string) => {
+export const deleteUserGrade = async (
+  postId: string,
+  gradeId: string,
+  commentId: string
+) => {
   try {
     const res = await axiosInstance.delete(
-      `/api/user/post/${postId}/grade/${gradeId}`
+      `/api/user/post/${postId}/grade/${gradeId}/comment/${commentId}`
     );
 
     if (!res) {
@@ -628,3 +637,135 @@ export const deleteAccount = async (password?: string) => {
 // Accept: image/*,.pdf,.docx ✅
 
 // Store uploaded file URLs in the payload when creating a post.
+
+//-------------------GRADING TEMPLATE OPERATIONS
+
+// Save a new grading template
+export const saveGradingTemplate = async (data: CreateGradingTemplateInput) => {
+  try {
+    const res = await axiosInstance.post("/api/user/grading-templates", data);
+    if (!res) {
+      console.log("error");
+    }
+    return res.data;
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error(error);
+      throw new Error(
+        // @ts-expect-error: might be Axios error with response
+        error?.response?.data?.message ||
+          error.message ||
+          "Something went wrong"
+      );
+    } else {
+      console.error("Unknown error", error);
+      throw new Error("Something went wrong");
+    }
+  }
+};
+
+// Get all user's grading templates
+export const getGradingTemplates = async () => {
+  try {
+    const res = await axiosInstance.get("/api/user/grading-templates");
+    if (!res) {
+      console.log("error");
+    }
+    return res.data;
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error(error);
+      throw new Error(
+        // @ts-expect-error: might be Axios error with response
+        error?.response?.data?.message ||
+          error.message ||
+          "Something went wrong"
+      );
+    } else {
+      console.error("Unknown error", error);
+      throw new Error("Something went wrong");
+    }
+  }
+};
+
+// Get a single grading template by ID
+export const getGradingTemplateById = async (templateId: string) => {
+  try {
+    const res = await axiosInstance.get(
+      `/api/user/grading-template/${templateId}`
+    );
+    if (!res) {
+      console.log("error");
+    }
+    return res.data;
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error(error);
+      throw new Error(
+        // @ts-expect-error: might be Axios error with response
+        error?.response?.data?.message ||
+          error.message ||
+          "Something went wrong"
+      );
+    } else {
+      console.error("Unknown error", error);
+      throw new Error("Something went wrong");
+    }
+  }
+};
+
+// Update a grading template
+export const updateGradingTemplate = async (
+  templateId: string,
+  data: UpdateGradingTemplateInput
+) => {
+  try {
+    const res = await axiosInstance.patch(
+      `/api/user/grading-template/${templateId}`,
+      data
+    );
+    if (!res) {
+      console.log("error");
+    }
+    return res.data;
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error(error);
+      throw new Error(
+        // @ts-expect-error: might be Axios error with response
+        error?.response?.data?.message ||
+          error.message ||
+          "Something went wrong"
+      );
+    } else {
+      console.error("Unknown error", error);
+      throw new Error("Something went wrong");
+    }
+  }
+};
+
+// Delete a grading template
+export const deleteGradingTemplate = async (templateId: string) => {
+  try {
+    const res = await axiosInstance.delete(
+      `/api/user/grading-template/${templateId}`
+    );
+    if (!res) {
+      console.log("error");
+    }
+    return res.data;
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error(error);
+      throw new Error(
+        // @ts-expect-error: might be Axios error with response
+        error?.response?.data?.message ||
+          error.message ||
+          "Something went wrong"
+      );
+    } else {
+      console.error("Unknown error", error);
+      throw new Error("Something went wrong");
+    }
+  }
+};

@@ -59,7 +59,7 @@ export default function BottomSheet({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 bg-black/50 z-[60]"
+            className="fixed inset-0 bg-black/70 z-[100]"
           />
 
           {/* Bottom Sheet */}
@@ -68,7 +68,7 @@ export default function BottomSheet({
             animate={{ y: 0 }}
             exit={{ y: "100%" }}
             transition={{ type: "spring", damping: 25, stiffness: 200 }}
-            className="fixed bottom-0 left-0 right-0 bg-white rounded-t-[27px] z-[70] shadow-2xl"
+            className="fixed bottom-0 left-0 right-0 bg-white rounded-t-[27px] z-[110] shadow-2xl"
             style={{ maxHeight }}
           >
             {/* Handle */}

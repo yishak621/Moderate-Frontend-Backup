@@ -160,6 +160,10 @@ export default function PostViewClient() {
       })()
     : {};
 
+  const currentUserCommentId = (existingGradeData as any)?.commentId as
+    | string
+    | undefined;
+
   const handleEditGrade = () => {
     setActiveFilter("Grade Test");
     setEditingGrade(postId, true);
@@ -168,6 +172,10 @@ export default function PostViewClient() {
   const handleDeleteGrade = () => {
     if (!currentUserGrade?.id) {
       toast.error("Grade ID not found");
+      return;
+    }
+    if (!currentUserCommentId) {
+      toast.error("Comment reference not found for this grade.");
       return;
     }
     setIsDeleteModalOpen(true);
@@ -447,7 +455,7 @@ export default function PostViewClient() {
                               Weighted Rubric Breakdown
                             </p>
 
-                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 ">
                               {Array.isArray(
                                 grader?.grade?.weightedRubric?.rubricData
                               ) &&
@@ -455,7 +463,7 @@ export default function PostViewClient() {
                                   (w: any, i: number) => (
                                     <div
                                       key={i}
-                                      className="flex items-center flex-col justify-between bg-white border border-gray-100 rounded-lg px-4 py-3 shadow-sm hover:bg-gray-50 transition-colors"
+                                      className="flex items-center flex-col w-full justify-between bg-white border border-gray-100 rounded-lg px-4 py-3 shadow-sm hover:bg-gray-50 transition-colors"
                                     >
                                       <span className="text-sm font-medium text-gray-700">
                                         {w.label}
@@ -792,13 +800,17 @@ export default function PostViewClient() {
       </div>
 
       {/* Delete Grade Modal */}
-      {currentUserGrade?.id && (
+      {currentUserGrade?.id && currentUserCommentId && (
         <ResponsiveModal
           isOpen={isDeleteModalOpen}
           onOpenChange={setIsDeleteModalOpen}
           title="Delete Grade"
         >
-          <DeleteGradeModal postId={postId} gradeId={currentUserGrade.id} />
+          <DeleteGradeModal
+            postId={postId}
+            gradeId={currentUserGrade.id}
+            commentId={currentUserCommentId}
+          />
         </ResponsiveModal>
       )}
     </>

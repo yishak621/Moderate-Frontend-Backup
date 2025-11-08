@@ -9,11 +9,13 @@ import toast from "react-hot-toast";
 interface DeleteGradeModalProps {
   postId: string;
   gradeId: string;
+  commentId: string;
 }
 
 export default function DeleteGradeModal({
   postId,
   gradeId,
+  commentId,
 }: DeleteGradeModalProps) {
   const { close } = useResponsiveModal();
   const {
@@ -41,8 +43,13 @@ export default function DeleteGradeModal({
   }, [isDeletingGradeError, deletingGradeError]);
 
   const handleDelete = async () => {
+    if (!commentId) {
+      toast.error("Missing comment reference for this grade.");
+      return;
+    }
+
     try {
-      await deleteGradeAsync({ postId, gradeId });
+      await deleteGradeAsync({ postId, gradeId, commentId });
     } catch (err) {
       // Error handled in useEffect
     }

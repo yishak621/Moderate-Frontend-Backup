@@ -168,6 +168,10 @@ export default function MobilePostView({
       })()
     : {};
 
+  const currentUserCommentId = (existingGradeData as any)?.commentId as
+    | string
+    | undefined;
+
   const handleEditGrade = () => {
     setActiveTab("gradeTest");
     setEditingGrade(postId, true);
@@ -176,6 +180,10 @@ export default function MobilePostView({
   const handleDeleteGrade = () => {
     if (!currentUserGrade?.id) {
       toast.error("Grade ID not found");
+      return;
+    }
+    if (!currentUserCommentId) {
+      toast.error("Comment reference not found for this grade.");
       return;
     }
     setIsDeleteModalOpen(true);
@@ -894,13 +902,17 @@ export default function MobilePostView({
       )}
 
       {/* Delete Grade Modal */}
-      {currentUserGrade?.id && (
+      {currentUserGrade?.id && currentUserCommentId && (
         <ResponsiveModal
           isOpen={isDeleteModalOpen}
           onOpenChange={setIsDeleteModalOpen}
           title="Delete Grade"
         >
-          <DeleteGradeModal postId={postId} gradeId={currentUserGrade.id} />
+          <DeleteGradeModal
+            postId={postId}
+            gradeId={currentUserGrade.id}
+            commentId={currentUserCommentId}
+          />
         </ResponsiveModal>
       )}
     </div>

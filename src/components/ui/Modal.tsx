@@ -187,6 +187,11 @@ Modal.Content = function Content({
 
   if (!ctx.open) return null;
 
+  // Check if this is a nested modal (higher z-index)
+  const isNested = panelClassName.includes("bg-white") && panelClassName.includes("rounded-lg");
+  const overlayZIndex = isNested ? 100 : 50;
+  const overlayOpacity = isNested ? "bg-black/70" : "bg-black/45";
+
   return (
     <Portal>
       <div
@@ -196,11 +201,12 @@ Modal.Content = function Content({
           if (!closeOnOverlayClick) return;
           if (e.target === overlayRef.current) ctx.close();
         }}
-        className="fixed inset-0 z-50 flex items-center justify-center px-4 sm:px-6"
+        className="fixed inset-0 flex items-center justify-center px-4 sm:px-6"
+        style={{ zIndex: overlayZIndex }}
       >
         <div
           onClick={() => ctx.close()}
-          className="absolute inset-0 bg-black/45 backdrop-blur-sm transition-opacity duration-300"
+          className={`absolute inset-0 ${overlayOpacity} backdrop-blur-sm transition-opacity duration-300`}
         />
 
         <div
@@ -208,8 +214,8 @@ Modal.Content = function Content({
           aria-modal="true"
           ref={panelRef}
           tabIndex={-1}
-          className={`relative z-10 ${width}  mx-auto
-            transform transition-all duration-300 ease-out ${panelClassName}${className}`}
+          className={`relative z-10 ${width} mx-auto
+            transform transition-all duration-300 ease-out ${panelClassName} ${className}`}
         >
           {children}
         </div>

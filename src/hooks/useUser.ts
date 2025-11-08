@@ -2,6 +2,16 @@ import { SettingItem, User } from "@/app/types/user";
 import { queryClient } from "@/lib/queryClient";
 import { useGradeEditStore } from "@/store/gradeEditStore";
 import {
+  GradingTemplate,
+  CreateGradingTemplateInput,
+  UpdateGradingTemplateInput,
+} from "@/types/gradingTemplate";
+import {
+  saveGradingTemplate,
+  getGradingTemplates,
+  getGradingTemplateById,
+  updateGradingTemplate,
+  deleteGradingTemplate,
   deleteFileApi,
   deleteProfilePicture,
   deleteAccount,
@@ -153,6 +163,15 @@ export const useUserCreatePost = (domainId: string | boolean) => {
           queryKey: ["userMyPostsFeeds"],
           exact: false,
         });
+        queryClient.invalidateQueries({
+          queryKey: ["userSinglePostData"],
+          exact: false,
+        });
+
+        queryClient.invalidateQueries({
+          queryKey: ["userPostFeeds"],
+          exact: false,
+        });
       },
     });
 
@@ -180,14 +199,17 @@ export const useUserUpdatePost = () => {
         data: PostCreateInput;
       }) => updateUserPost(postId, data),
       onSuccess: () => {
-        // Invalidate user posts list
         queryClient.invalidateQueries({
           queryKey: ["userMyPostsFeeds"],
           exact: false,
         });
-        // Invalidate all single post queries (for any postId)
         queryClient.invalidateQueries({
           queryKey: ["userSinglePostData"],
+          exact: false,
+        });
+
+        queryClient.invalidateQueries({
+          queryKey: ["userPostFeeds"],
           exact: false,
         });
       },
@@ -217,6 +239,11 @@ export const useUserDeletePost = () => {
           exact: false,
         });
         queryClient.invalidateQueries({
+          queryKey: ["userSinglePostData"],
+          exact: false,
+        });
+
+        queryClient.invalidateQueries({
           queryKey: ["userPostFeeds"],
           exact: false,
         });
@@ -241,11 +268,15 @@ export const useAddToFavorites = () => {
       mutationFn: (postId: string) => addToFavorites(postId),
       onSuccess: () => {
         toast.success("Added to favorites!");
-        // Refetch immediately to update UI
-        queryClient.refetchQueries({
-          queryKey: ["favoritePosts"],
+        queryClient.invalidateQueries({
+          queryKey: ["userMyPostsFeeds"],
           exact: false,
         });
+        queryClient.invalidateQueries({
+          queryKey: ["userSinglePostData"],
+          exact: false,
+        });
+
         queryClient.invalidateQueries({
           queryKey: ["userPostFeeds"],
           exact: false,
@@ -271,11 +302,15 @@ export const useRemoveFromFavorites = () => {
       mutationFn: (postId: string) => removeFromFavorites(postId),
       onSuccess: () => {
         toast.success("Removed from favorites!");
-        // Refetch immediately to update UI
-        queryClient.refetchQueries({
-          queryKey: ["favoritePosts"],
+        queryClient.invalidateQueries({
+          queryKey: ["userMyPostsFeeds"],
           exact: false,
         });
+        queryClient.invalidateQueries({
+          queryKey: ["userSinglePostData"],
+          exact: false,
+        });
+
         queryClient.invalidateQueries({
           queryKey: ["userPostFeeds"],
           exact: false,
@@ -399,8 +434,15 @@ export const useUserDeleteGrade = () => {
   const { clearEditingGrade } = useGradeEditStore();
   const { mutate, mutateAsync, data, isPending, isSuccess, isError, error } =
     useMutation({
-      mutationFn: ({ postId, gradeId }: { postId: string; gradeId: string }) =>
-        deleteUserGrade(postId, gradeId),
+      mutationFn: ({
+        postId,
+        gradeId,
+        commentId,
+      }: {
+        postId: string;
+        gradeId: string;
+        commentId: string;
+      }) => deleteUserGrade(postId, gradeId, commentId),
       onSuccess: (data, variables) => {
         toast.success("Grade deleted successfully!");
         // Clear edit mode after successful deletion
@@ -554,5 +596,151 @@ export const useDeleteAccount = () => {
     isDeletingAccountSuccess: isSuccess,
     isDeletingAccountError: isError,
     deletingAccountError: error,
+  };
+};
+
+//--------------------GRADING TEMPLATE HOOKS
+
+// Save a new grading template
+export const useSaveGradingTemplate = () => {
+  const { mutate, mutateAsync, data, isPending, isSuccess, isError, error } =
+    useMutation({
+      mutationFn: (data: CreateGradingTemplateInput) =>
+        saveGradingTemplate(data),
+      onSuccess: () => {
+        toast.success("Template saved successfully!");
+        queryClient.invalidateQueries({
+          queryKey: ["gradingTemplates"],
+          exact: false,
+        });
+      },
+    });
+
+  return {
+    saveTemplate: mutate,
+    saveTemplateAsync: mutateAsync,
+    savedTemplateData: data,
+    isSavingTemplateLoading: isPending,
+    isSavingTemplateSuccess: isSuccess,
+    isSavingTemplateError: isError,
+    savingTemplateError: error,
+  };
+};
+
+// Get all grading templates
+export const useGradingTemplates = () => {
+  const { data, isLoading, isError, error, isSuccess, refetch } = useQuery({
+    queryKey: ["gradingTemplates"],
+    queryFn: async () => {
+      const response = await getGradingTemplates();
+      // Handle different response structures
+      let templates: any[] = [];
+      if (response?.json?.templates) {
+        templates = response.json.templates;
+      } else if (response?.templates) {
+        templates = response.templates;
+      } else if (Array.isArray(response)) {
+        templates = response;
+      }
+
+      // Map API response to our type structure (API uses 'type', we use 'gradingType')
+      return templates.map((template: any) => ({
+        ...template,
+        gradingType: template.type || template.gradingType, // Map 'type' to 'gradingType'
+      }));
+    },
+  });
+
+  return {
+    gradingTemplates: (data as GradingTemplate[]) || [],
+    isGradingTemplatesLoading: isLoading,
+    isGradingTemplatesError: isError,
+    gradingTemplatesError: error,
+    isGradingTemplatesSuccess: isSuccess,
+    refetchGradingTemplates: refetch,
+  };
+};
+
+// Get a single grading template by ID
+export const useGradingTemplateById = (templateId: string | null) => {
+  const { data, isLoading, isError, error, isSuccess } = useQuery({
+    queryKey: ["gradingTemplate", templateId],
+    queryFn: async () => {
+      if (!templateId) return null;
+      const response = await getGradingTemplateById(templateId);
+      // Handle different response structures
+      if (response?.json?.template) {
+        return response.json.template;
+      }
+      if (response?.template) {
+        return response.template;
+      }
+      return response;
+    },
+    enabled: !!templateId,
+  });
+
+  return {
+    gradingTemplate: data as GradingTemplate | null,
+    isGradingTemplateLoading: isLoading,
+    isGradingTemplateError: isError,
+    gradingTemplateError: error,
+    isGradingTemplateSuccess: isSuccess,
+  };
+};
+
+// Update a grading template
+export const useUpdateGradingTemplate = () => {
+  const { mutate, mutateAsync, data, isPending, isSuccess, isError, error } =
+    useMutation({
+      mutationFn: ({
+        templateId,
+        data,
+      }: {
+        templateId: string;
+        data: UpdateGradingTemplateInput;
+      }) => updateGradingTemplate(templateId, data),
+      onSuccess: () => {
+        toast.success("Template updated successfully!");
+        queryClient.invalidateQueries({
+          queryKey: ["gradingTemplates"],
+          exact: false,
+        });
+      },
+    });
+
+  return {
+    updateTemplate: mutate,
+    updateTemplateAsync: mutateAsync,
+    updatedTemplateData: data,
+    isUpdatingTemplateLoading: isPending,
+    isUpdatingTemplateSuccess: isSuccess,
+    isUpdatingTemplateError: isError,
+    updatingTemplateError: error,
+  };
+};
+
+// Delete a grading template
+export const useDeleteGradingTemplate = () => {
+  const { mutate, mutateAsync, data, isPending, isSuccess, isError, error } =
+    useMutation({
+      mutationFn: (templateId: string) => deleteGradingTemplate(templateId),
+      onSuccess: () => {
+        toast.success("Template deleted successfully!");
+        queryClient.invalidateQueries({
+          queryKey: ["gradingTemplates"],
+          exact: false,
+        });
+      },
+    });
+
+  return {
+    deleteTemplate: mutate,
+    deleteTemplateAsync: mutateAsync,
+    deletedTemplateData: data,
+    isDeletingTemplateLoading: isPending,
+    isDeletingTemplateSuccess: isSuccess,
+    isDeletingTemplateError: isError,
+    deletingTemplateError: error,
   };
 };

@@ -3,7 +3,7 @@
 import Input from "@/components/ui/Input";
 import { useModal } from "@/components/ui/Modal";
 import { useResponsiveModal } from "@/hooks/useResponsiveModal";
-import { Trash, Plus, X } from "lucide-react";
+import { Trash, Plus, X, Bookmark, FolderOpen } from "lucide-react";
 import { CustomMultiSelect } from "@/components/ui/MultiSelectInput";
 import Button from "@/components/ui/Button";
 import Textarea from "@/components/ui/Textarea";
@@ -23,6 +23,10 @@ import { gradingTypeOptions } from "@/lib/gradingTypeOptions";
 import { Controller, useForm } from "react-hook-form";
 import { PostAttributes, PostCreateInput } from "@/types/postAttributes";
 import toast from "react-hot-toast";
+import ResponsiveModal from "@/components/ui/ResponsiveModal";
+import TemplateLibraryModal from "../gradingTemplates/TemplateLibraryModal";
+import { GradingTemplate, GradingTemplateType } from "@/types/gradingTemplate";
+import SaveTemplateModal from "../gradingTemplates/SaveTemplateModal";
 
 export default function CreatPostModal() {
   const [uploadIds, setUploadIds] = useState<string[]>([]);
@@ -38,19 +42,31 @@ export default function CreatPostModal() {
   const [userGrade, setUserGrade] = useState<Record<string, any>>({});
 
   const [maxPoints, setMaxPoints] = useState<number | null>(null);
-  const [numericCriteria, setNumericCriteria] = useState([{}]);
+  const [numericCriteria, setNumericCriteria] = useState<{
+    min?: number;
+    max?: number;
+  }>({});
   const [letterRanges, setLetterRanges] = useState([
     { letter: "A", min: 90, max: 100 },
   ]);
-  const [rubricCriteria, setRubricCriteria] = useState([
-    { label: "Criterion 1", maxPoints: 10, weight: 0 },
-  ]);
+  const [rubricCriteria, setRubricCriteria] = useState<
+    Array<{
+      label: string;
+      maxPoints: number;
+      minPoints?: number;
+      weight?: number;
+    }>
+  >([{ label: "Criterion 1", maxPoints: 10, minPoints: 0, weight: 0 }]);
   const [checklistItems, setChecklistItems] = useState<string[]>([""]);
   const [passFailCriteria, setPassFailCriteria] = useState<string | boolean>(
     "pass"
   );
 
   const [files, setFiles] = useState<File[]>([]);
+  const [isSaveTemplateModalOpen, setIsSaveTemplateModalOpen] = useState(false);
+  const [isTemplateLibraryModalOpen, setIsTemplateLibraryModalOpen] =
+    useState(false);
+  const [isSavingTemplate, setIsSavingTemplate] = useState(false);
 
   const { close } = useResponsiveModal();
   const handleSelected = (values: { value: string; label: string }[]) => {
@@ -184,7 +200,140 @@ export default function CreatPostModal() {
     });
   }, []);
 
+  // Compose current criteria for saving as template
+  const getCurrentCriteria = () => {
+    switch (selectedGradingType) {
+      case "numeric":
+        return {
+          numericCriteria: {
+            min: numericCriteria.min || 0,
+            max: numericCriteria.max || 100,
+          },
+        };
+      case "letter":
+        return {
+          letterRanges: letterRanges.filter(
+            (r) => r.letter && r.min !== undefined && r.max !== undefined
+          ),
+        };
+      case "rubric":
+      case "weightedRubric":
+        return {
+          rubricCriteria: rubricCriteria.filter(
+            (r) => r.label && r.maxPoints !== undefined
+          ),
+        };
+      case "checklist":
+        return {
+          checklistItems: checklistItems.filter((item) => item.trim() !== ""),
+        };
+      case "passFail":
+        return {};
+      default:
+        return {};
+    }
+  };
+
+  // Check if current criteria is valid for saving
+  const canSaveTemplate = () => {
+    const criteria = getCurrentCriteria();
+    switch (selectedGradingType) {
+      case "numeric":
+        return (
+          numericCriteria.min !== undefined &&
+          numericCriteria.max !== undefined &&
+          numericCriteria.min >= 0 &&
+          numericCriteria.max > numericCriteria.min
+        );
+      case "letter":
+        return (
+          letterRanges.length > 0 &&
+          letterRanges.some(
+            (r) => r.letter && r.min !== undefined && r.max !== undefined
+          )
+        );
+      case "rubric":
+      case "weightedRubric":
+        return (
+          rubricCriteria.length > 0 &&
+          rubricCriteria.some((r) => r.label && r.maxPoints !== undefined)
+        );
+      case "checklist":
+        return (
+          checklistItems.length > 0 &&
+          checklistItems.some((item) => item.trim() !== "")
+        );
+      case "passFail":
+        return true;
+      default:
+        return false;
+    }
+  };
+
+  // Load template into form
+  const handleLoadTemplate = (template: GradingTemplate) => {
+    // Map API 'type' to 'gradingType' if needed
+    const gradingType = (template as any).type || template.gradingType;
+
+    // Set grading type first
+    setSelectedGradingType(gradingType);
+    setValue("gradingType", gradingType);
+
+    const criteria = template.criteria;
+
+    // Load criteria based on type
+    switch (gradingType) {
+      case "numeric":
+        if (criteria.numericCriteria) {
+          setNumericCriteria({
+            min: criteria.numericCriteria.min || 0,
+            max: criteria.numericCriteria.max || 100,
+          });
+        }
+        break;
+      case "letter":
+        if (criteria.letterRanges && criteria.letterRanges.length > 0) {
+          setLetterRanges(criteria.letterRanges);
+        }
+        break;
+      case "rubric":
+      case "weightedRubric":
+        if (criteria.rubricCriteria && criteria.rubricCriteria.length > 0) {
+          // Map rubric criteria and ensure minPoints exists
+          const mappedRubricCriteria = criteria.rubricCriteria.map(
+            (item: any) => ({
+              label: item.label || "",
+              maxPoints: item.maxPoints || 10,
+              minPoints: item.minPoints ?? 0,
+              weight: item.weight ?? 0,
+            })
+          );
+          setRubricCriteria(mappedRubricCriteria);
+        }
+        break;
+      case "checklist":
+        if (criteria.checklistItems && criteria.checklistItems.length > 0) {
+          setChecklistItems(criteria.checklistItems);
+        }
+        break;
+      case "passFail":
+        // No criteria needed
+        break;
+    }
+
+    toast.success(`Template "${template.name}" loaded successfully!`);
+  };
+
   const onSubmit = async (data: PostCreateInput) => {
+    // Prevent form submission if template modal is open or saving
+    if (
+      isSaveTemplateModalOpen ||
+      isTemplateLibraryModalOpen ||
+      isSavingTemplate
+    ) {
+      return;
+    }
+
     // Compose gradingTemplate based on selected type
     let gradingTemplate: Record<string, any> = {};
 
@@ -233,7 +382,19 @@ export default function CreatPostModal() {
 
   return (
     <form
-      onSubmit={handleSubmit(onSubmit)}
+      onSubmit={(e) => {
+        // Prevent submission if template modals are open
+        if (
+          isSaveTemplateModalOpen ||
+          isTemplateLibraryModalOpen ||
+          isSavingTemplate
+        ) {
+          e.preventDefault();
+          e.stopPropagation();
+          return;
+        }
+        handleSubmit(onSubmit)(e);
+      }}
       className="bg-[#FDFDFD] w-full min-w-0 sm:min-w-[551px] max-h-screen overflow-y-scroll scrollbar-hide p-6 sm:p-10 rounded-[27px] flex flex-col"
     >
       {/* Header */}
@@ -310,23 +471,44 @@ export default function CreatPostModal() {
 
         {/* Grading Type */}
         <div>
-          <p className="text-[#0c0c0c] text-base font-normal mb-1">
-            Grading Logic Type
-          </p>
+          <div className="flex items-center justify-between mb-1">
+            <p className="text-[#0c0c0c] text-base font-normal">
+              Grading Logic Type
+            </p>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                setIsTemplateLibraryModalOpen(true);
+              }}
+              className="text-sm px-3 py-1.5 h-auto"
+              icon={<FolderOpen size={14} />}
+            >
+              Load Template
+            </Button>
+          </div>
           <Controller
             name="gradingType"
             control={control}
-            render={({ field }) => (
-              <CustomSelect
-                options={gradingTypeOptions} // numeric, letter, rubric, checklist, weightedRubric, passFail
-                defaultValue={gradingTypeOptions[0]}
-                onChange={(val) => {
-                  field.onChange(val?.value);
-                  setSelectedGradingType(val?.value || "");
-                  setGradingTemplate({}); // reset template when type changes
-                }}
-              />
-            )}
+            render={({ field }) => {
+              const currentOption = gradingTypeOptions.find(
+                (opt) => opt.value === selectedGradingType
+              );
+              return (
+                <CustomSelect
+                  key={`grading-type-${selectedGradingType}`}
+                  options={gradingTypeOptions} // numeric, letter, rubric, checklist, weightedRubric, passFail
+                  defaultValue={currentOption || gradingTypeOptions[0]}
+                  onChange={(val) => {
+                    field.onChange(val?.value);
+                    setSelectedGradingType(val?.value || "");
+                    setGradingTemplate({}); // reset template when type changes
+                  }}
+                />
+              );
+            }}
           />
         </div>
 
@@ -334,9 +516,10 @@ export default function CreatPostModal() {
         {selectedGradingType === "numeric" && (
           <div className="flex gap-4">
             <Input
+              key={`numeric-min-${numericCriteria.min}`}
               label="Min Points"
               type="number"
-              defaultValue={gradingTemplate.min || ""}
+              value={numericCriteria.min ?? ""}
               onChange={(e) =>
                 setNumericCriteria((prev) => ({
                   ...prev,
@@ -347,7 +530,7 @@ export default function CreatPostModal() {
             <Input
               label="Max Points"
               type="number"
-              defaultValue={gradingTemplate.max || ""}
+              value={numericCriteria.max ?? ""}
               onChange={(e) =>
                 setNumericCriteria((prev) => ({
                   ...prev,
@@ -361,11 +544,14 @@ export default function CreatPostModal() {
         {selectedGradingType === "letter" && (
           <div className="flex flex-col gap-2">
             {letterRanges.map((range, idx) => (
-              <div key={idx} className="flex gap-2 items-center">
+              <div
+                key={`letter-range-${idx}`}
+                className="flex gap-2 items-center"
+              >
                 <Input
                   label="Letter"
                   type="text"
-                  defaultValue={range.letter}
+                  value={range.letter || ""}
                   onChange={(e) =>
                     updateLetterRange(idx, "letter", e.target.value)
                   }
@@ -373,7 +559,7 @@ export default function CreatPostModal() {
                 <Input
                   label="Min"
                   type="number"
-                  defaultValue={range.min}
+                  value={range.min ?? ""}
                   onChange={(e) =>
                     updateLetterRange(idx, "min", Number(e.target.value))
                   }
@@ -381,14 +567,21 @@ export default function CreatPostModal() {
                 <Input
                   label="Max"
                   type="number"
-                  defaultValue={range.max}
+                  value={range.max ?? ""}
                   onChange={(e) =>
                     updateLetterRange(idx, "max", Number(e.target.value))
                   }
                 />
               </div>
             ))}
-            <Button type="button" onClick={addLetterRange}>
+            <Button
+              type="button"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                addLetterRange();
+              }}
+            >
               Add Range
             </Button>
           </div>
@@ -398,16 +591,16 @@ export default function CreatPostModal() {
           selectedGradingType === "weightedRubric") && (
           <div className="flex flex-col gap-2">
             {rubricCriteria.map((item, idx) => (
-              <div key={idx} className="flex gap-2 items-center">
+              <div key={`rubric-${idx}`} className="flex gap-2 items-center">
                 <Input
                   label="Label"
-                  defaultValue={item.label}
+                  value={item.label || ""}
                   onChange={(e) => updateRubric(idx, "label", e.target.value)}
                 />
                 <Input
                   label="Min Points"
                   type="number"
-                  defaultValue={item.maxPoints}
+                  value={item.minPoints ?? ""}
                   onChange={(e) =>
                     updateRubric(idx, "minPoints", Number(e.target.value))
                   }
@@ -415,7 +608,7 @@ export default function CreatPostModal() {
                 <Input
                   label="Max Points"
                   type="number"
-                  defaultValue={item.maxPoints}
+                  value={item.maxPoints ?? ""}
                   onChange={(e) =>
                     updateRubric(idx, "maxPoints", Number(e.target.value))
                   }
@@ -424,7 +617,7 @@ export default function CreatPostModal() {
                   <Input
                     label="Weight (%)"
                     type="number"
-                    defaultValue={item.weight}
+                    value={item.weight ?? ""}
                     onChange={(e) =>
                       updateRubric(idx, "weight", Number(e.target.value))
                     }
@@ -432,7 +625,14 @@ export default function CreatPostModal() {
                 )}
               </div>
             ))}
-            <Button type="button" onClick={addRubricItem}>
+            <Button
+              type="button"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                addRubricItem();
+              }}
+            >
               Add Criterion
             </Button>
           </div>
@@ -444,23 +644,35 @@ export default function CreatPostModal() {
               Checklist Items
             </label>
             {checklistItems.map((item, idx) => (
-              <div key={idx} className="flex items-center gap-2">
+              <div key={`checklist-${idx}`} className="flex items-center gap-2">
                 <Input
                   type="text"
                   placeholder={`Criterion ${idx + 1}`}
-                  defaultValue={item}
+                  value={item || ""}
                   onChange={(e) => handleChecklistChange(idx, e.target.value)}
                 />
                 <Button
                   type="button"
                   variant="red"
-                  onClick={() => removeChecklistItem(idx)}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    removeChecklistItem(idx);
+                  }}
                 >
                   <Trash size={16} />
                 </Button>
               </div>
             ))}
-            <Button type="button" variant="outline" onClick={addChecklistItem}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                addChecklistItem();
+              }}
+            >
               <Plus size={16} className="mr-1" /> Add Item
             </Button>
           </div>
@@ -484,6 +696,41 @@ export default function CreatPostModal() {
                 }))
               }
             />
+          </div>
+        )}
+
+        {/* Save as Template Button */}
+        {canSaveTemplate() && (
+          <div
+            className="flex items-center justify-end pt-2"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+            }}
+            onMouseDown={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+            }}
+          >
+            <Button
+              type="button"
+              variant="outline"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                e.nativeEvent.stopImmediatePropagation();
+                setIsSaveTemplateModalOpen(true);
+              }}
+              onMouseDown={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                e.nativeEvent.stopImmediatePropagation();
+              }}
+              icon={<Bookmark size={16} />}
+              className="text-sm"
+            >
+              Save as Template
+            </Button>
           </div>
         )}
 
@@ -557,12 +804,12 @@ export default function CreatPostModal() {
         )}
 
         {selectedGradingType === "checklist" && (
-          <div className="space-y-3">
+          <div className="space-y-3 w-full">
             <p className="text-sm font-medium text-gray-700">
               Checklist Grades
             </p>
             {checklistItems.map((item, idx) => (
-              <div key={idx} className="flex items-center gap-2">
+              <div key={idx} className="flex items-center gap-2 w-full">
                 <span className="w-40">{item}</span>
                 <CustomSelect
                   options={[
@@ -673,6 +920,47 @@ export default function CreatPostModal() {
           </Button>
         </div>
       </div>
+
+      {/* Save Template Modal */}
+      <ResponsiveModal
+        isOpen={isSaveTemplateModalOpen}
+        onOpenChange={(open) => {
+          setIsSaveTemplateModalOpen(open);
+          if (!open) {
+            // Reset saving state when modal closes
+            setTimeout(() => setIsSavingTemplate(false), 100);
+          }
+        }}
+        title="Save Grading Template"
+      >
+        <SaveTemplateModal
+          gradingType={selectedGradingType as GradingTemplateType}
+          criteria={getCurrentCriteria()}
+          onClose={() => {
+            setIsSaveTemplateModalOpen(false);
+            setTimeout(() => setIsSavingTemplate(false), 100);
+          }}
+          onSuccess={() => {
+            // Template saved successfully
+            setIsSavingTemplate(false);
+          }}
+          onSavingStart={() => setIsSavingTemplate(true)}
+        />
+      </ResponsiveModal>
+
+      {/* Template Library Modal */}
+      <ResponsiveModal
+        isOpen={isTemplateLibraryModalOpen}
+        onOpenChange={setIsTemplateLibraryModalOpen}
+        title="Grading Templates"
+        maxHeight="90vh"
+        nested={true}
+      >
+        <TemplateLibraryModal
+          onSelectTemplate={handleLoadTemplate}
+          onClose={() => setIsTemplateLibraryModalOpen(false)}
+        />
+      </ResponsiveModal>
     </form>
   );
 }
