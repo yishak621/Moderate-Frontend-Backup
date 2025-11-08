@@ -9,7 +9,7 @@ import Modal from "@/components/ui/Modal";
 import CreatPostModal from "@/modules/dashboard/teacher/post/CreatPostModal";
 import Button from "@/components/ui/Button";
 import { Plus } from "lucide-react";
-import { useUserMyPostsFeeds, useUserPostFeeds } from "@/hooks/useUser";
+import { useUserMyPostsFeeds } from "@/hooks/useUser";
 import SectionLoading from "@/components/SectionLoading";
 import { EmptyState } from "@/components/EmptyStateProps";
 import MobilePostsClient from "./MobilePostsClient";
@@ -18,7 +18,6 @@ type YearOption = { value: string | boolean; label: string };
 
 export default function PostsClientTeachers() {
   const [activeFilter, setActiveFilter] = useState<string | boolean>("all"); // Default "all" to show all posts
-  const [visiblePostsCount, setVisiblePostsCount] = useState(5); // Start with 5 posts
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [open, setOpen] = useState(false);
 
@@ -32,22 +31,29 @@ export default function PostsClientTeachers() {
     isUserMyPostFeedsDataLoading,
     isUserMyPostFeedsDataSuccess,
     isUserMyPostFeedsError,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
   } = useUserMyPostsFeeds();
 
-  const years: string[] = [
-    ...new Set(
-      userMyPostFeedsData?.posts.map((post: PostAttributes) =>
+  const allMyPosts = userMyPostFeedsData?.posts || [];
+
+  const years: string[] = Array.from(
+    new Set(
+      allMyPosts.map((post: PostAttributes) =>
         new Date(post.createdAt).getFullYear().toString()
-      ) as Set<string>
-    ),
-  ];
+      )
+    )
+  );
 
   const yearOptions: YearOption[] = [
     { value: "all", label: "All" },
     ...years.map((year: string) => ({ value: year, label: year })),
   ];
   const handleLoadMore = () => {
-    setVisiblePostsCount((prev) => prev + 5); // Load 5 more posts
+    if (hasNextPage) {
+      fetchNextPage();
+    }
   };
 
   const scrollToTop = () => {
@@ -60,7 +66,7 @@ export default function PostsClientTeachers() {
     }
   };
 
-  const filteredYearMyPosts = userMyPostFeedsData?.posts.filter(
+  const filteredYearMyPosts = allMyPosts.filter(
     (post: PostAttributes) => {
       return (
         new Date(post?.createdAt).getFullYear().toString() === activeFilter
@@ -69,13 +75,10 @@ export default function PostsClientTeachers() {
   );
   const visiblePosts =
     activeFilter === "all" || activeFilter === "All"
-      ? userMyPostFeedsData?.posts?.slice(0, visiblePostsCount) || []
-      : filteredYearMyPosts?.slice(0, visiblePostsCount) || [];
+      ? allMyPosts
+      : filteredYearMyPosts;
 
-  const hasMorePosts =
-    activeFilter === "all" || activeFilter === "All"
-      ? visiblePostsCount < (userMyPostFeedsData?.posts?.length || 0)
-      : visiblePostsCount < (filteredYearMyPosts?.length || 0);
+  const hasMorePosts = Boolean(hasNextPage);
 
   console.log(activeFilter, visiblePosts);
   return (
@@ -89,6 +92,8 @@ export default function PostsClientTeachers() {
           visiblePosts={visiblePosts}
           hasMorePosts={hasMorePosts}
           handleLoadMore={handleLoadMore}
+          isFetchingNextPage={isFetchingNextPage}
+          isLoading={isUserMyPostFeedsDataLoading}
         />
       </div>
 
@@ -114,7 +119,6 @@ export default function PostsClientTeachers() {
                       : val.value
                     : "all";
                   setActiveFilter(value);
-                  setVisiblePostsCount(5); // Reset to 5 posts when filter changes
                 }}
                 placeholder="Select a year"
               />
@@ -157,11 +161,15 @@ export default function PostsClientTeachers() {
             className="w-full overflow-x-auto max-h-[600px] overflow-y-auto scrollbar-thin scrollbar-thumb-blue-500 scrollbar-track-blue-100 scrollbar-thumb-rounded-full scrollbar-track-rounded-full"
             id="posts-container"
           >
-            {!visiblePosts && <SectionLoading />}{" "}
-            {visiblePosts?.length === 0 && <EmptyState />}
-            {visiblePosts?.map((post: PostAttributes, idx: number) => {
-              return <Post post={post} key={idx} />;
-            })}
+            {isUserMyPostFeedsDataLoading ? (
+              <SectionLoading />
+            ) : visiblePosts?.length === 0 ? (
+              <EmptyState />
+            ) : (
+              visiblePosts?.map((post: PostAttributes, idx: number) => {
+                return <Post post={post} key={post.id ?? idx} />;
+              })
+            )}
           </div>
 
           {/* Load More Button */}
@@ -169,9 +177,12 @@ export default function PostsClientTeachers() {
             <div className="flex justify-center mt-6">
               <button
                 onClick={handleLoadMore}
-                className="bg-[#3B82F6] hover:bg-[#2563EB] text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200"
+                disabled={isFetchingNextPage}
+                className={`bg-[#3B82F6] hover:bg-[#2563EB] text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200 ${
+                  isFetchingNextPage ? "opacity-70 cursor-not-allowed" : ""
+                }`}
               >
-                Load More Posts
+                {isFetchingNextPage ? "Loading..." : "Load More Posts"}
               </button>
             </div>
           )}

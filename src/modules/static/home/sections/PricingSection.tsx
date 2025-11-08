@@ -13,12 +13,13 @@ import { customJwtPayload } from "@/types/postAttributes";
 import Link from "next/link";
 import { useUserData } from "@/hooks/useUser";
 import SubscriptionDetails from "@/components/SubscriptionDetails";
+import { usePathname } from "next/navigation";
 
 export default function PricingSection() {
   //hooks
   const { plans, isLoading, isSuccess, isError, error } = usePlansPublic();
   const { user } = useUserData();
-
+  const pathname = usePathname();
   // Filter and sort active plans (show both monthly and yearly together)
   const filteredPlans = useMemo(() => {
     if (!plans || !Array.isArray(plans)) return [];
@@ -145,6 +146,7 @@ export default function PricingSection() {
 
       {/* Subscription Details Section - Only show if user is authenticated and has subscription data */}
       {user &&
+        pathname !== "/" &&
         (user.subscriptionStatus === "active" ||
           user.subscriptions?.length > 0) && (
           <div className="w-full max-w-6xl mx-auto mt-20 px-4">

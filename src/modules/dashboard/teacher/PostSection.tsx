@@ -8,12 +8,13 @@ import {
   UserPlus,
   Flag,
   Heart,
+  UserMinus,
 } from "lucide-react";
 import { PostAttributes } from "@/types/postAttributes";
 import PostTags from "./PostTags";
 import { timeAgo } from "@/lib/timeAgo";
 import { decoded } from "@/lib/currentUser";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import PopupCard from "@/components/PopCard";
 import PostActionsList from "./post/PostActionsList";
 import AddNewCurricularAreaModal from "../admin/modal/curricular/AddNewCurricularAreaModal";
@@ -33,9 +34,13 @@ import {
   useAddToFavorites,
   useRemoveFromFavorites,
   useFavoritePosts,
+  useFollowUser,
+  useUnfollowUser,
+  useGetFollowingUsers,
 } from "@/hooks/useUser";
 import Image from "next/image";
 import Tooltip from "@/components/ui/Tooltip";
+import { User } from "@/app/types/user";
 
 export default function Post({ post }: { post: PostAttributes }) {
   const router = useRouter();
@@ -58,9 +63,75 @@ export default function Post({ post }: { post: PostAttributes }) {
   // HOOKS
   const { isThreadsLoading, isThreadsSuccess, threads } =
     useThreads(currentUserId);
-  const { addToFavorites } = useAddToFavorites();
-  const { removeFromFavorites } = useRemoveFromFavorites();
+  const {
+    followUser,
+    isFollowingUserLoading,
+    isFollowingUserSuccess,
+    isFollowingUserError,
+    followingUserError,
+  } = useFollowUser();
+  const {
+    unfollowUser,
+    isUnfollowingUserLoading,
+    isUnfollowingUserSuccess,
+    isUnfollowingUserError,
+    unfollowingUserError,
+  } = useUnfollowUser();
+  const { followingUsers } = useGetFollowingUsers();
+
+  const { addToFavoritesAsync, isAddingToFavoritesLoading } =
+    useAddToFavorites();
+  const { removeFromFavoritesAsync, isRemovingFromFavoritesLoading } =
+    useRemoveFromFavorites();
   const { favoritePostsData } = useFavoritePosts();
+
+  const postId = post?.id ? String(post.id) : "";
+
+  const favoritePostsList: PostAttributes[] = useMemo(() => {
+    if (!favoritePostsData) return [];
+    if (Array.isArray(favoritePostsData)) return favoritePostsData;
+    if (favoritePostsData?.json?.favoritePosts)
+      return favoritePostsData.json.favoritePosts;
+    if (favoritePostsData?.favoritePosts)
+      return favoritePostsData.favoritePosts;
+    return [];
+  }, [favoritePostsData]);
+
+  const [isFavorited, setIsFavorited] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (!postId) {
+      setIsFavorited(false);
+      return;
+    }
+    const currentlyFavorited = favoritePostsList.some(
+      (favPost: PostAttributes) => favPost.id === postId
+    );
+    setIsFavorited(currentlyFavorited);
+  }, [favoritePostsList, postId]);
+
+  const isMutatingFavorite =
+    isAddingToFavoritesLoading || isRemovingFromFavoritesLoading;
+
+  const handleFavoriteToggle = async () => {
+    if (isMutatingFavorite || !postId) return;
+
+    if (isFavorited) {
+      setIsFavorited(false);
+      try {
+        await removeFromFavoritesAsync(postId);
+      } catch (error) {
+        setIsFavorited(true);
+      }
+    } else {
+      setIsFavorited(true);
+      try {
+        await addToFavoritesAsync(postId);
+      } catch (error) {
+        setIsFavorited(false);
+      }
+    }
+  };
 
   if (!post) return null;
 
@@ -81,23 +152,9 @@ export default function Post({ post }: { post: PostAttributes }) {
       (msg) => msg.senderId === author?.id || msg.receiverId === author?.id
     )
   );
-
-  // Check if post is favorited - handle API response structure: { json: { favoritePosts: [...] } }
-  const favoritePostsList =
-    favoritePostsData?.json?.favoritePosts ||
-    favoritePostsData?.favoritePosts ||
-    (Array.isArray(favoritePostsData) ? favoritePostsData : []);
-  const isFavorited =
-    favoritePostsList.some((favPost: PostAttributes) => favPost.id === id) ||
-    false;
-
-  const handleFavoriteToggle = () => {
-    if (isFavorited) {
-      removeFromFavorites(String(id));
-    } else {
-      addToFavorites(String(id));
-    }
-  };
+  const isFollowingUser = followingUsers?.following?.some(
+    (user: User) => user.id === author?.id
+  );
 
   const handleActionSelect = (action: string) => {
     setIsPopUpOpen(false);
@@ -139,6 +196,18 @@ export default function Post({ post }: { post: PostAttributes }) {
     }
   };
 
+  const handleFollowUser = () => {
+    if (isFollowingUser) {
+      unfollowUser(String(author?.id));
+    } else {
+      followUser(String(author?.id));
+    }
+  };
+
+  const handleUnfollowUser = () => {
+    unfollowUser(String(author?.id));
+  };
+
   return (
     <div className=" flex flex-col items-start bg-[#FDFDFD] border border-[#DBDBDB] mb-[17px] p-4 sm:p-7 rounded-2xl sm:rounded-3xl gap-3 sm:gap-4 w-full max-w-full overflow-hidden">
       {/* Top */}
@@ -165,13 +234,31 @@ export default function Post({ post }: { post: PostAttributes }) {
             {/* Desktop: Follow, Message & Favorite Icons */}
             <div className="hidden sm:flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
               {/* Follow Button */}
-              <Tooltip text="Follow User" position="top">
-                <div className="flex flex-row gap-1 sm:gap-1.5 items-center text-[#717171] cursor-pointer hover:opacity-80">
-                  <UserPlus
-                    size={16}
-                    className="sm:w-[19px] sm:h-[19px] text-[#717171]"
-                  />
-                </div>
+              <Tooltip
+                text={isFollowingUser ? "Unfollow User" : "Follow User"}
+                position="top"
+              >
+                {!isFollowingUser ? (
+                  <div
+                    onClick={handleFollowUser}
+                    className="flex flex-row gap-1 sm:gap-1.5 items-center text-[#717171] cursor-pointer hover:opacity-80"
+                  >
+                    <UserPlus
+                      size={16}
+                      className="sm:w-[19px] sm:h-[19px] text-[#717171]"
+                    />
+                  </div>
+                ) : (
+                  <div
+                    onClick={handleUnfollowUser}
+                    className="flex flex-row gap-1 sm:gap-1.5 items-center text-[#717171] cursor-pointer hover:opacity-80"
+                  >
+                    <UserMinus
+                      size={16}
+                      className="sm:w-[19px] sm:h-[19px] text-[#368FFF]"
+                    />
+                  </div>
+                )}
               </Tooltip>
 
               {/* Message Icon */}
@@ -199,7 +286,8 @@ export default function Post({ post }: { post: PostAttributes }) {
               >
                 <button
                   onClick={handleFavoriteToggle}
-                  className="flex items-center justify-center p-1 rounded-full hover:bg-gray-100 transition-colors"
+                  disabled={isMutatingFavorite}
+                  className="flex items-center justify-center p-1 rounded-full hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   aria-label={
                     isFavorited ? "Remove from favorites" : "Add to favorites"
                   }
@@ -246,16 +334,23 @@ export default function Post({ post }: { post: PostAttributes }) {
                 align="right"
               >
                 <div className="flex flex-col">
-                  <button
-                    onClick={() => {
-                      setIsPopUpOpen(false);
-                      // TODO: Handle follow
-                    }}
-                    className="flex items-center gap-3 px-4 py-3 cursor-pointer rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors"
-                  >
-                    <UserPlus size={18} />
-                    <span>Follow</span>
-                  </button>
+                  {!isFollowingUser ? (
+                    <button
+                      onClick={handleFollowUser}
+                      className="flex items-center gap-3 px-4 py-3 cursor-pointer rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors"
+                    >
+                      <UserPlus size={18} />
+                      <span>Follow</span>
+                    </button>
+                  ) : (
+                    <button
+                      onClick={handleUnfollowUser}
+                      className="flex items-center gap-3 px-4 py-3 cursor-pointer rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors"
+                    >
+                      <UserMinus size={18} />
+                      <span>Unfollow</span>
+                    </button>
+                  )}
                   <button
                     onClick={() => {
                       setIsPopUpOpen(false);

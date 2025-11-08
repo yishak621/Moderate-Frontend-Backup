@@ -7,6 +7,7 @@ import {
   AlertTriangle,
   User2Icon,
   ArrowLeft,
+  UserPlus,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState, useRef, useEffect } from "react";
@@ -22,6 +23,8 @@ import {
   useUserData,
   useUploadProfilePicture,
   useDeleteProfilePicture,
+  useGetFollowers,
+  useGetFollowingUsers,
 } from "@/hooks/useUser";
 import { useForm } from "react-hook-form";
 import { User } from "@/app/types/user";
@@ -48,6 +51,9 @@ export default function TeacheProfileClient() {
 
   const { deleteProfilePictureAsync, isDeletingProfilePictureLoading } =
     useDeleteProfilePicture();
+
+  const { followers, isFollowersLoading } = useGetFollowers();
+  const { followingUsers, isFollowingUsersLoading } = useGetFollowingUsers();
 
   const [isDeleteAccountModalOpen, setIsDeleteAccountModalOpen] =
     useState(false);
@@ -390,6 +396,124 @@ export default function TeacheProfileClient() {
           </div>
         </div>
       </form>
+
+      {/* Followers & Following Section */}
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-6">
+        {/* Followers */}
+        <div className="flex flex-col py-4 px-4 sm:py-6 sm:px-6 rounded-2xl sm:rounded-[37px] bg-[#FDFDFD]">
+          <SectionHeader
+            title={`Followers (${followers?.followers?.length ?? 0})`}
+            icon={Users}
+            subheader="People who keep up with your moderation activity"
+          />
+
+          <div className="mt-4 sm:mt-6 space-y-3 sm:space-y-4 max-h-[320px] overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
+            {isFollowersLoading ? (
+              <div className="space-y-3">
+                {[1, 2, 3].map((item) => (
+                  <div
+                    key={item}
+                    className="flex items-center gap-3 p-3 rounded-xl border border-gray-100 bg-white animate-pulse"
+                  >
+                    <div className="w-10 h-10 rounded-full bg-gray-200" />
+                    <div className="flex-1 space-y-2">
+                      <div className="h-3 bg-gray-200 rounded w-1/2" />
+                      <div className="h-2.5 bg-gray-100 rounded w-1/3" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (followers?.followers?.length ?? 0) === 0 ? (
+              <div className="flex flex-col items-center justify-center text-center p-6 border border-dashed border-gray-200 rounded-2xl bg-white">
+                <Users className="w-10 h-10 text-gray-400 mb-2" />
+                <p className="text-sm text-gray-600">
+                  No followers yet. Engage with the community to gain followers.
+                </p>
+              </div>
+            ) : (
+              followers?.followers?.map((person: any) => (
+                <div
+                  key={person.id}
+                  className="flex items-center gap-3 p-3 rounded-2xl border border-gray-100 bg-white hover:shadow-sm transition-shadow"
+                >
+                  <UserAvatar
+                    profilePictureUrl={person.profilePictureUrl}
+                    name={person.name}
+                    email={person.email}
+                    size="md"
+                  />
+                  <div className="flex flex-col min-w-0">
+                    <p className="text-sm font-medium text-gray-900 truncate">
+                      {person.name || "Unknown User"}
+                    </p>
+                    <p className="text-xs text-gray-500 truncate">
+                      {person.email || "No email available"}
+                    </p>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+
+        {/* Following */}
+        <div className="flex flex-col py-4 px-4 sm:py-6 sm:px-6 rounded-2xl sm:rounded-[37px] bg-[#FDFDFD]">
+          <SectionHeader
+            title={`Following (${followingUsers?.following?.length ?? 0})`}
+            icon={UserPlus}
+            subheader="Educators you currently follow"
+          />
+
+          <div className="mt-4 sm:mt-6 space-y-3 sm:space-y-4 max-h-[320px] overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
+            {isFollowingUsersLoading ? (
+              <div className="space-y-3">
+                {[1, 2, 3].map((item) => (
+                  <div
+                    key={item}
+                    className="flex items-center gap-3 p-3 rounded-xl border border-gray-100 bg-white animate-pulse"
+                  >
+                    <div className="w-10 h-10 rounded-full bg-gray-200" />
+                    <div className="flex-1 space-y-2">
+                      <div className="h-3 bg-gray-200 rounded w-1/2" />
+                      <div className="h-2.5 bg-gray-100 rounded w-1/3" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (followingUsers?.following?.length ?? 0) === 0 ? (
+              <div className="flex flex-col items-center justify-center text-center p-6 border border-dashed border-gray-200 rounded-2xl bg-white">
+                <UserPlus className="w-10 h-10 text-gray-400 mb-2" />
+                <p className="text-sm text-gray-600">
+                  You&apos;re not following anyone yet. Discover educators to
+                  follow from the grading feed.
+                </p>
+              </div>
+            ) : (
+              followingUsers?.following?.map((person: any) => (
+                <div
+                  key={person.id}
+                  className="flex items-center gap-3 p-3 rounded-2xl border border-gray-100 bg-white hover:shadow-sm transition-shadow"
+                >
+                  <UserAvatar
+                    profilePictureUrl={person.profilePictureUrl}
+                    name={person.name}
+                    email={person.email}
+                    size="md"
+                  />
+                  <div className="flex flex-col min-w-0">
+                    <p className="text-sm font-medium text-gray-900 truncate">
+                      {person.name || "Unknown User"}
+                    </p>
+                    <p className="text-xs text-gray-500 truncate">
+                      {person.email || "No email available"}
+                    </p>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+      </div>
 
       {/* Delete Account Section */}
       <div className="flex flex-col py-4 px-4 sm:py-6 sm:px-6 rounded-2xl sm:rounded-[37px] bg-[#FDFDFD] border-2 border-red-100">

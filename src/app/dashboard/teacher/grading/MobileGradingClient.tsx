@@ -19,6 +19,8 @@ interface MobileGradingClientProps {
   scrollToTop: () => void;
   isFavoritePostsDataLoading?: boolean;
   isUserPostFeedsDataLoading?: boolean;
+  isFetchingNextPage?: boolean;
+  isFollowingUsersLoading?: boolean;
 }
 
 export default function MobileGradingClient({
@@ -31,6 +33,8 @@ export default function MobileGradingClient({
   scrollToTop,
   isFavoritePostsDataLoading = false,
   isUserPostFeedsDataLoading = false,
+  isFetchingNextPage = false,
+  isFollowingUsersLoading = false,
 }: MobileGradingClientProps) {
   const pathname = usePathname();
 
@@ -101,10 +105,10 @@ export default function MobileGradingClient({
         className="w-full overflow-x-auto max-h-[600px] overflow-y-auto scrollbar-thin scrollbar-thumb-blue-500 scrollbar-track-blue-100 scrollbar-thumb-rounded-full scrollbar-track-rounded-full"
         id="posts-container"
       >
-        {(isUserPostFeedsDataLoading || (activeFilter === "Favorites" && isFavoritePostsDataLoading)) && <SectionLoading />}
-        {!isUserPostFeedsDataLoading && !(activeFilter === "Favorites" && isFavoritePostsDataLoading) && visiblePosts?.length === 0 && <EmptyState />}
-        {!isUserPostFeedsDataLoading && !(activeFilter === "Favorites" && isFavoritePostsDataLoading) && visiblePosts?.map((post: PostAttributes, idx: number) => {
-          return <Post post={post} key={idx} />;
+        {(isUserPostFeedsDataLoading || (activeFilter === "Favorites" && isFavoritePostsDataLoading) || (activeFilter === "Following" && isFollowingUsersLoading)) && <SectionLoading />}
+        {!isUserPostFeedsDataLoading && !(activeFilter === "Favorites" && isFavoritePostsDataLoading) && !(activeFilter === "Following" && isFollowingUsersLoading) && visiblePosts?.length === 0 && <EmptyState />}
+        {!isUserPostFeedsDataLoading && !(activeFilter === "Favorites" && isFavoritePostsDataLoading) && !(activeFilter === "Following" && isFollowingUsersLoading) && visiblePosts?.map((post: PostAttributes, idx: number) => {
+          return <Post post={post} key={post.id ?? idx} />;
         })}
       </div>
 
@@ -113,9 +117,12 @@ export default function MobileGradingClient({
         <div className="flex justify-center mt-4">
           <button
             onClick={handleLoadMore}
-            className="bg-[#3B82F6] hover:bg-[#2563EB] text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200"
+            disabled={isFetchingNextPage}
+            className={`bg-[#3B82F6] hover:bg-[#2563EB] text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 ${
+              isFetchingNextPage ? "opacity-70 cursor-not-allowed" : ""
+            }`}
           >
-            Load More Posts
+            {isFetchingNextPage ? "Loading..." : "Load More Posts"}
           </button>
         </div>
       )}

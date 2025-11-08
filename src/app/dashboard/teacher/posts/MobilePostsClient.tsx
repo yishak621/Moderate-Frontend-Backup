@@ -20,6 +20,8 @@ interface MobilePostsClientProps {
   visiblePosts: PostAttributes[] | undefined;
   hasMorePosts: boolean;
   handleLoadMore: () => void;
+  isFetchingNextPage?: boolean;
+  isLoading?: boolean;
 }
 
 export default function MobilePostsClient({
@@ -29,6 +31,8 @@ export default function MobilePostsClient({
   visiblePosts,
   hasMorePosts,
   handleLoadMore,
+  isFetchingNextPage = false,
+  isLoading = false,
 }: MobilePostsClientProps) {
   const [showCreatePost, setShowCreatePost] = useState(false);
   const pathname = usePathname();
@@ -136,11 +140,15 @@ export default function MobilePostsClient({
         className="w-full overflow-x-auto max-h-[600px] overflow-y-auto scrollbar-thin scrollbar-thumb-blue-500 scrollbar-track-blue-100 scrollbar-thumb-rounded-full scrollbar-track-rounded-full"
         id="posts-container"
       >
-        {!visiblePosts && <SectionLoading />}
-        {visiblePosts?.length === 0 && <EmptyState />}
-        {visiblePosts?.map((post: PostAttributes, idx: number) => {
-          return <Post post={post} key={idx} />;
-        })}
+        {isLoading ? (
+          <SectionLoading />
+        ) : visiblePosts?.length === 0 ? (
+          <EmptyState />
+        ) : (
+          visiblePosts?.map((post: PostAttributes, idx: number) => {
+            return <Post post={post} key={post.id ?? idx} />;
+          })
+        )}
       </div>
 
       {/* Load More Button */}
@@ -148,9 +156,12 @@ export default function MobilePostsClient({
         <div className="flex justify-center mt-4">
           <button
             onClick={handleLoadMore}
-            className="bg-[#3B82F6] hover:bg-[#2563EB] text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200"
+            disabled={isFetchingNextPage}
+            className={`bg-[#3B82F6] hover:bg-[#2563EB] text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 ${
+              isFetchingNextPage ? "opacity-70 cursor-not-allowed" : ""
+            }`}
           >
-            Load More Posts
+            {isFetchingNextPage ? "Loading..." : "Load More Posts"}
           </button>
         </div>
       )}

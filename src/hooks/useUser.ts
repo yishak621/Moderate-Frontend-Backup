@@ -33,10 +33,14 @@ import {
   removeFromFavorites,
   getFavoritePosts,
   deleteUserGrade,
+  followUser,
+  getFollowingUsers,
+  getFollowers,
+  unfollowUser,
 } from "@/services/user.service";
 import { Grade, GradeData } from "@/types/Post";
 import { PostCreateInput } from "@/types/postAttributes";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, useMutation, useQuery } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 
 //--------------------GET USER DATA
@@ -101,36 +105,96 @@ export function useUserOverviewStatsData() {
 //------------------- USER POST FEEDS
 
 export function useUserPostFeeds() {
-  const { data, isPending, isSuccess, isError, error } = useQuery({
+  const {
+    data,
+    error,
+    fetchNextPage,
+    hasNextPage,
+    isError,
+    isFetching,
+    isFetchingNextPage,
+    isLoading,
+    isSuccess,
+  } = useInfiniteQuery({
     queryKey: ["userPostFeeds"],
-    queryFn: userPostFeeds,
+    queryFn: ({ pageParam = 1 }) => userPostFeeds(pageParam),
+    initialPageParam: 1,
+    getNextPageParam: (lastPage) => {
+      const currentPage = lastPage?.meta?.page ?? 1;
+      const lastPageNumber = lastPage?.meta?.lastPage ?? 1;
+      return currentPage < lastPageNumber ? currentPage + 1 : undefined;
+    },
     staleTime: 5 * 60 * 1000,
   });
 
+  const pages = data?.pages ?? [];
+  const combinedPosts = pages.flatMap((page: any) => page?.posts || []) ?? [];
+  const latestMeta = pages.length > 0 ? pages[pages.length - 1]?.meta : null;
+  const status = pages.length > 0 ? pages[0]?.status : null;
+
   return {
-    userPostFeedsData: data,
-    isUserPostFeedsDataLoading: isPending,
+    userPostFeedsData: {
+      status,
+      meta: latestMeta,
+      posts: combinedPosts,
+      pages,
+    },
+    isUserPostFeedsDataLoading: isLoading,
     isUserPostFeedsDataSuccess: isSuccess,
     isUserPostFeedsDataError: isError,
     isUserPostFeedsError: error,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isFetchingInitial: isFetching && !isFetchingNextPage,
   };
 }
 
 //------------------- USER MY POSTS
 
 export function useUserMyPostsFeeds() {
-  const { data, isPending, isSuccess, isError, error } = useQuery({
+  const {
+    data,
+    error,
+    fetchNextPage,
+    hasNextPage,
+    isError,
+    isFetching,
+    isFetchingNextPage,
+    isLoading,
+    isSuccess,
+  } = useInfiniteQuery({
     queryKey: ["userMyPostsFeeds"],
-    queryFn: userMyPostsFeeds,
+    queryFn: ({ pageParam = 1 }) => userMyPostsFeeds(pageParam),
+    initialPageParam: 1,
+    getNextPageParam: (lastPage) => {
+      const currentPage = lastPage?.meta?.page ?? 1;
+      const lastPageNumber = lastPage?.meta?.lastPage ?? 1;
+      return currentPage < lastPageNumber ? currentPage + 1 : undefined;
+    },
     staleTime: 5 * 60 * 1000,
   });
 
+  const pages = data?.pages ?? [];
+  const combinedPosts = pages.flatMap((page: any) => page?.posts || []) ?? [];
+  const latestMeta = pages.length > 0 ? pages[pages.length - 1]?.meta : null;
+  const status = pages.length > 0 ? pages[0]?.status : null;
+
   return {
-    userMyPostFeedsData: data,
-    isUserMyPostFeedsDataLoading: isPending,
+    userMyPostFeedsData: {
+      status,
+      meta: latestMeta,
+      posts: combinedPosts,
+      pages,
+    },
+    isUserMyPostFeedsDataLoading: isLoading,
     isUserMyPostFeedsDataSuccess: isSuccess,
     isUserMyPostFeedsDataError: isError,
     isUserMyPostFeedsError: error,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isFetchingInitial: isFetching && !isFetchingNextPage,
   };
 }
 
@@ -172,6 +236,10 @@ export const useUserCreatePost = (domainId: string | boolean) => {
           queryKey: ["userPostFeeds"],
           exact: false,
         });
+        queryClient.invalidateQueries({
+          queryKey: ["favoritePosts"],
+          exact: false,
+        });
       },
     });
 
@@ -210,6 +278,10 @@ export const useUserUpdatePost = () => {
 
         queryClient.invalidateQueries({
           queryKey: ["userPostFeeds"],
+          exact: false,
+        });
+        queryClient.invalidateQueries({
+          queryKey: ["favoritePosts"],
           exact: false,
         });
       },
@@ -742,5 +814,94 @@ export const useDeleteGradingTemplate = () => {
     isDeletingTemplateSuccess: isSuccess,
     isDeletingTemplateError: isError,
     deletingTemplateError: error,
+  };
+};
+
+//--------------------FOLLOW USER
+export const useFollowUser = () => {
+  const { mutate, mutateAsync, data, isPending, isSuccess, isError, error } =
+    useMutation({
+      mutationFn: (userId: string) => followUser(userId),
+      onSuccess: () => {
+        toast.success("User followed successfully!");
+        queryClient.invalidateQueries({
+          queryKey: ["followingUsers"],
+          exact: false,
+        });
+      },
+      onError: (error) => {
+        toast.error("Failed to follow user!");
+      },
+    });
+
+  return {
+    followUser: mutate,
+    followUserAsync: mutateAsync,
+    data,
+    isFollowingUserLoading: isPending,
+    isFollowingUserSuccess: isSuccess,
+    isFollowingUserError: isError,
+    followingUserError: error,
+  };
+};
+
+//--------------------UNFOLLOW USER
+export const useUnfollowUser = () => {
+  const { mutate, mutateAsync, data, isPending, isSuccess, isError, error } =
+    useMutation({
+      mutationFn: (userId: string) => unfollowUser(userId),
+      onSuccess: () => {
+        toast.success("User unfollowed successfully!");
+        queryClient.invalidateQueries({
+          queryKey: ["followingUsers"],
+          exact: false,
+        });
+      },
+      onError: (error) => {
+        toast.error("Failed to unfollow user!");
+      },
+    });
+
+  return {
+    unfollowUser: mutate,
+    unfollowUserAsync: mutateAsync,
+    data,
+    isUnfollowingUserLoading: isPending,
+    isUnfollowingUserSuccess: isSuccess,
+    isUnfollowingUserError: isError,
+    unfollowingUserError: error,
+  };
+};
+//--------------------GET FOLLOWING USERS
+export const useGetFollowingUsers = () => {
+  const { data, isPending, isSuccess, isError, error } = useQuery({
+    queryKey: ["followingUsers"],
+    queryFn: getFollowingUsers,
+    staleTime: 5 * 60 * 1000,
+  });
+
+  return {
+    followingUsers: data,
+    isFollowingUsersLoading: isPending,
+    isFollowingUsersSuccess: isSuccess,
+    isFollowingUsersError: isError,
+    followingUsersError: error,
+  };
+};
+
+//--------------------GET FOLLOWERS
+export const useGetFollowers = () => {
+  const { data, isPending, isSuccess, isError, error } = useQuery({
+    queryKey: ["followers"],
+    queryFn: getFollowers,
+    staleTime: 5 * 60 * 1000,
+  });
+
+  return {
+    followers: data,
+    isFollowersLoading: isPending,
+    isFollowersSuccess: isSuccess,
+    isFollowersError: isError,
+    followersError: error,
   };
 };

@@ -4,9 +4,13 @@ import SectionHeader from "@/components/SectionHeader";
 import { FilterButtons } from "@/components/ui/FilterButtons";
 import Post from "@/modules/dashboard/teacher/PostSection";
 import { customJwtPayload, PostAttributes } from "@/types/postAttributes";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { ChevronUp } from "lucide-react";
-import { useUserPostFeeds, useFavoritePosts } from "@/hooks/useUser";
+import {
+  useUserPostFeeds,
+  useFavoritePosts,
+  useGetFollowingUsers,
+} from "@/hooks/useUser";
 import SectionLoading from "@/components/SectionLoading";
 import { getToken } from "@/services/tokenService";
 import { jwtDecode } from "jwt-decode";
@@ -16,9 +20,8 @@ import MobileGradingClient from "./MobileGradingClient";
 
 //this page collects all posts
 export default function GradingClientTeachers() {
-  const filters = ["All", "Moderated", "Pending", "Favorites"];
+  const filters = ["All", "Moderated", "Pending", "Following", "Favorites"];
   const [activeFilter, setActiveFilter] = useState("Pending"); // ✅ default "All"
-  const [visiblePostsCount, setVisiblePostsCount] = useState(5); // Start with 5 posts
 
   const {
     userPostFeedsData,
@@ -26,11 +29,31 @@ export default function GradingClientTeachers() {
     isUserPostFeedsDataLoading,
     isUserPostFeedsDataSuccess,
     isUserPostFeedsError,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
   } = useUserPostFeeds();
 
   const { favoritePostsData, isFavoritePostsDataLoading } = useFavoritePosts();
+  const { followingUsers, isFollowingUsersLoading } = useGetFollowingUsers();
 
-  const filteredModeratedPostFeedsData = userPostFeedsData?.posts.filter(
+  const allPosts = useMemo(
+    () => userPostFeedsData?.posts || [],
+    [userPostFeedsData?.posts]
+  );
+
+  const followingIds = useMemo(
+    () =>
+      followingUsers?.following?.map((user: any) => user.id).filter(Boolean) ||
+      [],
+    [followingUsers]
+  );
+
+  const filteredFollowingPostFeedsData = allPosts.filter((post) =>
+    followingIds.includes(post.author?.id)
+  );
+
+  const filteredModeratedPostFeedsData = allPosts.filter(
     (post: PostAttributes) => {
       const hasCommented = post.comments.some(
         (comment) => comment.commentedBy === decoded?.id
@@ -44,7 +67,7 @@ export default function GradingClientTeachers() {
     }
   );
 
-  const filteredPendingPostFeedsData = userPostFeedsData?.posts.filter(
+  const filteredPendingPostFeedsData = allPosts.filter(
     (post: PostAttributes) => {
       const notCommented = !post.comments.some(
         (comment) => comment.commentedBy === decoded?.id
@@ -61,7 +84,10 @@ export default function GradingClientTeachers() {
   );
 
   const handleLoadMore = () => {
-    setVisiblePostsCount((prev) => prev + 5); // Load 5 more posts
+    if (activeFilter === "Favorites") return;
+    if (hasNextPage) {
+      fetchNextPage();
+    }
   };
 
   const scrollToTop = () => {
@@ -82,32 +108,23 @@ export default function GradingClientTeachers() {
 
   const visiblePosts =
     activeFilter === "All"
-      ? userPostFeedsData?.posts.slice(0, visiblePostsCount)
+      ? allPosts
       : activeFilter === "Moderated"
-      ? filteredModeratedPostFeedsData?.slice(0, visiblePostsCount)
+      ? filteredModeratedPostFeedsData
       : activeFilter === "Pending"
-      ? filteredPendingPostFeedsData?.slice(0, visiblePostsCount)
+      ? filteredPendingPostFeedsData
+      : activeFilter === "Following"
+      ? filteredFollowingPostFeedsData
       : activeFilter === "Favorites"
-      ? favoritePostsList.slice(0, visiblePostsCount)
+      ? favoritePostsList
       : [];
-  console.log(
-    activeFilter,
-    "filter",
-    visiblePosts,
-    "favoritePostsData",
-    favoritePostsData
-  );
 
   const hasMorePosts =
-    activeFilter === "All"
-      ? visiblePostsCount < (userPostFeedsData?.posts.length || 0)
-      : activeFilter === "Moderated"
-      ? visiblePostsCount < (filteredModeratedPostFeedsData?.length || 0)
-      : activeFilter === "Pending"
-      ? visiblePostsCount < (filteredPendingPostFeedsData?.length || 0)
-      : activeFilter === "Favorites"
-      ? visiblePostsCount < (favoritePostsList.length || 0)
-      : false;
+    activeFilter === "Favorites" ? false : Boolean(hasNextPage);
+
+  const isActiveFilterLoading =
+    (activeFilter === "Favorites" && isFavoritePostsDataLoading) ||
+    (activeFilter === "Following" && isFollowingUsersLoading);
   return (
     <>
       {/* Mobile Version */}
@@ -122,6 +139,8 @@ export default function GradingClientTeachers() {
           scrollToTop={scrollToTop}
           isFavoritePostsDataLoading={isFavoritePostsDataLoading}
           isUserPostFeedsDataLoading={isUserPostFeedsDataLoading}
+          isFetchingNextPage={isFetchingNextPage}
+          isFollowingUsersLoading={isFollowingUsersLoading}
         />
       </div>
 
@@ -150,17 +169,16 @@ export default function GradingClientTeachers() {
             className="w-full overflow-x-auto max-h-[600px] overflow-y-auto scrollbar-thin scrollbar-thumb-blue-500 scrollbar-track-blue-100 scrollbar-thumb-rounded-full scrollbar-track-rounded-full"
             id="posts-container"
           >
-            {(isUserPostFeedsDataLoading ||
-              (activeFilter === "Favorites" && isFavoritePostsDataLoading)) && (
+            {(isUserPostFeedsDataLoading || isActiveFilterLoading) && (
               <SectionLoading />
             )}
             {!isUserPostFeedsDataLoading &&
-              !(activeFilter === "Favorites" && isFavoritePostsDataLoading) &&
+              !isActiveFilterLoading &&
               visiblePosts?.length === 0 && <EmptyState />}
             {!isUserPostFeedsDataLoading &&
-              !(activeFilter === "Favorites" && isFavoritePostsDataLoading) &&
+              !isActiveFilterLoading &&
               visiblePosts?.map((post: PostAttributes, idx: number) => {
-                return <Post post={post} key={idx} />;
+                return <Post post={post} key={post.id ?? idx} />;
               })}
           </div>
 
@@ -169,9 +187,12 @@ export default function GradingClientTeachers() {
             <div className="flex justify-center mt-6">
               <button
                 onClick={handleLoadMore}
-                className="bg-[#3B82F6] hover:bg-[#2563EB] text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200"
+                disabled={isFetchingNextPage}
+                className={`bg-[#3B82F6] hover:bg-[#2563EB] text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200 ${
+                  isFetchingNextPage ? "opacity-70 cursor-not-allowed" : ""
+                }`}
               >
-                Load More Posts
+                {isFetchingNextPage ? "Loading..." : "Load More Posts"}
               </button>
             </div>
           )}
