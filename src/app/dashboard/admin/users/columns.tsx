@@ -8,6 +8,7 @@ import DeleteUserModal from "@/modules/dashboard/admin/modal/users/DeleteUserMod
 import MessageUserModal from "@/modules/dashboard/admin/modal/users/MessageUserModal";
 import { User } from "@/app/types/user";
 import { timeAgo } from "@/lib/timeAgo";
+import Tooltip from "@/components/ui/Tooltip";
 
 export function getUserColumns(
   handleOpenModal: <P>(component: ComponentType<P>, props?: P) => void
@@ -88,30 +89,38 @@ export function getUserColumns(
         const user = row.original;
         return (
           <div className="flex gap-2">
-            <button
-              onClick={() => handleOpenModal(ViewUserModal, { user })}
-              className="p-1 text-blue-500 hover:bg-blue-50 rounded"
-            >
-              <Eye size={16} />
-            </button>
-            <button
-              onClick={() => handleOpenModal(EditUserModal, { user })}
-              className="p-1 text-green-500 hover:bg-green-50 rounded"
-            >
-              <Pencil size={16} />
-            </button>
-            <button
-              onClick={() => handleOpenModal(MessageUserModal, { user })}
-              className="p-1 text-gray-500 hover:bg-gray-50 rounded"
-            >
-              <Mail size={16} />
-            </button>
-            <button
-              onClick={() => handleOpenModal(DeleteUserModal, { user })}
-              className="p-1 text-red-500 hover:bg-red-50 rounded"
-            >
-              <Trash2 size={16} />
-            </button>
+            <Tooltip text="View User Details" position="top">
+              <button
+                onClick={() => handleOpenModal(ViewUserModal, { user })}
+                className="p-1 text-blue-500 hover:bg-blue-50 rounded transition-colors"
+              >
+                <Eye size={16} />
+              </button>
+            </Tooltip>
+            <Tooltip text="Edit User" position="top">
+              <button
+                onClick={() => handleOpenModal(EditUserModal, { user })}
+                className="p-1 text-green-500 hover:bg-green-50 rounded transition-colors"
+              >
+                <Pencil size={16} />
+              </button>
+            </Tooltip>
+            <Tooltip text="Send Message" position="top">
+              <button
+                onClick={() => handleOpenModal(MessageUserModal, { user })}
+                className="p-1 text-gray-500 hover:bg-gray-50 rounded transition-colors"
+              >
+                <Mail size={16} />
+              </button>
+            </Tooltip>
+            <Tooltip text="Delete User" position="top">
+              <button
+                onClick={() => handleOpenModal(DeleteUserModal, { user })}
+                className="p-1 text-red-500 hover:bg-red-50 rounded transition-colors"
+              >
+                <Trash2 size={16} />
+              </button>
+            </Tooltip>
           </div>
         );
       },

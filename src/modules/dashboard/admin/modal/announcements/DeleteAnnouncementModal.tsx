@@ -25,7 +25,7 @@ export default function DeleteAnnouncementModal({
 
   useEffect(() => {
     if (isDeletingAnnouncementSuccess) {
-      toast.success("User deleted successfully");
+      toast.success("Announcement deleted successfully");
       close();
     }
   }, [isDeletingAnnouncementSuccess, close]);

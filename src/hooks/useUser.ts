@@ -673,7 +673,6 @@ export const useDeleteAccount = () => {
 
 //--------------------GRADING TEMPLATE HOOKS
 
-// Save a new grading template
 export const useSaveGradingTemplate = () => {
   const { mutate, mutateAsync, data, isPending, isSuccess, isError, error } =
     useMutation({
@@ -699,13 +698,11 @@ export const useSaveGradingTemplate = () => {
   };
 };
 
-// Get all grading templates
 export const useGradingTemplates = () => {
   const { data, isLoading, isError, error, isSuccess, refetch } = useQuery({
     queryKey: ["gradingTemplates"],
     queryFn: async () => {
       const response = await getGradingTemplates();
-      // Handle different response structures
       let templates: any[] = [];
       if (response?.json?.templates) {
         templates = response.json.templates;
@@ -715,10 +712,9 @@ export const useGradingTemplates = () => {
         templates = response;
       }
 
-      // Map API response to our type structure (API uses 'type', we use 'gradingType')
       return templates.map((template: any) => ({
         ...template,
-        gradingType: template.type || template.gradingType, // Map 'type' to 'gradingType'
+        gradingType: template.type || template.gradingType,
       }));
     },
   });
@@ -733,14 +729,12 @@ export const useGradingTemplates = () => {
   };
 };
 
-// Get a single grading template by ID
 export const useGradingTemplateById = (templateId: string | null) => {
   const { data, isLoading, isError, error, isSuccess } = useQuery({
     queryKey: ["gradingTemplate", templateId],
     queryFn: async () => {
       if (!templateId) return null;
       const response = await getGradingTemplateById(templateId);
-      // Handle different response structures
       if (response?.json?.template) {
         return response.json.template;
       }
@@ -761,7 +755,6 @@ export const useGradingTemplateById = (templateId: string | null) => {
   };
 };
 
-// Update a grading template
 export const useUpdateGradingTemplate = () => {
   const { mutate, mutateAsync, data, isPending, isSuccess, isError, error } =
     useMutation({
@@ -792,7 +785,6 @@ export const useUpdateGradingTemplate = () => {
   };
 };
 
-// Delete a grading template
 export const useDeleteGradingTemplate = () => {
   const { mutate, mutateAsync, data, isPending, isSuccess, isError, error } =
     useMutation({

@@ -24,7 +24,7 @@ export default function DeleteCurricularAreaModal({
 
   useEffect(() => {
     if (isDeletingCurricularDataSuccess) {
-      toast.success("User deleted successfully");
+      toast.success("Curricular area deleted successfully");
       close();
     }
   }, [isDeletingCurricularDataSuccess]);
