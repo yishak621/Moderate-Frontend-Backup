@@ -1,11 +1,16 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import Input from "@/components/ui/Input";
 import Textarea from "@/components/ui/Textarea";
+import ReactGoogleRecaptcha, {
+  ReactGoogleRecaptchaInstance,
+} from "react-google-recaptcha";
+import { toast } from "react-hot-toast";
 
 export default function ContactUsSection() {
   const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
+  const recaptchaRef = useRef<ReactGoogleRecaptchaInstance>(null);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -22,6 +27,13 @@ export default function ContactUsSection() {
     setIsSubmitting(true);
     setSubmitStatus(null);
 
+    const token = recaptchaRef.current?.getValue();
+    if (!token) {
+      toast.error("Please verify you are not a robot");
+      setIsSubmitting(false);
+      return;
+    }
+
     try {
       const response = await fetch(`${BASE_URL}/api/auth/contact`, {
         method: "POST",
@@ -33,6 +45,7 @@ export default function ContactUsSection() {
           email: formData.email,
           message: formData.message,
           to: "contact@moderatetech.co.uk",
+          captchaToken: token,
         }),
       });
 
@@ -40,6 +53,7 @@ export default function ContactUsSection() {
         setSubmitStatus("success");
         setShowSuccess(true);
         setFormData({ name: "", email: "", message: "" });
+        recaptchaRef.current?.reset();
 
         // Hide success after 3 seconds
         setTimeout(() => {
@@ -149,7 +163,10 @@ export default function ContactUsSection() {
               required
               disabled={isSubmitting}
             />
-
+            <ReactGoogleRecaptcha
+              sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY!}
+              ref={recaptchaRef}
+            />
             {/* Submit Button */}
             <button
               type="submit"
