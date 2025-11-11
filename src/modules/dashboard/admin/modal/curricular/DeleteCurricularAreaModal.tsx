@@ -27,7 +27,7 @@ export default function DeleteCurricularAreaModal({
       toast.success("Curricular area deleted successfully");
       close();
     }
-  }, [isDeletingCurricularDataSuccess]);
+  }, [isDeletingCurricularDataSuccess, close]);
 
   return (
     <div className=" bg-[#FDFDFD] min-w-[551px] p-10 rounded-[27px] flex flex-col">

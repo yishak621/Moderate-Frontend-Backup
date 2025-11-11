@@ -7,7 +7,7 @@ import {
   ResetPasswordPropsTypes,
   SignupFormDataTypes,
 } from "@/types/authData.type";
-import { setRole, setToken } from "./tokenService";
+import { setRole, setToken, setModerationStatus } from "./tokenService";
 
 //-------------------LOGIN
 
@@ -22,6 +22,13 @@ export const login = async (data: loginFormDataTypes) => {
     if (res.data?.token) {
       setToken(res.data.token);
       setRole(res.data.user.role);
+      // Store moderation status if available
+      if (res.data.user?.moderationStatus?.status) {
+        setModerationStatus(res.data.user.moderationStatus.status);
+      } else {
+        // Default to active if no moderation status
+        setModerationStatus("active");
+      }
     }
     return res.data.user;
   } catch (error) {
@@ -29,6 +36,46 @@ export const login = async (data: loginFormDataTypes) => {
     if (error && typeof error === "object" && "response" in error) {
       const axiosError = error as any;
       const responseData = axiosError.response?.data;
+
+      // Handle suspended/banned users - they get 403 but with token
+      if (
+        responseData?.requiresAppeal &&
+        (responseData?.code === "ACCOUNT_BANNED" ||
+          responseData?.code === "ACCOUNT_SUSPENDED")
+      ) {
+        // Store token even though it's an error response
+        if (responseData?.token) {
+          setToken(responseData.token);
+          if (responseData?.user?.role) {
+            setRole(responseData.user.role);
+          }
+          // Store moderation status from response
+          if (responseData?.user?.moderationStatus?.status) {
+            setModerationStatus(responseData.user.moderationStatus.status);
+          } else if (responseData?.code === "ACCOUNT_BANNED") {
+            setModerationStatus("banned");
+          } else if (responseData?.code === "ACCOUNT_SUSPENDED") {
+            setModerationStatus("suspended");
+          }
+        }
+
+        // Create custom error with all the data
+        const customError = new Error(
+          responseData.message || "Your account has been suspended or banned"
+        ) as Error & {
+          code?: string;
+          response?: any;
+          requiresAppeal?: boolean;
+          user?: any;
+          suspendedUntil?: string;
+        };
+        customError.code = responseData.code;
+        customError.requiresAppeal = responseData.requiresAppeal;
+        customError.user = responseData.user;
+        customError.suspendedUntil = responseData.suspendedUntil;
+        customError.response = axiosError.response;
+        throw customError;
+      }
 
       // If there's a specific error code, preserve the structure
       if (responseData?.code) {

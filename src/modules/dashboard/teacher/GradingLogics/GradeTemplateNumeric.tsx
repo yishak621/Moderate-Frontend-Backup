@@ -64,11 +64,7 @@ export function GradeTemplateNumeric({
     isSavingGradeSuccess,
   } = useUserSaveGrade();
   const value = watch("value") ?? 0;
-  useEffect(() => {
-    if (isSavingGradeSuccess) {
-      setEditingGrade(postId, false);
-    }
-  }, [isSavingGradeSuccess, postId]);
+  
   const result = (): GradeResult | null => {
     if (value !== undefined && value <= max) {
       const total = value / max;
@@ -104,7 +100,9 @@ export function GradeTemplateNumeric({
     if (isSavingGradeSuccess) {
       setEditingGrade(postId, false);
     }
-  }, [isSavingGradeSuccess, postId]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isSavingGradeSuccess, postId]); // setEditingGrade is stable from Zustand
+  
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}

@@ -37,6 +37,16 @@ export default function LoginForm() {
     try {
       const res = await loginAsync(data);
     } catch (err) {
+      // Don't show error toast for suspended/banned users - handled in useEffect
+      const errorData = err as any;
+      if (
+        errorData?.code === "ACCOUNT_BANNED" ||
+        errorData?.code === "ACCOUNT_SUSPENDED"
+      ) {
+        // Error will be handled in useEffect with redirect
+        return;
+      }
+
       if (err instanceof Error) {
         toast.error(err.message);
       } else {
@@ -52,13 +62,25 @@ export default function LoginForm() {
     } else if (isSuccess && user && user.role === "SYSTEM_ADMIN") {
       router.push("/dashboard/admin");
     } else if (isError && error) {
-      // Check if it's a PENDING_ADMIN_VERIFICATION error
-      // Error code is now preserved by auth.service.ts
+      const errorData = error as any;
       const errorCode =
-        (error as any)?.code ||
-        (error as any)?.response?.data?.code ||
+        errorData?.code ||
+        errorData?.response?.data?.code ||
         ((error as AxiosError<{ code?: string }>)?.response?.data as any)?.code;
 
+      // Handle suspended/banned users - redirect to appeals
+      if (
+        (errorCode === "ACCOUNT_BANNED" || errorCode === "ACCOUNT_SUSPENDED") &&
+        errorData?.requiresAppeal
+      ) {
+        // Show message
+        toast.error(errorData.message || "Your account has been suspended or banned");
+        // Redirect to appeals page
+        router.push("/dashboard/teacher/appeals");
+        return;
+      }
+
+      // Check if it's a PENDING_ADMIN_VERIFICATION error
       if (errorCode === "PENDING_ADMIN_VERIFICATION") {
         // Use submitted email or try to get from error response
         const axiosError = error as AxiosError<{

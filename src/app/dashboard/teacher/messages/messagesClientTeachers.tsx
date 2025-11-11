@@ -224,7 +224,8 @@ export default function MessagesClientTeachers() {
     };
 
     markAsRead();
-  }, [activeId]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeId]); // markMessageAsReadAsync is stable and doesn't need to be in deps
 
   // Send message via WebSocket
   async function sendMessage() {

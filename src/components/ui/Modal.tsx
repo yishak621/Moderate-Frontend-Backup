@@ -175,7 +175,8 @@ Modal.Content = function Content({
     }
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
-  }, [ctx.open, closeOnEsc]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ctx.open, closeOnEsc]); // ctx is stable from context
 
   // restore focus
   useEffect(() => {

@@ -17,6 +17,21 @@ export default function DeleteUserModal({ user }: { user: User }) {
   } = useAdminUserDeleteData(user?.id ?? "");
   const { close } = useModal();
 
+  useEffect(() => {
+    if (isDeletingUserDataSuccess) {
+      toast.success("User deleted successfully");
+      close();
+    }
+    if (isDeletingUserDataError) {
+      toast.error(deletingUserDataError?.message || "Failed to delete user");
+    }
+  }, [
+    isDeletingUserDataSuccess,
+    isDeletingUserDataError,
+    deletingUserDataError,
+    close,
+  ]);
+
   if (!user) return null;
 
   return (

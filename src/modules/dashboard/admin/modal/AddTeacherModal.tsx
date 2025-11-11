@@ -82,7 +82,7 @@ export default function AddTeacherModal() {
       toast.success("Teacher created successfully!");
       close();
     }
-  }, [isCreatingNewUserDataSuccess]);
+  }, [isCreatingNewUserDataSuccess, close]);
 
   return (
     <form

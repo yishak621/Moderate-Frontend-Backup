@@ -62,7 +62,8 @@ export default function Tooltip({
         window.removeEventListener("resize", updateTooltipPosition);
       };
     }
-  }, [isVisible, position]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isVisible, position]); // updateTooltipPosition is defined in the effect
 
   const positionClasses = {
     top: "-translate-y-full -translate-x-1/2",

@@ -41,6 +41,7 @@ import {
 import Image from "next/image";
 import Tooltip from "@/components/ui/Tooltip";
 import { User } from "@/app/types/user";
+import ReportUserModal from "./modal/ReportUserModal";
 
 export default function Post({ post }: { post: PostAttributes }) {
   const router = useRouter();
@@ -302,13 +303,17 @@ export default function Post({ post }: { post: PostAttributes }) {
               </Tooltip>
 
               {/* Flag User Button */}
-              <Tooltip text="Report Flag User" position="top">
+              <Tooltip text="Report User" position="top">
                 <button
                   onClick={() => {
-                    // TODO: Handle report/flag user
+                    if (post.author) {
+                      handleOpenModal(ReportUserModal, {
+                        reportedUser: post.author as User,
+                      });
+                    }
                   }}
                   className="flex items-center justify-center p-1 rounded-full hover:bg-red-50 transition-colors"
-                  aria-label="Report flag user"
+                  aria-label="Report user"
                 >
                   <Flag
                     size={16}
@@ -391,12 +396,16 @@ export default function Post({ post }: { post: PostAttributes }) {
                   <button
                     onClick={() => {
                       setIsPopUpOpen(false);
-                      // TODO: Handle report flag user
+                      if (post.author) {
+                        handleOpenModal(ReportUserModal, {
+                          reportedUser: post.author as User,
+                        });
+                      }
                     }}
                     className="flex items-center gap-3 px-4 py-3 cursor-pointer rounded-lg text-sm font-medium text-red-500 hover:bg-red-50 transition-colors"
                   >
                     <Flag size={18} />
-                    <span>Report Flag User</span>
+                    <span>Report User</span>
                   </button>
                 </div>
               </PopupCard>

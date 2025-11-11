@@ -119,7 +119,8 @@ export default function GradeTemplateWeightedRubric({
     if (isSavingGradeSuccess) {
       setEditingGrade(postId, false);
     }
-  }, [isSavingGradeSuccess, postId]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isSavingGradeSuccess, postId]); // setEditingGrade is stable from Zustand
 
   return (
     <form

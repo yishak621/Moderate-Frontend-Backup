@@ -21,12 +21,21 @@ import {
   Shield,
   BookOpen,
   AtSign,
+  Flag,
+  UserX,
+  Scale,
+  Gavel,
 } from "lucide-react";
 import DashboardShell, { NavItem } from "@/components/DashboardShell";
 import Image from "next/image";
 import { usePathname, useSearchParams } from "next/navigation";
 import SearchInputTeacher from "@/modules/dashboard/teacher/SearchInputTeacher";
-import { getRole, removeToken } from "@/services/tokenService";
+import {
+  getRole,
+  removeToken,
+  getModerationStatus,
+  setModerationStatus,
+} from "@/services/tokenService";
 import { useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 
@@ -34,6 +43,13 @@ import { useUserData } from "@/hooks/useUser";
 import PopupCard from "@/components/PopCard";
 import { queryClient } from "@/lib/queryClient";
 import UserAvatar from "@/components/UserAvatar";
+import {
+  useUserModerationDetails,
+  useUserReportStats,
+} from "@/hooks/useModeration";
+import ModerationWarningBanner from "@/components/ModerationWarningBanner";
+import AccountSuspendedBanner from "@/components/AccountSuspendedBanner";
+import toast from "react-hot-toast";
 
 type Role = "SYSTEM_ADMIN" | "TEACHER";
 
@@ -67,6 +83,21 @@ function getSidebarItems(role: Role): NavItem[] {
         href: "/dashboard/admin/support-messages",
       },
       {
+        label: "Reports",
+        icon: Flag,
+        href: "/dashboard/admin/reports",
+      },
+      {
+        label: "Moderated Users",
+        icon: UserX,
+        href: "/dashboard/admin/moderated-users",
+      },
+      {
+        label: "Appeals",
+        icon: Scale,
+        href: "/dashboard/admin/appeals",
+      },
+      {
         label: "App Settings",
         icon: Settings,
         href: "/dashboard/admin/settings",
@@ -95,7 +126,11 @@ function getSidebarItems(role: Role): NavItem[] {
       icon: CircleQuestionMark,
       href: "/dashboard/teacher/support",
     },
-
+    {
+      label: "Appeals",
+      icon: Gavel,
+      href: "/dashboard/teacher/appeals",
+    },
     { label: "Settings", icon: Settings, href: "/dashboard/teacher/settings" },
   ];
 }
@@ -148,11 +183,52 @@ function DashboardLayoutContent({ children }: { children: ReactNode }) {
   const router = useRouter();
   const { user, isLoading, isSuccess, isError, error } = useUserData();
 
+  // Get moderation details for teachers only
+  const { data: moderationData } = useUserModerationDetails(user?.id || "", {
+    enabled: !!user?.id && role === "TEACHER",
+  });
+  const { data: reportStats } = useUserReportStats(user?.id || "", {
+    enabled: !!user?.id && role === "TEACHER",
+  });
+
+  // Update moderation status in cookie when data is fetched
+  useEffect(() => {
+    if (moderationData?.moderation?.status && role === "TEACHER") {
+      setModerationStatus(moderationData.moderation.status);
+    }
+  }, [moderationData?.moderation?.status, role]);
+
   const handleLogout = () => {
     queryClient.clear();
     removeToken();
     router.push("/auth/login");
   };
+
+  // Check moderation status from cookie and API on mount and when data changes
+  // Force logout if banned, show banner if suspended/pending_review
+  useEffect(() => {
+    if (user?.id && role === "TEACHER") {
+      const cookieStatus = getModerationStatus();
+      const apiStatus = moderationData?.moderation?.status;
+
+      // Use API status if available, otherwise fall back to cookie
+      const currentStatus = apiStatus || cookieStatus;
+
+      // Force logout if banned
+      if (currentStatus === "banned") {
+        toast.error("Your account has been banned. You have been logged out.");
+        queryClient.clear();
+        removeToken();
+        router.push("/auth/login");
+        return;
+      }
+
+      // Update cookie with latest status from API
+      if (apiStatus && apiStatus !== cookieStatus) {
+        setModerationStatus(apiStatus);
+      }
+    }
+  }, [user?.id, moderationData?.moderation?.status, role, router]);
 
   const menuItems = [
     {
@@ -370,24 +446,44 @@ function DashboardLayoutContent({ children }: { children: ReactNode }) {
   }
 
   return (
-    <DashboardShell
-      title={title}
-      sidebarItems={sidebarItems}
-      mobileSidebarItems={mobileSidebarItems}
-      onSearchChange={() => {}}
-      rightContent={
-        role === "SYSTEM_ADMIN" ? adminRightContent() : userRightContent()
-      }
-      place={role === "SYSTEM_ADMIN" ? "SYSTEM_ADMIN" : "TEACHER"}
-    >
-      {children}
-    </DashboardShell>
+    <>
+      <AccountSuspendedBanner />
+      <DashboardShell
+        title={title}
+        sidebarItems={sidebarItems}
+        mobileSidebarItems={mobileSidebarItems}
+        onSearchChange={() => {}}
+        rightContent={
+          role === "SYSTEM_ADMIN" ? adminRightContent() : userRightContent()
+        }
+        place={role === "SYSTEM_ADMIN" ? "SYSTEM_ADMIN" : "TEACHER"}
+      >
+        {/* Moderation Warning Banner for Teachers */}
+        {role === "TEACHER" &&
+          moderationData?.moderation &&
+          ((moderationData.moderation.status === "active" &&
+            moderationData.moderation.violationCount > 0) ||
+            moderationData.moderation.status === "suspended" ||
+            moderationData.moderation.status === "banned" ||
+            moderationData.moderation.status === "pending_review") && (
+            <div className="px-4 md:px-6 pt-4">
+              <ModerationWarningBanner
+                moderation={moderationData.moderation}
+                reportStats={reportStats}
+              />
+            </div>
+          )}
+        {children}
+      </DashboardShell>
+    </>
   );
 }
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
   return (
-    <Suspense fallback={<SuspenseLoading fullscreen message="Loading dashboard..." />}>
+    <Suspense
+      fallback={<SuspenseLoading fullscreen message="Loading dashboard..." />}
+    >
       <DashboardLayoutContent>{children}</DashboardLayoutContent>
     </Suspense>
   );

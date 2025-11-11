@@ -70,7 +70,8 @@ export function GradeTemplatePassFail({
     if (isSavingGradeSuccess) {
       setEditingGrade(postId, false);
     }
-  }, [isSavingGradeSuccess, postId]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isSavingGradeSuccess, postId]); // setEditingGrade is stable from Zustand
 
   return (
     <form onSubmit={handleSubmit} className="p-6 space-y-6 w-full">

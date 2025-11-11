@@ -19,7 +19,10 @@ declare module "react-google-recaptcha" {
     executeAsync(): Promise<string>;
   }
 
-  export interface ReactGoogleRecaptchaInstance extends ReCAPTCHA {}
+  // eslint-disable-next-line @typescript-eslint/no-empty-object-type
+  export interface ReactGoogleRecaptchaInstance extends ReCAPTCHA {
+    // This interface extends ReCAPTCHA to provide type safety for the ref
+  }
 
   const ReactGoogleRecaptcha: ForwardRefExoticComponent<
     ReCAPTCHAProps & RefAttributes<ReactGoogleRecaptchaInstance>

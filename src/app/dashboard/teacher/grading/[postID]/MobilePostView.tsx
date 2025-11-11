@@ -41,6 +41,8 @@ import toast from "react-hot-toast";
 import ResponsiveModal from "@/components/ui/ResponsiveModal";
 import DeleteGradeModal from "@/modules/dashboard/teacher/DeleteGradeModal";
 import { useGradeEditStore } from "@/store/gradeEditStore";
+import ReportUserModal from "@/modules/dashboard/teacher/modal/ReportUserModal";
+import { User } from "@/app/types/user";
 
 interface MobilePostViewProps {
   post: PostType & {
@@ -231,8 +233,9 @@ export default function MobilePostView({
         router.push(`/dashboard/teacher/messages?chatId=${author?.id}`);
         break;
       case "report":
-        // TODO: Handle report
-        console.log("Report user");
+        if (author) {
+          handleOpenModal(ReportUserModal, { reportedUser: author as User });
+        }
         break;
       default:
         break;

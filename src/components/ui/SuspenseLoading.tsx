@@ -61,7 +61,6 @@ export default function SuspenseLoading({
         <div className="flex items-center justify-center gap-1.5 mt-1">
           {[0, 1, 2].map((i) => (
             <span
-              // eslint-disable-next-line react/no-array-index-key
               key={i}
               className={`${cfg.dot} rounded-full bg-[#368FFF] animate-bounce`}
               style={{ animationDelay: `${i * 120}ms` }}

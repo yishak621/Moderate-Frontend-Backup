@@ -30,7 +30,7 @@ export default function DeleteCurricularAreaModal({
       toast.success("Email Domain deleted successfully");
       close();
     }
-  }, [isDeletingEmailDomainSuccess]);
+  }, [isDeletingEmailDomainSuccess, close]);
 
   return (
     <div className=" bg-[#FDFDFD] min-w-[551px] p-10 rounded-[27px] flex flex-col">

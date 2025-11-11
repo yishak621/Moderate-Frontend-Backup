@@ -112,7 +112,8 @@ export function GradeTemplateLetter({
     if (isSavingGradeSuccess) {
       setEditingGrade(postId, false);
     }
-  }, [isSavingGradeSuccess, postId]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isSavingGradeSuccess, postId]); // setEditingGrade is stable from Zustand
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
