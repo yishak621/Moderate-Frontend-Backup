@@ -104,6 +104,11 @@ export default function PaymentStatusClient({
               >
                 <div className="flex-shrink-0">{icon}</div>
                 <div className="flex-1 text-left">
+                  {isSuccess && (
+                    <p className="text-sm sm:text-base font-bold text-[#717171] mb-2">
+                      A receipt has been sent to your email address from Stripe.
+                    </p>
+                  )}
                   <p
                     className="text-base sm:text-lg font-semibold mb-1"
                     style={{ color: accentColor }}

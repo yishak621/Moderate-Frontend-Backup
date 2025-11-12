@@ -68,21 +68,36 @@ export default function LoginForm() {
         errorData?.response?.data?.code ||
         ((error as AxiosError<{ code?: string }>)?.response?.data as any)?.code;
 
-      // Handle payment required (402) - trial expired
-      if (errorCode === "PAYMENT_REQUIRED" || errorData?.requiresPayment) {
+      // Handle payment required (402) - trial expired or checkout incomplete
+      if (
+        errorCode === "PAYMENT_REQUIRED" ||
+        errorCode === "CHECKOUT_INCOMPLETE" ||
+        errorData?.requiresPayment ||
+        errorData?.checkoutIncomplete
+      ) {
         // Redirect to payment required page with checkout URL if available
         const checkoutUrl = errorData?.checkoutUrl;
         const trialEndsAt = errorData?.trialEndsAt;
+        const checkoutIncomplete = errorData?.checkoutIncomplete || errorCode === "CHECKOUT_INCOMPLETE";
         
+        // Build query parameters
+        const params = new URLSearchParams();
         if (checkoutUrl) {
-          router.push(
-            `/payment/required?checkoutUrl=${encodeURIComponent(
-              checkoutUrl
-            )}${trialEndsAt ? `&trialEndsAt=${encodeURIComponent(trialEndsAt)}` : ""}`
-          );
-        } else {
-          router.push("/payment/required");
+          params.set("checkoutUrl", checkoutUrl);
         }
+        if (trialEndsAt) {
+          params.set("trialEndsAt", trialEndsAt);
+        }
+        if (checkoutIncomplete) {
+          params.set("checkoutIncomplete", "true");
+        }
+        // Pass user email so backend can identify user without auth token
+        if (submittedEmail) {
+          params.set("email", submittedEmail);
+        }
+        
+        const queryString = params.toString();
+        router.push(`/payment/required${queryString ? `?${queryString}` : ""}`);
         return;
       }
 

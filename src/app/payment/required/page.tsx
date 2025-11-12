@@ -8,6 +8,12 @@ import { motion } from "framer-motion";
 import { CreditCard, Clock, AlertCircle, ArrowRight } from "lucide-react";
 import Button from "@/components/ui/Button";
 import toast from "react-hot-toast";
+import PlanSelectionModal from "@/components/PlanSelectionModal";
+import {
+  useCreateCheckoutSession,
+  usePlansPublic,
+} from "@/hooks/usePublicRoutes";
+import { Plan } from "@/types/admin.type";
 
 export default function PaymentRequiredPage() {
   const searchParams = useSearchParams();
@@ -15,16 +21,31 @@ export default function PaymentRequiredPage() {
   const [checkoutUrl, setCheckoutUrl] = useState<string | null>(null);
   const [trialEndsAt, setTrialEndsAt] = useState<string | null>(null);
   const [isRedirecting, setIsRedirecting] = useState(false);
+  const [isCheckoutIncomplete, setIsCheckoutIncomplete] = useState(false);
+  const [isPlanModalOpen, setIsPlanModalOpen] = useState(false);
+  const [userEmail, setUserEmail] = useState<string | null>(null);
+
+  const { plans } = usePlansPublic();
+  const { createCheckout, isLoading: isCreatingCheckout } =
+    useCreateCheckoutSession();
 
   useEffect(() => {
     const url = searchParams.get("checkoutUrl");
     const trialEnd = searchParams.get("trialEndsAt");
-    
+    const checkoutIncomplete = searchParams.get("checkoutIncomplete");
+    const email = searchParams.get("email");
+
     if (url) {
       setCheckoutUrl(decodeURIComponent(url));
     }
     if (trialEnd) {
       setTrialEndsAt(decodeURIComponent(trialEnd));
+    }
+    if (checkoutIncomplete === "true") {
+      setIsCheckoutIncomplete(true);
+    }
+    if (email) {
+      setUserEmail(decodeURIComponent(email));
     }
   }, [searchParams]);
 
@@ -38,12 +59,45 @@ export default function PaymentRequiredPage() {
   };
 
   const handleUpgrade = () => {
-    if (checkoutUrl) {
-      setIsRedirecting(true);
-      toast.loading("Redirecting to payment...");
-      window.location.href = checkoutUrl;
-    } else {
-      router.push("/pricing");
+    // Always show plan selection modal so user can choose their plan
+    setIsPlanModalOpen(true);
+  };
+
+  const handlePlanSelect = async (plan: "monthly" | "yearly") => {
+    try {
+      // Find the plan based on selected type
+      const selectedPlan = plans?.find(
+        (p: Plan) =>
+          p.interval?.toLowerCase() ===
+            (plan === "monthly" ? "month" : "year") && p.isActive
+      );
+
+      if (!selectedPlan || !selectedPlan.stripePriceId) {
+        toast.error("Plan not available. Please try again.");
+        return;
+      }
+
+      // Create checkout session with selected plan
+      // Pass email if available (for unauthenticated users)
+      const newCheckoutUrl = await createCheckout({
+        planName: selectedPlan.name,
+        stripePriceId: selectedPlan.stripePriceId,
+        email: userEmail || undefined,
+      });
+
+      if (newCheckoutUrl) {
+        setIsPlanModalOpen(false);
+        setIsRedirecting(true);
+        toast.success("Redirecting to checkout...");
+        window.location.href = newCheckoutUrl;
+      }
+    } catch (error) {
+      console.error("Error creating checkout session:", error);
+      if (error instanceof Error) {
+        toast.error(error.message || "Failed to create checkout session");
+      } else {
+        toast.error("Failed to create checkout session. Please try again.");
+      }
     }
   };
 
@@ -108,36 +162,60 @@ export default function PaymentRequiredPage() {
               className="text-center space-y-4"
             >
               <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900">
-                Free Trial Expired
+                {isCheckoutIncomplete
+                  ? "Complete Your Subscription Setup"
+                  : "Free Trial Expired"}
               </h1>
               <p className="text-[#717171] text-base sm:text-lg lg:text-xl leading-relaxed max-w-xl mx-auto">
-                Your 30-day free trial has ended. Upgrade to a paid plan to
-                continue accessing all features of Moderate Tech.
+                {isCheckoutIncomplete
+                  ? "Please complete your subscription setup to access the platform. Complete the checkout process to continue using Moderate Tech."
+                  : "Your 30-day free trial has ended. Upgrade to a paid plan to continue accessing all features of Moderate Tech."}
               </p>
             </motion.div>
 
-            {/* Trial End Date Info */}
-            {trialEndsAt && (
+            {/* Trial End Date Info or Checkout Incomplete Info */}
+            {isCheckoutIncomplete ? (
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.6 }}
                 className="w-full bg-blue-50 border-2 border-blue-200 rounded-2xl p-6 sm:p-8 flex items-start gap-4"
               >
-                <Clock className="w-6 h-6 sm:w-7 sm:h-7 text-blue-600 flex-shrink-0 mt-0.5" />
+                <AlertCircle className="w-6 h-6 sm:w-7 sm:h-7 text-blue-600 flex-shrink-0 mt-0.5" />
                 <div className="flex-1">
                   <p className="text-base sm:text-lg font-semibold text-blue-900 mb-1">
-                    Trial Ended
+                    Subscription Setup Required
                   </p>
                   <p className="text-sm sm:text-base text-blue-700">
-                    Your free trial ended on{" "}
-                    <span className="font-semibold">
-                      {formatDate(trialEndsAt)}
-                    </span>
-                    . Upgrade now to restore access.
+                    Your subscription checkout process was not completed. Please
+                    complete the checkout to activate your subscription and
+                    access all features.
                   </p>
                 </div>
               </motion.div>
+            ) : (
+              trialEndsAt && (
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: 0.6 }}
+                  className="w-full bg-blue-50 border-2 border-blue-200 rounded-2xl p-6 sm:p-8 flex items-start gap-4"
+                >
+                  <Clock className="w-6 h-6 sm:w-7 sm:h-7 text-blue-600 flex-shrink-0 mt-0.5" />
+                  <div className="flex-1">
+                    <p className="text-base sm:text-lg font-semibold text-blue-900 mb-1">
+                      Trial Ended
+                    </p>
+                    <p className="text-sm sm:text-base text-blue-700">
+                      Your free trial ended on{" "}
+                      <span className="font-semibold">
+                        {formatDate(trialEndsAt)}
+                      </span>
+                      . Upgrade now to restore access.
+                    </p>
+                  </div>
+                </motion.div>
+              )
             )}
 
             {/* Features Card */}
@@ -155,7 +233,9 @@ export default function PaymentRequiredPage() {
                   <div className="w-5 h-5 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0 mt-0.5">
                     <div className="w-2 h-2 rounded-full bg-green-600" />
                   </div>
-                  <span>Full access to all grading and moderation features</span>
+                  <span>
+                    Full access to all grading and moderation features
+                  </span>
                 </li>
                 <li className="flex items-start gap-3">
                   <div className="w-5 h-5 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0 mt-0.5">
@@ -187,10 +267,10 @@ export default function PaymentRequiredPage() {
             >
               <Button
                 onClick={handleUpgrade}
-                disabled={isRedirecting}
+                disabled={isRedirecting || isCreatingCheckout}
                 className="flex-1 justify-center items-center gap-2.5 h-14 sm:h-16 text-base sm:text-lg font-medium"
               >
-                {isRedirecting ? (
+                {isRedirecting || isCreatingCheckout ? (
                   <>
                     <svg
                       className="h-5 w-5 animate-spin text-white"
@@ -212,7 +292,9 @@ export default function PaymentRequiredPage() {
                         d="M4 12a8 8 0 018-8v4l3-3-3-3v4a12 12 0 00-12 12h4z"
                       ></path>
                     </svg>
-                    Redirecting...
+                    {isCreatingCheckout
+                      ? "Creating checkout..."
+                      : "Redirecting..."}
                   </>
                 ) : (
                   <>
@@ -250,7 +332,14 @@ export default function PaymentRequiredPage() {
           </p>
         </motion.div>
       </div>
+
+      {/* Plan Selection Modal */}
+      <PlanSelectionModal
+        isOpen={isPlanModalOpen}
+        onClose={() => setIsPlanModalOpen(false)}
+        onPlanSelect={handlePlanSelect}
+        isLoading={isCreatingCheckout}
+      />
     </div>
   );
 }
-

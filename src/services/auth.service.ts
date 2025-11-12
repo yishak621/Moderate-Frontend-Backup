@@ -38,7 +38,7 @@ export const login = async (data: loginFormDataTypes) => {
       const responseData = axiosError.response?.data;
       const statusCode = axiosError.response?.status;
 
-      // Handle payment required (402) - trial expired and subscription not active
+      // Handle payment required (402) - trial expired, checkout incomplete, or subscription not active
       if (statusCode === 402) {
         const customError = new Error(
           responseData?.message || "Your free trial has expired. Please upgrade to continue."
@@ -46,13 +46,16 @@ export const login = async (data: loginFormDataTypes) => {
           code?: string;
           response?: any;
           requiresPayment?: boolean;
+          checkoutIncomplete?: boolean;
           checkoutUrl?: string;
           trialEndsAt?: string;
         };
-        customError.code = "PAYMENT_REQUIRED";
-        customError.requiresPayment = true;
+        // Preserve the actual error code from backend (CHECKOUT_INCOMPLETE or PAYMENT_REQUIRED)
+        customError.code = responseData?.code || "PAYMENT_REQUIRED";
+        customError.requiresPayment = responseData?.paymentRequired ?? true;
+        customError.checkoutIncomplete = responseData?.checkoutIncomplete ?? false;
         customError.checkoutUrl = responseData?.checkoutUrl;
-        customError.trialEndsAt = responseData?.trialEndsAt;
+        customError.trialEndsAt = responseData?.trialEndsAt || responseData?.trialEndDate;
         customError.response = axiosError.response;
         throw customError;
       }

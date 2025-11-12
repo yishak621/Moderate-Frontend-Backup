@@ -60,13 +60,25 @@ export const plansPublic = async () => {
 
 export const createCheckoutSession = async (
   planName: string,
-  stripePriceId: string
+  stripePriceId: string,
+  email?: string
 ) => {
   try {
-    const res = await axiosInstance.post("/api/subscription/checkout", {
+    const payload: {
+      plan: string;
+      stripePriceId: string;
+      email?: string;
+    } = {
       plan: planName,
       stripePriceId,
-    });
+    };
+
+    // Include email if provided (for unauthenticated users)
+    if (email) {
+      payload.email = email;
+    }
+
+    const res = await axiosInstance.post("/api/subscription/checkout", payload);
 
     if (!res) {
       console.log("error");

@@ -46,10 +46,12 @@ export function useCreateCheckoutSession() {
     mutationFn: ({
       planName,
       stripePriceId,
+      email,
     }: {
       planName: string;
       stripePriceId: string;
-    }) => createCheckoutSession(planName, stripePriceId),
+      email?: string;
+    }) => createCheckoutSession(planName, stripePriceId, email),
   });
 
   return {
