@@ -1,5 +1,4 @@
 "use client";
-import makeAnimated from "react-select/animated";
 
 import CheckboxWithLabel from "@/components/CheckboxWithLabel";
 import Button from "@/components/ui/Button";
@@ -13,17 +12,17 @@ import { useSignup } from "@/hooks/useAuth";
 import toast from "react-hot-toast";
 import { useSubjectDomains } from "@/hooks/usePublicRoutes";
 import { SubjectDomain } from "@/types/typeLog";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { SignupFormDataTypes } from "@/types/authData.type";
 import Image from "next/image";
+import PlanSelectionModal from "@/components/PlanSelectionModal";
 
 export default function RegisterForm() {
-  const handleSelected = (values: { value: string; label: string }[]) => {
-    console.log("Selected values:", values);
-    // you can use these in real-time (e.g. store in state, send to API, etc.)
-  };
-
   const router = useRouter();
+  const [isPlanModalOpen, setIsPlanModalOpen] = useState(false);
+  const [pendingFormData, setPendingFormData] =
+    useState<SignupFormDataTypes | null>(null);
+
   //react hook form
   const {
     register,
@@ -33,13 +32,7 @@ export default function RegisterForm() {
     control,
   } = useForm<SignupFormDataTypes>();
   //HOOKS
-  const {
-    subjectDomains,
-    isLoading: issubjectDomainsLoading,
-    isSuccess: issubjectDomainsSuccess,
-    isError: issubjectDomainsError,
-    error,
-  } = useSubjectDomains();
+  const { subjectDomains } = useSubjectDomains();
 
   const optionsSubjectDomains = subjectDomains?.map((item: SubjectDomain) => {
     return {
@@ -59,8 +52,35 @@ export default function RegisterForm() {
   } = useSignup();
 
   const onSubmit = async (data: SignupFormDataTypes) => {
+    // Store form data and show plan selection modal
+    setPendingFormData(data);
+    setIsPlanModalOpen(true);
+  };
+
+  const handlePlanSelect = async (plan: "monthly" | "yearly") => {
+    if (!pendingFormData) return;
+
     try {
-      const res = await signupAsync(data);
+      // Add plan to form data
+      const registrationData = {
+        ...pendingFormData,
+        plan,
+      };
+
+      const res = await signupAsync(registrationData);
+
+      // Close modal
+      setIsPlanModalOpen(false);
+
+      // Check if registration returned a checkout URL (Stripe subscription setup)
+      if (res?.checkoutUrl) {
+        toast.success("Redirecting to payment setup...");
+        // Redirect to Stripe Checkout
+        window.location.href = res.checkoutUrl;
+        return;
+      }
+
+      // If no checkout URL, proceed with email verification flow
       toast.success("Registered successfully!");
     } catch (err: any) {
       console.log("RAW ERROR:", err);
@@ -69,7 +89,10 @@ export default function RegisterForm() {
       const message = err?.response?.data?.message;
 
       if (status === 403 && message === "Email domain not allowed!") {
-        return router.push(`/auth/domain-verify?email=${data.email}`);
+        setIsPlanModalOpen(false);
+        return router.push(
+          `/auth/domain-verify?email=${pendingFormData.email}`
+        );
       }
 
       toast.error(message || "Something went wrong");
@@ -77,10 +100,12 @@ export default function RegisterForm() {
   };
 
   useEffect(() => {
-    if (isSuccess) {
+    // Only redirect to verify-email if registration succeeded without checkout URL
+    // (checkout URL redirects happen immediately in onSubmit, so this handles legacy flow)
+    if (isSuccess && user && !user?.checkoutUrl) {
       router.push("/auth/verify-email");
     }
-  }, [isSuccess, router]);
+  }, [isSuccess, router, user]);
 
   return (
     <form
@@ -112,6 +137,13 @@ export default function RegisterForm() {
         <p className="text-gray-600 text-base font-normal sm:text-base">
           Grade moderation made easy
         </p>
+        <div className="mt-2 px-4 py-2 bg-blue-50 border border-blue-200 rounded-lg">
+          <p className="text-xs sm:text-sm text-blue-700">
+            🎉 Start with a{" "}
+            <span className="font-semibold">30-day free trial</span>. Card
+            required but won&apos;t be charged until trial ends.
+          </p>
+        </div>
       </div>
 
       {/* Inputs */}
@@ -211,6 +243,17 @@ export default function RegisterForm() {
           Log in
         </Link>
       </div>
+
+      {/* Plan Selection Modal */}
+      <PlanSelectionModal
+        isOpen={isPlanModalOpen}
+        onClose={() => {
+          setIsPlanModalOpen(false);
+          setPendingFormData(null);
+        }}
+        onPlanSelect={handlePlanSelect}
+        isLoading={isLoading}
+      />
     </form>
   );
 }

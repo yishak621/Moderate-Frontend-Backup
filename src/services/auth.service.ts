@@ -36,6 +36,26 @@ export const login = async (data: loginFormDataTypes) => {
     if (error && typeof error === "object" && "response" in error) {
       const axiosError = error as any;
       const responseData = axiosError.response?.data;
+      const statusCode = axiosError.response?.status;
+
+      // Handle payment required (402) - trial expired and subscription not active
+      if (statusCode === 402) {
+        const customError = new Error(
+          responseData?.message || "Your free trial has expired. Please upgrade to continue."
+        ) as Error & {
+          code?: string;
+          response?: any;
+          requiresPayment?: boolean;
+          checkoutUrl?: string;
+          trialEndsAt?: string;
+        };
+        customError.code = "PAYMENT_REQUIRED";
+        customError.requiresPayment = true;
+        customError.checkoutUrl = responseData?.checkoutUrl;
+        customError.trialEndsAt = responseData?.trialEndsAt;
+        customError.response = axiosError.response;
+        throw customError;
+      }
 
       // Handle suspended/banned users - they get 403 but with token
       if (

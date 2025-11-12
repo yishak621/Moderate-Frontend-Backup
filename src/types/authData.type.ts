@@ -14,6 +14,13 @@ export interface SignupFormDataTypes {
   confirmPassword: string;
   subjectDomains: string[];
   role?: string;
+  plan?: "monthly" | "yearly";
+}
+
+export interface SignupResponse {
+  message?: string;
+  checkoutUrl?: string;
+  user?: any;
 }
 
 export interface forgotPasswordFormDataTypes {

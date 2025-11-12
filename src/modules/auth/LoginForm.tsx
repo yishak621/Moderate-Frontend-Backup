@@ -68,6 +68,24 @@ export default function LoginForm() {
         errorData?.response?.data?.code ||
         ((error as AxiosError<{ code?: string }>)?.response?.data as any)?.code;
 
+      // Handle payment required (402) - trial expired
+      if (errorCode === "PAYMENT_REQUIRED" || errorData?.requiresPayment) {
+        // Redirect to payment required page with checkout URL if available
+        const checkoutUrl = errorData?.checkoutUrl;
+        const trialEndsAt = errorData?.trialEndsAt;
+        
+        if (checkoutUrl) {
+          router.push(
+            `/payment/required?checkoutUrl=${encodeURIComponent(
+              checkoutUrl
+            )}${trialEndsAt ? `&trialEndsAt=${encodeURIComponent(trialEndsAt)}` : ""}`
+          );
+        } else {
+          router.push("/payment/required");
+        }
+        return;
+      }
+
       // Handle suspended/banned users - redirect to appeals
       if (
         (errorCode === "ACCOUNT_BANNED" || errorCode === "ACCOUNT_SUSPENDED") &&
