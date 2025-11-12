@@ -39,7 +39,7 @@ export default function ResolveReportModal({
   };
 
   return (
-    <div className=" flex flex-col bg-[#FDFDFD] min-w-[551px] p-10 rounded-[27px]">
+    <div className=" flex flex-col bg-[#FDFDFD] min-w-[551px] p-10 rounded-[27px] scrollbar-hide">
       {/* Header */}
       <div className="flex flex-col gap-2 mb-6">
         <div className="flex items-center gap-2">

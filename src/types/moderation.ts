@@ -136,6 +136,10 @@ export interface BanUserInput {
   reason: string;
 }
 
+export interface UnbanUserInput {
+  reason: string;
+}
+
 export interface ReportStats {
   totalReports: number;
   resolvedReports: number;

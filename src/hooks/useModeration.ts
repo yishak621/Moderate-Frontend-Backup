@@ -273,12 +273,13 @@ export const useUnbanUser = () => {
   const queryClient = useQueryClient();
 
   const mutation = useMutation({
-    mutationFn: (userId: string) => unbanUser(userId),
-    onSuccess: (_, userId) => {
+    mutationFn: ({ userId, reason }: { userId: string; reason: string }) =>
+      unbanUser(userId, { reason }),
+    onSuccess: (_, variables) => {
       toast.success("User unbanned successfully");
       queryClient.invalidateQueries({ queryKey: ["flagusermoderation"] });
       queryClient.invalidateQueries({
-        queryKey: ["flagusermoderation", "user", userId],
+        queryKey: ["flagusermoderation", "user", variables.userId],
       });
       queryClient.invalidateQueries({ queryKey: ["adminUsers"] });
     },
@@ -289,8 +290,8 @@ export const useUnbanUser = () => {
 
   return {
     ...mutation,
-    unbanUserAsync: async (userId: string) => {
-      return mutation.mutateAsync(userId);
+    unbanUserAsync: async (userId: string, data: { reason: string }) => {
+      return mutation.mutateAsync({ userId, reason: data.reason });
     },
   };
 };

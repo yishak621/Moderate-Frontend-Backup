@@ -245,10 +245,14 @@ export const banUser = async (
 /**
  * Unban a user (admin only)
  */
-export const unbanUser = async (userId: string): Promise<UserModeration> => {
+export const unbanUser = async (
+  userId: string,
+  data: { reason: string }
+): Promise<UserModeration> => {
   try {
     const res = await axiosInstance.post(
-      `/api/flagusermoderation/user/${userId}/unban`
+      `/api/flagusermoderation/user/${userId}/unban`,
+      data
     );
     return res.data;
   } catch (error: any) {

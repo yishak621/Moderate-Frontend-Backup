@@ -22,7 +22,7 @@ export default function ViewReportModal({ report }: ViewReportModalProps) {
   };
 
   return (
-    <div className="bg-[#FDFDFD] w-full min-w-[600px] max-w-[700px] max-h-[90vh] overflow-y-auto rounded-[27px] flex flex-col scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+    <div className="bg-[#FDFDFD] w-full min-w-[600px] max-w-[700px] max-h-[90vh] overflow-y-auto rounded-[27px] flex flex-col scrollbar-hide">
       {/* Header */}
       <div className="sticky top-0 bg-[#FDFDFD] z-10 border-b border-gray-200 px-8 py-6 flex justify-between items-start">
         <div className="flex items-center gap-3">

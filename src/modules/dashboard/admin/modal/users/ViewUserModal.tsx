@@ -34,6 +34,7 @@ import { ModerationStatus } from "@/types/moderation";
 import { useState } from "react";
 import SuspendUserModal from "./SuspendUserModal";
 import BanUserModal from "./BanUserModal";
+import UnbanUserModal from "./UnbanUserModal";
 import ResponsiveModal from "@/components/ui/ResponsiveModal";
 
 export default function ViewUserModal({ user }: { user: User }) {
@@ -50,9 +51,11 @@ export default function ViewUserModal({ user }: { user: User }) {
   const { unsuspendUserAsync, isPending: isUnsuspending } = useUnsuspendUser();
   const { banUserAsync, isPending: isBanning } = useBanUser();
   const { unbanUserAsync, isPending: isUnbanning } = useUnbanUser();
+  console.log(user, "usermodal");
 
   const [showSuspendModal, setShowSuspendModal] = useState(false);
   const [showBanModal, setShowBanModal] = useState(false);
+  const [showUnbanModal, setShowUnbanModal] = useState(false);
 
   if (!user || !userId) return null;
 
@@ -122,7 +125,7 @@ export default function ViewUserModal({ user }: { user: User }) {
   const subscriptionStatus = getSubscriptionStatus();
 
   return (
-    <div className="bg-[#FDFDFD] w-full min-w-[800px] max-w-[900px] max-h-[90vh] overflow-y-auto rounded-[27px] flex flex-col scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+    <div className="bg-[#FDFDFD] w-full min-w-[800px] max-w-[900px] max-h-[90vh] overflow-y-auto rounded-[27px] flex flex-col scrollbar-hide">
       {/* Header */}
       <div className="sticky top-0 bg-[#FDFDFD] z-10 border-b border-gray-200 px-8 py-6 flex justify-between items-start">
         <div className="flex items-center gap-4">
@@ -521,23 +524,33 @@ export default function ViewUserModal({ user }: { user: User }) {
               {moderation.status === "banned" && (
                 <Button
                   variant="green"
-                  onClick={async () => {
-                    try {
-                      await unbanUserAsync(userId);
-                    } catch (err) {
-                      // Error handled in hook
-                    }
-                  }}
-                  disabled={isUnbanning}
+                  onClick={() => setShowUnbanModal(true)}
                   className="text-sm"
                 >
                   <UserCheck size={16} className="mr-1" />
-                  {isUnbanning ? "Unbanning..." : "Unban User"}
+                  Unban User
                 </Button>
               )}
             </div>
           </div>
         ) : null}
+
+        {/* Unban User Modal */}
+        <ResponsiveModal
+          isOpen={showUnbanModal}
+          onOpenChange={setShowUnbanModal}
+          title="Unban User"
+          nested={true}
+        >
+          <UnbanUserModal
+            user={user}
+            onSuccess={() => {
+              setShowUnbanModal(false);
+              // Refetch moderation data will happen automatically via query invalidation
+            }}
+            onClose={() => setShowUnbanModal(false)}
+          />
+        </ResponsiveModal>
 
         {/* Suspend User Modal */}
         <ResponsiveModal
