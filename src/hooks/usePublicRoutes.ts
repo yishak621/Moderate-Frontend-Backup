@@ -47,11 +47,13 @@ export function useCreateCheckoutSession() {
       planName,
       stripePriceId,
       email,
+      plan,
     }: {
       planName: string;
       stripePriceId: string;
       email?: string;
-    }) => createCheckoutSession(planName, stripePriceId, email),
+      plan?: "monthly" | "yearly";
+    }) => createCheckoutSession(planName, stripePriceId, email, plan),
   });
 
   return {

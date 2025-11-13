@@ -193,10 +193,18 @@ export default function ViewUserModal({ user }: { user: User }) {
               </p>
               <p
                 className={`text-sm font-medium ${
-                  user.isDisabled ? "text-red-600" : "text-green-600"
+                  user.isDisabled ||
+                  user.verificationStatus === "suspended" ||
+                  user.verificationStatus === "inactive"
+                    ? "text-red-600"
+                    : "text-green-600"
                 }`}
               >
-                {user.isDisabled ? "Disabled" : "Active"}
+                {user.isDisabled ||
+                user.verificationStatus === "suspended" ||
+                user.verificationStatus === "inactive"
+                  ? "Disabled"
+                  : "Active"}
               </p>
             </div>
             <div>

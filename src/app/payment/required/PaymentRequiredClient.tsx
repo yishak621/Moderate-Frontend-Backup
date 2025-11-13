@@ -79,10 +79,12 @@ export default function PaymentRequiredClient() {
 
       // Create checkout session with selected plan
       // Pass email if available (for unauthenticated users)
+      // Pass plan type ("monthly" or "yearly") for backend metadata
       const newCheckoutUrl = await createCheckout({
         planName: selectedPlan.name,
         stripePriceId: selectedPlan.stripePriceId,
         email: userEmail || undefined,
+        plan: plan, // ✅ Send plan type for backend metadata
       });
 
       if (newCheckoutUrl) {
@@ -169,7 +171,7 @@ export default function PaymentRequiredClient() {
               <p className="text-[#717171] text-base sm:text-lg lg:text-xl leading-relaxed max-w-xl mx-auto">
                 {isCheckoutIncomplete
                   ? "Please complete your subscription setup to access the platform. Complete the checkout process to continue using Moderate Tech."
-                  : "Your 30-day free trial has ended. Upgrade to a paid plan to continue accessing all features of Moderate Tech."}
+                  : "Your 30-day free trial has ended. "}
               </p>
             </motion.div>
 
@@ -343,4 +345,3 @@ export default function PaymentRequiredClient() {
     </div>
   );
 }
-

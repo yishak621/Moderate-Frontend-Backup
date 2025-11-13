@@ -61,7 +61,8 @@ export const plansPublic = async () => {
 export const createCheckoutSession = async (
   planName: string,
   stripePriceId: string,
-  email?: string
+  email?: string,
+  planType?: "monthly" | "yearly"
 ) => {
   try {
     const payload: {
@@ -69,7 +70,8 @@ export const createCheckoutSession = async (
       stripePriceId: string;
       email?: string;
     } = {
-      plan: planName,
+      // Use planType if provided, otherwise fallback to planName
+      plan: planType || planName,
       stripePriceId,
     };
 

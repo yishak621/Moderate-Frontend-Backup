@@ -220,9 +220,14 @@ function PricingCard({
     }
 
     try {
+      // Determine plan type from interval
+      const planType: "monthly" | "yearly" | undefined =
+        interval?.toLowerCase() === "year" ? "yearly" : "monthly";
+
       const checkoutUrl = await createCheckout({
         planName: name,
         stripePriceId,
+        plan: planType, // ✅ Send plan type for backend metadata
       });
       if (checkoutUrl) {
         window.location.href = checkoutUrl;
