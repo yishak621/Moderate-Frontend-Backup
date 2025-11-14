@@ -32,6 +32,7 @@ import toast from "react-hot-toast";
 import ResponsiveModal from "@/components/ui/ResponsiveModal";
 import DeleteGradeModal from "@/modules/dashboard/teacher/DeleteGradeModal";
 import { useGradeEditStore } from "@/store/gradeEditStore";
+import UserActionsMenu from "@/components/UserActionsMenu";
 
 export default function PostViewClient() {
   const params = useParams();
@@ -257,13 +258,15 @@ export default function PostViewClient() {
       <div className="md:hidden">
         {!post && <SectionLoading />}
         {post && (
-          <MobilePostView
-            post={post as PostType}
-            groupedGrades={groupedGrades}
-            isFollowingAuthor={isFollowingAuthor}
-            onFollowAuthor={handleFollowAuthor}
-            isFollowLoading={isFollowingUserLoading}
-          />
+          <>
+            <MobilePostView
+              post={post as PostType}
+              groupedGrades={groupedGrades}
+              isFollowingAuthor={isFollowingAuthor}
+              onFollowAuthor={handleFollowAuthor}
+              isFollowLoading={isFollowingUserLoading}
+            />
+          </>
         )}
       </div>
 
@@ -302,20 +305,13 @@ export default function PostViewClient() {
               </div>
               {!isAuthor && (
                 <div className="flex items-center gap-2">
-                  {isFollowingAuthor ? (
-                    <span className="px-4 py-2 rounded-full bg-green-50 text-green-600 text-sm font-medium">
-                      Following
-                    </span>
-                  ) : (
-                    <button
-                      onClick={handleFollowAuthor}
-                      disabled={isFollowingUserLoading}
-                      className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-[#2563EB] via-[#3B82F6] to-[#60A5FA] text-white text-sm font-medium shadow-lg shadow-blue-200 transition-all duration-200 hover:shadow-xl hover:-translate-y-0.5 disabled:opacity-60 disabled:cursor-not-allowed"
-                    >
-                      <UserPlus size={18} />
-                      {isFollowingUserLoading ? "Following..." : "Follow user"}
-                    </button>
-                  )}
+                  <UserActionsMenu
+                    userId={author.id}
+                    postId={postId}
+                    userName={author.name || "User"}
+                    isMobile={false}
+                    post={post as any}
+                  />
                 </div>
               )}
             </div>
@@ -374,7 +370,7 @@ export default function PostViewClient() {
         {/* RIGHT SIDE – File Viewer */}
         <div className="flex flex-col items-start">
           {/* filters */}
-          <div>
+          <div className="mb-4">
             <FilterButtons
               filters={filters}
               activeFilter={activeFilter}

@@ -34,6 +34,7 @@ export type NavItem = {
   label: string;
   href: string;
   icon?: React.ComponentType<{ size?: number; className?: string }>;
+  badgeCount?: number; // Optional badge count for unread items
 };
 
 type DashboardShellProps = {
@@ -168,7 +169,7 @@ export default function DashboardShell({
             isExpanded ? " 2xl:px-7.5 px-2" : "px-0"
           )}
         >
-          {sidebarItems.map(({ label, icon: Icon, href }) => {
+          {sidebarItems.map(({ label, icon: Icon, href, badgeCount }) => {
             const isActive = checkIsActive(pathname, href);
 
             return (
@@ -205,6 +206,20 @@ export default function DashboardShell({
                           : "text-[#717171] group-hover:text-[#0C0C0C]"
                       )}
                     />
+                    {/* Badge Count */}
+                    {badgeCount !== undefined && badgeCount > 0 && (
+                      <motion.span
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                        className={clsx(
+                          "absolute -top-1 -right-1 bg-[#368FFF] text-white text-[10px] font-bold rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1 shadow-lg z-10 border-2 border-white",
+                          !isExpanded && "min-w-[12px] h-[12px] text-[8px]"
+                        )}
+                      >
+                        {badgeCount > 99 ? "99+" : badgeCount}
+                      </motion.span>
+                    )}
                   </span>
                 )}
 
@@ -212,13 +227,24 @@ export default function DashboardShell({
                 {isExpanded && (
                   <span
                     className={clsx(
-                      "relative truncate max-w-[150px] transition-all duration-300",
+                      "relative truncate max-w-[150px] transition-all duration-300 flex items-center gap-2",
                       isActive
                         ? "text-[#0C0C0C] font-semibold"
                         : "text-[#717171] group-hover:text-[#0C0C0C] font-medium"
                     )}
                   >
                     {label}
+                    {/* Badge Count next to label (when expanded) */}
+                    {badgeCount !== undefined && badgeCount > 0 && (
+                      <motion.span
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                        className="bg-[#368FFF] text-white text-[10px] font-bold rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1 shadow-sm"
+                      >
+                        {badgeCount > 99 ? "99+" : badgeCount}
+                      </motion.span>
+                    )}
                   </span>
                 )}
               </Link>
@@ -331,7 +357,7 @@ export default function DashboardShell({
 
               {/* Mobile Sidebar Nav */}
               <nav className="flex-1 overflow-y-auto p-4 space-y-2">
-                {mobileSidebarItems.map(({ label, icon: Icon, href }) => {
+                {mobileSidebarItems.map(({ label, icon: Icon, href, badgeCount }) => {
                   const isActive = checkIsActive(pathname, href);
                   return (
                     <Link
@@ -339,14 +365,42 @@ export default function DashboardShell({
                       href={href}
                       onClick={() => setIsMobileSidebarOpen(false)}
                       className={clsx(
-                        "group flex items-center gap-3 rounded-xl px-4 py-3 transition-all",
+                        "group flex items-center gap-3 rounded-xl px-4 py-3 transition-all relative",
                         isActive
                           ? "bg-blue-50 text-blue-600 font-semibold"
                           : "text-gray-600 hover:bg-gray-50"
                       )}
                     >
-                      {Icon && <Icon size={22} />}
-                      <span className="text-sm">{label}</span>
+                      {Icon && (
+                        <span className="relative">
+                          <Icon size={22} />
+                          {/* Badge Count on mobile */}
+                          {badgeCount !== undefined && badgeCount > 0 && (
+                            <motion.span
+                              initial={{ scale: 0 }}
+                              animate={{ scale: 1 }}
+                              transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                              className="absolute -top-1 -right-1 bg-[#368FFF] text-white text-[10px] font-bold rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1 shadow-lg z-10 border-2 border-white"
+                            >
+                              {badgeCount > 99 ? "99+" : badgeCount}
+                            </motion.span>
+                          )}
+                        </span>
+                      )}
+                      <span className="text-sm flex items-center gap-2">
+                        {label}
+                        {/* Badge Count next to label on mobile */}
+                        {badgeCount !== undefined && badgeCount > 0 && (
+                          <motion.span
+                            initial={{ scale: 0 }}
+                            animate={{ scale: 1 }}
+                            transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                            className="bg-[#368FFF] text-white text-[10px] font-bold rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1 shadow-sm"
+                          >
+                            {badgeCount > 99 ? "99+" : badgeCount}
+                          </motion.span>
+                        )}
+                      </span>
                     </Link>
                   );
                 })}

@@ -116,18 +116,20 @@ export default function LegalPage({
     `https://app.termly.io/policy-viewer/policy.html?policyUUID=${termlyId}`;
 
   return (
-    <div className="min-h-screen bg-white py-8 sm:py-12 md:py-16">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-white py-6 sm:py-8 md:py-12 lg:py-16">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 md:px-8 lg:px-10">
         {/* Header */}
-        <div className="mb-8 sm:mb-12">
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+        <div className="mb-6 sm:mb-8 md:mb-12">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-3 sm:mb-4">
             {title}
           </h1>
-          <p className="text-base sm:text-lg text-gray-600">{description}</p>
+          <p className="text-sm sm:text-base md:text-lg text-gray-600">
+            {description}
+          </p>
         </div>
 
         {/* Termly Content Container */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 sm:p-8">
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
           {useIframe ? (
             <iframe
               src={iframeSrc}
@@ -141,7 +143,7 @@ export default function LegalPage({
               ref={embedDivRef}
               id="termly-embed"
               data-id={termlyId}
-              className="min-h-[800px]"
+              className="min-h-[800px] px-3 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-6 md:py-8"
             ></div>
           )}
         </div>

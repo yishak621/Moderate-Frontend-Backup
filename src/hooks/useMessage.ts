@@ -18,8 +18,12 @@ export const useThreads = (userId: string) => {
     queryKey: ["threads", userId],
     queryFn: () => getThreads(userId),
     enabled: !!userId,
-    staleTime: 1 * 60 * 1000,
+    staleTime: 2 * 60 * 1000, // 2 minutes
+    gcTime: 5 * 60 * 1000, // 5 minutes
     refetchOnWindowFocus: false, // avoid redundant calls
+    refetchOnReconnect: false, // avoid burst on reconnect
+    retry: 2,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
   });
 
   return {
@@ -39,8 +43,12 @@ export const useGetMessages = (receiverUserId: string) => {
     queryKey: ["messages", receiverUserId],
     queryFn: () => getMessages(receiverUserId),
     enabled: !!receiverUserId,
-    staleTime: 1 * 60 * 1000,
+    staleTime: 2 * 60 * 1000, // 2 minutes
+    gcTime: 5 * 60 * 1000, // 5 minutes
     refetchOnWindowFocus: false, // avoid redundant calls
+    refetchOnReconnect: false, // avoid burst on reconnect
+    retry: 2,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
   });
 
   return {

@@ -24,7 +24,7 @@ export default function Footer() {
     <footer className="w-full pt-8 sm:pt-10 md:pt-12 pb-8 ">
       <div className="flex flex-col min-h-[200px] sm:min-h-[240px] md:min-h-[360px]">
         {/* Links section */}
-        <div className="flex flex-wrap flex-row justify-center items-center gap-4 sm:gap-6 md:gap-8 lg:gap-[50px] mb-6 sm:mb-8">
+        <div className="flex flex-wrap flex-row justify-center items-center gap-4 px-2 sm:gap-6 md:gap-8 lg:gap-[50px] mb-6 sm:mb-8">
           {links.map((link) => (
             <Link
               className="text-[#797979] text-xs sm:text-sm md:text-base font-medium hover:text-blue-600 transition-colors"

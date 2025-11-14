@@ -28,6 +28,7 @@ import {
 } from "lucide-react";
 import DashboardShell, { NavItem } from "@/components/DashboardShell";
 import Image from "next/image";
+import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import SearchInputTeacher from "@/modules/dashboard/teacher/SearchInputTeacher";
 import {
@@ -51,6 +52,8 @@ import ModerationWarningBanner from "@/components/ModerationWarningBanner";
 import AccountSuspendedBanner from "@/components/AccountSuspendedBanner";
 import NotificationBellWithPanel from "@/components/NotificationBellWithPanel";
 import { useUnreadNotificationCount } from "@/hooks/useNotifications";
+import { useUnreadMessages } from "@/hooks/useUnreadMessages";
+import { useMessageSocket } from "@/hooks/useMessageSocket";
 import toast from "react-hot-toast";
 
 type Role = "SYSTEM_ADMIN" | "TEACHER";
@@ -195,6 +198,15 @@ function DashboardLayoutContent({ children }: { children: ReactNode }) {
   const { data: unreadData } = useUnreadNotificationCount();
   const unreadCount = unreadData?.count || 0;
 
+  // Get total unread messages count
+  const { totalUnreadCount: unreadMessagesCount } = useUnreadMessages(user?.id);
+
+  // Initialize message socket for real-time updates
+  useMessageSocket({
+    userId: user?.id,
+    enabled: !!user?.id,
+  });
+
   // Update moderation status in cookie when data is fetched
   useEffect(() => {
     if (moderationData?.moderation?.status && role === "TEACHER") {
@@ -247,8 +259,27 @@ function DashboardLayoutContent({ children }: { children: ReactNode }) {
     { label: "Logout", icon: <LogOut size={22} />, onClick: handleLogout },
   ];
 
-  const sidebarItems = useMemo(() => getSidebarItems(role), [role]);
-  const mobileSidebarItems = useMemo(() => getMobileSidebarItems(role), [role]);
+  const sidebarItems = useMemo(() => {
+    const items = getSidebarItems(role);
+    // Add badge count to Messages item
+    return items.map((item) => {
+      if (item.label === "Messages" && role === "TEACHER") {
+        return { ...item, badgeCount: unreadMessagesCount };
+      }
+      return item;
+    });
+  }, [role, unreadMessagesCount]);
+
+  const mobileSidebarItems = useMemo(() => {
+    const items = getMobileSidebarItems(role);
+    // Add badge count to Messages item
+    return items.map((item) => {
+      if (item.label === "Messages" && role === "TEACHER") {
+        return { ...item, badgeCount: unreadMessagesCount };
+      }
+      return item;
+    });
+  }, [role, unreadMessagesCount]);
 
   const pathname = usePathname();
   const searchParams = useSearchParams();

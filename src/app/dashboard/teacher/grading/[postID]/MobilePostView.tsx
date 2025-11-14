@@ -43,6 +43,7 @@ import DeleteGradeModal from "@/modules/dashboard/teacher/DeleteGradeModal";
 import { useGradeEditStore } from "@/store/gradeEditStore";
 import ReportUserModal from "@/modules/dashboard/teacher/modal/ReportUserModal";
 import { User } from "@/app/types/user";
+import UserActionsMenu from "@/components/UserActionsMenu";
 
 interface MobilePostViewProps {
   post: PostType & {
@@ -305,30 +306,15 @@ export default function MobilePostView({
             </p>
           </div>
           <div className="flex items-center gap-2">
-            {!isCurrentUserPost &&
-              (isFollowingAuthor ? (
-                <span className="px-3 py-1.5 rounded-full bg-green-50 text-green-600 text-xs font-medium">
-                  Following
-                </span>
-              ) : (
-                <button
-                  onClick={() => onFollowAuthor && onFollowAuthor()}
-                  disabled={isFollowLoading}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gradient-to-r from-[#2563EB] via-[#3B82F6] to-[#60A5FA] text-white text-xs font-medium shadow-md shadow-blue-200 transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5 disabled:opacity-60 disabled:cursor-not-allowed"
-                >
-                  {isFollowLoading ? (
-                    <>
-                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                      <span>Following...</span>
-                    </>
-                  ) : (
-                    <>
-                      <UserPlus size={14} />
-                      <span>Follow</span>
-                    </>
-                  )}
-                </button>
-              ))}
+            {!isCurrentUserPost && author && (
+              <UserActionsMenu
+                userId={author.id}
+                postId={postId}
+                userName={author.name || "User"}
+                isMobile={true}
+                post={postData as any}
+              />
+            )}
             <div className="relative">
               <button
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
@@ -367,22 +353,6 @@ export default function MobilePostView({
                   </div>
                 ) : (
                   <div className="flex flex-col">
-                    {!isFollowingAuthor && (
-                      <button
-                        onClick={() => handleActionSelect("follow")}
-                        className="flex items-center gap-3 px-4 py-3 cursor-pointer rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors"
-                        disabled={isFollowLoading}
-                      >
-                        {isFollowLoading ? (
-                          <Loader2 className="w-4 h-4 animate-spin" />
-                        ) : (
-                          <UserPlus size={18} />
-                        )}
-                        <span>
-                          {isFollowLoading ? "Following..." : "Follow"}
-                        </span>
-                      </button>
-                    )}
                     <button
                       onClick={() => handleActionSelect("message")}
                       className="flex items-center gap-3 px-4 py-3 cursor-pointer rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors"

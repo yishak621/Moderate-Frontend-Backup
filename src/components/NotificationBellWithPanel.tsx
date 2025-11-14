@@ -22,9 +22,10 @@ export default function NotificationBellWithPanel({
   const [isMobile, setIsMobile] = useState(false);
   const { user } = useUserData();
 
+  // Only fetch unread notifications for count - limit to 50 to reduce payload
   const { data: notificationsData } = useNotifications({
     read: false,
-    limit: 100,
+    limit: 50, // Reduced from 100 - we only need count, not all notifications
   });
 
   const unreadCount = notificationsData?.notifications?.length || 0;
