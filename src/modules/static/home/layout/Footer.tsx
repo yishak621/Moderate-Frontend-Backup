@@ -9,10 +9,14 @@ import Image from "next/image";
 import Link from "next/link";
 
 const links = [
-  { id: 2, href: "/about", label: "About" },
-  { id: 3, href: "/contact", label: "Contact" },
-  { id: 4, href: "/privacy", label: "Privacy Policy" },
-  { id: 5, href: "/terms", label: "Terms of Service" },
+  { id: 1, href: "/about", label: "About" },
+  { id: 2, href: "/contact", label: "Contact" },
+  { id: 3, href: "/privacy-policy", label: "Privacy Policy" },
+  { id: 4, href: "/terms-and-conditions", label: "Terms and Conditions" },
+  { id: 5, href: "/eula", label: "EULA" },
+  { id: 6, href: "/disclaimer", label: "Disclaimer" },
+  { id: 7, href: "/acceptable-use", label: "Acceptable Use" },
+  { id: 8, href: "/impressum", label: "Impressum" },
 ];
 
 export default function Footer() {

@@ -22,6 +22,7 @@ export default function RegisterForm() {
   const [isPlanModalOpen, setIsPlanModalOpen] = useState(false);
   const [pendingFormData, setPendingFormData] =
     useState<SignupFormDataTypes | null>(null);
+  const [hasAgreedToTerms, setHasAgreedToTerms] = useState(false);
 
   //react hook form
   const {
@@ -52,6 +53,12 @@ export default function RegisterForm() {
   } = useSignup();
 
   const onSubmit = async (data: SignupFormDataTypes) => {
+    // Check if user has agreed to terms
+    if (!hasAgreedToTerms) {
+      toast.error("Please agree to the terms and conditions to continue");
+      return;
+    }
+
     // Store form data and show plan selection modal
     setPendingFormData(data);
     setIsPlanModalOpen(true);
@@ -199,11 +206,84 @@ export default function RegisterForm() {
         </div>
       </div>
 
+      {/* Legal Agreement Section */}
+      <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 sm:p-5">
+        <div className="flex items-start gap-3">
+          <input
+            type="checkbox"
+            id="legal-agreement"
+            checked={hasAgreedToTerms}
+            onChange={(e) => setHasAgreedToTerms(e.target.checked)}
+            className="mt-1 h-4 w-4 sm:h-5 sm:w-5 accent-blue-600 rounded border-gray-300 flex-shrink-0 cursor-pointer"
+            required
+          />
+          <label
+            htmlFor="legal-agreement"
+            className="text-xs sm:text-sm text-gray-700 cursor-pointer leading-relaxed"
+          >
+            I agree to the{" "}
+            <Link
+              href="/terms-and-conditions"
+              target="_blank"
+              className="text-blue-600 hover:text-blue-700 font-medium underline"
+            >
+              Terms and Conditions
+            </Link>
+            ,{" "}
+            <Link
+              href="/privacy-policy"
+              target="_blank"
+              className="text-blue-600 hover:text-blue-700 font-medium underline"
+            >
+              Privacy Policy
+            </Link>
+            ,{" "}
+            <Link
+              href="/eula"
+              target="_blank"
+              className="text-blue-600 hover:text-blue-700 font-medium underline"
+            >
+              EULA
+            </Link>
+            ,{" "}
+            <Link
+              href="/disclaimer"
+              target="_blank"
+              className="text-blue-600 hover:text-blue-700 font-medium underline"
+            >
+              Disclaimer
+            </Link>
+            ,{" "}
+            <Link
+              href="/acceptable-use"
+              target="_blank"
+              className="text-blue-600 hover:text-blue-700 font-medium underline"
+            >
+              Acceptable Use Policy
+            </Link>
+            , and{" "}
+            <Link
+              href="/impressum"
+              target="_blank"
+              className="text-blue-600 hover:text-blue-700 font-medium underline"
+            >
+              Impressum
+            </Link>
+            . I understand that I must agree to all legal documents to create an account.
+          </label>
+        </div>
+      </div>
+
       {/* Button */}
       <Button
         type="submit"
-        className={`justify-center mt-4 sm:mt-6 text-base cursor-pointer w-full transition 
-        ${isLoading ? "opacity-70 cursor-not-allowed" : "hover:bg-blue-700"}`}
+        disabled={!hasAgreedToTerms || isLoading}
+        className={`justify-center mt-4 sm:mt-6 text-base w-full transition 
+        ${
+          !hasAgreedToTerms || isLoading
+            ? "opacity-50 cursor-not-allowed"
+            : "hover:bg-blue-700 cursor-pointer"
+        }`}
       >
         {isLoading ? (
           <>
