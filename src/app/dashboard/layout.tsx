@@ -49,6 +49,8 @@ import {
 } from "@/hooks/useModeration";
 import ModerationWarningBanner from "@/components/ModerationWarningBanner";
 import AccountSuspendedBanner from "@/components/AccountSuspendedBanner";
+import NotificationBellWithPanel from "@/components/NotificationBellWithPanel";
+import { useUnreadNotificationCount } from "@/hooks/useNotifications";
 import toast from "react-hot-toast";
 
 type Role = "SYSTEM_ADMIN" | "TEACHER";
@@ -190,6 +192,8 @@ function DashboardLayoutContent({ children }: { children: ReactNode }) {
   const { data: reportStats } = useUserReportStats(user?.id || "", {
     enabled: !!user?.id && role === "TEACHER",
   });
+  const { data: unreadData } = useUnreadNotificationCount();
+  const unreadCount = unreadData?.count || 0;
 
   // Update moderation status in cookie when data is fetched
   useEffect(() => {
@@ -373,10 +377,13 @@ function DashboardLayoutContent({ children }: { children: ReactNode }) {
         {/* 
             NOTIFICATION
             */}
-        <div className=" flex justify-center items-center cursor-pointer w-[44px] h-[44px] rounded-full bg-white relative">
-          <Bell className="w-5.5 h-5.5 text-[#0C0C0C]" />
-          <div className=" absolute bottom-0 right-0 w-[15px] h-[15px] bg-[#368FFF] rounded-full"></div>
-        </div>
+        <NotificationBellWithPanel
+          customIcon={
+            <div className="flex justify-center items-center cursor-pointer w-[44px] h-[44px] rounded-full bg-white relative">
+              <Bell className="w-5.5 h-5.5 text-[#0C0C0C]" />
+            </div>
+          }
+        />
         <div
           className="relative flex flex-row gap-2 cursor-pointer"
           onClick={() => setIsPopUpOpen(true)}

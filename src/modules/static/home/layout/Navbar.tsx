@@ -12,10 +12,12 @@ import {
 } from "framer-motion";
 import { queryClient } from "@/lib/queryClient";
 import { useRouter } from "next/navigation";
-import { LogIn, UserPlus, LogOut, User, Shield } from "lucide-react";
+import { LogIn, UserPlus, LogOut, User, Shield, Bell } from "lucide-react";
 import { useUserData } from "@/hooks/useUser";
 import PopupCard from "@/components/PopCard";
 import UserAvatar from "@/components/UserAvatar";
+import NotificationBellWithPanel from "@/components/NotificationBellWithPanel";
+import { useUnreadNotificationCount } from "@/hooks/useNotifications";
 
 const publicNavigationLinks = [
   { name: "About", href: "/about" },
@@ -52,6 +54,8 @@ export default function Navbar() {
   const [isPopUpOpen, setIsPopUpOpen] = useState(false);
   const router = useRouter();
   const { user } = useUserData();
+  const { data: unreadData } = useUnreadNotificationCount();
+  const unreadCount = unreadData?.count || 0;
 
   useEffect(() => {
     const token = getToken();
@@ -165,6 +169,15 @@ export default function Navbar() {
           <div className="hidden md:flex items-center space-x-3">
             {isLoggedIn ? (
               <>
+                {/* Notification Bell */}
+                <NotificationBellWithPanel
+                  showBackdrop={false}
+                  customIcon={
+                    <div className="flex justify-center items-center cursor-pointer w-[44px] h-[44px] rounded-full bg-white relative">
+                      <Bell className="w-5.5 h-5.5 text-[#0C0C0C]" />
+                    </div>
+                  }
+                />
                 <div
                   className="relative flex flex-row gap-2 cursor-pointer items-center"
                   onClick={() => setIsPopUpOpen(true)}
@@ -364,6 +377,17 @@ export default function Navbar() {
                   transition={{ delay: 0.3, duration: 0.3 }}
                   className="pt-4 mt-4 border-t border-gray-200"
                 >
+                  {/* Mobile Notification Bell */}
+                  <div className="px-4 mb-3">
+                    <NotificationBellWithPanel
+                      showBackdrop={false}
+                      customIcon={
+                        <div className="flex justify-center items-center cursor-pointer w-[44px] h-[44px] rounded-full bg-white relative">
+                          <Bell className="w-5.5 h-5.5 text-[#0C0C0C]" />
+                        </div>
+                      }
+                    />
+                  </div>
                   <div className="flex flex-row gap-3 items-center px-4 py-3 bg-gray-50 rounded-lg">
                     <div className="flex flex-col justify-center items-center w-[44px] h-[44px] rounded-full bg-white">
                       <UserAvatar
