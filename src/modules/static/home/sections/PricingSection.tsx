@@ -13,6 +13,7 @@ import { customJwtPayload } from "@/types/postAttributes";
 import Link from "next/link";
 import { useUserData } from "@/hooks/useUser";
 import SubscriptionDetails from "@/components/SubscriptionDetails";
+import InvoicesSection from "@/components/InvoicesSection";
 import { usePathname } from "next/navigation";
 
 export default function PricingSection() {
@@ -149,9 +150,13 @@ export default function PricingSection() {
         pathname !== "/" &&
         (user.subscriptionStatus === "active" ||
           user.subscriptions?.length > 0) && (
-          <div className="w-full max-w-6xl mx-auto mt-20 px-4">
-            <SubscriptionDetails user={user} />
-          </div>
+          <>
+            <div className="w-full max-w-6xl mx-auto mt-20 px-4">
+              <SubscriptionDetails user={user} />
+            </div>
+            {/* Invoices Section */}
+            <InvoicesSection user={user} />
+          </>
         )}
     </section>
   );

@@ -1,5 +1,17 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+UPDATE users
+SET
+verification_status = 'active',
+last_verified = NULL,
+last_verification_sent = NULL,
+verification_token = NULL,
+verification_token_expiry = NULL;
+
+UPDATE users
+SET
+isDisabled = 'false';
+
 ## Getting Started
 
 First, run the development server:
@@ -14,17 +26,17 @@ pnpm dev
 bun dev
 ```
 
- {/* pagination buttons */}
-        <div className="flex flex-row gap-2 justify-self-end">
-          <div className="flex gap-2 mt-4 items-center">
-            {/* Back button */}
-            <button
-              disabled={emailDomainpage === 1}
-              onClick={() => setPage((p) => p - 1)}
-              className="px-3 py-1 border-0 text-[#717171] disabled:opacity-50 transition-colors duration-300 hover:text-blue-500 cursor-pointer"
-            >
-              Back
-            </button>
+{/_ pagination buttons _/}
+
+<div className="flex flex-row gap-2 justify-self-end">
+<div className="flex gap-2 mt-4 items-center">
+{/_ Back button _/}
+<button
+disabled={emailDomainpage === 1}
+onClick={() => setPage((p) => p - 1)}
+className="px-3 py-1 border-0 text-[#717171] disabled:opacity-50 transition-colors duration-300 hover:text-blue-500 cursor-pointer" >
+Back
+</button>
 
             {(() => {
               const pages: (number | string)[] = [];
