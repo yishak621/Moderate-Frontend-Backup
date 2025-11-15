@@ -562,50 +562,98 @@ export default function PostViewClient() {
                           gradingTemplate={post?.gradingTemplate}
                         >
                           <div className="bg-gray-50 border border-gray-200 rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow duration-200">
-                            <p className="text-lg font-semibold text-gray-800 mb-4">
+                            <p className="text-sm font-semibold text-gray-800 mb-3">
                               Weighted Rubric Breakdown
                             </p>
 
-                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 ">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                               {Array.isArray(
                                 grader?.grade?.weightedRubric?.rubricData
                               ) &&
                                 grader.grade.weightedRubric.rubricData.map(
-                                  (w: any, i: number) => (
-                                    <div
-                                      key={i}
-                                      className="flex items-center flex-col w-full justify-between bg-white border border-gray-100 rounded-lg px-4 py-3 shadow-sm hover:bg-gray-50 transition-colors"
-                                    >
-                                      <span className="text-sm font-medium text-gray-700">
-                                        {w.label}
-                                      </span>
-                                      <span className="text-sm font-semibold text-blue-600">
-                                        {w.value} / {w.maxPoints} --
-                                        <span className="text-xs text-gray-500">
-                                          ({w.weight}%)
+                                  (w: any, i: number) => {
+                                    // Find maxPoints from grading template criteria if not in data
+                                    const criterion =
+                                      post?.gradingTemplate?.criteria?.rubricCriteria?.find(
+                                        (c: any) => c.label === w.label
+                                      );
+                                    const maxPoints =
+                                      w.maxPoints ?? criterion?.maxPoints ?? 0;
+
+                                    return (
+                                      <div
+                                        key={i}
+                                        className="flex items-center justify-between bg-white border border-gray-100 rounded-lg px-4 py-3 shadow-sm"
+                                      >
+                                        <div className="flex flex-col">
+                                          <span className="text-sm font-medium text-gray-700">
+                                            {w.label}
+                                          </span>
+                                          {w.weight && (
+                                            <span className="text-xs text-gray-500 mt-0.5">
+                                              Weight: {w.weight}%
+                                            </span>
+                                          )}
+                                        </div>
+                                        <span className="text-sm font-semibold text-blue-600">
+                                          {w.value} / {maxPoints}
                                         </span>
-                                      </span>
-                                    </div>
-                                  )
+                                      </div>
+                                    );
+                                  }
                                 )}
                             </div>
 
-                            <div className="flex justify-between items-center mt-5 pt-4 border-t border-gray-200">
-                              <p className="text-sm text-gray-600">
-                                Total Score
-                              </p>
-                              <p className="text-base font-bold text-gray-800">
-                                {grader?.grade?.weightedRubric?.totalScore ?? 0}
-                              </p>
-                            </div>
+                            {/* Calculate max total score from weights */}
+                            {(() => {
+                              // For weighted rubric, max score is sum of all weights
+                              const maxTotalScore =
+                                post?.gradingTemplate?.criteria?.rubricCriteria?.reduce(
+                                  (sum: number, c: any) =>
+                                    sum + (c.weight || 0),
+                                  0
+                                ) || 0;
+                              const totalScore =
+                                grader?.grade?.weightedRubric?.totalScore ?? 0;
+                              const percentage =
+                                typeof grader?.grade?.weightedRubric
+                                  ?.percentage === "number"
+                                  ? grader.grade.weightedRubric.percentage
+                                  : parseFloat(
+                                      grader?.grade?.weightedRubric
+                                        ?.percentage || "0"
+                                    );
 
-                            <p className="text-xs text-gray-500 mt-1">
-                              Overall Percentage:{" "}
-                              <span className="font-semibold text-blue-600">
-                                {grader?.grade?.weightedRubric?.percentage ?? 0}
-                                %
-                              </span>
-                            </p>
+                              return (
+                                <div className="mt-5 pt-4 border-t border-gray-200">
+                                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 bg-white border border-gray-200 rounded-lg px-4 py-3 shadow-sm">
+                                    <div>
+                                      <p className="text-sm text-gray-600">
+                                        Total Score
+                                      </p>
+                                      <p className="text-lg font-bold text-gray-800">
+                                        {totalScore.toFixed(2)} /{" "}
+                                        {maxTotalScore}
+                                      </p>
+                                    </div>
+
+                                    <div className="flex items-center gap-3">
+                                      <div className="text-right">
+                                        <p className="text-xs text-gray-500">
+                                          Percentage
+                                        </p>
+                                        <p className="text-base font-semibold text-blue-600">
+                                          {percentage.toFixed(2)}%
+                                        </p>
+                                      </div>
+                                      <div className="flex items-center justify-center w-12 h-12 rounded-full bg-blue-100 text-blue-600 font-semibold text-base">
+                                        {Math.round(percentage)}%
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                              );
+                            })()}
                           </div>
                         </GradeGivenSection>
                       );
