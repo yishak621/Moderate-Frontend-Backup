@@ -29,11 +29,26 @@ export const metadata: Metadata = {
 
 export default function ForgotPasswordPage() {
   return (
-    <div className="h-screen bg-[#f1f1f1] flex items-center justify-center  sm:p-6 lg:p-8">
+    <div className="min-h-screen lg:h-screen bg-[#f1f1f1] flex items-center justify-center  sm:p-6 lg:p-8">
       {/* Mobile/Tablet: Only show form - Full screen */}
-      <div className="w-full h-screen lg:hidden flex items-center justify-center">
-        <div className="w-full max-w-md">
-          <ForgotPasswordForm />
+      <div className="w-full min-h-screen lg:hidden flex flex-col items-center justify-start overflow-y-auto">
+        {/* Mobile Header (brand) */}
+        <div className="w-full max-w-md px-6 pt-8 mb-[52px]">
+          <div className="flex flex-col items-center text-center gap-2">
+            <img
+              src="/images/logo/logo-4.png"
+              alt="Moderate Logo"
+              width={44}
+              height={44}
+            />
+            <h2 className="text-2xl font-semibold">Forgot Password?</h2>
+            <p className="text-gray-600 text-sm">
+              No worries, we&apos;ll send you reset instructions
+            </p>
+          </div>
+        </div>
+        <div className="w-full max-w-md pb-10 px-2">
+          <ForgotPasswordForm showHeader={false} />
         </div>
       </div>
 

@@ -29,6 +29,9 @@ import { Bell } from "lucide-react";
 import Image from "next/image";
 import { AnimatePresence, motion } from "framer-motion";
 import { useUserData } from "@/hooks/useUser";
+import { useRouter } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
+import { removeToken } from "@/services/tokenService";
 import UserAvatar from "@/components/UserAvatar";
 
 // theme icons removed since theme toggle is disabled
@@ -75,6 +78,8 @@ export default function DashboardShell({
   const [showMobileSearch, setShowMobileSearch] = useState(false);
   const debounceTimerRef = useRef<number | null>(null);
   const { user } = useUserData();
+  const router = useRouter();
+  const queryClient = useQueryClient();
 
   // const [theme] = useState<"light" | "dark">(() => {
   //   if (typeof window === "undefined") return "light";
@@ -447,13 +452,10 @@ export default function DashboardShell({
                 <button
                   className="mt-3 w-full flex items-center justify-center gap-2 rounded-lg border border-red-200 text-red-600 hover:bg-red-50 px-3 py-2 text-sm font-medium transition-colors"
                   onClick={async () => {
-                    try {
-                      await fetch("/api/auth/logout", { method: "POST" });
-                    } catch (e) {
-                      // ignore
-                    } finally {
-                      window.location.assign("/login");
-                    }
+                    // Match desktop logout: clear react-query cache and remove tokens
+                    queryClient.clear();
+                    removeToken();
+                    router.push("/auth/login");
                   }}
                 >
                   <LogOut size={16} />
@@ -486,40 +488,41 @@ export default function DashboardShell({
         </header>
 
         {/* Mobile Header - Only visible on mobile */}
-        <header className="md:hidden bg-whiteCard p-4   min-w-0 max-w-full overflow-visible">
-          <div className="flex items-center justify-between gap-3">
+        <header className="md:hidden bg-whiteCard px-2 py-3 min-w-0 w-full max-w-[100vw] overflow-visible">
+          <div className="flex items-center justify-between gap-2 w-full">
             {/* Left: Menu Toggle + Title */}
-            <div className="flex items-center gap-3 flex-1">
+            <div className="flex items-center gap-2 flex-1 min-w-0">
               <button
                 onClick={() => setIsMobileSidebarOpen(true)}
-                className="p-2 rounded-lg hover:bg-gray-100"
+                className="p-1.5 rounded-lg hover:bg-gray-100 shrink-0"
               >
-                <Menu size={22} className="text-gray-600" />
+                <Menu size={20} className="text-gray-600" />
               </button>
               <div className="flex-1 min-w-0">
-                <h1 className="text-base font-medium text-[#0C0C0C] truncate ">
-                  Good Morning,{" "}
-                  {user?.name && user.name.length > 10
-                    ? user.name.substring(0, 10) + "…"
-                    : user?.name}{" "}
-                  <span className="text-gray-500">🖐</span>
+                <h1 className="text-sm sm:text-base font-medium text-[#0C0C0C] truncate">
+                  Hi,{" "}
+                  {user?.name && user.name.length > 18
+                    ? user.name.substring(0, 18) + "…"
+                    : user?.name}
                 </h1>
-                <p className="text-xs text-[#717171]">Welcome to Moderate!</p>
+                <p className="text-[11px] text-[#717171]">
+                  Welcome to Moderate!
+                </p>
               </div>
             </div>
 
             {/* Right: Search + Notifications */}
-            <div className="flex items-center gap-2 flex-shrink-0">
+            <div className="flex items-center gap-1.5 flex-shrink-0">
               <button
                 onClick={() => setShowMobileSearch(!showMobileSearch)}
-                className="p-2 rounded-full hover:bg-gray-100 border border-[#DBDBDB] w-[42px] h-[42px] flex items-center justify-center"
+                className="p-1.5 rounded-full hover:bg-gray-100 border border-[#DBDBDB] w-9 h-9 flex items-center justify-center"
                 aria-label="Open search"
               >
                 <Search size={12} className="text-[#000000]" />
               </button>
               <NotificationBellWithPanel
                 customIcon={
-                  <div className="flex justify-center items-center cursor-pointer w-[38px] h-[38px] rounded-full  border border-[#DBDBDB]">
+                  <div className="flex justify-center items-center cursor-pointer w-9 h-9 rounded-full  border border-[#DBDBDB]">
                     <Bell className="w-4 h-4 text-[#0C0C0C]" />
                   </div>
                 }

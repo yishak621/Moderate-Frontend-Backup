@@ -11,7 +11,7 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 
-export default function ForgotPasswordForm() {
+export default function ForgotPasswordForm({ showHeader = true }: { showHeader?: boolean }) {
   const router = useRouter();
   //react hook form
   const {
@@ -101,23 +101,25 @@ export default function ForgotPasswordForm() {
     "
     >
       {/* Header */}
-      <Link
-        href="/"
-        className="flex flex-col items-center text-center gap-2 sm:gap-3 pb-6 sm:pb-8"
-      >
-        <Image
-          src="/images/logo/logo-4.png"
-          alt="Moderate Logo"
-          width={50}
-          height={50}
-          priority
-          className="object-contain select-none"
-        />
-        <h2 className="text-2xl sm:text-3xl font-semibold">Forgot Password?</h2>
-        <p className="text-gray-600 text-base font-normal sm:text-base">
-          No worries, we&apos;ll send you reset instructions
-        </p>
-      </Link>
+      {showHeader && (
+        <Link
+          href="/"
+          className="flex flex-col items-center text-center gap-2 sm:gap-3 pb-6 sm:pb-8"
+        >
+          <Image
+            src="/images/logo/logo-4.png"
+            alt="Moderate Logo"
+            width={50}
+            height={50}
+            priority
+            className="object-contain select-none"
+          />
+          <h2 className="text-2xl sm:text-3xl font-semibold">Forgot Password?</h2>
+          <p className="text-gray-600 text-base font-normal sm:text-base">
+            No worries, we&apos;ll send you reset instructions
+          </p>
+        </Link>
+      )}
       {/* Inputs */}
       <div className="flex flex-col gap-6 sm:gap-7">
         <Input

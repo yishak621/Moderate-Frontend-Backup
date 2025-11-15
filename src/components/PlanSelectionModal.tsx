@@ -77,12 +77,12 @@ export default function PlanSelectionModal({
       >
         <div className="p-6 sm:p-8 md:p-10">
           {/* Header */}
-          <div className="flex items-start justify-between mb-6 sm:mb-8">
+          <div className="flex items-start justify-between mb-5 sm:mb-8">
             <div className="flex-1">
-              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-2">
+              <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 mb-1 sm:mb-2">
                 Choose Your Plan
               </h2>
-              <p className="text-base sm:text-lg text-gray-600">
+              <p className="text-sm sm:text-base text-gray-600">
                 Select a plan to get started with your 30-day free trial
               </p>
             </div>
@@ -92,16 +92,16 @@ export default function PlanSelectionModal({
           </div>
 
           {/* Trial Info Banner */}
-          <div className="mb-6 sm:mb-8 p-4 sm:p-5 bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-xl">
+          <div className="mb-5 sm:mb-8 p-4 sm:p-5 bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-xl">
             <div className="flex items-start gap-3 sm:gap-4">
               <div className="flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-blue-100 flex items-center justify-center">
                 <Sparkles className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600" />
               </div>
               <div className="flex-1">
-                <h3 className="text-base sm:text-lg font-semibold text-blue-900 mb-1">
+                <h3 className="text-sm sm:text-base font-semibold text-blue-900 mb-1">
                   🎉 30-Day Free Trial Guaranteed
                 </h3>
-                <p className="text-sm sm:text-base text-blue-700 leading-relaxed">
+                <p className="text-xs sm:text-sm text-blue-700 leading-relaxed">
                   <strong>No charges now!</strong> Your card will only be charged
                   after your 30-day free trial ends. Cancel anytime during the
                   trial with no penalty. Start exploring all features risk-free.
@@ -116,7 +116,7 @@ export default function PlanSelectionModal({
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mb-6 sm:mb-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mb-5 sm:mb-8">
               {/* Monthly Plan */}
               {monthlyPlan && (
                 <PlanCard
@@ -143,8 +143,8 @@ export default function PlanSelectionModal({
           )}
 
           {/* Features List */}
-          <div className="mb-6 sm:mb-8 p-4 sm:p-5 bg-gray-50 rounded-xl">
-            <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4">
+          <div className="mb-5 sm:mb-8 p-4 sm:p-5 bg-gray-50 rounded-xl">
+            <h3 className="text-sm sm:text-base font-semibold text-gray-900 mb-3 sm:mb-4">
               What&apos;s included in both plans:
             </h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
@@ -156,7 +156,7 @@ export default function PlanSelectionModal({
                 "Regular feature updates",
                 "Cancel anytime",
               ].map((feature, idx) => (
-                <div key={idx} className="flex items-center gap-2 text-sm sm:text-base text-gray-700">
+                <div key={idx} className="flex items-center gap-2 text-xs sm:text-sm text-gray-700">
                   <Check className="w-4 h-4 sm:w-5 sm:h-5 text-green-600 flex-shrink-0" />
                   <span>{feature}</span>
                 </div>
@@ -169,7 +169,7 @@ export default function PlanSelectionModal({
             <Button
               onClick={handleContinue}
               disabled={!selectedPlan || isLoading}
-              className="flex-1 justify-center items-center gap-2 h-12 sm:h-14 text-base sm:text-lg font-medium"
+              className="flex-1 justify-center items-center gap-2 h-11 sm:h-14 text-sm sm:text-base font-medium"
             >
               {isLoading ? (
                 <>
@@ -204,7 +204,7 @@ export default function PlanSelectionModal({
             </Button>
             <button
               onClick={onClose}
-              className="flex-1 sm:flex-initial px-6 py-3 sm:py-3.5 text-base sm:text-lg font-medium text-gray-700 bg-white border-2 border-gray-300 rounded-full hover:bg-gray-50 transition-colors"
+              className="flex-1 sm:flex-initial px-6 py-3 sm:py-3.5 text-sm sm:text-base font-medium text-gray-700 bg-white border-2 border-gray-300 rounded-full hover:bg-gray-50 transition-colors"
             >
               Cancel
             </button>
@@ -212,7 +212,7 @@ export default function PlanSelectionModal({
 
           {/* Security Note */}
           <div className="mt-4 sm:mt-6 text-center">
-            <div className="inline-flex items-center gap-2 text-xs sm:text-sm text-gray-500">
+            <div className="inline-flex items-center gap-2 text-[11px] sm:text-sm text-gray-500">
               <Shield className="w-4 h-4" />
               <span>Secure payment powered by Stripe. Your data is safe.</span>
             </div>
@@ -268,20 +268,20 @@ function PlanCard({
       )}
 
       <div className="mb-4">
-        <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">
+        <h3 className="text-lg sm:text-2xl font-bold text-gray-900 mb-2">
           {plan.name || (planType === "monthly" ? "Monthly" : "Yearly")}
         </h3>
-        <p className="text-sm sm:text-base text-gray-600 mb-4">
+        <p className="text-xs sm:text-sm text-gray-600 mb-4">
           {plan.description || `${planType === "monthly" ? "Flexible monthly billing" : "Best value with annual billing"}`}
         </p>
       </div>
 
       <div className="mb-4">
         <div className="flex items-baseline gap-2">
-          <span className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900">
+          <span className="text-2xl sm:text-4xl md:text-5xl font-bold text-gray-900">
             ${formatPrice(plan.price || "0")}
           </span>
-          <span className="text-base sm:text-lg text-gray-600">
+          <span className="text-sm sm:text-base text-gray-600">
             /{plan.interval?.toLowerCase() === "year" ? "year" : "month"}
           </span>
         </div>

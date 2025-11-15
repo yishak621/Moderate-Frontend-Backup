@@ -17,7 +17,11 @@ import { SignupFormDataTypes } from "@/types/authData.type";
 import Image from "next/image";
 import PlanSelectionModal from "@/components/PlanSelectionModal";
 
-export default function RegisterForm() {
+export default function RegisterForm({
+  showHeader = true,
+}: {
+  showHeader?: boolean;
+}) {
   const router = useRouter();
   const [isPlanModalOpen, setIsPlanModalOpen] = useState(false);
   const [pendingFormData, setPendingFormData] =
@@ -128,30 +132,32 @@ export default function RegisterForm() {
     "
     >
       {/* Header */}
-      <div className="flex flex-col items-center text-center gap-2 sm:gap-3 pb-6 sm:pb-8">
-        <Link href="/">
-          <Image
-            src="/images/logo/logo-4.png"
-            alt="Moderate Logo"
-            width={50}
-            height={50}
-            priority
-            className="object-contain select-none"
-          />
-        </Link>
+      {showHeader && (
+        <div className="flex flex-col items-center text-center gap-2 sm:gap-3 pb-6 sm:pb-8">
+          <Link href="/">
+            <Image
+              src="/images/logo/logo-4.png"
+              alt="Moderate Logo"
+              width={50}
+              height={50}
+              priority
+              className="object-contain select-none"
+            />
+          </Link>
 
-        <h2 className="text-2xl sm:text-3xl font-semibold">Moderate</h2>
-        <p className="text-gray-600 text-base font-normal sm:text-base">
-          Grade moderation made easy
-        </p>
-        <div className="mt-2 px-4 py-2 bg-blue-50 border border-blue-200 rounded-lg">
-          <p className="text-xs sm:text-sm text-blue-700">
-            🎉 Start with a{" "}
-            <span className="font-semibold">30-day free trial</span>. Card
-            required but won&apos;t be charged until trial ends.
+          <h2 className="text-2xl sm:text-3xl font-semibold">Moderate</h2>
+          <p className="text-gray-600 text-base font-normal sm:text-base">
+            Grade moderation made easy
           </p>
+          <div className="mt-2 px-4 py-2 bg-blue-50 border border-blue-200 rounded-lg">
+            <p className="text-xs sm:text-sm text-blue-700">
+              🎉 Start with a{" "}
+              <span className="font-semibold">30-day free trial</span>. Card
+              required but won&apos;t be charged until trial ends.
+            </p>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Inputs */}
       <div className="flex flex-col gap-6 sm:gap-7">
@@ -269,7 +275,8 @@ export default function RegisterForm() {
             >
               Impressum
             </Link>
-            . I understand that I must agree to all legal documents to create an account.
+            . I understand that I must agree to all legal documents to create an
+            account.
           </label>
         </div>
       </div>

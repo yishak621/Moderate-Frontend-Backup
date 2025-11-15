@@ -58,37 +58,37 @@ export default function ReportUserModal({
   if (!reportedUser) return null;
 
   return (
-    <div className="bg-[#FDFDFD] min-w-[500px] max-w-[600px] p-8 rounded-[27px] flex flex-col">
+    <div className="bg-[#FDFDFD] w-full max-w-[600px] sm:min-w-[500px] p-5 sm:p-8 rounded-[20px] sm:rounded-[27px] flex flex-col">
       {/* Header */}
-      <div className="flex justify-between items-start mb-6">
-        <div className="flex flex-col gap-2">
-          <div className="flex items-center gap-2">
-            <AlertTriangle className="text-red-500" size={24} />
-            <h2 className="text-xl font-semibold text-[#0c0c0c]">
+      <div className="flex justify-between items-start mb-4 sm:mb-6">
+        <div className="flex flex-col gap-2 min-w-0">
+          <div className="flex items-center gap-2 min-w-0">
+            <AlertTriangle className="text-red-500" size={20} />
+            <h2 className="text-lg sm:text-xl font-semibold text-[#0c0c0c] truncate">
               Report User
             </h2>
           </div>
-          <p className="text-sm text-[#717171]">
+          <p className="text-xs sm:text-sm text-[#717171] truncate">
             Reporting: <span className="font-medium">{reportedUser.name}</span>
           </p>
-          <p className="text-xs text-[#717171] mt-1">
+          <p className="text-[11px] sm:text-xs text-[#717171] mt-1">
             Please provide a detailed reason for your report. False reports may
             result in action against your account.
           </p>
         </div>
         <button
           onClick={close}
-          className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+          className="p-1.5 hover:bg-gray-100 hidden sm:block rounded-full transition-colors shrink-0"
         >
-          <X size={22} className="text-[#000000] cursor-pointer" />
+          <X size={18} className="text-[#000000] cursor-pointer" />
         </button>
       </div>
 
       {/* Form */}
-      <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+      <form onSubmit={handleSubmit} className="flex flex-col gap-4 sm:gap-5">
         {/* Category Selection */}
         <div>
-          <label className="block text-sm font-medium text-[#0c0c0c] mb-2">
+          <label className="block text-xs sm:text-sm font-medium text-[#0c0c0c] mb-1.5 sm:mb-2">
             Report Category
           </label>
           <CustomSelect
@@ -102,27 +102,32 @@ export default function ReportUserModal({
 
         {/* Reason */}
         <div>
+          <label className="block text-xs sm:text-sm font-medium text-[#0c0c0c] mb-1.5 sm:mb-2">
+            Reason for Report
+          </label>
           <Textarea
-            label="Reason for Report"
-            placeholder="Please provide a detailed explanation (minimum 10 characters)..."
+            placeholder="Please provide a detailed explanation (minimum 20 characters)..."
             value={reason}
             onChange={(e) => {
               setReason(e.target.value);
               setError("");
             }}
             required
-            rows={5}
+            rows={4}
             disabled={isPending}
+            className="px-3 py-2 text-[13px] sm:text-base min-h-[96px]"
           />
-          <p className="text-xs text-gray-500 mt-1">
-            {reason.length}/50 characters minimum
+          <p className="text-[11px] sm:text-xs text-gray-500 mt-1">
+            {reason.length}/20 characters minimum
           </p>
-          {error && <p className="text-xs text-red-600 mt-1">{error}</p>}
+          {error && (
+            <p className="text-[11px] sm:text-xs text-red-600 mt-1">{error}</p>
+          )}
         </div>
 
         {/* Rate Limit Info */}
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-          <p className="text-xs text-blue-800">
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-2.5 sm:p-3">
+          <p className="text-[11px] sm:text-xs text-blue-800">
             <strong>Note:</strong> You can submit up to 5 reports per hour and
             20 reports per day. Duplicate reports for the same user will be
             ignored.
@@ -130,22 +135,26 @@ export default function ReportUserModal({
         </div>
 
         {/* Actions */}
-        <div className="flex justify-end gap-3 mt-4">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={close}
-            disabled={isPending}
-          >
-            Cancel
-          </Button>
-          <Button
-            type="submit"
-            variant="red"
-            disabled={isPending || reason.trim().length < 20}
-          >
-            {isPending ? "Submitting..." : "Submit Report"}
-          </Button>
+        <div className="sm:static sticky bottom-0 bg-[#FDFDFD] pt-2 sm:pt-0">
+          <div className="flex flex-col sm:flex-row sm:justify-end gap-2 sm:gap-3 mt-3 sm:mt-4">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={close}
+              disabled={isPending}
+              className="w-full sm:w-auto h-10 sm:h-11 text-sm sm:text-base"
+            >
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              variant="red"
+              disabled={isPending || reason.trim().length < 20}
+              className="w-full sm:w-auto h-10 sm:h-11 text-sm sm:text-base"
+            >
+              {isPending ? "Submitting..." : "Submit Report"}
+            </Button>
+          </div>
         </div>
       </form>
     </div>

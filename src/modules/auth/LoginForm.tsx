@@ -18,7 +18,7 @@ interface LoginFormDataTypes {
   password: string;
 }
 
-export default function LoginForm() {
+export default function LoginForm({ showHeader = true }: { showHeader?: boolean }) {
   const router = useRouter();
   const [submittedEmail, setSubmittedEmail] = useState<string>("");
 
@@ -150,23 +150,25 @@ export default function LoginForm() {
     "
     >
       {/* Header */}
-      <Link
-        href="/"
-        className="flex flex-col items-center text-center gap-2 sm:gap-3 pb-6 sm:pb-8"
-      >
-        <Image
-          src="/images/logo/logo-4.png"
-          alt="Moderate Logo"
-          width={50}
-          height={50}
-          priority
-          className="object-contain select-none"
-        />
-        <h2 className="text-2xl sm:text-3xl font-semibold">Moderate</h2>
-        <p className="text-gray-600 text-base font-normal sm:text-base">
-          Grade moderation made easy
-        </p>
-      </Link>
+      {showHeader && (
+        <Link
+          href="/"
+          className="flex flex-col items-center text-center gap-2 sm:gap-3 pb-6 sm:pb-8"
+        >
+          <Image
+            src="/images/logo/logo-4.png"
+            alt="Moderate Logo"
+            width={50}
+            height={50}
+            priority
+            className="object-contain select-none"
+          />
+          <h2 className="text-2xl sm:text-3xl font-semibold">Moderate</h2>
+          <p className="text-gray-600 text-base font-normal sm:text-base">
+            Grade moderation made easy
+          </p>
+        </Link>
+      )}
 
       {/* Inputs */}
       <div className="flex flex-col gap-6 sm:gap-7">
