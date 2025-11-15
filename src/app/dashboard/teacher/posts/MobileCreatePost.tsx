@@ -276,7 +276,8 @@ export default function MobileCreatePost({ onBack }: MobileCreatePostProps) {
               onChange={(e) =>
                 setNumericCriteria((prev: any) => ({
                   ...prev,
-                  min: e.target.value === "" ? undefined : Number(e.target.value),
+                  min:
+                    e.target.value === "" ? undefined : Number(e.target.value),
                 }))
               }
             />
@@ -287,7 +288,8 @@ export default function MobileCreatePost({ onBack }: MobileCreatePostProps) {
               onChange={(e) =>
                 setNumericCriteria((prev: any) => ({
                   ...prev,
-                  max: e.target.value === "" ? undefined : Number(e.target.value),
+                  max:
+                    e.target.value === "" ? undefined : Number(e.target.value),
                 }))
               }
             />
@@ -315,7 +317,11 @@ export default function MobileCreatePost({ onBack }: MobileCreatePostProps) {
                   type="number"
                   value={range.min}
                   onChange={(e) =>
-                    updateLetterRange(idx, "min", e.target.value === "" ? undefined : Number(e.target.value))
+                    updateLetterRange(
+                      idx,
+                      "min",
+                      e.target.value === "" ? undefined : Number(e.target.value)
+                    )
                   }
                 />
                 <MobileInput
@@ -323,7 +329,11 @@ export default function MobileCreatePost({ onBack }: MobileCreatePostProps) {
                   type="number"
                   value={range.max}
                   onChange={(e) =>
-                    updateLetterRange(idx, "max", e.target.value === "" ? undefined : Number(e.target.value))
+                    updateLetterRange(
+                      idx,
+                      "max",
+                      e.target.value === "" ? undefined : Number(e.target.value)
+                    )
                   }
                 />
               </div>
@@ -361,7 +371,13 @@ export default function MobileCreatePost({ onBack }: MobileCreatePostProps) {
                     type="number"
                     value={item.maxPoints}
                     onChange={(e) =>
-                      updateRubric(idx, "minPoints", e.target.value === "" ? undefined : Number(e.target.value))
+                      updateRubric(
+                        idx,
+                        "minPoints",
+                        e.target.value === ""
+                          ? undefined
+                          : Number(e.target.value)
+                      )
                     }
                   />
                   <MobileInput
@@ -369,7 +385,13 @@ export default function MobileCreatePost({ onBack }: MobileCreatePostProps) {
                     type="number"
                     value={item.maxPoints}
                     onChange={(e) =>
-                      updateRubric(idx, "maxPoints", e.target.value === "" ? undefined : Number(e.target.value))
+                      updateRubric(
+                        idx,
+                        "maxPoints",
+                        e.target.value === ""
+                          ? undefined
+                          : Number(e.target.value)
+                      )
                     }
                   />
                   {selectedGradingType === "weightedRubric" && (
@@ -378,7 +400,13 @@ export default function MobileCreatePost({ onBack }: MobileCreatePostProps) {
                       type="number"
                       value={item.weight}
                       onChange={(e) =>
-                        updateRubric(idx, "weight", e.target.value === "" ? undefined : Number(e.target.value))
+                        updateRubric(
+                          idx,
+                          "weight",
+                          e.target.value === ""
+                            ? undefined
+                            : Number(e.target.value)
+                        )
                       }
                     />
                   )}
@@ -435,9 +463,7 @@ export default function MobileCreatePost({ onBack }: MobileCreatePostProps) {
             <label className="text-sm font-medium text-[#0C0C0C] mb-2 block">
               Pass/Fail Criteria
             </label>
-            <p className="text-xs text-[#717171] mb-2">
-              Simple pass/fail grading - no additional criteria needed
-            </p>
+            <p className="text-xs text-[#717171] mb-2">----</p>
           </div>
         )}
 
@@ -451,7 +477,8 @@ export default function MobileCreatePost({ onBack }: MobileCreatePostProps) {
             onChange={(e) =>
               setUserGrade((prev) => ({
                 ...prev,
-                numeric: e.target.value === "" ? undefined : Number(e.target.value),
+                numeric:
+                  e.target.value === "" ? undefined : Number(e.target.value),
               }))
             }
           />
@@ -502,7 +529,10 @@ export default function MobileCreatePost({ onBack }: MobileCreatePostProps) {
                   placeholder={`0 - ${item.maxPoints}`}
                   value={userGrade.rubric?.[idx] || ""}
                   onChange={(e) => {
-                    const value = e.target.value === "" ? undefined : Number(e.target.value);
+                    const value =
+                      e.target.value === ""
+                        ? undefined
+                        : Number(e.target.value);
                     setUserGrade((prev) => {
                       const updated = [...(prev.rubric || [])];
                       updated[idx] = value;
@@ -522,33 +552,38 @@ export default function MobileCreatePost({ onBack }: MobileCreatePostProps) {
               Checklist Grades
             </label>
             {checklistItems.map((item, idx) => (
-              <div key={idx} className="flex items-center gap-2">
-                <span className="text-xs text-[#717171] w-32 truncate">
+              <div
+                key={idx}
+                className="flex flex-col sm:flex-row sm:items-center gap-2"
+              >
+                <span className="text-xs text-[#717171] sm:w-32 sm:truncate">
                   {item}
                 </span>
-                <MobileCustomSelect
-                  options={[
-                    { value: "done", label: "Done" },
-                    { value: "pending", label: "Pending" },
-                  ]}
-                  defaultValue={
-                    userGrade.checklist?.[idx]
-                      ? {
-                          value: userGrade.checklist[idx],
-                          label: userGrade.checklist[idx],
-                        }
-                      : undefined
-                  }
-                  onChange={(val) => {
-                    const value = val?.value;
-                    setUserGrade((prev) => {
-                      const updated = [...(prev.checklist || [])];
-                      updated[idx] = value;
-                      return { ...prev, checklist: updated };
-                    });
-                  }}
-                  placeholder="Select..."
-                />
+                <div className="w-full sm:w-auto">
+                  <MobileCustomSelect
+                    options={[
+                      { value: "done", label: "Done" },
+                      { value: "pending", label: "Pending" },
+                    ]}
+                    defaultValue={
+                      userGrade.checklist?.[idx]
+                        ? {
+                            value: userGrade.checklist[idx],
+                            label: userGrade.checklist[idx],
+                          }
+                        : undefined
+                    }
+                    onChange={(val) => {
+                      const value = val?.value;
+                      setUserGrade((prev) => {
+                        const updated = [...(prev.checklist || [])];
+                        updated[idx] = value;
+                        return { ...prev, checklist: updated };
+                      });
+                    }}
+                    placeholder="Select..."
+                  />
+                </div>
               </div>
             ))}
           </div>
