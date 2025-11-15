@@ -15,8 +15,7 @@ export default function MotoSection({ align = "left" }: MotoSectionProps) {
         className={`w-full flex flex-col gap-3 sm:gap-4 ${alignClasses[align]}`}
       >
         <p className="text-[#6E6E6E] text-sm sm:text-base font-light px-4 sm:px-0">
-          Helping educators collaborate on grading without exposing student
-          data.
+          Helping Teachers collaborate on grading without exposing student data.
         </p>
         <h2 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl 2xl:text-[96px] text-[#000] font-medium leading-tight sm:leading-tight md:leading-tight lg:leading-normal xl:leading-normal 2xl:leading-normal px-4 sm:px-0">
           <span className="text-[#5C5C5C]">Upload. Share. </span>Moderate across

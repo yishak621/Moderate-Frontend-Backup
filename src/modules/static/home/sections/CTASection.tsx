@@ -22,8 +22,7 @@ export default function CTASection() {
           Upload once, discuss together
         </h1>
         <span className="text-center text-[#666] font-medium text-sm sm:text-base max-w-full sm:max-w-[600px] px-4 mt-4 sm:mt-6">
-          Helping educators collaborate on grading without exposing student
-          data.
+          Helping Teachers collaborate on grading without exposing student data.
         </span>
       </div>
 

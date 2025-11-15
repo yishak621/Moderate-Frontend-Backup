@@ -8,7 +8,7 @@ const faqs = [
     id: 1,
     question: "What is grade moderation?",
     answer:
-      "Grade moderation is a collaborative process where educators review, discuss, and standardize assessment scores to ensure fairness and consistency across different teachers and schools.",
+      "Grade moderation is a collaborative process where Teachers review, discuss, and standardize assessment scores to ensure fairness and consistency across different teachers and schools.",
   },
   {
     id: 2,

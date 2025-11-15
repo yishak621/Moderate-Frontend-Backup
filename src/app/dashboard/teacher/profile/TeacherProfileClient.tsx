@@ -404,7 +404,7 @@ export default function TeacheProfileClient() {
           <SectionHeader
             title={`Followers (${followers?.followers?.length ?? 0})`}
             icon={Users}
-            subheader="People who keep up with your moderation activity"
+            subheader="Teachers who keep up with your moderation posts activity"
           />
 
           <div className="mt-4 sm:mt-6 space-y-3 sm:space-y-4 max-h-[320px] overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
@@ -461,7 +461,7 @@ export default function TeacheProfileClient() {
           <SectionHeader
             title={`Following (${followingUsers?.following?.length ?? 0})`}
             icon={UserPlus}
-            subheader="Educators you currently follow"
+            subheader="Teachers you currently follow"
           />
 
           <div className="mt-4 sm:mt-6 space-y-3 sm:space-y-4 max-h-[320px] overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
@@ -484,7 +484,7 @@ export default function TeacheProfileClient() {
               <div className="flex flex-col items-center justify-center text-center p-6 border border-dashed border-gray-200 rounded-2xl bg-white">
                 <UserPlus className="w-10 h-10 text-gray-400 mb-2" />
                 <p className="text-sm text-gray-600">
-                  You&apos;re not following anyone yet. Discover educators to
+                  You&apos;re not following anyone yet. Discover Teachers to
                   follow from the grading feed.
                 </p>
               </div>

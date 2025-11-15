@@ -141,7 +141,7 @@ export default function DomainVerification() {
 
                   <p className="text-sm font-normal text-left">
                     Your institution or workplace email domain has not been
-                    validated. To ensure only educators are on the platform,
+                    validated. To ensure only Teachers are on the platform,
                     please validate your educational institution.
                   </p>
                 </div>
