@@ -228,25 +228,102 @@ export default function PostViewClient() {
   const currentFile = uploads[currentFileIndex]?.fileUrl;
   const ext = currentFile?.split(".").pop()?.toLowerCase();
   const givenGrade = (() => {
-    switch (post?.gradingTemplate?.type) {
+    if (!currentUserGrade?.grade) return null;
+
+    const gradeType = post?.gradingTemplate?.type;
+    let gradeData = currentUserGrade.grade;
+
+    // Handle JSON string if needed
+    if (typeof gradeData === "string") {
+      try {
+        gradeData = JSON.parse(gradeData);
+      } catch (e) {
+        // If parsing fails, try to parse nested JSON
+        try {
+          const parsed = JSON.parse(gradeData);
+          if (parsed.json) {
+            gradeData = parsed.json;
+          }
+        } catch (e2) {
+          console.error("Failed to parse grade data:", e2);
+        }
+      }
+    }
+
+    // Handle nested JSON structure (e.g., {"json":{"letter":"fail"}})
+    if (gradeData?.json) {
+      gradeData = gradeData.json;
+    }
+
+    switch (gradeType) {
       case "numeric":
-        return userGrade?.numeric;
+        return gradeData?.numeric ?? userGrade?.numeric ?? null;
+
       case "letter":
-        return userGrade?.letter;
+        // Check for letter grade structure
+        if (gradeData?.letter?.letterGrade) {
+          return `${gradeData.letter.letterGrade.letter} (${gradeData.letter.letterGrade.totalScore}/${gradeData.letter.letterGrade.maxScore})`;
+        }
+        return gradeData?.letter ?? userGrade?.letter ?? null;
+
       case "rubric":
+        if (gradeData?.rubric) {
+          const totalScore = gradeData.rubric.totalScore ?? 0;
+          const maxScore =
+            gradingTemplate?.criteria?.rubricCriteria?.reduce(
+              (sum: number, c: any) => sum + (c.maxPoints || 0),
+              0
+            ) || 0;
+          return `${totalScore} / ${maxScore}`;
+        }
+        // Fallback to userGrade structure
         const rubricMaxScore =
           gradingTemplate?.criteria?.rubricCriteria?.reduce(
             (sum: number, c: any) => sum + c.maxPoints,
             0
-          );
-        return `${userGrade?.rubric.reduce(
-          (acc: number, val: any) => acc + Number(val),
-          0
-        )}/${rubricMaxScore}`;
+          ) || 0;
+        const rubricTotal =
+          userGrade?.rubric?.reduce(
+            (acc: number, val: any) => acc + Number(val || 0),
+            0
+          ) || 0;
+        return rubricTotal > 0 ? `${rubricTotal} / ${rubricMaxScore}` : null;
+
+      case "weightedRubric":
+        if (gradeData?.weightedRubric) {
+          const totalScore = gradeData.weightedRubric.totalScore ?? 0;
+          const maxScore =
+            gradingTemplate?.criteria?.rubricCriteria?.reduce(
+              (sum: number, c: any) => sum + (c.weight || 0),
+              0
+            ) || 0;
+          return `${totalScore.toFixed(2)} / ${maxScore}`;
+        }
+        return null;
+
       case "passFail":
-        return userGrade?.passFail;
+        // Handle different possible structures
+        if (gradeData?.passfail?.pass !== undefined) {
+          return gradeData.passfail.pass ? "Pass" : "Fail";
+        }
+        if (gradeData?.passFail?.pass !== undefined) {
+          return gradeData.passFail.pass ? "Pass" : "Fail";
+        }
+        if (gradeData?.letter === "pass" || gradeData?.letter === "fail") {
+          return (
+            gradeData.letter.charAt(0).toUpperCase() + gradeData.letter.slice(1)
+          );
+        }
+        return userGrade?.passFail ?? null;
+
       case "checklist":
-        return userGrade?.checklist;
+        if (gradeData?.checklist) {
+          const items = gradeData.checklist.items || [];
+          const total = items.length;
+          return `${total} item${total !== 1 ? "s" : ""} completed`;
+        }
+        return userGrade?.checklist ?? null;
+
       default:
         return null;
     }
