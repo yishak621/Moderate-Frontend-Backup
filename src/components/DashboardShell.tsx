@@ -24,9 +24,12 @@ import {
   Search,
   X,
 } from "lucide-react";
+import NotificationBellWithPanel from "@/components/NotificationBellWithPanel";
+import { Bell } from "lucide-react";
 import Image from "next/image";
 import { AnimatePresence, motion } from "framer-motion";
 import { useUserData } from "@/hooks/useUser";
+import UserAvatar from "@/components/UserAvatar";
 
 // theme icons removed since theme toggle is disabled
 
@@ -211,7 +214,11 @@ export default function DashboardShell({
                       <motion.span
                         initial={{ scale: 0 }}
                         animate={{ scale: 1 }}
-                        transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                        transition={{
+                          type: "spring",
+                          stiffness: 500,
+                          damping: 30,
+                        }}
                         className={clsx(
                           "absolute -top-1 -right-1 bg-[#368FFF] text-white text-[10px] font-bold rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1 shadow-lg z-10 border-2 border-white",
                           !isExpanded && "min-w-[12px] h-[12px] text-[8px]"
@@ -239,7 +246,11 @@ export default function DashboardShell({
                       <motion.span
                         initial={{ scale: 0 }}
                         animate={{ scale: 1 }}
-                        transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                        transition={{
+                          type: "spring",
+                          stiffness: 500,
+                          damping: 30,
+                        }}
                         className="bg-[#368FFF] text-white text-[10px] font-bold rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1 shadow-sm"
                       >
                         {badgeCount > 99 ? "99+" : badgeCount}
@@ -357,54 +368,98 @@ export default function DashboardShell({
 
               {/* Mobile Sidebar Nav */}
               <nav className="flex-1 overflow-y-auto p-4 space-y-2">
-                {mobileSidebarItems.map(({ label, icon: Icon, href, badgeCount }) => {
-                  const isActive = checkIsActive(pathname, href);
-                  return (
-                    <Link
-                      key={href}
-                      href={href}
-                      onClick={() => setIsMobileSidebarOpen(false)}
-                      className={clsx(
-                        "group flex items-center gap-3 rounded-xl px-4 py-3 transition-all relative",
-                        isActive
-                          ? "bg-blue-50 text-blue-600 font-semibold"
-                          : "text-gray-600 hover:bg-gray-50"
-                      )}
-                    >
-                      {Icon && (
-                        <span className="relative">
-                          <Icon size={22} />
-                          {/* Badge Count on mobile */}
+                {mobileSidebarItems.map(
+                  ({ label, icon: Icon, href, badgeCount }) => {
+                    const isActive = checkIsActive(pathname, href);
+                    return (
+                      <Link
+                        key={href}
+                        href={href}
+                        onClick={() => setIsMobileSidebarOpen(false)}
+                        className={clsx(
+                          "group flex items-center gap-3 rounded-xl px-4 py-3 transition-all relative",
+                          isActive
+                            ? "bg-blue-50 text-blue-600 font-semibold"
+                            : "text-gray-600 hover:bg-gray-50"
+                        )}
+                      >
+                        {Icon && (
+                          <span className="relative">
+                            <Icon size={22} />
+                            {/* Badge Count on mobile */}
+                            {badgeCount !== undefined && badgeCount > 0 && (
+                              <motion.span
+                                initial={{ scale: 0 }}
+                                animate={{ scale: 1 }}
+                                transition={{
+                                  type: "spring",
+                                  stiffness: 500,
+                                  damping: 30,
+                                }}
+                                className="absolute -top-1 -right-1 bg-[#368FFF] text-white text-[10px] font-bold rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1 shadow-lg z-10 border-2 border-white"
+                              >
+                                {badgeCount > 99 ? "99+" : badgeCount}
+                              </motion.span>
+                            )}
+                          </span>
+                        )}
+                        <span className="text-sm flex items-center gap-2">
+                          {label}
+                          {/* Badge Count next to label on mobile */}
                           {badgeCount !== undefined && badgeCount > 0 && (
                             <motion.span
                               initial={{ scale: 0 }}
                               animate={{ scale: 1 }}
-                              transition={{ type: "spring", stiffness: 500, damping: 30 }}
-                              className="absolute -top-1 -right-1 bg-[#368FFF] text-white text-[10px] font-bold rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1 shadow-lg z-10 border-2 border-white"
+                              transition={{
+                                type: "spring",
+                                stiffness: 500,
+                                damping: 30,
+                              }}
+                              className="bg-[#368FFF] text-white text-[10px] font-bold rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1 shadow-sm"
                             >
                               {badgeCount > 99 ? "99+" : badgeCount}
                             </motion.span>
                           )}
                         </span>
-                      )}
-                      <span className="text-sm flex items-center gap-2">
-                        {label}
-                        {/* Badge Count next to label on mobile */}
-                        {badgeCount !== undefined && badgeCount > 0 && (
-                          <motion.span
-                            initial={{ scale: 0 }}
-                            animate={{ scale: 1 }}
-                            transition={{ type: "spring", stiffness: 500, damping: 30 }}
-                            className="bg-[#368FFF] text-white text-[10px] font-bold rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1 shadow-sm"
-                          >
-                            {badgeCount > 99 ? "99+" : badgeCount}
-                          </motion.span>
-                        )}
-                      </span>
-                    </Link>
-                  );
-                })}
+                      </Link>
+                    );
+                  }
+                )}
               </nav>
+
+              {/* Mobile Sidebar Footer - User profile and quick logout */}
+              <div className="border-t border-gray-200 p-4 mt-auto">
+                <div className="flex items-center gap-3">
+                  <UserAvatar
+                    profilePictureUrl={user?.profilePictureUrl || ""}
+                    name={user?.name}
+                    size="sm"
+                  />
+                  <div className="flex flex-col min-w-0">
+                    <span className="text-sm font-medium text-[#0C0C0C] truncate">
+                      {user?.name || "User"}
+                    </span>
+                    <span className="text-xs text-[#717171] truncate">
+                      {user?.email || ""}
+                    </span>
+                  </div>
+                </div>
+                <button
+                  className="mt-3 w-full flex items-center justify-center gap-2 rounded-lg border border-red-200 text-red-600 hover:bg-red-50 px-3 py-2 text-sm font-medium transition-colors"
+                  onClick={async () => {
+                    try {
+                      await fetch("/api/auth/logout", { method: "POST" });
+                    } catch (e) {
+                      // ignore
+                    } finally {
+                      window.location.assign("/login");
+                    }
+                  }}
+                >
+                  <LogOut size={16} />
+                  <span>Logout</span>
+                </button>
+              </div>
             </motion.aside>
           </>
         )}
@@ -453,13 +508,23 @@ export default function DashboardShell({
               </div>
             </div>
 
-            {/* Right: Search Button */}
-            <button
-              onClick={() => setShowMobileSearch(!showMobileSearch)}
-              className="p-2 rounded-full hover:bg-gray-100 border border-[#DBDBDB] flex-shrink-0 w-[42px] h-[42px] flex items-center justify-center"
-            >
-              <Search size={12} className="text-[#000000]" />
-            </button>
+            {/* Right: Search + Notifications */}
+            <div className="flex items-center gap-2 flex-shrink-0">
+              <button
+                onClick={() => setShowMobileSearch(!showMobileSearch)}
+                className="p-2 rounded-full hover:bg-gray-100 border border-[#DBDBDB] w-[42px] h-[42px] flex items-center justify-center"
+                aria-label="Open search"
+              >
+                <Search size={12} className="text-[#000000]" />
+              </button>
+              <NotificationBellWithPanel
+                customIcon={
+                  <div className="flex justify-center items-center cursor-pointer w-[38px] h-[38px] rounded-full  border border-[#DBDBDB]">
+                    <Bell className="w-4 h-4 text-[#0C0C0C]" />
+                  </div>
+                }
+              />
+            </div>
           </div>
 
           {/* Mobile Search Bar - Expandable */}

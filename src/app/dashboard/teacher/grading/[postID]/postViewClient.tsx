@@ -33,6 +33,7 @@ import ResponsiveModal from "@/components/ui/ResponsiveModal";
 import DeleteGradeModal from "@/modules/dashboard/teacher/DeleteGradeModal";
 import { useGradeEditStore } from "@/store/gradeEditStore";
 import UserActionsMenu from "@/components/UserActionsMenu";
+import ImageViewer from "@/components/ui/ImageViewer";
 
 export default function PostViewClient() {
   const params = useParams();
@@ -227,6 +228,19 @@ export default function PostViewClient() {
 
   const currentFile = uploads[currentFileIndex]?.fileUrl;
   const ext = currentFile?.split(".").pop()?.toLowerCase();
+
+  // Image Viewer
+  const [isImageViewerOpen, setIsImageViewerOpen] = useState(false);
+  const [imageViewerSrc, setImageViewerSrc] = useState<string | null>(null);
+  const openImageViewer = (src: string | null) => {
+    if (!src) return;
+    setImageViewerSrc(src);
+    setIsImageViewerOpen(true);
+  };
+  const closeImageViewer = () => {
+    setIsImageViewerOpen(false);
+    setTimeout(() => setImageViewerSrc(null), 150);
+  };
   const givenGrade = (() => {
     if (!currentUserGrade?.grade) return null;
 
@@ -421,13 +435,19 @@ export default function PostViewClient() {
                   allow="fullscreen"
                 />
               ) : (
-                <Image
-                  width={1000}
-                  height={1000}
-                  src={currentFile}
-                  alt="viewer"
-                  className="h-[90vh] w-auto object-contain"
-                />
+                <button
+                  type="button"
+                  onClick={() => openImageViewer(currentFile)}
+                  className="focus:outline-none"
+                >
+                  <Image
+                    width={1000}
+                    height={1000}
+                    src={currentFile}
+                    alt="viewer"
+                    className="h-[90vh] w-auto object-contain"
+                  />
+                </button>
               )}
             </div>
             {/* Bottom tags */}
@@ -1049,6 +1069,13 @@ export default function PostViewClient() {
           />
         </ResponsiveModal>
       )}
+
+      {/* Image Viewer Modal */}
+      <ImageViewer
+        src={imageViewerSrc}
+        isOpen={isImageViewerOpen}
+        onClose={closeImageViewer}
+      />
     </>
   );
 }

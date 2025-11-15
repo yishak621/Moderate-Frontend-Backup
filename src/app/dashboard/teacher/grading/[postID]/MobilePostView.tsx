@@ -44,6 +44,7 @@ import { useGradeEditStore } from "@/store/gradeEditStore";
 import ReportUserModal from "@/modules/dashboard/teacher/modal/ReportUserModal";
 import { User } from "@/app/types/user";
 import UserActionsMenu from "@/components/UserActionsMenu";
+import ImageViewer from "@/components/ui/ImageViewer";
 
 interface MobilePostViewProps {
   post: PostType & {
@@ -254,6 +255,18 @@ export default function MobilePostView({
   const currentFile = uploads[currentFileIndex]?.fileUrl;
   const ext = currentFile?.split(".").pop()?.toLowerCase();
 
+  // Image Viewer
+  const [isImageViewerOpen, setIsImageViewerOpen] = useState(false);
+  const [imageViewerSrc, setImageViewerSrc] = useState<string | null>(null);
+  const openImageViewer = (src: string | null) => {
+    if (!src) return;
+    setImageViewerSrc(src);
+    setIsImageViewerOpen(true);
+  };
+  const closeImageViewer = () => {
+    setIsImageViewerOpen(false);
+    setTimeout(() => setImageViewerSrc(null), 150);
+  };
   const givenGrade = (() => {
     switch (gradingTemplate?.type) {
       case "numeric":
@@ -306,15 +319,6 @@ export default function MobilePostView({
             </p>
           </div>
           <div className="flex items-center gap-2">
-            {!isCurrentUserPost && author && (
-              <UserActionsMenu
-                userId={author.id}
-                postId={postId}
-                userName={author.name || "User"}
-                isMobile={true}
-                post={postData as any}
-              />
-            )}
             <div className="relative">
               <button
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
@@ -327,50 +331,85 @@ export default function MobilePostView({
                 onClose={() => setIsMenuOpen(false)}
                 align="right"
               >
-                {isCurrentUserPost ? (
-                  <div className="flex flex-col">
-                    <button
-                      onClick={() => handleActionSelect("edit")}
-                      className="flex items-center gap-3 px-4 py-3 cursor-pointer rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors"
-                    >
-                      <Edit3 size={18} />
-                      <span>Edit Post</span>
-                    </button>
-                    <button
-                      onClick={() => handleActionSelect("stats")}
-                      className="flex items-center gap-3 px-4 py-3 cursor-pointer rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors"
-                    >
-                      <BarChart3 size={18} />
-                      <span>View Stats</span>
-                    </button>
-                    <button
-                      onClick={() => handleActionSelect("delete")}
-                      className="flex items-center gap-3 px-4 py-3 cursor-pointer rounded-lg text-sm font-medium text-red-500 hover:bg-red-50 transition-colors"
-                    >
-                      <Trash2 size={18} />
-                      <span>Delete Post</span>
-                    </button>
-                  </div>
-                ) : (
-                  <div className="flex flex-col">
-                    <button
-                      onClick={() => handleActionSelect("message")}
-                      className="flex items-center gap-3 px-4 py-3 cursor-pointer rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors"
-                    >
-                      <MessagesSquare size={18} />
-                      <span>
-                        Message {author?.name?.split(" ")[0] || "User"}
-                      </span>
-                    </button>
-                    <button
-                      onClick={() => handleActionSelect("report")}
-                      className="flex items-center gap-3 px-4 py-3 cursor-pointer rounded-lg text-sm font-medium text-red-500 hover:bg-red-50 transition-colors"
-                    >
-                      <Flag size={18} />
-                      <span>Report Flag User</span>
-                    </button>
-                  </div>
-                )}
+                <div className="flex flex-col">
+                  {isCurrentUserPost ? (
+                    <>
+                      <button
+                        onClick={() => handleActionSelect("edit")}
+                        className="flex items-start gap-3 px-4 py-3 cursor-pointer rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors"
+                      >
+                        <span className="shrink-0 w-5 h-5 flex items-center justify-center">
+                          <Edit3 size={18} />
+                        </span>
+                        <span className="flex-1 text-left leading-snug break-words">
+                          Edit Post
+                        </span>
+                      </button>
+                      <button
+                        onClick={() => handleActionSelect("stats")}
+                        className="flex items-start gap-3 px-4 py-3 cursor-pointer rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors"
+                      >
+                        <span className="shrink-0 w-5 h-5 flex items-center justify-center">
+                          <BarChart3 size={18} />
+                        </span>
+                        <span className="flex-1 text-left leading-snug break-words">
+                          View Stats
+                        </span>
+                      </button>
+                      <button
+                        onClick={() => handleActionSelect("delete")}
+                        className="flex items-start gap-3 px-4 py-3 cursor-pointer rounded-lg text-sm font-medium text-red-500 hover:bg-red-50 transition-colors"
+                      >
+                        <span className="shrink-0 w-5 h-5 flex items-center justify-center">
+                          <Trash2 size={18} />
+                        </span>
+                        <span className="flex-1 text-left leading-snug break-words">
+                          Delete Post
+                        </span>
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      {author && (
+                        <button
+                          disabled={isFollowLoading || !onFollowAuthor}
+                          onClick={() => handleActionSelect("follow")}
+                          className="flex items-start gap-3 px-4 py-3 cursor-pointer rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors disabled:opacity-60"
+                        >
+                          <span className="shrink-0 w-5 h-5 flex items-center justify-center">
+                            <UserPlus size={18} />
+                          </span>
+                          <span className="flex-1 text-left leading-snug break-words">
+                            {isFollowingAuthor ? "Unfollow" : "Follow"}{" "}
+                            {author?.name?.split(" ")[0] || "User"}
+                          </span>
+                        </button>
+                      )}
+                      <button
+                        onClick={() => handleActionSelect("message")}
+                        className="flex items-start gap-3 px-4 py-3 cursor-pointer rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors"
+                      >
+                        <span className="shrink-0 w-5 h-5 flex items-center justify-center">
+                          <MessagesSquare size={18} />
+                        </span>
+                        <span className="flex-1 text-left leading-snug break-words">
+                          Message {author?.name?.split(" ")[0] || "User"}
+                        </span>
+                      </button>
+                      <button
+                        onClick={() => handleActionSelect("report")}
+                        className="flex items-start gap-3 px-4 py-3 cursor-pointer rounded-lg text-sm font-medium text-red-500 hover:bg-red-50 transition-colors"
+                      >
+                        <span className="shrink-0 w-5 h-5 flex items-center justify-center">
+                          <Flag size={18} />
+                        </span>
+                        <span className="flex-1 text-left leading-snug break-words">
+                          Report Flag User
+                        </span>
+                      </button>
+                    </>
+                  )}
+                </div>
               </PopupCard>
             </div>
           </div>
@@ -452,13 +491,19 @@ export default function MobilePostView({
                     allow="fullscreen"
                   />
                 ) : (
-                  <Image
-                    src={currentFile || "/images/placeholder.png"}
-                    alt="Document"
-                    width={600}
-                    height={800}
-                    className="w-full h-auto max-h-[60vh] object-contain"
-                  />
+                  <button
+                    type="button"
+                    onClick={() => openImageViewer(currentFile)}
+                    className="focus:outline-none"
+                  >
+                    <Image
+                      src={currentFile || "/images/placeholder.png"}
+                      alt="Document"
+                      width={600}
+                      height={800}
+                      className="w-full h-auto max-h-[60vh] object-contain"
+                    />
+                  </button>
                 )}
 
                 {/* File Counter */}
@@ -489,7 +534,7 @@ export default function MobilePostView({
                 {givenGrade && (
                   <div className="bg-green-50 px-3 py-2 rounded-full">
                     <span className="text-green-700 font-medium">
-                      Your Grade: {givenGrade}
+                      Given Grade: {givenGrade}
                     </span>
                   </div>
                 )}
@@ -567,13 +612,16 @@ export default function MobilePostView({
                               <div className="text-right">
                                 <p className="text-sm text-gray-600">Score</p>
                                 <p className="text-base font-semibold text-gray-800">
-                                  {grader?.grade.letter.letterGrade.totalScore} /{" "}
-                                  {grader?.grade.letter.letterGrade.maxScore}
+                                  {grader?.grade.letter.letterGrade.totalScore}{" "}
+                                  / {grader?.grade.letter.letterGrade.maxScore}
                                 </p>
                               </div>
 
                               <div className="flex items-center justify-center w-10 h-10 rounded-full bg-blue-100 text-blue-600 font-semibold text-lg">
-                                {Math.round(grader?.grade.letter.letterGrade.percent || 0)}%
+                                {Math.round(
+                                  grader?.grade.letter.letterGrade.percent || 0
+                                )}
+                                %
                               </div>
                             </div>
                           </GradeGivenSection>
@@ -601,10 +649,12 @@ export default function MobilePostView({
                                       i: number
                                     ) => {
                                       // Find maxPoints from grading template criteria
-                                      const criterion = gradingTemplate?.criteria?.rubricCriteria?.find(
-                                        (c: any) => c.label === item.label
-                                      );
-                                      const maxPoints = criterion?.maxPoints ?? 0;
+                                      const criterion =
+                                        gradingTemplate?.criteria?.rubricCriteria?.find(
+                                          (c: any) => c.label === item.label
+                                        );
+                                      const maxPoints =
+                                        criterion?.maxPoints ?? 0;
 
                                       return (
                                         <div
@@ -698,7 +748,9 @@ export default function MobilePostView({
                                           (c: any) => c.label === w.label
                                         );
                                       const maxPoints =
-                                        w.maxPoints ?? criterion?.maxPoints ?? 0;
+                                        w.maxPoints ??
+                                        criterion?.maxPoints ??
+                                        0;
 
                                       return (
                                         <div
@@ -734,7 +786,8 @@ export default function MobilePostView({
                                     0
                                   ) || 0;
                                 const totalScore =
-                                  grader?.grade?.weightedRubric?.totalScore ?? 0;
+                                  grader?.grade?.weightedRubric?.totalScore ??
+                                  0;
                                 const percentage =
                                   typeof grader?.grade?.weightedRubric
                                     ?.percentage === "number"
@@ -752,7 +805,8 @@ export default function MobilePostView({
                                           Total Score
                                         </p>
                                         <p className="text-lg font-bold text-gray-800">
-                                          {totalScore.toFixed(2)} / {maxTotalScore}
+                                          {totalScore.toFixed(2)} /{" "}
+                                          {maxTotalScore}
                                         </p>
                                       </div>
 
@@ -773,6 +827,92 @@ export default function MobilePostView({
                                   </div>
                                 );
                               })()}
+                            </div>
+                          </GradeGivenSection>
+                        );
+
+                      case "checklist":
+                        const checklistGrade = grader.grade?.checklist;
+                        const checklistItems = checklistGrade?.items || [];
+                        const checklistTotal = checklistGrade?.totalScore || 0;
+                        const checklistMax = checklistGrade?.maxScore || 0;
+                        const checklistPercent =
+                          checklistGrade?.percentage || 0;
+
+                        return (
+                          <GradeGivenSection
+                            key={idx}
+                            grade={grader}
+                            gradingTemplate={gradingTemplate}
+                          >
+                            <div className="bg-[#FDFDFD] border border-gray-200 rounded-[24.5px] p-4 shadow-sm">
+                              <p className="text-sm font-semibold text-gray-800 mb-3">
+                                Checklist
+                              </p>
+
+                              <div className="flex flex-col gap-2">
+                                {checklistItems.length > 0 ? (
+                                  <ul className="space-y-2">
+                                    {checklistItems.map(
+                                      (item: string, i: number) => (
+                                        <li
+                                          key={i}
+                                          className="flex items-center gap-2 text-sm text-gray-700"
+                                        >
+                                          <span className="w-2 h-2 bg-green-500 rounded-full"></span>
+                                          <span>{item}</span>
+                                        </li>
+                                      )
+                                    )}
+                                  </ul>
+                                ) : (
+                                  <p className="text-sm text-gray-500">
+                                    No items completed
+                                  </p>
+                                )}
+                              </div>
+
+                              <div className="mt-4 pt-4 border-t border-gray-200">
+                                <div className="flex justify-between items-center mb-2">
+                                  <p className="text-sm font-medium text-gray-700">
+                                    Score
+                                  </p>
+                                  <p className="text-base font-bold text-gray-900">
+                                    {checklistTotal} / {checklistMax}
+                                  </p>
+                                </div>
+                                <div className="flex justify-between items-center">
+                                  <p className="text-sm text-gray-600">
+                                    Percentage
+                                  </p>
+                                  <p className="text-base font-semibold text-blue-600">
+                                    {Math.round(Number(checklistPercent) || 0)}%
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+                          </GradeGivenSection>
+                        );
+
+                      case "passFail":
+                        const passFail = grader.grade?.passfail;
+                        const isPass = passFail?.pass ?? false;
+                        return (
+                          <GradeGivenSection
+                            key={idx}
+                            grade={grader}
+                            gradingTemplate={gradingTemplate}
+                          >
+                            <div className="bg-[#FDFDFD] border border-gray-200 rounded-[24.5px] p-4 shadow-sm">
+                              <div
+                                className={`inline-flex items-center px-4 py-2 rounded-lg text-sm font-semibold ${
+                                  isPass
+                                    ? "bg-green-100 text-green-700"
+                                    : "bg-red-100 text-red-700"
+                                }`}
+                              >
+                                {isPass ? "✓ Passed" : "✗ Failed"}
+                              </div>
                             </div>
                           </GradeGivenSection>
                         );
@@ -1003,18 +1143,21 @@ export default function MobilePostView({
         </AnimatePresence>
       </div>
 
-      {/* Bottom Sheet for Modals */}
+      {/* Action Modal (Responsive) */}
       {modalComponent && (
-        <BottomSheet
+        <ResponsiveModal
           isOpen={isModalOpen}
-          onClose={() => {
-            setIsModalOpen(false);
-            setModalComponent(null);
-            setModalProps({});
+          onOpenChange={(open) => {
+            setIsModalOpen(open);
+            if (!open) {
+              setModalComponent(null);
+              setModalProps({});
+            }
           }}
+          title=""
         >
           {React.createElement(modalComponent, modalProps)}
-        </BottomSheet>
+        </ResponsiveModal>
       )}
 
       {/* Delete Grade Modal */}
@@ -1031,6 +1174,13 @@ export default function MobilePostView({
           />
         </ResponsiveModal>
       )}
+
+      {/* Image Viewer Modal */}
+      <ImageViewer
+        src={imageViewerSrc}
+        isOpen={isImageViewerOpen}
+        onClose={closeImageViewer}
+      />
     </div>
   );
 }

@@ -340,18 +340,26 @@ export default function Post({ post }: { post: PostAttributes }) {
                   {!isFollowingUser ? (
                     <button
                       onClick={handleFollowUser}
-                      className="flex items-center gap-3 px-4 py-3 cursor-pointer rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors"
+                      className="flex items-start gap-3 px-4 py-3 cursor-pointer rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors"
                     >
-                      <UserPlus size={18} />
-                      <span>Follow</span>
+                      <span className="shrink-0 w-5 h-5 flex items-center justify-center">
+                        <UserPlus size={18} />
+                      </span>
+                      <span className="flex-1 text-left leading-snug break-words">
+                        Follow
+                      </span>
                     </button>
                   ) : (
                     <button
                       onClick={handleUnfollowUser}
-                      className="flex items-center gap-3 px-4 py-3 cursor-pointer rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors"
+                      className="flex items-start gap-3 px-4 py-3 cursor-pointer rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors"
                     >
-                      <UserMinus size={18} />
-                      <span>Unfollow</span>
+                      <span className="shrink-0 w-5 h-5 flex items-center justify-center">
+                        <UserMinus size={18} />
+                      </span>
+                      <span className="flex-1 text-left leading-snug break-words">
+                        Unfollow
+                      </span>
                     </button>
                   )}
                   <button
@@ -363,10 +371,12 @@ export default function Post({ post }: { post: PostAttributes }) {
                         handleOpenModal(ComposeNewMessageModal, { post });
                       }
                     }}
-                    className="flex items-center gap-3 px-4 py-3 cursor-pointer rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors"
+                    className="flex items-start gap-3 px-4 py-3 cursor-pointer rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors"
                   >
-                    <MessagesSquare size={18} />
-                    <span>
+                    <span className="shrink-0 w-5 h-5 flex items-center justify-center">
+                      <MessagesSquare size={18} />
+                    </span>
+                    <span className="flex-1 text-left leading-snug break-words">
                       Message {post.author?.name?.split(" ")[0] || "User"}
                     </span>
                   </button>
@@ -375,19 +385,21 @@ export default function Post({ post }: { post: PostAttributes }) {
                       setIsPopUpOpen(false);
                       handleFavoriteToggle();
                     }}
-                    className={`flex items-center gap-3 px-4 py-3 cursor-pointer rounded-lg text-sm font-medium transition-colors ${
+                    className={`flex items-start gap-3 px-4 py-3 cursor-pointer rounded-lg text-sm font-medium transition-colors ${
                       isFavorited
                         ? "text-[#368FFF] hover:bg-blue-50"
                         : "text-gray-700 hover:bg-gray-100"
                     }`}
                   >
-                    <Heart
-                      size={18}
-                      className={
-                        isFavorited ? "fill-[#368FFF] text-[#368FFF]" : ""
-                      }
-                    />
-                    <span>
+                    <span className="shrink-0 w-5 h-5 flex items-center justify-center">
+                      <Heart
+                        size={18}
+                        className={
+                          isFavorited ? "fill-[#368FFF] text-[#368FFF]" : ""
+                        }
+                      />
+                    </span>
+                    <span className="flex-1 text-left leading-snug break-words">
                       {isFavorited
                         ? "Remove from Favorites"
                         : "Add to Favorites"}
@@ -402,10 +414,14 @@ export default function Post({ post }: { post: PostAttributes }) {
                         });
                       }
                     }}
-                    className="flex items-center gap-3 px-4 py-3 cursor-pointer rounded-lg text-sm font-medium text-red-500 hover:bg-red-50 transition-colors"
+                    className="flex items-start gap-3 px-4 py-3 cursor-pointer rounded-lg text-sm font-medium text-red-500 hover:bg-red-50 transition-colors"
                   >
-                    <Flag size={18} />
-                    <span>Report User</span>
+                    <span className="shrink-0 w-5 h-5 flex items-center justify-center">
+                      <Flag size={18} />
+                    </span>
+                    <span className="flex-1 text-left leading-snug break-words">
+                      Report User
+                    </span>
                   </button>
                 </div>
               </PopupCard>
