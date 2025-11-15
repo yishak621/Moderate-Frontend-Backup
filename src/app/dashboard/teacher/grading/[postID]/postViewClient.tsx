@@ -231,27 +231,27 @@ export default function PostViewClient() {
     if (!currentUserGrade?.grade) return null;
 
     const gradeType = post?.gradingTemplate?.type;
-    let gradeData = currentUserGrade.grade;
+    let gradeData: any = currentUserGrade.grade;
 
     // Handle JSON string if needed
     if (typeof gradeData === "string") {
       try {
-        gradeData = JSON.parse(gradeData);
+        const parsed = JSON.parse(gradeData);
+        gradeData = parsed;
       } catch (e) {
-        // If parsing fails, try to parse nested JSON
-        try {
-          const parsed = JSON.parse(gradeData);
-          if (parsed.json) {
-            gradeData = parsed.json;
-          }
-        } catch (e2) {
-          console.error("Failed to parse grade data:", e2);
-        }
+        // If parsing fails, return null
+        console.error("Failed to parse grade data:", e);
+        return null;
       }
     }
 
+    // Ensure gradeData is an object
+    if (typeof gradeData !== "object" || gradeData === null) {
+      return null;
+    }
+
     // Handle nested JSON structure (e.g., {"json":{"letter":"fail"}})
-    if (gradeData?.json) {
+    if (gradeData.json && typeof gradeData.json === "object") {
       gradeData = gradeData.json;
     }
 
