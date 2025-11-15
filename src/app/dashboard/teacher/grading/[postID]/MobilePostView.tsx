@@ -567,8 +567,13 @@ export default function MobilePostView({
                               <div className="text-right">
                                 <p className="text-sm text-gray-600">Score</p>
                                 <p className="text-base font-semibold text-gray-800">
-                                  {grader?.grade.letter.score}
+                                  {grader?.grade.letter.letterGrade.totalScore} /{" "}
+                                  {grader?.grade.letter.letterGrade.maxScore}
                                 </p>
+                              </div>
+
+                              <div className="flex items-center justify-center w-10 h-10 rounded-full bg-blue-100 text-blue-600 font-semibold text-lg">
+                                {Math.round(grader?.grade.letter.letterGrade.percent || 0)}%
                               </div>
                             </div>
                           </GradeGivenSection>

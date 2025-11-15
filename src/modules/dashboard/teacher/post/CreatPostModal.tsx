@@ -523,7 +523,8 @@ export default function CreatPostModal() {
               onChange={(e) =>
                 setNumericCriteria((prev) => ({
                   ...prev,
-                  min: Number(e.target.value),
+                  min:
+                    e.target.value === "" ? undefined : Number(e.target.value),
                 }))
               }
             />
@@ -534,7 +535,8 @@ export default function CreatPostModal() {
               onChange={(e) =>
                 setNumericCriteria((prev) => ({
                   ...prev,
-                  max: Number(e.target.value),
+                  max:
+                    e.target.value === "" ? undefined : Number(e.target.value),
                 }))
               }
             />
@@ -561,7 +563,11 @@ export default function CreatPostModal() {
                   type="number"
                   value={range.min ?? ""}
                   onChange={(e) =>
-                    updateLetterRange(idx, "min", Number(e.target.value))
+                    updateLetterRange(
+                      idx,
+                      "min",
+                      e.target.value === "" ? undefined : Number(e.target.value)
+                    )
                   }
                 />
                 <Input
@@ -569,7 +575,11 @@ export default function CreatPostModal() {
                   type="number"
                   value={range.max ?? ""}
                   onChange={(e) =>
-                    updateLetterRange(idx, "max", Number(e.target.value))
+                    updateLetterRange(
+                      idx,
+                      "max",
+                      e.target.value === "" ? undefined : Number(e.target.value)
+                    )
                   }
                 />
               </div>
@@ -602,7 +612,11 @@ export default function CreatPostModal() {
                   type="number"
                   value={item.minPoints ?? ""}
                   onChange={(e) =>
-                    updateRubric(idx, "minPoints", Number(e.target.value))
+                    updateRubric(
+                      idx,
+                      "minPoints",
+                      e.target.value === "" ? undefined : Number(e.target.value)
+                    )
                   }
                 />
                 <Input
@@ -610,7 +624,11 @@ export default function CreatPostModal() {
                   type="number"
                   value={item.maxPoints ?? ""}
                   onChange={(e) =>
-                    updateRubric(idx, "maxPoints", Number(e.target.value))
+                    updateRubric(
+                      idx,
+                      "maxPoints",
+                      e.target.value === "" ? undefined : Number(e.target.value)
+                    )
                   }
                 />
                 {selectedGradingType === "weightedRubric" && (
@@ -619,7 +637,13 @@ export default function CreatPostModal() {
                     type="number"
                     value={item.weight ?? ""}
                     onChange={(e) =>
-                      updateRubric(idx, "weight", Number(e.target.value))
+                      updateRubric(
+                        idx,
+                        "weight",
+                        e.target.value === ""
+                          ? undefined
+                          : Number(e.target.value)
+                      )
                     }
                   />
                 )}
@@ -744,7 +768,8 @@ export default function CreatPostModal() {
             onChange={(e) =>
               setUserGrade((prev) => ({
                 ...prev,
-                numeric: Number(e.target.value),
+                numeric:
+                  e.target.value === "" ? undefined : Number(e.target.value),
               }))
             }
           />
@@ -790,7 +815,10 @@ export default function CreatPostModal() {
                   placeholder={`0 - ${item.maxPoints}`}
                   value={userGrade.rubric?.[idx] || ""}
                   onChange={(e) => {
-                    const value = Number(e.target.value);
+                    const value =
+                      e.target.value === ""
+                        ? undefined
+                        : Number(e.target.value);
                     setUserGrade((prev) => {
                       const updated = [...(prev.rubric || [])];
                       updated[idx] = value;

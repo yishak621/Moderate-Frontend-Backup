@@ -91,6 +91,16 @@ export default function GradeTemplateWeightedRubric({
       };
     });
 
+    // Compute totalScore and percentage from submitted data, not watched values
+    const submittedTotalScore =
+      criteria?.rubricCriteria.reduce((sum: number, c: any) => {
+        const score = Number(data.criteria[c.label]) || 0;
+        const pct = score / c.maxPoints; // fraction of this criterion
+        return sum + pct * c.weight; // weight as percentage
+      }, 0) || 0;
+
+    const submittedPercentage = (submittedTotalScore / maxScore) * 100;
+
     try {
       await saveGradeAsync({
         postId,
@@ -99,8 +109,8 @@ export default function GradeTemplateWeightedRubric({
           grade: {
             weightedRubric: {
               rubricData,
-              totalScore,
-              percentage,
+              totalScore: submittedTotalScore,
+              percentage: submittedPercentage,
             },
           },
           gradeTemplateId: gradingTemplate.id,

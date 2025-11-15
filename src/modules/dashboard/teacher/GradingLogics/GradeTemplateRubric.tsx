@@ -89,12 +89,25 @@ export default function GradeTemplateRubric({
       return { label: criterion?.label || key, value };
     });
 
+    // Compute totalScore and percentage from submitted data, not watched values
+    const submittedTotalScore = Object.values(data.criteria).reduce(
+      (sum, val) => sum + Number(val || 0),
+      0
+    );
+    const submittedPercentage = (submittedTotalScore / maxScore) * 100;
+
     try {
       await saveGradeAsync({
         postId,
         gradeData: {
           gradeType: gradingTemplate.type,
-          grade: { rubric: { rubricData, totalScore, percentage } },
+          grade: {
+            rubric: {
+              rubricData,
+              totalScore: submittedTotalScore,
+              percentage: submittedPercentage,
+            },
+          },
           gradeTemplateId: gradingTemplate.id,
           criteria: gradingTemplate.criteria,
           comment: data.comment,

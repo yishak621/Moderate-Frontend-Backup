@@ -91,11 +91,26 @@ export function GradeTemplateLetter({
 
   const onSubmit = async (data: Props) => {
     try {
+      // Compute result using the submitted data.value, not the watched value
+      const submittedValue = Number(data.value) || 0;
+      const computedResult = compute(submittedValue, ranges);
+
+      console.log(computedResult);
       await saveGradeAsync({
         postId,
         gradeData: {
           gradeType: gradingTemplate?.type,
-          grade: { letter: { letterGrade: result, score: Number(data.value) } },
+          grade: {
+            letter: {
+              letterGrade: {
+                letter: computedResult.letter, // 1. Letter grade (A, B, C, etc.)
+                totalScore: computedResult.totalScore, // 2. Score (number value)
+                maxScore: computedResult.maxScore, // 3. Max score (for score/maxScore display)
+                percent: computedResult.percent, // 4. Percent of user score over total score
+              },
+              score: computedResult.totalScore, // The actual score value
+            },
+          },
           gradeTemplateId: gradingTemplate?.id,
           criteria: gradingTemplate?.criteria,
           comment: data.comment,
@@ -167,12 +182,12 @@ export function GradeTemplateLetter({
                       </td>
                       <td className="py-3 text-sm text-gray-500  italic">
                         {item.letter === "A"
-                          ? "Excellent 🎯"
+                          ? "Excellent"
                           : item.letter === "B"
-                          ? "Good Job 👍"
+                          ? "Good Job "
                           : item.letter === "C"
-                          ? "Needs Improvement 📘"
-                          : "Keep Going 💪"}
+                          ? "Needs Improvement "
+                          : "Keep Going "}
                       </td>
                     </tr>
                   );
