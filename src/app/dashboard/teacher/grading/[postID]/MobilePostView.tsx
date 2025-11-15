@@ -599,37 +599,77 @@ export default function MobilePostView({
                                     (
                                       item: { label: string; value: string },
                                       i: number
-                                    ) => (
-                                      <div
-                                        key={i}
-                                        className="flex items-center justify-between bg-white border border-gray-100 rounded-lg px-4 py-3 shadow-sm"
-                                      >
-                                        <span className="text-sm font-medium text-gray-700">
-                                          {item.label}
-                                        </span>
-                                        <span className="text-sm font-semibold text-blue-600">
-                                          {item.value}
-                                        </span>
-                                      </div>
-                                    )
+                                    ) => {
+                                      // Find maxPoints from grading template criteria
+                                      const criterion = gradingTemplate?.criteria?.rubricCriteria?.find(
+                                        (c: any) => c.label === item.label
+                                      );
+                                      const maxPoints = criterion?.maxPoints ?? 0;
+
+                                      return (
+                                        <div
+                                          key={i}
+                                          className="flex items-center justify-between bg-white border border-gray-100 rounded-lg px-4 py-3 shadow-sm"
+                                        >
+                                          <span className="text-sm font-medium text-gray-700">
+                                            {item.label}
+                                          </span>
+                                          <span className="text-sm font-semibold text-blue-600">
+                                            {item.value} / {maxPoints}
+                                          </span>
+                                        </div>
+                                      );
+                                    }
                                   )}
                               </div>
 
-                              <div className="flex justify-between items-center mt-5 pt-3 border-t border-gray-200">
-                                <p className="text-sm text-gray-600">
-                                  Total Score
-                                </p>
-                                <p className="text-base font-bold text-gray-800">
-                                  {grader?.grade?.rubric?.totalScore ?? 0}
-                                </p>
-                              </div>
+                              {/* Calculate max total score from criteria */}
+                              {(() => {
+                                const maxTotalScore =
+                                  gradingTemplate?.criteria?.rubricCriteria?.reduce(
+                                    (sum: number, c: any) =>
+                                      sum + (c.maxPoints || 0),
+                                    0
+                                  ) || 0;
+                                const totalScore =
+                                  grader?.grade?.rubric?.totalScore ?? 0;
+                                const percentage =
+                                  typeof grader?.grade?.rubric?.percentage ===
+                                  "number"
+                                    ? grader.grade.rubric.percentage
+                                    : parseFloat(
+                                        grader?.grade?.rubric?.percentage || "0"
+                                      );
 
-                              <p className="text-xs text-gray-500 mt-1">
-                                Overall Percentage:{" "}
-                                <span className="font-semibold text-blue-600">
-                                  {grader?.grade?.rubric?.percentage ?? 0}%
-                                </span>
-                              </p>
+                                return (
+                                  <div className="mt-5 pt-4 border-t border-gray-200">
+                                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 bg-white border border-gray-200 rounded-lg px-4 py-3 shadow-sm">
+                                      <div>
+                                        <p className="text-sm text-gray-600">
+                                          Total Score
+                                        </p>
+                                        <p className="text-lg font-bold text-gray-800">
+                                          {totalScore} / {maxTotalScore}
+                                        </p>
+                                      </div>
+
+                                      <div className="flex items-center gap-3">
+                                        <div className="text-right">
+                                          <p className="text-xs text-gray-500">
+                                            Percentage
+                                          </p>
+                                          <p className="text-base font-semibold text-blue-600">
+                                            {percentage.toFixed(2)}%
+                                          </p>
+                                        </div>
+                                        <div className="flex items-center justify-center w-12 h-12 rounded-full bg-blue-100 text-blue-600 font-semibold text-base">
+                                          {Math.round(percentage)}%
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                );
+                              })()}
                             </div>
                           </GradeGivenSection>
                         );
