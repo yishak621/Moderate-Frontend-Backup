@@ -403,7 +403,7 @@ export default function DashboardShell({
                       icon: SettingsIcon,
                     },
                     {
-                      href: "/help",
+                      href: "/dashboard/teacher/support",
                       label: "Help & Support",
                       icon: HelpCircle,
                     },
