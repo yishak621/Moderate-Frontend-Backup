@@ -91,31 +91,31 @@ export default function AppealsClient() {
   }
 
   return (
-    <div className="flex flex-col gap-6 w-full max-w-full overflow-hidden">
+    <div className="flex flex-col gap-5 sm:gap-6 w-full max-w-full overflow-hidden px-3 sm:px-0">
       {/* Header */}
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-1.5 sm:gap-2">
         <div className="flex items-center gap-2">
-          <Scale className="text-blue-500" size={24} />
-          <h1 className="text-2xl font-semibold text-[#0C0C0C]">
+          <Scale className="text-blue-500" size={20} />
+          <h1 className="text-xl sm:text-2xl font-semibold text-[#0C0C0C]">
             Account Appeals
           </h1>
         </div>
-        <p className="text-sm text-[#717171]">
+        <p className="text-xs sm:text-sm text-[#717171]">
           Submit an appeal if you believe your account moderation was incorrect
         </p>
       </div>
 
       {/* Current Status */}
       {moderation && (
-        <div className="bg-[#FDFDFD] border border-[#DBDBDB] rounded-2xl p-6">
-          <h2 className="text-lg font-semibold text-[#0C0C0C] mb-4">
+        <div className="bg-[#FDFDFD] border border-[#DBDBDB] rounded-2xl p-4 sm:p-6">
+          <h2 className="text-base sm:text-lg font-semibold text-[#0C0C0C] mb-3 sm:mb-4">
             Current Account Status
           </h2>
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-3 sm:gap-4">
             <div className="flex items-center justify-between">
-              <span className="text-sm text-[#717171]">Status</span>
+              <span className="text-xs sm:text-sm text-[#717171]">Status</span>
               <span
-                className={`px-3 py-1 text-xs font-semibold rounded-full ${
+                className={`px-2.5 sm:px-3 py-0.5 sm:py-1 text-[11px] sm:text-xs font-semibold rounded-full ${
                   getModerationStatusConfig(moderation.status).className
                 }`}
               >
@@ -124,16 +124,16 @@ export default function AppealsClient() {
             </div>
             {moderation.violationCount > 0 && (
               <div className="flex items-center justify-between">
-                <span className="text-sm text-[#717171]">Violations</span>
-                <span className="text-sm font-medium text-[#0C0C0C]">
+                <span className="text-xs sm:text-sm text-[#717171]">Violations</span>
+                <span className="text-xs sm:text-sm font-medium text-[#0C0C0C]">
                   {moderation.violationCount}
                 </span>
               </div>
             )}
             {moderation.suspensionStartDate && (
               <div className="flex items-center justify-between">
-                <span className="text-sm text-[#717171]">Suspension Start</span>
-                <span className="text-sm text-[#0C0C0C]">
+                <span className="text-xs sm:text-sm text-[#717171]">Suspension Start</span>
+                <span className="text-xs sm:text-sm text-[#0C0C0C]">
                   {new Date(
                     moderation.suspensionStartDate
                   ).toLocaleDateString()}
@@ -142,24 +142,24 @@ export default function AppealsClient() {
             )}
             {moderation.suspensionEndDate && (
               <div className="flex items-center justify-between">
-                <span className="text-sm text-[#717171]">Suspension End</span>
-                <span className="text-sm text-[#0C0C0C]">
+                <span className="text-xs sm:text-sm text-[#717171]">Suspension End</span>
+                <span className="text-xs sm:text-sm text-[#0C0C0C]">
                   {new Date(moderation.suspensionEndDate).toLocaleDateString()}
                 </span>
               </div>
             )}
             {moderation.bannedAt && (
               <div className="flex items-center justify-between">
-                <span className="text-sm text-[#717171]">Ban Date</span>
-                <span className="text-sm text-red-600 font-medium">
+                <span className="text-xs sm:text-sm text-[#717171]">Ban Date</span>
+                <span className="text-xs sm:text-sm text-red-600 font-medium">
                   {new Date(moderation.bannedAt).toLocaleDateString()}
                 </span>
               </div>
             )}
             {moderation.banReason && (
               <div className="flex flex-col gap-1">
-                <span className="text-sm text-[#717171]">Ban Reason</span>
-                <span className="text-sm text-[#0C0C0C]">
+                <span className="text-xs sm:text-sm text-[#717171]">Ban Reason</span>
+                <span className="text-xs sm:text-sm text-[#0C0C0C]">
                   {moderation.banReason}
                 </span>
               </div>
@@ -168,27 +168,27 @@ export default function AppealsClient() {
 
           {/* Create Appeal Button */}
           {canCreateAppeal && (
-            <div className="mt-6 pt-6 border-t border-gray-200">
+            <div className="mt-5 sm:mt-6 pt-5 sm:pt-6 border-t border-gray-200">
               <Button
                 variant="primary"
                 onClick={() => setIsCreateModalOpen(true)}
-                className="w-full sm:w-auto"
+                className="w-full sm:w-auto h-10 sm:h-11 text-sm sm:text-base"
               >
-                <Scale size={18} className="mr-2" />
+                <Scale size={16} className="mr-2" />
                 Create Appeal
               </Button>
             </div>
           )}
 
           {!canCreateAppeal && moderation && moderation.status !== "active" && (
-            <div className="mt-6 pt-6 border-t border-gray-200">
-              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+            <div className="mt-5 sm:mt-6 pt-5 sm:pt-6 border-t border-gray-200">
+              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-2.5 sm:p-3">
                 <div className="flex items-start gap-2">
                   <AlertTriangle
                     className="text-yellow-600 flex-shrink-0 mt-0.5"
-                    size={16}
+                    size={14}
                   />
-                  <p className="text-xs text-yellow-700">
+                  <p className="text-[11px] sm:text-xs text-yellow-700">
                     {appeals.some((appeal) => appeal.status === "pending")
                       ? "You already have a pending appeal. Please wait for admin review."
                       : "You cannot create an appeal at this time."}
@@ -202,11 +202,11 @@ export default function AppealsClient() {
 
       {/* Show Create Appeal Button if no moderation data but user wants to appeal */}
       {!moderation && !isLoadingModeration && (
-        <div className="bg-[#FDFDFD] border border-[#DBDBDB] rounded-2xl p-6">
-          <h2 className="text-lg font-semibold text-[#0C0C0C] mb-4">
+        <div className="bg-[#FDFDFD] border border-[#DBDBDB] rounded-2xl p-4 sm:p-6">
+          <h2 className="text-base sm:text-lg font-semibold text-[#0C0C0C] mb-3 sm:mb-4">
             Create Appeal
           </h2>
-          <p className="text-sm text-[#717171] mb-4">
+          <p className="text-xs sm:text-sm text-[#717171] mb-3 sm:mb-4">
             If you believe your account has been incorrectly moderated, you can
             submit an appeal.
           </p>
@@ -214,9 +214,9 @@ export default function AppealsClient() {
             <Button
               variant="primary"
               onClick={() => setIsCreateModalOpen(true)}
-              className="w-full sm:w-auto"
+              className="w-full sm:w-auto h-10 sm:h-11 text-sm sm:text-base"
             >
-              <Scale size={18} className="mr-2" />
+              <Scale size={16} className="mr-2" />
               Create Appeal
             </Button>
           )}
@@ -224,8 +224,8 @@ export default function AppealsClient() {
       )}
 
       {/* My Appeals */}
-      <div className="bg-[#FDFDFD] border border-[#DBDBDB] rounded-2xl p-6">
-        <h2 className="text-lg font-semibold text-[#0C0C0C] mb-4">
+      <div className="bg-[#FDFDFD] border border-[#DBDBDB] rounded-2xl p-4 sm:p-6">
+        <h2 className="text-base sm:text-lg font-semibold text-[#0C0C0C] mb-3 sm:mb-4">
           My Appeals
         </h2>
         {appeals.length === 0 ? (
@@ -234,16 +234,16 @@ export default function AppealsClient() {
             description="You haven't submitted any appeals. Create one if you believe your account moderation was incorrect."
           />
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-3 sm:space-y-4">
             {appeals.map((appeal) => {
               const statusConfig = getStatusConfig(appeal.status);
               const StatusIcon = statusConfig.icon;
               return (
                 <div
                   key={appeal.id}
-                  className="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition-colors"
+                  className="border border-gray-200 rounded-lg p-3 sm:p-4 hover:bg-gray-50 transition-colors"
                 >
-                  <div className="flex items-start justify-between mb-2">
+                  <div className="flex items-start justify-between mb-1.5 sm:mb-2">
                     <div className="flex items-center gap-2">
                       <StatusIcon
                         className={`${
@@ -252,31 +252,31 @@ export default function AppealsClient() {
                             .replace("text-", "")
                             .split(" ")[0]
                         }`}
-                        size={18}
+                        size={16}
                       />
                       <span
-                        className={`px-3 py-1 text-xs font-semibold rounded-full ${statusConfig.className}`}
+                        className={`px-2.5 sm:px-3 py-0.5 sm:py-1 text-[11px] sm:text-xs font-semibold rounded-full ${statusConfig.className}`}
                       >
                         {statusConfig.label}
                       </span>
                     </div>
-                    <span className="text-xs text-[#717171]">
+                    <span className="text-[11px] sm:text-xs text-[#717171]">
                       {timeAgo(appeal.createdAt)}
                     </span>
                   </div>
-                  <p className="text-sm text-[#0C0C0C] mb-2">{appeal.reason}</p>
+                  <p className="text-xs sm:text-sm text-[#0C0C0C] mb-2">{appeal.reason}</p>
                   {appeal.adminNotes && (
-                    <div className="mt-2 pt-2 border-t border-gray-200">
-                      <p className="text-xs font-medium text-[#717171] mb-1">
+                    <div className="mt-1.5 sm:mt-2 pt-1.5 sm:pt-2 border-t border-gray-200">
+                      <p className="text-[11px] sm:text-xs font-medium text-[#717171] mb-1">
                         Admin Response:
                       </p>
-                      <p className="text-xs text-[#0C0C0C]">
+                      <p className="text-[11px] sm:text-xs text-[#0C0C0C]">
                         {appeal.adminNotes}
                       </p>
                     </div>
                   )}
                   {appeal.reviewedAt && (
-                    <p className="text-xs text-[#717171] mt-2">
+                    <p className="text-[11px] sm:text-xs text-[#717171] mt-1.5 sm:mt-2">
                       Reviewed: {new Date(appeal.reviewedAt).toLocaleString()}
                     </p>
                   )}

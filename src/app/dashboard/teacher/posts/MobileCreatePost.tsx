@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react";
-import { ArrowLeft, Plus, Trash } from "lucide-react";
+import { ArrowLeft, Plus, Trash, FolderOpen, Bookmark } from "lucide-react";
 import MobileInput from "@/components/ui/MobileInput";
 import MobileButton from "@/components/ui/MobileButton";
 import MobileCustomSelect from "@/components/ui/MobileCustomSelect";
@@ -18,6 +18,10 @@ import { PostCreateInput } from "@/types/postAttributes";
 import toast from "react-hot-toast";
 import { gradingTypeOptions } from "@/lib/gradingTypeOptions";
 import FileUploader from "@/components/FileUploader";
+import ResponsiveModal from "@/components/ui/ResponsiveModal";
+import TemplateLibraryModal from "@/modules/dashboard/teacher/gradingTemplates/TemplateLibraryModal";
+import SaveTemplateModal from "@/modules/dashboard/teacher/gradingTemplates/SaveTemplateModal";
+import { GradingTemplate, GradingTemplateType } from "@/types/gradingTemplate";
 
 interface MobileCreatePostProps {
   onBack: () => void;
@@ -44,6 +48,10 @@ export default function MobileCreatePost({ onBack }: MobileCreatePostProps) {
     { label: "Criterion 1", maxPoints: 10, weight: 0 },
   ]);
   const [checklistItems, setChecklistItems] = useState<string[]>([""]);
+  const [isSaveTemplateModalOpen, setIsSaveTemplateModalOpen] = useState(false);
+  const [isTemplateLibraryModalOpen, setIsTemplateLibraryModalOpen] =
+    useState(false);
+  const [isSavingTemplate, setIsSavingTemplate] = useState(false);
 
   const { subjectDomains } = useSubjectDomains();
   const { user } = useUserData();
@@ -108,6 +116,14 @@ export default function MobileCreatePost({ onBack }: MobileCreatePostProps) {
     setChecklistItems(checklistItems.filter((_, i) => i !== index));
 
   const onSubmit = async (data: PostCreateInput) => {
+    // Prevent submission if template modals are open
+    if (
+      isSaveTemplateModalOpen ||
+      isTemplateLibraryModalOpen ||
+      isSavingTemplate
+    ) {
+      return;
+    }
     // Compose gradingTemplate based on selected type
     let composedGradingTemplate: Record<string, any> = {};
 
@@ -161,6 +177,80 @@ export default function MobileCreatePost({ onBack }: MobileCreatePostProps) {
         toast.error("Something went wrong");
       }
     }
+  };
+
+  const canSaveTemplate = () => {
+    switch (selectedGradingType) {
+      case "numeric":
+        return (
+          numericCriteria.min !== undefined && numericCriteria.max !== undefined
+        );
+      case "letter":
+        return (
+          letterRanges.length > 0 &&
+          letterRanges.some(
+            (r) => r.letter && r.min !== undefined && r.max !== undefined
+          )
+        );
+      case "rubric":
+      case "weightedRubric":
+        return (
+          rubricCriteria.length > 0 &&
+          rubricCriteria.some((r) => r.label && r.maxPoints !== undefined)
+        );
+      case "checklist":
+        return (
+          checklistItems.length > 0 &&
+          checklistItems.some((item) => (item || "").trim() !== "")
+        );
+      case "passFail":
+        return true;
+      default:
+        return false;
+    }
+  };
+
+  const handleLoadTemplate = (template: GradingTemplate) => {
+    const gradingType = (template as any).type || template.gradingType;
+    setSelectedGradingType(gradingType);
+    const criteria = template.criteria || {};
+    switch (gradingType) {
+      case "numeric":
+        if (criteria.numericCriteria) {
+          setNumericCriteria({
+            min: criteria.numericCriteria.min ?? 0,
+            max: criteria.numericCriteria.max ?? 100,
+          });
+        }
+        break;
+      case "letter":
+        if (criteria.letterRanges && criteria.letterRanges.length > 0) {
+          setLetterRanges(criteria.letterRanges);
+        }
+        break;
+      case "rubric":
+      case "weightedRubric":
+        if (criteria.rubricCriteria && criteria.rubricCriteria.length > 0) {
+          const mapped = criteria.rubricCriteria.map((c: any) => ({
+            label: c.label || "",
+            maxPoints: c.maxPoints ?? 10,
+            minPoints: c.minPoints ?? 0,
+            weight: c.weight ?? 0,
+          }));
+          setRubricCriteria(mapped);
+        }
+        break;
+      case "checklist":
+        if (criteria.checklistItems && criteria.checklistItems.length > 0) {
+          setChecklistItems(criteria.checklistItems);
+        }
+        break;
+      case "passFail":
+        // no-op
+        break;
+    }
+    toast.success(`Template "${template.name}" loaded successfully!`);
+    setIsTemplateLibraryModalOpen(false);
   };
 
   return (
@@ -264,6 +354,26 @@ export default function MobileCreatePost({ onBack }: MobileCreatePostProps) {
               />
             )}
           />
+
+          {/* Template actions - mobile friendly inline buttons */}
+          <div className="flex items-center gap-2 mt-3">
+            <button
+              type="button"
+              className="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-gray-200 bg-white text-sm text-[#0C0C0C]"
+              onClick={() => setIsTemplateLibraryModalOpen(true)}
+            >
+              <FolderOpen size={16} /> Load Template
+            </button>
+            {canSaveTemplate() && (
+              <button
+                type="button"
+                className="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-gray-200 bg-white text-sm text-[#0C0C0C]"
+                onClick={() => setIsSaveTemplateModalOpen(true)}
+              >
+                <Bookmark size={16} /> Save as Template
+              </button>
+            )}
+          </div>
         </div>
 
         {/* Dynamic Grading Inputs - Numeric */}
@@ -642,6 +752,48 @@ export default function MobileCreatePost({ onBack }: MobileCreatePostProps) {
           </MobileButton>
         </div>
       </form>
+
+      {/* Save Template Modal */}
+      <ResponsiveModal
+        isOpen={isSaveTemplateModalOpen}
+        onOpenChange={(open) => {
+          setIsSaveTemplateModalOpen(open);
+          if (!open) setTimeout(() => setIsSavingTemplate(false), 100);
+        }}
+        title="Save Grading Template"
+      >
+        <div className="p-2">
+          <SaveTemplateModal
+            gradingType={selectedGradingType as GradingTemplateType}
+            criteria={{
+              numericCriteria,
+              letterRanges,
+              rubricCriteria,
+              checklistItems,
+            }}
+            onSuccess={() => {
+              setIsSaveTemplateModalOpen(false);
+              setTimeout(() => setIsSavingTemplate(false), 100);
+            }}
+            onSavingStart={() => setIsSavingTemplate(true)}
+            onClose={() => setIsSaveTemplateModalOpen(false)}
+          />
+        </div>
+      </ResponsiveModal>
+
+      {/* Template Library Modal */}
+      <ResponsiveModal
+        isOpen={isTemplateLibraryModalOpen}
+        onOpenChange={setIsTemplateLibraryModalOpen}
+        title="Grading Templates"
+      >
+        <div className="p-2">
+          <TemplateLibraryModal
+            onSelectTemplate={handleLoadTemplate}
+            onClose={() => setIsTemplateLibraryModalOpen(false)}
+          />
+        </div>
+      </ResponsiveModal>
     </div>
   );
 }

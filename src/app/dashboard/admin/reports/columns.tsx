@@ -3,6 +3,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { Eye, CheckCircle2 } from "lucide-react";
 import type { ComponentType } from "react";
 import { Report } from "@/types/moderation";
+import { truncateText } from "@/lib/truncateText";
 import { timeAgo } from "@/lib/timeAgo";
 import Tooltip from "@/components/ui/Tooltip";
 import ViewReportModal from "@/modules/dashboard/admin/modal/reports/ViewReportModal";
@@ -66,7 +67,7 @@ export function getReportsColumns(
       accessorKey: "reason",
       header: "Reason",
       cell: ({ row }) => {
-        const reason = row.original.reason;
+        const reason = truncateText(row.original.reason, 50);
         return (
           <span className="text-[#0C0C0C] max-w-xs truncate" title={reason}>
             {reason}

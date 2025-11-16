@@ -214,12 +214,13 @@ export const useUnsuspendUser = () => {
   const queryClient = useQueryClient();
 
   const mutation = useMutation({
-    mutationFn: (userId: string) => unsuspendUser(userId),
-    onSuccess: (_, userId) => {
+    mutationFn: ({ userId, reason }: { userId: string; reason?: string }) =>
+      unsuspendUser(userId, reason ? { reason } : undefined),
+    onSuccess: (_, variables) => {
       toast.success("User unsuspended successfully");
       queryClient.invalidateQueries({ queryKey: ["flagusermoderation"] });
       queryClient.invalidateQueries({
-        queryKey: ["flagusermoderation", "user", userId],
+        queryKey: ["flagusermoderation", "user", variables.userId],
       });
       queryClient.invalidateQueries({ queryKey: ["adminUsers"] });
     },
@@ -230,8 +231,8 @@ export const useUnsuspendUser = () => {
 
   return {
     ...mutation,
-    unsuspendUserAsync: async (userId: string) => {
-      return mutation.mutateAsync(userId);
+    unsuspendUserAsync: async (userId: string, data?: { reason?: string }) => {
+      return mutation.mutateAsync({ userId, reason: data?.reason });
     },
   };
 };

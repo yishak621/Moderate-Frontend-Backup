@@ -33,6 +33,13 @@ import { useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 import { removeToken } from "@/services/tokenService";
 import UserAvatar from "@/components/UserAvatar";
+import {
+  User as UserIcon,
+  MessageSquare,
+  Scale,
+  Settings as SettingsIcon,
+  HelpCircle,
+} from "lucide-react";
 
 // theme icons removed since theme toggle is disabled
 
@@ -371,70 +378,108 @@ export default function DashboardShell({
                 </Link>
               </div>
 
-              {/* Mobile Sidebar Nav */}
-              <nav className="flex-1 overflow-y-auto p-4 space-y-2">
-                {mobileSidebarItems.map(
-                  ({ label, icon: Icon, href, badgeCount }) => {
-                    const isActive = checkIsActive(pathname, href);
-                    return (
-                      <Link
-                        key={href}
-                        href={href}
-                        onClick={() => setIsMobileSidebarOpen(false)}
-                        className={clsx(
-                          "group flex items-center gap-3 rounded-xl px-4 py-3 transition-all relative",
-                          isActive
-                            ? "bg-blue-50 text-blue-600 font-semibold"
-                            : "text-gray-600 hover:bg-gray-50"
-                        )}
-                      >
-                        {Icon && (
-                          <span className="relative">
-                            <Icon size={22} />
-                            {/* Badge Count on mobile */}
-                            {badgeCount !== undefined && badgeCount > 0 && (
-                              <motion.span
-                                initial={{ scale: 0 }}
-                                animate={{ scale: 1 }}
-                                transition={{
-                                  type: "spring",
-                                  stiffness: 500,
-                                  damping: 30,
-                                }}
-                                className="absolute -top-1 -right-1 bg-[#368FFF] text-white text-[10px] font-bold rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1 shadow-lg z-10 border-2 border-white"
-                              >
-                                {badgeCount > 99 ? "99+" : badgeCount}
-                              </motion.span>
-                            )}
-                          </span>
-                        )}
-                        <span className="text-sm flex items-center gap-2">
-                          {label}
-                          {/* Badge Count next to label on mobile */}
-                          {badgeCount !== undefined && badgeCount > 0 && (
-                            <motion.span
-                              initial={{ scale: 0 }}
-                              animate={{ scale: 1 }}
-                              transition={{
-                                type: "spring",
-                                stiffness: 500,
-                                damping: 30,
-                              }}
-                              className="bg-[#368FFF] text-white text-[10px] font-bold rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1 shadow-sm"
-                            >
-                              {badgeCount > 99 ? "99+" : badgeCount}
-                            </motion.span>
+              {/* Mobile Sidebar Nav (Unified Quick Links style) */}
+              <nav className="flex-1 overflow-y-auto p-4 space-y-1.5">
+                {(() => {
+                  const extras: NavItem[] = [
+                    {
+                      href: "/dashboard/teacher/profile",
+                      label: "Profile",
+                      icon: UserIcon,
+                    },
+                    {
+                      href: "/dashboard/teacher/messages",
+                      label: "Messages",
+                      icon: MessageSquare,
+                    },
+                    {
+                      href: "/dashboard/teacher/appeals",
+                      label: "Appeals",
+                      icon: Scale,
+                    },
+                    {
+                      href: "/dashboard/teacher/settings",
+                      label: "Settings",
+                      icon: SettingsIcon,
+                    },
+                    {
+                      href: "/help",
+                      label: "Help & Support",
+                      icon: HelpCircle,
+                    },
+                  ];
+                  const seen = new Set<string>();
+                  const combined: NavItem[] = [
+                    ...mobileSidebarItems,
+                    ...extras,
+                  ].filter((item) => {
+                    if (seen.has(item.href)) return false;
+                    seen.add(item.href);
+                    return true;
+                  });
+                  return combined.map(
+                    ({ label, icon: Icon, href, badgeCount }) => {
+                      const isActive = checkIsActive(pathname, href);
+                      return (
+                        <Link
+                          key={href}
+                          href={href}
+                          onClick={() => setIsMobileSidebarOpen(false)}
+                          className={clsx(
+                            "flex items-center gap-3 rounded-xl px-4 py-3 transition-all bg-white border hover:bg-gray-50",
+                            isActive
+                              ? "border-blue-200 bg-blue-50"
+                              : "border-gray-100"
                           )}
-                        </span>
-                      </Link>
-                    );
-                  }
-                )}
+                        >
+                          {Icon ? (
+                            <span className="relative">
+                              <Icon size={18} className="text-gray-700" />
+                              {badgeCount !== undefined && badgeCount > 0 && (
+                                <motion.span
+                                  initial={{ scale: 0 }}
+                                  animate={{ scale: 1 }}
+                                  transition={{
+                                    type: "spring",
+                                    stiffness: 500,
+                                    damping: 30,
+                                  }}
+                                  className="absolute -top-1 -right-1 bg-[#368FFF] text-white text-[10px] font-bold rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1 shadow-lg z-10 border-2 border-white"
+                                >
+                                  {badgeCount > 99 ? "99+" : badgeCount}
+                                </motion.span>
+                              )}
+                            </span>
+                          ) : (
+                            <span className="w-4" />
+                          )}
+                          <span
+                            className={clsx(
+                              "text-sm",
+                              isActive
+                                ? "text-blue-700 font-semibold"
+                                : "text-gray-700"
+                            )}
+                          >
+                            {label}
+                          </span>
+                        </Link>
+                      );
+                    }
+                  );
+                })()}
               </nav>
 
               {/* Mobile Sidebar Footer - User profile and quick logout */}
               <div className="border-t border-gray-200 p-4 mt-auto">
-                <div className="flex items-center gap-3">
+                <button
+                  type="button"
+                  className="flex items-center gap-3 w-full text-left"
+                  onClick={() => {
+                    setIsMobileSidebarOpen(false);
+                    router.push("/dashboard/teacher/profile");
+                  }}
+                >
                   <UserAvatar
                     profilePictureUrl={user?.profilePictureUrl || ""}
                     name={user?.name}
@@ -448,7 +493,7 @@ export default function DashboardShell({
                       {user?.email || ""}
                     </span>
                   </div>
-                </div>
+                </button>
                 <button
                   className="mt-3 w-full flex items-center justify-center gap-2 rounded-lg border border-red-200 text-red-600 hover:bg-red-50 px-3 py-2 text-sm font-medium transition-colors"
                   onClick={async () => {

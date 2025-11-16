@@ -206,11 +206,13 @@ export const suspendUser = async (
  * Unsuspend a user (admin only)
  */
 export const unsuspendUser = async (
-  userId: string
+  userId: string,
+  data?: { reason?: string }
 ): Promise<UserModeration> => {
   try {
     const res = await axiosInstance.post(
-      `/api/flagusermoderation/user/${userId}/unsuspend`
+      `/api/flagusermoderation/user/${userId}/unsuspend`,
+      data?.reason ? { reason: data.reason } : undefined
     );
     return res.data;
   } catch (error: any) {

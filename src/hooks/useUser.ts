@@ -353,6 +353,10 @@ export const useAddToFavorites = () => {
           queryKey: ["userPostFeeds"],
           exact: false,
         });
+        queryClient.invalidateQueries({
+          queryKey: ["favoritePosts"],
+          exact: false,
+        });
       },
     });
 
@@ -385,6 +389,10 @@ export const useRemoveFromFavorites = () => {
 
         queryClient.invalidateQueries({
           queryKey: ["userPostFeeds"],
+          exact: false,
+        });
+        queryClient.invalidateQueries({
+          queryKey: ["favoritePosts"],
           exact: false,
         });
       },

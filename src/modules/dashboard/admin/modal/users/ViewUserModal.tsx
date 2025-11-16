@@ -33,6 +33,7 @@ import Button from "@/components/ui/Button";
 import { ModerationStatus } from "@/types/moderation";
 import { useState } from "react";
 import SuspendUserModal from "./SuspendUserModal";
+import UnsuspendUserModal from "./UnsuspendUserModal";
 import BanUserModal from "./BanUserModal";
 import UnbanUserModal from "./UnbanUserModal";
 import ResponsiveModal from "@/components/ui/ResponsiveModal";
@@ -54,6 +55,7 @@ export default function ViewUserModal({ user }: { user: User }) {
   console.log(user, "usermodal");
 
   const [showSuspendModal, setShowSuspendModal] = useState(false);
+  const [showUnsuspendModal, setShowUnsuspendModal] = useState(false);
   const [showBanModal, setShowBanModal] = useState(false);
   const [showUnbanModal, setShowUnbanModal] = useState(false);
 
@@ -515,18 +517,12 @@ export default function ViewUserModal({ user }: { user: User }) {
               {moderation.status === "suspended" && (
                 <Button
                   variant="green"
-                  onClick={async () => {
-                    try {
-                      await unsuspendUserAsync(userId);
-                    } catch (err) {
-                      // Error handled in hook
-                    }
-                  }}
+                  onClick={() => setShowUnsuspendModal(true)}
                   disabled={isUnsuspending}
                   className="text-sm"
                 >
                   <UserCheck size={16} className="mr-1" />
-                  {isUnsuspending ? "Unsuspending..." : "Unsuspend User"}
+                  Unsuspend User
                 </Button>
               )}
               {moderation.status === "banned" && (
@@ -574,6 +570,22 @@ export default function ViewUserModal({ user }: { user: User }) {
               // Refetch moderation data will happen automatically via query invalidation
             }}
             onClose={() => setShowSuspendModal(false)}
+          />
+        </ResponsiveModal>
+
+        {/* Unsuspend User Modal */}
+        <ResponsiveModal
+          isOpen={showUnsuspendModal}
+          onOpenChange={setShowUnsuspendModal}
+          title="Unsuspend User"
+          nested={true}
+        >
+          <UnsuspendUserModal
+            user={user}
+            onSuccess={() => {
+              setShowUnsuspendModal(false);
+            }}
+            onClose={() => setShowUnsuspendModal(false)}
           />
         </ResponsiveModal>
 
