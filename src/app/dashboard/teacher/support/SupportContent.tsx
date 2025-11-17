@@ -35,17 +35,17 @@ const sampleSupportItems: SupportClientTeachersProps[] = [
 - Edit weights or criteria for future assignments`,
   },
   {
-    title: "How can I share assignments with students or departments?",
+    title: "How can I share assignments with reviewers or departments?",
     content: `- Click "Create Assignment"
 - Upload your exam or material
-- Select target audience (All, specific domains, or classes)
+- Select target audience (All, specific domains, or moderation teams)
 - Set availability dates
 - Share via notifications or downloadable links`,
   },
   {
     title: "How do I track submission and grading status?",
     content: `- Navigate to "Dashboard" or "Submissions"
-- Filter by assignment, class, or student
+- Filter by assignment, cohort, or reviewer
 - View submission status, grading progress, and feedback
 - Export reports for analysis or records`,
   },
@@ -58,12 +58,12 @@ const sampleSupportItems: SupportClientTeachersProps[] = [
 - Resolve feedback and finalize grading collaboratively`,
   },
   {
-    title: "How do I handle student inquiries or re-evaluation requests?",
-    content: `- Students submit queries via the platform
+    title: "How do I handle reviewer inquiries or re-evaluation requests?",
+    content: `- Moderators submit queries via the platform
 - Open "Queries" or "Re-evaluation"
 - Review submission and supporting files
 - Update grades or provide comments
-- Notify the student once resolved`,
+- Notify the requester once resolved`,
   },
   {
     title: "How can I export grades or reports?",

@@ -4,7 +4,7 @@ import VerifyEmailClient from "./verifyEmailClient";
 export const metadata: Metadata = {
   title: "Verify Email",
   description:
-    "Verify your email address to complete your Moderate Tech account setup and activate your school management access.",
+    "Verify your email address to complete your Moderate Tech account setup and unlock teacher-focused test moderation tools.",
   keywords: [
     "email verification",
     "verify email",
@@ -18,7 +18,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Verify Email | Moderate Tech",
     description:
-      "Verify your email address to complete your Moderate Tech account setup.",
+      "Confirm your email to start collaborating on test moderation and grading alignment.",
     url: "/auth/verify-email",
   },
   alternates: {

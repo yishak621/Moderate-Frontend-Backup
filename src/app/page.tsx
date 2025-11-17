@@ -14,19 +14,19 @@ import CTAMidSection from "@/modules/static/home/sections/CTAMidSection";
 export const metadata: Metadata = {
   title: "Home",
   description:
-    "Modern school management platform for educational institutions. Manage students, teachers, grading, announcements, and more with our comprehensive education technology solution.",
+    "Modern test moderation platform for educators at any institutional level. Align grading, capture evidence, and collaborate on assessment reviews with streamlined tools designed for teachers.",
   keywords: [
-    "school management software",
-    "education platform",
-    "student management system",
-    "teacher dashboard",
-    "grading platform",
-    "school administration software",
+    "test moderation platform",
+    "assessment moderation",
+    "teacher grading workflow",
+    "exam review software",
+    "grading collaboration",
+    "education assessment quality",
   ],
   openGraph: {
-    title: "Moderate Tech - Modern School Management Platform",
+    title: "Moderate Tech - Modern Test Moderation Platform",
     description:
-      "Modern school management platform for educational institutions. Manage students, teachers, grading, and more.",
+      "Purpose-built software for teachers to moderate tests, align grading standards, and collaborate across institutions.",
     url: "/",
   },
   alternates: {

@@ -6,7 +6,7 @@ import SuspenseLoading from "@/components/ui/SuspenseLoading";
 export const metadata: Metadata = {
   title: "Messages",
   description:
-    "View and manage your messages on Moderate Tech. Communicate with students and colleagues through the integrated messaging system.",
+    "View and manage your messages on Moderate Tech. Coordinate with fellow teachers and moderators through the integrated messaging system.",
   robots: {
     index: false,
     follow: false,

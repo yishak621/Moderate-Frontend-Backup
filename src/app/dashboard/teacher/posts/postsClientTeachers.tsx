@@ -141,7 +141,7 @@ export default function PostsClientTeachers() {
                   Create New Post
                 </h3>
                 <p className="text-sm text-[#717171]">
-                  Share updates, announcements, or resources with your students
+                  Share updates, announcements, or resources with your moderation team
                 </p>
               </div>
             </div>

@@ -5,19 +5,19 @@ import PageHeader from "@/modules/static/layout/PageHeader";
 export const metadata: Metadata = {
   title: "Contact Us",
   description:
-    "Get in touch with Moderate Tech. Contact our support team for questions about our school management platform, pricing, features, or to schedule a demo.",
+    "Get in touch with Moderate Tech. Contact our team with questions about the test moderation platform, pricing, features, or to schedule a teacher-focused demo.",
   keywords: [
     "contact Moderate Tech",
-    "school management support",
+    "test moderation support",
     "contact us",
     "customer support",
     "help desk",
-    "education platform support",
+    "assessment platform support",
   ],
   openGraph: {
     title: "Contact Us | Moderate Tech",
     description:
-      "Get in touch with Moderate Tech for questions about our school management platform or to schedule a demo.",
+      "Reach out to learn how Moderate Tech can power your institution’s test moderation and grading workflows.",
     url: "/contact",
   },
   alternates: {

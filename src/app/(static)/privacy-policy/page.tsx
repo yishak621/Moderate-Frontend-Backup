@@ -1,4 +1,27 @@
+import type { Metadata } from "next";
 import LegalPage from "@/components/LegalPage";
+
+export const metadata: Metadata = {
+  title: "Privacy Policy",
+  description:
+    "Learn how Moderate Tech collects, uses, stores, and protects educator and institutional data across our test moderation platform.",
+  keywords: [
+    "privacy policy",
+    "data protection",
+    "Moderate Tech privacy",
+    "assessment data security",
+    "education compliance",
+  ],
+  openGraph: {
+    title: "Privacy Policy | Moderate Tech",
+    description:
+      "Review Moderate Tech’s privacy practices, including how we handle personal information and comply with regulations.",
+    url: "/privacy-policy",
+  },
+  alternates: {
+    canonical: "/privacy-policy",
+  },
+};
 
 export default function PrivacyPolicyPage() {
   return (
@@ -9,4 +32,3 @@ export default function PrivacyPolicyPage() {
     />
   );
 }
-

@@ -1,4 +1,27 @@
+import type { Metadata } from "next";
 import LegalPage from "@/components/LegalPage";
+
+export const metadata: Metadata = {
+  title: "Terms and Conditions",
+  description:
+    "Read the Terms and Conditions governing your access to and use of Moderate Tech’s education platform and services.",
+  keywords: [
+    "terms and conditions",
+    "Moderate Tech terms",
+    "education platform agreement",
+    "service terms",
+    "legal terms",
+  ],
+  openGraph: {
+    title: "Terms and Conditions | Moderate Tech",
+    description:
+      "Review the contractual terms that apply when you use the Moderate Tech platform.",
+    url: "/terms-and-conditions",
+  },
+  alternates: {
+    canonical: "/terms-and-conditions",
+  },
+};
 
 export default function TermsAndConditionsPage() {
   return (
@@ -9,4 +32,3 @@ export default function TermsAndConditionsPage() {
     />
   );
 }
-

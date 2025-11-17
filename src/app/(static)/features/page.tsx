@@ -5,19 +5,19 @@ import PageHeader from "@/modules/static/layout/PageHeader";
 export const metadata: Metadata = {
   title: "Features",
   description:
-    "Discover comprehensive features of Moderate Tech school management platform. Student management, teacher dashboard, grading system, announcements, messaging, and more.",
+    "Explore the features of Moderate Tech’s test moderation platform: rubric-driven grading, collaborative reviews, audit-ready records, and messaging built for teachers.",
   keywords: [
-    "school management features",
-    "education platform features",
-    "student management tools",
-    "teacher dashboard features",
+    "test moderation features",
+    "assessment review tools",
+    "teacher collaboration features",
     "grading system",
-    "school administration features",
+    "moderation workflow",
+    "education quality assurance",
   ],
   openGraph: {
     title: "Features | Moderate Tech",
     description:
-      "Discover comprehensive features of Moderate Tech school management platform for educational institutions.",
+      "See how Moderate Tech equips teachers with collaborative test moderation and grading features.",
     url: "/features",
   },
   alternates: {

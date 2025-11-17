@@ -27,8 +27,8 @@ export default function PaymentStatusClient({
   secondaryButtonHref,
 }: PaymentStatusClientProps) {
   const isSuccess = status === "success";
-  const accentColor = isSuccess ? "#10b981" : "#ef4444";
-  const lightAccent = isSuccess ? "#d1fae5" : "#fee2e2";
+  const accentColor = isSuccess ? "#0560FD" : "#ef4444";
+  const lightAccent = isSuccess ? "#89adeb" : "#fee2e2";
   const iconBg = isSuccess ? "bg-green-50" : "bg-red-50";
 
   return (
@@ -136,21 +136,14 @@ export default function PaymentStatusClient({
                 className="flex-1 group relative overflow-hidden"
               >
                 <div
-                  className="w-full inline-flex justify-center items-center gap-2.5 rounded-full font-medium text-base sm:text-lg transition-all duration-300 cursor-pointer h-14 sm:h-16 px-8 text-white hover:scale-105 hover:shadow-xl transform active:scale-95"
+                  className="w-full inline-flex justify-center items-center gap-2.5 rounded-full font-medium text-base sm:text-lg transition-all duration-300 cursor-pointer h-14 sm:h-16 px-8 bg-transparent hover:bg-gray-50 border-2 transform active:scale-95"
                   style={{
                     backgroundColor: accentColor,
-                    boxShadow: `0 4px 14px ${accentColor}40`,
+                    color: "#FDFDFD",
+                    borderColor: accentColor,
                   }}
                 >
                   <span className="relative z-10">{primaryButtonText}</span>
-                  <motion.div
-                    className="absolute inset-0 opacity-0 group-hover:opacity-20"
-                    style={{
-                      background:
-                        "linear-gradient(135deg, transparent 0%, white 100%)",
-                    }}
-                    whileHover={{ opacity: 0.2 }}
-                  />
                 </div>
               </Link>
               <Link

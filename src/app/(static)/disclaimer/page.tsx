@@ -1,4 +1,27 @@
+import type { Metadata } from "next";
 import LegalPage from "@/components/LegalPage";
+
+export const metadata: Metadata = {
+  title: "Disclaimer",
+  description:
+    "Read the legal disclaimer for Moderate Tech outlining limitations of liability, warranties, and use of information provided on the platform.",
+  keywords: [
+    "disclaimer",
+    "legal notice",
+    "Moderate Tech disclaimer",
+    "liability statement",
+    "education platform notice",
+  ],
+  openGraph: {
+    title: "Disclaimer | Moderate Tech",
+    description:
+      "Understand the legal disclaimer that governs your use of the Moderate Tech website and services.",
+    url: "/disclaimer",
+  },
+  alternates: {
+    canonical: "/disclaimer",
+  },
+};
 
 export default function DisclaimerPage() {
   return (
@@ -9,4 +32,3 @@ export default function DisclaimerPage() {
     />
   );
 }
-

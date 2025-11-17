@@ -150,7 +150,7 @@ export default function PlanSelectionModal({
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
               {[
                 "Full access to all grading features",
-                "Unlimited exams and students",
+                "Unlimited exams and moderators",
                 "Advanced moderation tools",
                 "Priority support",
                 "Regular feature updates",

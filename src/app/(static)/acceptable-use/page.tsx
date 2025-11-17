@@ -1,4 +1,27 @@
+import type { Metadata } from "next";
 import LegalPage from "@/components/LegalPage";
+
+export const metadata: Metadata = {
+  title: "Acceptable Use Policy",
+  description:
+    "Understand the guidelines for acceptable use of Moderate Tech’s platform, including restrictions on misuse, abuse, and prohibited activities.",
+  keywords: [
+    "acceptable use policy",
+    "platform usage rules",
+    "Moderate Tech policy",
+    "legal terms",
+    "user responsibilities",
+  ],
+  openGraph: {
+    title: "Acceptable Use Policy | Moderate Tech",
+    description:
+      "Review the acceptable use policy governing how educators and institutions can use Moderate Tech’s platform.",
+    url: "/acceptable-use",
+  },
+  alternates: {
+    canonical: "/acceptable-use",
+  },
+};
 
 export default function AcceptableUsePage() {
   return (
@@ -9,4 +32,3 @@ export default function AcceptableUsePage() {
     />
   );
 }
-

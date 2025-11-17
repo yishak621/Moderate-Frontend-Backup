@@ -7,14 +7,14 @@ import PricingSection from "@/modules/static/home/sections/PricingSection";
 export const metadata: Metadata = {
   title: "Privacy Policy",
   description:
-    "Read Moderate Tech's Privacy Policy to understand how we collect, use, and protect your personal information and data when using our school management platform.",
+    "Read Moderate Tech's Privacy Policy to learn how we collect, use, and protect educator data when you use our test moderation platform.",
   keywords: [
     "privacy policy",
     "data protection",
     "privacy",
     "GDPR",
     "data security",
-    "school data privacy",
+    "assessment data privacy",
   ],
   robots: {
     index: true,
@@ -23,7 +23,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Privacy Policy | Moderate Tech",
     description:
-      "Read Moderate Tech's Privacy Policy to understand how we protect your data.",
+      "Learn how Moderate Tech protects educator and assessment data across our test moderation tools.",
     url: "/privacy",
   },
   alternates: {

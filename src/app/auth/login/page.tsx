@@ -6,14 +6,14 @@ import Link from "next/link";
 export const metadata: Metadata = {
   title: "Login",
   description:
-    "Login to your Moderate Tech account. Access your school management dashboard, grading tools, announcements, and more.",
+    "Log in to your Moderate Tech account to access collaborative test moderation tools, grading workflows, and teacher-focused insights.",
   keywords: [
     "login",
     "sign in",
-    "school management login",
+    "test moderation login",
     "teacher login",
-    "admin login",
-    "education platform login",
+    "assessment platform access",
+    "grading workflow login",
   ],
   robots: {
     index: false,
@@ -21,7 +21,8 @@ export const metadata: Metadata = {
   },
   openGraph: {
     title: "Login | Moderate Tech",
-    description: "Login to your Moderate Tech account to access your dashboard.",
+    description:
+      "Access your Moderate Tech dashboard to collaborate on test moderation and grading alignment.",
     url: "/auth/login",
   },
   alternates: {

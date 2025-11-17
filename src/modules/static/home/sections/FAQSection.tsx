@@ -14,7 +14,7 @@ const faqs = [
     id: 2,
     question: "How does the anonymization feature work?",
     answer:
-      "Our platform automatically blurs or removes student names from submitted work before grading, ensuring unbiased assessment and preventing any personal bias.",
+      "Our platform automatically blurs or removes test-taker identifiers from submitted work before moderation, ensuring unbiased assessment and preventing any personal bias.",
   },
   {
     id: 3,
@@ -26,13 +26,13 @@ const faqs = [
     id: 4,
     question: "Is this platform suitable for large school districts?",
     answer:
-      "Absolutely! Our platform is designed to scale from individual teachers to entire districts, with support for multiple schools, hundreds of teachers, and thousands of students.",
+      "Absolutely! Our platform is designed to scale from individual teachers to entire districts, with support for multiple schools, hundreds of teachers, and thousands of assessments.",
   },
   {
     id: 5,
-    question: "How secure is the student data?",
+    question: "How secure is the assessment data?",
     answer:
-      "Security is our top priority. We use end-to-end encryption, comply with educational data privacy regulations, and implement strict access controls to protect all student information.",
+      "Security is our top priority. We use end-to-end encryption, comply with educational data privacy regulations, and implement strict access controls to protect all assessment information.",
   },
 ];
 

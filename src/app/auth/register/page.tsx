@@ -6,14 +6,14 @@ import Link from "next/link";
 export const metadata: Metadata = {
   title: "Register",
   description:
-    "Create your Moderate Tech account. Join schools and educational institutions using our comprehensive school management platform. Start with a free trial.",
+    "Create your Moderate Tech account. Join educators using our dedicated test moderation platform to standardize grading across any institution.",
   keywords: [
     "register",
     "sign up",
     "create account",
-    "school management signup",
+    "test moderation signup",
     "teacher registration",
-    "education platform signup",
+    "assessment platform signup",
   ],
   robots: {
     index: false,
@@ -22,7 +22,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Register | Moderate Tech",
     description:
-      "Create your Moderate Tech account and start managing your school effectively.",
+      "Sign up for Moderate Tech and start collaborating with teachers on test moderation and grading alignment.",
     url: "/auth/register",
   },
   alternates: {

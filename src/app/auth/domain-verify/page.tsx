@@ -7,11 +7,11 @@ import SuspenseLoading from "@/components/ui/SuspenseLoading";
 export const metadata: Metadata = {
   title: "Domain Verification",
   description:
-    "Verify your school domain email address to complete registration and access your Moderate Tech school management account.",
+    "Verify your institution email domain to complete registration and access Moderate Tech’s test moderation workspace for teachers.",
   keywords: [
     "domain verification",
     "email domain verification",
-    "school domain",
+    "institution domain",
     "domain verify",
   ],
   robots: {
@@ -21,7 +21,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Domain Verification | Moderate Tech",
     description:
-      "Verify your school domain email address to complete registration.",
+      "Confirm your institutional domain to unlock Moderate Tech’s teacher-focused test moderation tools.",
     url: "/auth/domain-verify",
   },
   alternates: {

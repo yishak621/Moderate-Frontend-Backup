@@ -7,7 +7,7 @@ import PricingSection from "@/modules/static/home/sections/PricingSection";
 export const metadata: Metadata = {
   title: "Terms of Service",
   description:
-    "Read Moderate Tech's Terms of Service to understand the rules and guidelines for using our school management platform and services.",
+    "Read Moderate Tech's Terms of Service to understand the rules and guidelines for using our teacher-focused test moderation platform.",
   keywords: [
     "terms of service",
     "terms and conditions",
@@ -22,7 +22,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Terms of Service | Moderate Tech",
     description:
-      "Read Moderate Tech's Terms of Service to understand the rules for using our platform.",
+      "Review the Terms of Service governing your use of Moderate Tech’s test moderation tools.",
     url: "/TOS",
   },
   alternates: {

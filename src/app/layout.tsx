@@ -7,22 +7,23 @@ import { Toaster } from "react-hot-toast";
 // import { queryClient } from "@/lib/queryClient";
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL || "https://moderatetech.co.uk"),
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_BASE_URL || "https://moderatetech.co.uk"
+  ),
   title: {
-    default: "Moderate Tech - Modern School Management Platform",
+    default: "Moderate Tech - Modern Test Moderation Platform",
     template: "%s | Moderate Tech",
   },
   description:
-    "A modern platform for schools to manage students, teachers, and learning effectively. Streamline your educational institution with comprehensive tools for grading, announcements, messaging, and more.",
+    "A dedicated test moderation platform built for teachers at any educational level. Review, grade, and moderate assessments collaboratively with streamlined tools for feedback and quality assurance.",
   keywords: [
-    "school management",
-    "education platform",
-    "student management",
-    "teacher dashboard",
-    "grading system",
-    "school administration",
-    "learning management",
-    "educational technology",
+    "test moderation",
+    "assessment review",
+    "teacher grading platform",
+    "exam moderation",
+    "education quality assurance",
+    "teacher collaboration",
+    "grading workflow",
   ],
   authors: [{ name: "Moderate Tech" }],
   creator: "Moderate Tech",
@@ -45,24 +46,24 @@ export const metadata: Metadata = {
     locale: "en_US",
     url: "/",
     siteName: "Moderate Tech",
-    title: "Moderate Tech - Modern School Management Platform",
+    title: "Moderate Tech - Modern Test Moderation Platform",
     description:
-      "A modern platform for schools to manage students, teachers, and learning effectively.",
+      "Purpose-built software for teachers to moderate tests, standardize grading, and collaborate across educational institutions.",
     images: [
       {
-        url: "/og-image.jpg",
+        url: "/images/ModerateTech-Grading-Page-Favorites-Filter.png",
         width: 1200,
         height: 630,
-        alt: "Moderate Tech - School Management Platform",
+        alt: "Moderate Tech dashboard showing grading and favorites filter",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Moderate Tech - Modern School Management Platform",
+    title: "Moderate Tech - Modern Test Moderation Platform",
     description:
-      "A modern platform for schools to manage students, teachers, and learning effectively.",
-    images: ["/og-image.jpg"],
+      "Purpose-built software for teachers to moderate tests, standardize grading, and collaborate across educational institutions.",
+    images: ["/images/ModerateTech-Grading-Page-Favorites-Filter.png"],
     creator: "@moderatetech",
   },
   robots: {

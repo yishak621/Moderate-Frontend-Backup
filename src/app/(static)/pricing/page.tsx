@@ -5,11 +5,11 @@ import PageHeader from "@/modules/static/layout/PageHeader";
 export const metadata: Metadata = {
   title: "Pricing",
   description:
-    "Affordable pricing plans for schools and educational institutions. Choose from flexible monthly or yearly subscriptions with a 30-day free trial. No hidden fees, cancel anytime.",
+    "Simple pricing for teacher-led test moderation teams. Choose flexible plans that scale across departments or institutions with a 30-day free trial.",
   keywords: [
-    "school management pricing",
-    "education platform cost",
-    "school software pricing",
+    "test moderation pricing",
+    "assessment platform cost",
+    "teacher software pricing",
     "subscription plans",
     "free trial",
     "education technology pricing",
@@ -17,7 +17,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Pricing | Moderate Tech",
     description:
-      "Affordable pricing plans for schools with flexible monthly or yearly subscriptions and a 30-day free trial.",
+      "Review Moderate Tech pricing for collaborative test moderation workflows across any institution.",
     url: "/pricing",
   },
   alternates: {
