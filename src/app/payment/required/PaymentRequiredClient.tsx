@@ -34,6 +34,7 @@ export default function PaymentRequiredClient() {
     const trialEnd = searchParams.get("trialEndsAt");
     const checkoutIncomplete = searchParams.get("checkoutIncomplete");
     const email = searchParams.get("email");
+    const noSubscription = searchParams.get("noSubscription");
 
     if (url) {
       setCheckoutUrl(decodeURIComponent(url));
@@ -46,6 +47,11 @@ export default function PaymentRequiredClient() {
     }
     if (email) {
       setUserEmail(decodeURIComponent(email));
+    }
+    // Handle case where user has no subscription at all
+    if (noSubscription === "true") {
+      setIsCheckoutIncomplete(false);
+      setTrialEndsAt(null);
     }
   }, [searchParams]);
 
@@ -143,19 +149,6 @@ export default function PaymentRequiredClient() {
               </Link>
             </motion.div>
 
-            {/* Alert Icon */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.5, delay: 0.4 }}
-              className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-orange-100 flex items-center justify-center"
-            >
-              <AlertCircle
-                className="w-10 h-10 sm:w-12 sm:h-12 text-orange-600"
-                strokeWidth={2.5}
-              />
-            </motion.div>
-
             {/* Title and Message */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -163,15 +156,22 @@ export default function PaymentRequiredClient() {
               transition={{ duration: 0.5, delay: 0.5 }}
               className="text-center space-y-4"
             >
-              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900">
-                {isCheckoutIncomplete
-                  ? "Complete Your Subscription Setup"
-                  : "Free Trial Expired"}
+              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 flex items-center justify-center gap-3">
+                <AlertCircle className="text-orange-600 flex-shrink-0 w-[1em] h-[1em]" />
+                <span>
+                  {isCheckoutIncomplete
+                    ? "Complete Your Subscription Setup"
+                    : trialEndsAt
+                    ? "Free Trial Expired"
+                    : "Subscription Required"}
+                </span>
               </h1>
               <p className="text-[#717171] text-base sm:text-lg lg:text-xl leading-relaxed max-w-xl mx-auto">
                 {isCheckoutIncomplete
                   ? "Please complete your subscription setup to access the platform. Complete the checkout process to continue using Moderate Tech."
-                  : "Your 30-day free trial has ended. "}
+                  : trialEndsAt
+                  ? "Your 30-day free trial has ended. Subscribe now to continue accessing all features."
+                  : "Subscribe to a plan to access the platform. Choose a plan below to get started with your 30-day free trial."}
               </p>
             </motion.div>
 
@@ -195,29 +195,46 @@ export default function PaymentRequiredClient() {
                   </p>
                 </div>
               </motion.div>
+            ) : trialEndsAt ? (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.6 }}
+                className="w-full bg-blue-50 border-2 border-blue-200 rounded-2xl p-6 sm:p-8 flex items-start gap-4"
+              >
+                <Clock className="w-6 h-6 sm:w-7 sm:h-7 text-blue-600 flex-shrink-0 mt-0.5" />
+                <div className="flex-1">
+                  <p className="text-base sm:text-lg font-semibold text-blue-900 mb-1">
+                    Trial Ended
+                  </p>
+                  <p className="text-sm sm:text-base text-blue-700">
+                    Your free trial ended on{" "}
+                    <span className="font-semibold">
+                      {formatDate(trialEndsAt)}
+                    </span>
+                    . Upgrade now to restore access.
+                  </p>
+                </div>
+              </motion.div>
             ) : (
-              trialEndsAt && (
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: 0.6 }}
-                  className="w-full bg-blue-50 border-2 border-blue-200 rounded-2xl p-6 sm:p-8 flex items-start gap-4"
-                >
-                  <Clock className="w-6 h-6 sm:w-7 sm:h-7 text-blue-600 flex-shrink-0 mt-0.5" />
-                  <div className="flex-1">
-                    <p className="text-base sm:text-lg font-semibold text-blue-900 mb-1">
-                      Trial Ended
-                    </p>
-                    <p className="text-sm sm:text-base text-blue-700">
-                      Your free trial ended on{" "}
-                      <span className="font-semibold">
-                        {formatDate(trialEndsAt)}
-                      </span>
-                      . Upgrade now to restore access.
-                    </p>
-                  </div>
-                </motion.div>
-              )
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.6 }}
+                className="w-full bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-2xl p-6 sm:p-8 flex items-start gap-4"
+              >
+                <CreditCard className="w-6 h-6 sm:w-7 sm:h-7 text-blue-600 flex-shrink-0 mt-0.5" />
+                <div className="flex-1">
+                  <p className="text-base sm:text-lg font-semibold text-blue-900 mb-1">
+                    Get Started with Moderate Tech
+                  </p>
+                  <p className="text-sm sm:text-base text-blue-700">
+                    Choose a subscription plan to access all features. All plans
+                    include a 30-day free trial - no credit card required to
+                    start.
+                  </p>
+                </div>
+              </motion.div>
             )}
 
             {/* Features Card */}
@@ -243,7 +260,7 @@ export default function PaymentRequiredClient() {
                   <div className="w-5 h-5 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0 mt-0.5">
                     <div className="w-2 h-2 rounded-full bg-green-600" />
                   </div>
-                  <span>Unlimited exams and student management</span>
+                  <span>Unlimited exams and moderation tools</span>
                 </li>
                 <li className="flex items-start gap-3">
                   <div className="w-5 h-5 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0 mt-0.5">
@@ -268,9 +285,10 @@ export default function PaymentRequiredClient() {
               className="w-full flex flex-col sm:flex-row gap-4 sm:gap-6 max-w-md"
             >
               <Button
+                variant="primary"
                 onClick={handleUpgrade}
                 disabled={isRedirecting || isCreatingCheckout}
-                className="flex-1 justify-center items-center gap-2.5 h-14 sm:h-16 text-base sm:text-lg font-medium"
+                className="flex-1"
               >
                 {isRedirecting || isCreatingCheckout ? (
                   <>
@@ -308,7 +326,7 @@ export default function PaymentRequiredClient() {
               </Button>
               <Link
                 href="/pricing"
-                className="flex-1 inline-flex justify-center items-center gap-2.5 rounded-full font-medium text-base sm:text-lg transition-all duration-300 cursor-pointer h-14 sm:h-16 px-8 bg-white text-[#0C0C0C] hover:bg-gray-50 border-2 border-gray-200 hover:border-gray-300 hover:scale-105 active:scale-95 shadow-sm hover:shadow-md"
+                className="flex-1 inline-flex justify-center items-center gap-2.5 rounded-lg font-normal text-base transition-colors duration-200 cursor-pointer h-12 px-6 py-3 bg-[#FDFDFD] text-[#0C0C0C] hover:bg-[#e5e5e5] border border-[#DBDBDB]"
               >
                 View Plans
               </Link>

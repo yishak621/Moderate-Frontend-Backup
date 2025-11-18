@@ -7,8 +7,7 @@ import { useDeleteAccount } from "@/hooks/useUser";
 import { toast } from "react-hot-toast";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { removeToken } from "@/services/tokenService";
-import { queryClient } from "@/lib/queryClient";
+import { performLogout } from "@/services/logoutService";
 
 export default function DeleteAccountModal() {
   const {
@@ -28,8 +27,7 @@ export default function DeleteAccountModal() {
   useEffect(() => {
     if (isDeletingAccountSuccess) {
       toast.success("Account deleted successfully");
-      queryClient.clear();
-      removeToken();
+      performLogout();
       close();
       router.push("/auth/login");
     }

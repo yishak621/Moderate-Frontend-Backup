@@ -3,14 +3,14 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import { getToken, removeToken, getRole } from "@/services/tokenService";
+import { getToken, getRole } from "@/services/tokenService";
+import { performLogout } from "@/services/logoutService";
 import {
   motion,
   useScroll,
   useTransform,
   AnimatePresence,
 } from "framer-motion";
-import { queryClient } from "@/lib/queryClient";
 import { useRouter } from "next/navigation";
 import { LogIn, UserPlus, LogOut, User, Shield, Bell } from "lucide-react";
 import { useUserData } from "@/hooks/useUser";
@@ -64,8 +64,7 @@ export default function Navbar() {
   }, []);
 
   const handleLogout = () => {
-    queryClient.clear();
-    removeToken();
+    performLogout();
     setIsPopUpOpen(false);
     router.push("/auth/login");
   };

@@ -2,8 +2,13 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { ReactNode } from "react";
+import { ReactNode, useEffect } from "react";
 import { motion } from "framer-motion";
+import { useUserData } from "@/hooks/useUser";
+import {
+  setSubscriptionStatus,
+  setSubscriptionPlan,
+} from "@/services/tokenService";
 
 interface PaymentStatusClientProps {
   status: "success" | "failed";
@@ -30,6 +35,19 @@ export default function PaymentStatusClient({
   const accentColor = isSuccess ? "#0560FD" : "#ef4444";
   const lightAccent = isSuccess ? "#89adeb" : "#fee2e2";
   const iconBg = isSuccess ? "bg-green-50" : "bg-red-50";
+  const { user } = useUserData();
+
+  // Update subscription status and plan cookies when payment is successful
+  useEffect(() => {
+    if (isSuccess) {
+      if (user?.subscriptionStatus) {
+        setSubscriptionStatus(user.subscriptionStatus);
+      }
+      if (user?.subscriptionPlan) {
+        setSubscriptionPlan(user.subscriptionPlan);
+      }
+    }
+  }, [isSuccess, user?.subscriptionStatus, user?.subscriptionPlan]);
 
   return (
     <div className="min-h-screen bg-white flex flex-col items-center justify-center px-4 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-20">
@@ -133,22 +151,17 @@ export default function PaymentStatusClient({
             >
               <Link
                 href={primaryButtonHref}
-                className="flex-1 group relative overflow-hidden"
+                className={`flex-1 inline-flex justify-center items-center gap-2.5 rounded-lg font-normal text-base transition-colors duration-200 cursor-pointer h-12 px-6 py-3 ${
+                  isSuccess
+                    ? "bg-[#368FFF] text-[#FDFDFD] hover:bg-[#2574db]"
+                    : "bg-[#F25555] text-[#FDFDFD] hover:bg-[#D94444]"
+                }`}
               >
-                <div
-                  className="w-full inline-flex justify-center items-center gap-2.5 rounded-full font-medium text-base sm:text-lg transition-all duration-300 cursor-pointer h-14 sm:h-16 px-8 bg-transparent hover:bg-gray-50 border-2 transform active:scale-95"
-                  style={{
-                    backgroundColor: accentColor,
-                    color: "#FDFDFD",
-                    borderColor: accentColor,
-                  }}
-                >
-                  <span className="relative z-10">{primaryButtonText}</span>
-                </div>
+                {primaryButtonText}
               </Link>
               <Link
                 href={secondaryButtonHref}
-                className="flex-1 inline-flex justify-center items-center gap-2.5 rounded-full font-medium text-base sm:text-lg transition-all duration-300 cursor-pointer h-14 sm:h-16 px-8 bg-white text-[#0C0C0C] hover:bg-gray-50 border-2 border-gray-200 hover:border-gray-300 hover:scale-105 active:scale-95 shadow-sm hover:shadow-md"
+                className="flex-1 inline-flex justify-center items-center gap-2.5 rounded-lg font-normal text-base transition-colors duration-200 cursor-pointer h-12 px-6 py-3 bg-[#FDFDFD] text-[#0C0C0C] hover:bg-[#e5e5e5] border border-[#DBDBDB]"
               >
                 {secondaryButtonText}
               </Link>

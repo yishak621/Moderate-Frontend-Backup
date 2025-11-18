@@ -31,7 +31,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useUserData } from "@/hooks/useUser";
 import { useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
-import { removeToken } from "@/services/tokenService";
+import { performLogout } from "@/services/logoutService";
 import UserAvatar from "@/components/UserAvatar";
 import {
   User as UserIcon,
@@ -86,7 +86,6 @@ export default function DashboardShell({
   const debounceTimerRef = useRef<number | null>(null);
   const { user } = useUserData();
   const router = useRouter();
-  const queryClient = useQueryClient();
 
   // const [theme] = useState<"light" | "dark">(() => {
   //   if (typeof window === "undefined") return "light";
@@ -497,9 +496,8 @@ export default function DashboardShell({
                 <button
                   className="mt-3 w-full flex items-center justify-center gap-2 rounded-lg border border-red-200 text-red-600 hover:bg-red-50 px-3 py-2 text-sm font-medium transition-colors"
                   onClick={async () => {
-                    // Match desktop logout: clear react-query cache and remove tokens
-                    queryClient.clear();
-                    removeToken();
+                    // Comprehensive logout: clears all caches, stores, and tokens
+                    performLogout();
                     router.push("/auth/login");
                   }}
                 >

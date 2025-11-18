@@ -7,7 +7,7 @@ import {
   ResetPasswordPropsTypes,
   SignupFormDataTypes,
 } from "@/types/authData.type";
-import { setRole, setToken, setModerationStatus } from "./tokenService";
+import { setRole, setToken, setModerationStatus, setSubscriptionStatus, setSubscriptionPlan } from "./tokenService";
 
 //-------------------LOGIN
 
@@ -29,6 +29,18 @@ export const login = async (data: loginFormDataTypes) => {
         // Default to active if no moderation status
         setModerationStatus("active");
       }
+      // Store subscription status
+      if (res.data.user?.subscriptionStatus) {
+        setSubscriptionStatus(res.data.user.subscriptionStatus);
+      } else {
+        setSubscriptionStatus(null);
+      }
+      // Store subscription plan
+      if (res.data.user?.subscriptionPlan) {
+        setSubscriptionPlan(res.data.user.subscriptionPlan);
+      } else {
+        setSubscriptionPlan(null);
+      }
     }
     return res.data.user;
   } catch (error) {
@@ -38,21 +50,24 @@ export const login = async (data: loginFormDataTypes) => {
       const responseData = axiosError.response?.data;
       const statusCode = axiosError.response?.status;
 
-      // Handle payment required (402) - trial expired, checkout incomplete, or subscription not active
+      // Handle payment required (402) - backend returns this when subscription is required
+      // This covers: trial expired, checkout incomplete, or no active subscription
       if (statusCode === 402) {
         const customError = new Error(
-          responseData?.message || "Your free trial has expired. Please upgrade to continue."
+          responseData?.message || "Active subscription required to access this platform."
         ) as Error & {
           code?: string;
           response?: any;
           requiresPayment?: boolean;
+          subscriptionRequired?: boolean;
           checkoutIncomplete?: boolean;
           checkoutUrl?: string;
           trialEndsAt?: string;
         };
-        // Preserve the actual error code from backend (CHECKOUT_INCOMPLETE or PAYMENT_REQUIRED)
+        // Preserve the actual error code from backend
         customError.code = responseData?.code || "PAYMENT_REQUIRED";
         customError.requiresPayment = responseData?.paymentRequired ?? true;
+        customError.subscriptionRequired = responseData?.subscriptionRequired ?? true;
         customError.checkoutIncomplete = responseData?.checkoutIncomplete ?? false;
         customError.checkoutUrl = responseData?.checkoutUrl;
         customError.trialEndsAt = responseData?.trialEndsAt || responseData?.trialEndDate;
@@ -79,6 +94,18 @@ export const login = async (data: loginFormDataTypes) => {
             setModerationStatus("banned");
           } else if (responseData?.code === "ACCOUNT_SUSPENDED") {
             setModerationStatus("suspended");
+          }
+          // Store subscription status from response
+          if (responseData?.user?.subscriptionStatus) {
+            setSubscriptionStatus(responseData.user.subscriptionStatus);
+          } else {
+            setSubscriptionStatus(null);
+          }
+          // Store subscription plan from response
+          if (responseData?.user?.subscriptionPlan) {
+            setSubscriptionPlan(responseData.user.subscriptionPlan);
+          } else {
+            setSubscriptionPlan(null);
           }
         }
 

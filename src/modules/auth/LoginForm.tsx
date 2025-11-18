@@ -18,7 +18,11 @@ interface LoginFormDataTypes {
   password: string;
 }
 
-export default function LoginForm({ showHeader = true }: { showHeader?: boolean }) {
+export default function LoginForm({
+  showHeader = true,
+}: {
+  showHeader?: boolean;
+}) {
   const router = useRouter();
   const [submittedEmail, setSubmittedEmail] = useState<string>("");
 
@@ -57,10 +61,13 @@ export default function LoginForm({ showHeader = true }: { showHeader?: boolean 
   };
 
   useEffect(() => {
-    if (isSuccess && user && user.role === "TEACHER") {
-      router.push("/dashboard/teacher");
-    } else if (isSuccess && user && user.role === "SYSTEM_ADMIN") {
-      router.push("/dashboard/admin");
+    if (isSuccess && user) {
+      // Normal routing - backend will handle subscription checks
+      if (user.role === "TEACHER") {
+        router.push("/dashboard/teacher");
+      } else if (user.role === "SYSTEM_ADMIN") {
+        router.push("/dashboard/admin");
+      }
     } else if (isError && error) {
       const errorData = error as any;
       const errorCode =
@@ -68,20 +75,25 @@ export default function LoginForm({ showHeader = true }: { showHeader?: boolean 
         errorData?.response?.data?.code ||
         ((error as AxiosError<{ code?: string }>)?.response?.data as any)?.code;
 
-      // Handle payment required (402) - trial expired or checkout incomplete
+      // Handle payment required (402) - backend will return this when subscription is required
+      // This covers: trial expired, checkout incomplete, or no active subscription
       if (
         errorCode === "PAYMENT_REQUIRED" ||
         errorCode === "CHECKOUT_INCOMPLETE" ||
+        errorCode === "SUBSCRIPTION_REQUIRED" ||
         errorData?.requiresPayment ||
-        errorData?.checkoutIncomplete
+        errorData?.checkoutIncomplete ||
+        errorData?.subscriptionRequired
       ) {
         // Redirect to payment required page with checkout URL if available
         const checkoutUrl = errorData?.checkoutUrl;
         const trialEndsAt = errorData?.trialEndsAt;
-        const checkoutIncomplete = errorData?.checkoutIncomplete || errorCode === "CHECKOUT_INCOMPLETE";
-        
+        const checkoutIncomplete =
+          errorData?.checkoutIncomplete || errorCode === "CHECKOUT_INCOMPLETE";
+
         // Build query parameters
         const params = new URLSearchParams();
+        params.set("noSubscription", "true"); // Always set this for subscription required
         if (checkoutUrl) {
           params.set("checkoutUrl", checkoutUrl);
         }
@@ -95,7 +107,7 @@ export default function LoginForm({ showHeader = true }: { showHeader?: boolean 
         if (submittedEmail) {
           params.set("email", submittedEmail);
         }
-        
+
         const queryString = params.toString();
         router.push(`/payment/required${queryString ? `?${queryString}` : ""}`);
         return;
@@ -107,7 +119,9 @@ export default function LoginForm({ showHeader = true }: { showHeader?: boolean 
         errorData?.requiresAppeal
       ) {
         // Show message
-        toast.error(errorData.message || "Your account has been suspended or banned");
+        toast.error(
+          errorData.message || "Your account has been suspended or banned"
+        );
         // Redirect to appeals page
         router.push("/dashboard/teacher/appeals");
         return;

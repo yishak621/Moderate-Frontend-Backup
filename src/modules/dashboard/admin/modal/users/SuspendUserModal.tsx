@@ -14,7 +14,11 @@ interface SuspendUserModalProps {
   onClose?: () => void;
 }
 
-export default function SuspendUserModal({ user, onSuccess, onClose }: SuspendUserModalProps) {
+export default function SuspendUserModal({
+  user,
+  onSuccess,
+  onClose,
+}: SuspendUserModalProps) {
   const { suspendUserAsync, isPending } = useSuspendUser();
 
   const [duration, setDuration] = useState<number>(7); // Default 7 days
@@ -30,7 +34,7 @@ export default function SuspendUserModal({ user, onSuccess, onClose }: SuspendUs
       return;
     }
 
-      try {
+    try {
       if (!user.id) {
         setError("User ID is required");
         return;
@@ -64,10 +68,14 @@ export default function SuspendUserModal({ user, onSuccess, onClose }: SuspendUs
       {/* Warning */}
       <div className="bg-orange-50 border border-orange-200 rounded-lg p-3 mb-4">
         <div className="flex items-start gap-2">
-          <AlertTriangle className="text-orange-600 flex-shrink-0 mt-0.5" size={16} />
+          <AlertTriangle
+            className="text-orange-600 flex-shrink-0 mt-0.5"
+            size={16}
+          />
           <p className="text-xs text-orange-800">
-            Suspending a user will restrict their access to the platform for the specified duration.
-            They will be able to login but cannot perform actions until the suspension expires.
+            Suspending a user will restrict their access to the platform for the
+            specified duration. They will be able to login but cannot perform
+            actions until the suspension expires.
           </p>
         </div>
       </div>
@@ -80,9 +88,16 @@ export default function SuspendUserModal({ user, onSuccess, onClose }: SuspendUs
             label="Suspension Duration (Days)"
             type="number"
             min="1"
-            value={duration}
+            value={duration === 0 ? "" : duration}
             onChange={(e) => {
-              setDuration(Number(e.target.value));
+              const val = e.target.value;
+              // Allow empty input (user clearing the field)
+              if (val === "") {
+                setDuration(0);
+                setError("");
+                return;
+              }
+              setDuration(Number(val));
               setError("");
             }}
             required
@@ -131,4 +146,3 @@ export default function SuspendUserModal({ user, onSuccess, onClose }: SuspendUs
     </div>
   );
 }
-

@@ -492,28 +492,29 @@ export default function ViewUserModal({ user }: { user: User }) {
 
             {/* Moderation Actions */}
             <div className="flex flex-wrap gap-2 mt-4 pt-4 border-t border-gray-200">
-              {moderation.status === "active" && (
-                <>
-                  <Button
-                    variant="outline"
-                    onClick={() => setShowSuspendModal(true)}
-                    disabled={isSuspending}
-                    className="text-sm"
-                  >
-                    <Clock size={16} className="mr-1" />
-                    Suspend User
-                  </Button>
-                  <Button
-                    variant="red"
-                    onClick={() => setShowBanModal(true)}
-                    disabled={isBanning}
-                    className="text-sm"
-                  >
-                    <Ban size={16} className="mr-1" />
-                    Ban User
-                  </Button>
-                </>
-              )}
+              {moderation.status === "active" ||
+                (moderation.status === "pending_review" && (
+                  <>
+                    <Button
+                      variant="outline"
+                      onClick={() => setShowSuspendModal(true)}
+                      disabled={isSuspending}
+                      className="text-sm"
+                    >
+                      <Clock size={16} className="mr-1" />
+                      Suspend User
+                    </Button>
+                    <Button
+                      variant="red"
+                      onClick={() => setShowBanModal(true)}
+                      disabled={isBanning}
+                      className="text-sm"
+                    >
+                      <Ban size={16} className="mr-1" />
+                      Ban User
+                    </Button>
+                  </>
+                ))}
               {moderation.status === "suspended" && (
                 <Button
                   variant="green"

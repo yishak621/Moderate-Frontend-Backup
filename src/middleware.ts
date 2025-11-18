@@ -31,10 +31,16 @@ export function middleware(req: NextRequest) {
   }
 
   // Protect teacher routes - only TEACHER can access
+  // Note: Subscription checks are handled by backend - middleware only checks authentication
   if (pathname.startsWith("/dashboard/teacher")) {
     if (role !== "TEACHER") {
       return NextResponse.redirect(new URL("/auth/login", req.url));
     }
+  }
+
+  // Allow access to payment routes
+  if (pathname.startsWith("/payment/")) {
+    return NextResponse.next();
   }
 
   // Allow request

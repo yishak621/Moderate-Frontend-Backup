@@ -33,16 +33,15 @@ import { usePathname, useSearchParams } from "next/navigation";
 import SearchInputTeacher from "@/modules/dashboard/teacher/SearchInputTeacher";
 import {
   getRole,
-  removeToken,
   getModerationStatus,
   setModerationStatus,
 } from "@/services/tokenService";
+import { performLogout } from "@/services/logoutService";
 import { useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 
 import { useUserData } from "@/hooks/useUser";
 import PopupCard from "@/components/PopCard";
-import { queryClient } from "@/lib/queryClient";
 import UserAvatar from "@/components/UserAvatar";
 import {
   useUserModerationDetails,
@@ -215,8 +214,7 @@ function DashboardLayoutContent({ children }: { children: ReactNode }) {
   }, [moderationData?.moderation?.status, role]);
 
   const handleLogout = () => {
-    queryClient.clear();
-    removeToken();
+    performLogout();
     router.push("/auth/login");
   };
 
@@ -233,8 +231,7 @@ function DashboardLayoutContent({ children }: { children: ReactNode }) {
       // Force logout if banned
       if (currentStatus === "banned") {
         toast.error("Your account has been banned. You have been logged out.");
-        queryClient.clear();
-        removeToken();
+        performLogout();
         router.push("/auth/login");
         return;
       }
