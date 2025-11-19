@@ -28,6 +28,7 @@ export interface SettingItem {
 export interface User {
   id?: string;
   name?: string;
+  shortname?: string;
   email?: string;
   password?: string;
   confirmPassword?: string;

@@ -99,9 +99,9 @@ export default function TeacheProfileClient() {
 
   // Submit handler for personal info
   const onSubmitPersonalInfo = async (data: User) => {
-    const { name, email } = data;
+    const { shortname } = data;
     try {
-      await editUserAsync({ name, email });
+      await editUserAsync({ shortname });
       toast.success("Personal information updated successfully");
     } catch (err) {
       if (err instanceof Error) {
@@ -265,22 +265,15 @@ export default function TeacheProfileClient() {
           <SectionHeader
             title="Personal Information"
             icon={User2Icon}
-            subheader="Update your name and email"
+            subheader="Add or Update your short name"
           />
           <div className="mt-3 sm:mt-4 flex flex-col md:flex-row gap-3 sm:gap-4">
             <Input
               type="text"
-              placeholder="Your Name"
-              label="Name"
-              {...register("name")}
-              defaultValue={user.name}
-            />
-            <Input
-              type="email"
-              placeholder="Your Email"
-              label="Email"
-              {...register("email")}
-              defaultValue={user.email}
+              placeholder="Short Name"
+              label="Short Name"
+              {...register("shortname")}
+              defaultValue={user.shortname}
             />
           </div>
           <div className="mt-4 sm:mt-6 flex justify-end">
@@ -355,6 +348,10 @@ export default function TeacheProfileClient() {
               })}
             />
           </div>
+          <p className="mt-2 text-xs sm:text-sm text-[#A05141] bg-[#FDEDE8] border border-[#FCCFC3] rounded-lg px-3 py-2">
+            Reminder: use a unique password for Moderate Tech. Please do not
+            reuse your work email password here.
+          </p>
           <div className="mt-4 sm:mt-6 flex justify-end">
             <Button
               type="submit"
@@ -439,15 +436,11 @@ export default function TeacheProfileClient() {
                   <UserAvatar
                     profilePictureUrl={person.profilePictureUrl}
                     name={person.name}
-                    email={person.email}
                     size="md"
                   />
                   <div className="flex flex-col min-w-0">
                     <p className="text-sm font-medium text-gray-900 truncate">
                       {person.name || "Unknown User"}
-                    </p>
-                    <p className="text-xs text-gray-500 truncate">
-                      {person.email || "No email available"}
                     </p>
                   </div>
                 </div>
@@ -497,15 +490,11 @@ export default function TeacheProfileClient() {
                   <UserAvatar
                     profilePictureUrl={person.profilePictureUrl}
                     name={person.name}
-                    email={person.email}
                     size="md"
                   />
                   <div className="flex flex-col min-w-0">
                     <p className="text-sm font-medium text-gray-900 truncate">
                       {person.name || "Unknown User"}
-                    </p>
-                    <p className="text-xs text-gray-500 truncate">
-                      {person.email || "No email available"}
                     </p>
                   </div>
                 </div>

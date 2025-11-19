@@ -25,6 +25,7 @@ import {
   UserX,
   Scale,
   Gavel,
+  ChevronDown,
 } from "lucide-react";
 import DashboardShell, { NavItem } from "@/components/DashboardShell";
 import Image from "next/image";
@@ -328,39 +329,33 @@ function DashboardLayoutContent({ children }: { children: ReactNode }) {
           <Bell className="w-5.5 h-5.5 text-[#0C0C0C]" />
           <div className=" absolute bottom-0 right-0 w-[15px] h-[15px] bg-[#368FFF] rounded-full"></div>
         </div>
-        <div
-          className="relative flex flex-row gap-2 cursor-pointer"
-          onClick={() => setIsPopUpOpen(true)}
-        >
-          {/* 
-           USER PROFILE
-            */}
-          <div className=" flex flex-col justify-center items-center  w-[51px] h-[51px] rounded-full bg-white">
+        <div className="relative">
+          <button
+            type="button"
+            onClick={() => setIsPopUpOpen(true)}
+            className="group flex items-center gap-3 rounded-2xl border border-[#E5E7EB] bg-white px-3 py-2 shadow-[0px_8px_18px_rgba(15,23,42,0.08)] hover:shadow-[0px_12px_28px_rgba(15,23,42,0.14)] transition-all"
+          >
             <UserAvatar
               profilePictureUrl={user?.profilePictureUrl || ""}
               name={user?.name}
               size="md"
             />
-          </div>
-
-          <div className="flex flex-col gap-[4px] ">
-            <div className="flex items-center gap-1.5">
-              <span className="font-base font-medium text-[#0C0C0C] ">
-                {user?.name}
+            <div className="flex flex-col text-left leading-tight">
+              <span className="text-sm font-semibold text-[#0C0C0C]">
+                {user?.name || "User"}
               </span>
               {role === "SYSTEM_ADMIN" && (
-                <span className="inline-flex items-center gap-1 px-1.5 py-0.5 bg-[#2997F1]/10 text-[#2997F1] rounded text-[10px] font-medium">
+                <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#2997F1]">
                   <Shield className="w-3 h-3" />
                   Admin
                 </span>
               )}
             </div>
-            <span className="text-sm font-normal text-[#717171]">
-              {user?.email}
+            <span className="ml-auto flex items-center justify-center rounded-full bg-[#F3F4F6] p-1">
+              <ChevronDown size={16} className="text-[#6B7280]" />
             </span>
-          </div>
+          </button>
 
-          {/* Dropdown Card */}
           <PopupCard
             isOpen={isPopUpOpen}
             onClose={() => setIsPopUpOpen(false)}
@@ -412,39 +407,30 @@ function DashboardLayoutContent({ children }: { children: ReactNode }) {
             </div>
           }
         />
-        <div
-          className="relative flex flex-row gap-2 cursor-pointer"
-          onClick={() => setIsPopUpOpen(true)}
-        >
-          {/* 
-           USER PROFILE
-            */}
-          <div className=" flex flex-col justify-center items-center  w-[51px] h-[51px] rounded-full bg-white">
+        <div className="relative">
+          <button
+            type="button"
+            onClick={() => setIsPopUpOpen(true)}
+            className="group flex items-center gap-3 rounded-2xl border border-[#E5E7EB] bg-white px-3 py-2 shadow-[0px_8px_18px_rgba(15,23,42,0.08)] hover:shadow-[0px_12px_28px_rgba(15,23,42,0.14)] transition-all"
+          >
             <UserAvatar
               profilePictureUrl={user?.profilePictureUrl || ""}
               name={user?.name}
               size="md"
             />
-          </div>
-
-          <div className="flex flex-col gap-[4px] ">
-            <div className="flex items-center gap-1.5">
-              <span className="font-base font-medium text-[#0C0C0C] ">
-                {user?.name}
+            <div className="flex flex-col text-left leading-tight">
+              <span className="text-sm font-semibold text-[#0C0C0C]">
+                {user?.name || "User"}
               </span>
-              {role === "SYSTEM_ADMIN" && (
-                <span className="inline-flex items-center gap-1 px-1.5 py-0.5 bg-[#2997F1]/10 text-[#2997F1] rounded text-[10px] font-medium">
-                  <Shield className="w-3 h-3" />
-                  Admin
-                </span>
-              )}
+              <span className="text-[11px] font-medium text-[#717171]">
+                Profile & settings
+              </span>
             </div>
-            <span className="text-sm font-normal text-[#717171]">
-              {user?.email}
+            <span className="ml-auto flex items-center justify-center rounded-full bg-[#F3F4F6] p-1">
+              <ChevronDown size={16} className="text-[#6B7280]" />
             </span>
-          </div>
+          </button>
 
-          {/* Dropdown Card */}
           <PopupCard
             isOpen={isPopUpOpen}
             onClose={() => setIsPopUpOpen(false)}

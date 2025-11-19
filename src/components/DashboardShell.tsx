@@ -245,28 +245,13 @@ export default function DashboardShell({
                 {isExpanded && (
                   <span
                     className={clsx(
-                      "relative truncate max-w-[150px] transition-all duration-300 flex items-center gap-2",
+                      "relative truncate max-w-[150px] transition-all duration-300",
                       isActive
                         ? "text-[#0C0C0C] font-semibold"
                         : "text-[#717171] group-hover:text-[#0C0C0C] font-medium"
                     )}
                   >
                     {label}
-                    {/* Badge Count next to label (when expanded) */}
-                    {badgeCount !== undefined && badgeCount > 0 && (
-                      <motion.span
-                        initial={{ scale: 0 }}
-                        animate={{ scale: 1 }}
-                        transition={{
-                          type: "spring",
-                          stiffness: 500,
-                          damping: 30,
-                        }}
-                        className="bg-[#368FFF] text-white text-[10px] font-bold rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1 shadow-sm"
-                      >
-                        {badgeCount > 99 ? "99+" : badgeCount}
-                      </motion.span>
-                    )}
                   </span>
                 )}
               </Link>
@@ -487,9 +472,6 @@ export default function DashboardShell({
                   <div className="flex flex-col min-w-0">
                     <span className="text-sm font-medium text-[#0C0C0C] truncate">
                       {user?.name || "User"}
-                    </span>
-                    <span className="text-xs text-[#717171] truncate">
-                      {user?.email || ""}
                     </span>
                   </div>
                 </button>
