@@ -103,3 +103,41 @@ export const createAnnotationComment = async ({
   return mapComment(commentData);
 };
 
+export const updateAnnotationComment = async ({
+  annotationId,
+  commentId,
+  payload,
+}: {
+  annotationId: string;
+  commentId: string;
+  payload: { comment: string };
+}): Promise<ImageAnnotationComment> => {
+  if (!annotationId || !commentId) {
+    throw new Error("annotationId and commentId are required to update comment");
+  }
+
+  const response = await axiosInstance.patch(
+    `/api/annotations/${annotationId}/comments/${commentId}`,
+    payload
+  );
+
+  const commentData = response.data?.comment ?? response.data;
+  return mapComment(commentData);
+};
+
+export const deleteAnnotationComment = async ({
+  annotationId,
+  commentId,
+}: {
+  annotationId: string;
+  commentId: string;
+}): Promise<void> => {
+  if (!annotationId || !commentId) {
+    throw new Error("annotationId and commentId are required to delete comment");
+  }
+
+  await axiosInstance.delete(
+    `/api/annotations/${annotationId}/comments/${commentId}`
+  );
+};
+

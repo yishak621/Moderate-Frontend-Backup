@@ -5,6 +5,8 @@ import {
   createAnnotationComment,
   fetchAnnotationComments,
   fetchAnnotations,
+  updateAnnotationComment,
+  deleteAnnotationComment,
 } from "@/services/annotation.service";
 import {
   CreateAnnotationPayload,
@@ -79,6 +81,50 @@ export const useCreateAnnotationComment = () => {
       annotationId: string;
       payload: CreateAnnotationCommentPayload;
     }) => createAnnotationComment({ annotationId, payload }),
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: annotationQueryKeys.comments(variables.annotationId),
+      });
+      queryClient.invalidateQueries({
+        queryKey: annotationQueryKeys.all,
+      });
+    },
+  });
+};
+
+export const useUpdateAnnotationComment = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      annotationId,
+      commentId,
+      payload,
+    }: {
+      annotationId: string;
+      commentId: string;
+      payload: { comment: string };
+    }) => updateAnnotationComment({ annotationId, commentId, payload }),
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: annotationQueryKeys.comments(variables.annotationId),
+      });
+      queryClient.invalidateQueries({
+        queryKey: annotationQueryKeys.all,
+      });
+    },
+  });
+};
+
+export const useDeleteAnnotationComment = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      annotationId,
+      commentId,
+    }: {
+      annotationId: string;
+      commentId: string;
+    }) => deleteAnnotationComment({ annotationId, commentId }),
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({
         queryKey: annotationQueryKeys.comments(variables.annotationId),

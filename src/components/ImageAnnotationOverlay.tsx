@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import clsx from "clsx";
-import { MessageCircle, X, Loader2, ZoomIn } from "lucide-react";
+import { MessageCircle, X, Loader2, ZoomIn, Edit2, Trash2 } from "lucide-react";
 import toast from "react-hot-toast";
 import { AxiosError } from "axios";
 
@@ -12,6 +12,8 @@ import {
   useCreateAnnotation,
   useAnnotationComments,
   useCreateAnnotationComment,
+  useUpdateAnnotationComment,
+  useDeleteAnnotationComment,
 } from "@/hooks/useAnnotations";
 import { ImageAnnotation } from "@/types/annotations";
 import UserAvatar from "@/components/UserAvatar";
@@ -19,6 +21,7 @@ import Textarea from "@/components/ui/Textarea";
 import Button from "@/components/ui/Button";
 import ResponsiveModal from "@/components/ui/ResponsiveModal";
 import { timeAgo } from "@/lib/timeAgo";
+import { decoded } from "@/lib/currentUser";
 
 const CHAT_CURSOR_SVG = encodeURIComponent(
   `<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='%231D4ED8' stroke='%231D4ED8' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'><path d='M21 11.5c0 4.4-3.8 8-8.5 8-1 .01-2-.16-3-.5L3 21l2-4.5c-.7-1.1-1.1-2.4-1.1-3.7 0-4.4 3.8-8 8.5-8S21 7.1 21 11.5Z'/><circle cx='8' cy='11.5' r='1.2'/><circle cx='12' cy='11.5' r='1.2'/><circle cx='16' cy='11.5' r='1.2'/></svg>`
@@ -60,6 +63,8 @@ export default function ImageAnnotationOverlay({
   const [isThreadModalOpen, setIsThreadModalOpen] = useState(false);
   const [isDraftPinModalOpen, setIsDraftPinModalOpen] = useState(false);
   const [replyValue, setReplyValue] = useState("");
+  const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
+  const [editCommentValue, setEditCommentValue] = useState("");
 
   const shouldLoadAnnotations =
     !!postId && !!uploadId && !annotationAccessDenied;
@@ -104,6 +109,10 @@ export default function ImageAnnotationOverlay({
     useCreateAnnotation();
   const { mutateAsync: createAnnotationComment, isPending: isCreatingComment } =
     useCreateAnnotationComment();
+  const { mutateAsync: updateAnnotationComment, isPending: isUpdatingComment } =
+    useUpdateAnnotationComment();
+  const { mutateAsync: deleteAnnotationComment, isPending: isDeletingComment } =
+    useDeleteAnnotationComment();
 
   const handleImageClick = (event: React.MouseEvent<HTMLDivElement>) => {
     if (!canCreateAnnotations || !uploadId) return;
@@ -218,6 +227,63 @@ export default function ImageAnnotationOverlay({
     }
   };
 
+  const handleStartEdit = (comment: any) => {
+    setEditingCommentId(comment.id);
+    setEditCommentValue(comment.comment || "");
+  };
+
+  const handleCancelEdit = () => {
+    setEditingCommentId(null);
+    setEditCommentValue("");
+  };
+
+  const handleSaveEdit = async () => {
+    if (!selectedAnnotationId || !editingCommentId || !editCommentValue.trim())
+      return;
+    try {
+      await updateAnnotationComment({
+        annotationId: selectedAnnotationId,
+        commentId: editingCommentId,
+        payload: { comment: editCommentValue.trim() },
+      });
+      toast.success("Comment updated");
+      setEditingCommentId(null);
+      setEditCommentValue("");
+    } catch (error) {
+      const axiosError = error as AxiosError | undefined;
+      if (axiosError?.response?.status === 403) {
+        toast.error("You do not have permission to edit this comment.");
+      } else {
+        const message =
+          (axiosError?.response?.data as { message?: string })?.message ||
+          "Could not update comment. Please try again.";
+        toast.error(message);
+      }
+    }
+  };
+
+  const handleDeleteComment = async (commentId: string) => {
+    if (!selectedAnnotationId || !commentId) return;
+    if (!confirm("Are you sure you want to delete this comment?")) return;
+    try {
+      await deleteAnnotationComment({
+        annotationId: selectedAnnotationId,
+        commentId,
+      });
+      toast.success("Comment deleted");
+    } catch (error) {
+      const axiosError = error as AxiosError | undefined;
+      if (axiosError?.response?.status === 403) {
+        toast.error("You do not have permission to delete this comment.");
+      } else {
+        const message =
+          (axiosError?.response?.data as { message?: string })?.message ||
+          "Could not delete comment. Please try again.";
+        toast.error(message);
+      }
+    }
+  };
+
   const renderAnnotationThread = () => {
     if (!selectedAnnotation) return null;
 
@@ -269,6 +335,11 @@ export default function ImageAnnotationOverlay({
           ) : (
             commentsToRender.map((comment) => {
               const commentAuthor = comment.createdBy || comment.author;
+              const isCommentAuthor =
+                decoded?.id === commentAuthor?.id ||
+                decoded?.id === (comment as any).authorId;
+              const isEditing = editingCommentId === comment.id;
+
               return (
                 <div
                   key={comment.id}
@@ -280,17 +351,79 @@ export default function ImageAnnotationOverlay({
                     profilePictureUrl={commentAuthor?.profilePictureUrl || ""}
                   />
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      <p className="text-sm font-semibold text-[#0C0C0C]">
-                        {commentAuthor?.name || "Teacher"}
-                      </p>
-                      <span className="text-[11px] text-[#9CA3AF]">
-                        {timeAgo(comment.createdAt)}
-                      </span>
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-2">
+                        <p className="text-sm font-semibold text-[#0C0C0C]">
+                          {commentAuthor?.name || "Teacher"}
+                        </p>
+                        <span className="text-[11px] text-[#9CA3AF]">
+                          {timeAgo(comment.createdAt)}
+                        </span>
+                      </div>
+                      {isCommentAuthor && !isEditing && (
+                        <div className="flex items-center gap-1">
+                          <button
+                            type="button"
+                            onClick={() => handleStartEdit(comment)}
+                            className="p-1.5 rounded-lg hover:bg-gray-200 transition-colors"
+                            aria-label="Edit comment"
+                          >
+                            <Edit2 size={14} className="text-gray-600" />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteComment(comment.id)}
+                            disabled={isDeletingComment}
+                            className="p-1.5 rounded-lg hover:bg-red-100 transition-colors disabled:opacity-50"
+                            aria-label="Delete comment"
+                          >
+                            <Trash2 size={14} className="text-red-600" />
+                          </button>
+                        </div>
+                      )}
                     </div>
-                    <p className="text-sm text-[#374151] whitespace-pre-wrap mt-0.5 break-words">
-                      {comment.comment}
-                    </p>
+                    {isEditing ? (
+                      <div className="mt-2 space-y-2">
+                        <Textarea
+                          value={editCommentValue}
+                          onChange={(e) => setEditCommentValue(e.target.value)}
+                          placeholder="Edit your comment..."
+                          className="min-h-[80px] text-sm"
+                        />
+                        <div className="flex justify-end gap-2">
+                          <Button
+                            type="button"
+                            variant="secondary"
+                            onClick={handleCancelEdit}
+                            disabled={isUpdatingComment}
+                            className="text-sm h-8 px-3"
+                          >
+                            Cancel
+                          </Button>
+                          <Button
+                            type="button"
+                            onClick={handleSaveEdit}
+                            disabled={
+                              !editCommentValue.trim() || isUpdatingComment
+                            }
+                            className="text-sm h-8 px-3"
+                          >
+                            {isUpdatingComment ? (
+                              <span className="inline-flex items-center gap-1.5">
+                                <Loader2 className="w-3 h-3 animate-spin" />
+                                Saving...
+                              </span>
+                            ) : (
+                              "Save"
+                            )}
+                          </Button>
+                        </div>
+                      </div>
+                    ) : (
+                      <p className="text-sm text-[#374151] whitespace-pre-wrap mt-0.5 break-words">
+                        {comment.comment}
+                      </p>
+                    )}
                   </div>
                 </div>
               );
