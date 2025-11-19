@@ -34,6 +34,7 @@ import DeleteGradeModal from "@/modules/dashboard/teacher/DeleteGradeModal";
 import { useGradeEditStore } from "@/store/gradeEditStore";
 import UserActionsMenu from "@/components/UserActionsMenu";
 import ImageViewer from "@/components/ui/ImageViewer";
+import ImageAnnotationOverlay from "@/components/ImageAnnotationOverlay";
 
 export default function PostViewClient() {
   const params = useParams();
@@ -226,7 +227,10 @@ export default function PostViewClient() {
     setCurrentFileIndex((prev) => (prev - 1 + uploads.length) % uploads.length);
   };
 
-  const currentFile = uploads[currentFileIndex]?.fileUrl;
+  const currentUpload = uploads[currentFileIndex];
+  const currentFile = currentUpload?.fileUrl;
+  const currentUploadId =
+    currentUpload?.id !== undefined ? String(currentUpload.id) : undefined;
   const ext = currentFile?.split(".").pop()?.toLowerCase();
 
   // Image Viewer
@@ -241,6 +245,11 @@ export default function PostViewClient() {
     setIsImageViewerOpen(false);
     setTimeout(() => setImageViewerSrc(null), 150);
   };
+  const canViewImageAnnotations =
+    Boolean(decoded?.role === "TEACHER") || isAuthor;
+  const canCreateImageAnnotations =
+    Boolean(decoded?.role === "TEACHER") || isAuthor;
+
   const givenGrade = (() => {
     if (!currentUserGrade?.grade) return null;
 
@@ -407,48 +416,46 @@ export default function PostViewClient() {
               )}
             </div>
             {/* full file preview */}
-            <div className="relative bg-gray-100 w-full rounded-3xl flex items-center justify-center overflow-hidden">
-              {/* Navigation */}
+            <div className="relative w-full">
+              {/* Navigation buttons - outside image container */}
               {uploads.length > 1 && (
                 <>
                   <button
                     onClick={prevFile}
-                    className="absolute left-4 bg-white/80 p-2 rounded-full shadow hover:bg-white"
+                    className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-full mr-4 bg-white p-2 rounded-full shadow-lg hover:bg-gray-50 border border-gray-200 z-10"
                   >
-                    <ChevronLeft size={20} />
+                    <ChevronLeft size={20} className="text-gray-700" />
                   </button>
                   <button
                     onClick={nextFile}
-                    className="absolute right-4 bg-white/80 p-2 rounded-full shadow hover:bg-white"
+                    className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-full ml-4 bg-white p-2 rounded-full shadow-lg hover:bg-gray-50 border border-gray-200 z-10"
                   >
-                    <ChevronRight size={20} />
+                    <ChevronRight size={20} className="text-gray-700" />
                   </button>
                 </>
               )}
 
-              {/* File content */}
-              {ext === "pdf" ? (
-                <iframe
-                  src={`${ensureHttps(currentFile)}#toolbar=0`}
-                  className="w-full h-[80vh]"
-                  loading="lazy"
-                  allow="fullscreen"
-                />
-              ) : (
-                <button
-                  type="button"
-                  onClick={() => openImageViewer(currentFile)}
-                  className="focus:outline-none"
-                >
-                  <Image
-                    width={1000}
-                    height={1000}
-                    src={currentFile}
-                    alt="viewer"
-                    className="h-[90vh] w-auto object-contain"
+              {/* Image container */}
+              <div className="relative bg-gray-100 w-full rounded-3xl flex items-center justify-center overflow-hidden">
+                {/* File content */}
+                {ext === "pdf" || !currentFile ? (
+                  <iframe
+                    src={`${ensureHttps(currentFile || "")}#toolbar=0`}
+                    className="w-full h-[80vh]"
+                    loading="lazy"
+                    allow="fullscreen"
                   />
-                </button>
-              )}
+                ) : (
+                  <ImageAnnotationOverlay
+                    postId={postId}
+                    uploadId={currentUploadId}
+                    imageUrl={currentFile}
+                    canCreateAnnotations={canCreateImageAnnotations}
+                    onOpenImageViewer={() => openImageViewer(currentFile)}
+                    variant="desktop"
+                  />
+                )}
+              </div>
             </div>
             {/* Bottom tags */}
             <div className="flex flex-row gap-4 items-center">

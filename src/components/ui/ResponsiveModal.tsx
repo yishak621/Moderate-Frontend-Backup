@@ -12,6 +12,8 @@ interface ResponsiveModalProps {
   showCloseButton?: boolean;
   maxHeight?: string;
   nested?: boolean; // For modal over modal scenarios
+  zIndex?: number; // Custom z-index for the modal
+  width?: string; // Custom width for the modal
 }
 
 export default function ResponsiveModal({
@@ -22,6 +24,8 @@ export default function ResponsiveModal({
   showCloseButton = true,
   maxHeight = "90vh",
   nested = false,
+  zIndex,
+  width,
 }: ResponsiveModalProps) {
   const [isMobile, setIsMobile] = useState(false);
 
@@ -53,6 +57,8 @@ export default function ResponsiveModal({
       <Modal.Content
         panelClassName={nested ? "bg-white rounded-lg shadow-xl" : ""}
         className={nested ? "z-[100]" : ""}
+        zIndex={zIndex}
+        width={width}
       >
         {children}
       </Modal.Content>

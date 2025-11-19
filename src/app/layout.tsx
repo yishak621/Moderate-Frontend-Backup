@@ -89,6 +89,8 @@ export const metadata: Metadata = {
 const outfit = Outfit({
   subsets: ["latin"],
   variable: "--font-outfit",
+  display: "swap",
+  fallback: ["system-ui", "arial"],
 });
 
 export default function RootLayout({

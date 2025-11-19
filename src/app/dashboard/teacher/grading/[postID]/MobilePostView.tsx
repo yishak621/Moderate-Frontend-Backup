@@ -45,6 +45,7 @@ import ReportUserModal from "@/modules/dashboard/teacher/modal/ReportUserModal";
 import { User } from "@/app/types/user";
 import UserActionsMenu from "@/components/UserActionsMenu";
 import ImageViewer from "@/components/ui/ImageViewer";
+import ImageAnnotationOverlay from "@/components/ImageAnnotationOverlay";
 
 interface MobilePostViewProps {
   post: PostType & {
@@ -252,7 +253,10 @@ export default function MobilePostView({
     setCurrentFileIndex((prev) => (prev - 1 + uploads.length) % uploads.length);
   };
 
-  const currentFile = uploads[currentFileIndex]?.fileUrl;
+  const currentUpload = uploads[currentFileIndex];
+  const currentFile = currentUpload?.fileUrl;
+  const currentUploadId =
+    currentUpload?.id !== undefined ? String(currentUpload.id) : undefined;
   const ext = currentFile?.split(".").pop()?.toLowerCase();
 
   // Image Viewer
@@ -267,6 +271,11 @@ export default function MobilePostView({
     setIsImageViewerOpen(false);
     setTimeout(() => setImageViewerSrc(null), 150);
   };
+  const canViewImageAnnotations =
+    Boolean(decoded?.role === "TEACHER") || isCurrentUserPost;
+  const canCreateImageAnnotations =
+    Boolean(decoded?.role === "TEACHER") || isCurrentUserPost;
+
   const givenGrade = (() => {
     switch (gradingTemplate?.type) {
       case "numeric":
@@ -463,55 +472,70 @@ export default function MobilePostView({
                 </p>
               </div>
 
-              {/* File Preview */}
-              <div className="relative bg-gray-100 rounded-[24.5px] overflow-hidden">
-                {uploads.length > 1 && (
-                  <>
-                    <button
-                      onClick={prevFile}
-                      className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/90 p-2 rounded-full shadow-lg z-10 hover:bg-white"
-                    >
-                      <ChevronLeft size={20} />
-                    </button>
-                    <button
-                      onClick={nextFile}
-                      className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/90 p-2 rounded-full shadow-lg z-10 hover:bg-white"
-                    >
-                      <ChevronRight size={20} />
-                    </button>
-                  </>
-                )}
-
-                {/* File Viewer */}
-                {ext === "pdf" ? (
-                  <iframe
-                    src={`${ensureHttps(currentFile)}#toolbar=0`}
-                    className="w-full h-[60vh] rounded-[24.5px]"
-                    loading="lazy"
-                    allow="fullscreen"
-                  />
-                ) : (
+              {/* File Navigation - Between description and image */}
+              {uploads.length > 1 && (
+                <div className="flex items-center justify-between gap-3 bg-white rounded-2xl p-3 shadow-sm border border-gray-100">
                   <button
-                    type="button"
-                    onClick={() => openImageViewer(currentFile)}
-                    className="focus:outline-none"
+                    onClick={prevFile}
+                    disabled={currentFileIndex === 0}
+                    className="group flex items-center justify-center w-12 h-12 rounded-xl bg-[#F6F7FB] hover:bg-[#1D4ED8] disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 active:scale-95"
+                    aria-label="Previous file"
                   >
-                    <Image
-                      src={currentFile || "/images/placeholder.png"}
-                      alt="Document"
-                      width={600}
-                      height={800}
-                      className="w-full h-auto max-h-[60vh] object-contain"
+                    <ChevronLeft
+                      size={20}
+                      className="text-[#1D4ED8] group-hover:text-white transition-colors duration-200"
                     />
                   </button>
-                )}
 
-                {/* File Counter */}
-                {uploads.length > 1 && (
-                  <div className="absolute bottom-3 left-1/2 -translate-x-1/2 bg-black/60 text-white text-xs px-3 py-1 rounded-full">
-                    {currentFileIndex + 1} / {uploads.length}
+                  <div className="flex-1 flex items-center justify-center gap-2">
+                    <div className="flex items-center gap-2 px-4 py-2 bg-[#F6F7FB] rounded-xl">
+                      <span className="text-sm font-semibold text-[#1D4ED8]">
+                        {currentFileIndex + 1}
+                      </span>
+                      <span className="text-sm text-gray-400">/</span>
+                      <span className="text-sm font-medium text-gray-600">
+                        {uploads.length}
+                      </span>
+                    </div>
                   </div>
-                )}
+
+                  <button
+                    onClick={nextFile}
+                    disabled={currentFileIndex === uploads.length - 1}
+                    className="group flex items-center justify-center w-12 h-12 rounded-xl bg-[#F6F7FB] hover:bg-[#1D4ED8] disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 active:scale-95"
+                    aria-label="Next file"
+                  >
+                    <ChevronRight
+                      size={20}
+                      className="text-[#1D4ED8] group-hover:text-white transition-colors duration-200"
+                    />
+                  </button>
+                </div>
+              )}
+
+              {/* File Preview */}
+              <div className="relative w-full">
+                {/* Image container */}
+                <div className="relative bg-gray-100 rounded-[24.5px] overflow-hidden">
+                  {/* File Viewer */}
+                  {ext === "pdf" || !currentFile ? (
+                    <iframe
+                      src={`${ensureHttps(currentFile || "")}#toolbar=0`}
+                      className="w-full h-[60vh] rounded-[24.5px]"
+                      loading="lazy"
+                      allow="fullscreen"
+                    />
+                  ) : (
+                    <ImageAnnotationOverlay
+                      postId={postId}
+                      uploadId={currentUploadId}
+                      imageUrl={currentFile}
+                      canCreateAnnotations={canCreateImageAnnotations}
+                      onOpenImageViewer={() => openImageViewer(currentFile)}
+                      variant="mobile"
+                    />
+                  )}
+                </div>
               </div>
 
               {/* Tags & Stats */}

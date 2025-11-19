@@ -121,6 +121,7 @@ Modal.Content = function Content({
   panelClassName = "",
   closeOnOverlayClick = true,
   closeOnEsc = true,
+  zIndex,
 }: {
   children?: ReactNode;
   className?: string;
@@ -128,6 +129,7 @@ Modal.Content = function Content({
   panelClassName?: string;
   closeOnOverlayClick?: boolean;
   closeOnEsc?: boolean;
+  zIndex?: number;
 }) {
   const ctx = useModal();
   const overlayRef = useRef<HTMLDivElement>(null);
@@ -190,7 +192,7 @@ Modal.Content = function Content({
 
   // Check if this is a nested modal (higher z-index)
   const isNested = panelClassName.includes("bg-white") && panelClassName.includes("rounded-lg");
-  const overlayZIndex = isNested ? 100 : 50;
+  const overlayZIndex = zIndex ?? (isNested ? 100 : 50);
   const overlayOpacity = isNested ? "bg-black/70" : "bg-black/45";
 
   return (

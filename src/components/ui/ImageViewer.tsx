@@ -30,6 +30,32 @@ export default function ImageViewer({
     setTranslate({ x: 0, y: 0 });
   }, []);
 
+  const zoomIn = useCallback(() => {
+    const rect = containerRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    const centerX = rect.width / 2;
+    const centerY = rect.height / 2;
+    const newScale = clampScale(scale * 1.2);
+    const scaleRatio = newScale / scale;
+    const newTranslateX = centerX - (centerX - translate.x) * scaleRatio;
+    const newTranslateY = centerY - (centerY - translate.y) * scaleRatio;
+    setScale(newScale);
+    setTranslate({ x: newTranslateX, y: newTranslateY });
+  }, [scale, translate]);
+
+  const zoomOut = useCallback(() => {
+    const rect = containerRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    const centerX = rect.width / 2;
+    const centerY = rect.height / 2;
+    const newScale = clampScale(scale / 1.2);
+    const scaleRatio = newScale / scale;
+    const newTranslateX = centerX - (centerX - translate.x) * scaleRatio;
+    const newTranslateY = centerY - (centerY - translate.y) * scaleRatio;
+    setScale(newScale);
+    setTranslate({ x: newTranslateX, y: newTranslateY });
+  }, [scale, translate]);
+
   useEffect(() => {
     if (!isOpen) resetView();
   }, [isOpen, resetView]);
@@ -147,8 +173,11 @@ export default function ImageViewer({
       isOpen={isOpen}
       onOpenChange={(open) => (!open ? onClose() : null)}
       title=""
+      zIndex={150}
+      width="w-1/2"
     >
       <div className="relative w-full h-[70vh] sm:h-[80vh] bg-black rounded-xl overflow-hidden touch-pan-y">
+        {/* Image container with zoom/pan */}
         <div
           ref={containerRef}
           className="relative w-full h-full cursor-grab active:cursor-grabbing"
@@ -177,18 +206,37 @@ export default function ImageViewer({
             }
           />
         </div>
-        <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between text-white/90 text-xs">
-          <button
-            className="px-3 py-1.5 rounded-md bg-white/10 hover:bg-white/20 border border-white/20"
-            onClick={resetView}
-          >
-            Reset
-          </button>
-          <div className="px-2 py-1 rounded-md bg-white/10 border border-white/20">
-            {Math.round(scale * 100)}%
+        {/* Fixed buttons - outside zoom container, static position */}
+        <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between text-white/90 text-xs pointer-events-none">
+          <div className="flex items-center gap-2">
+            <button
+              className="px-3 py-1.5 rounded-md bg-white/10 hover:bg-white/20 border border-white/20 pointer-events-auto"
+              onClick={resetView}
+            >
+              Reset
+            </button>
+            <button
+              className="w-8 h-8 flex items-center justify-center rounded-md bg-white/10 hover:bg-white/20 border border-white/20 pointer-events-auto disabled:opacity-50 disabled:cursor-not-allowed"
+              onClick={zoomOut}
+              disabled={scale <= 0.5}
+              aria-label="Zoom out"
+            >
+              −
+            </button>
+            <div className="px-2 py-1 rounded-md bg-white/10 border border-white/20 pointer-events-auto min-w-[50px] text-center">
+              {Math.round(scale * 100)}%
+            </div>
+            <button
+              className="w-8 h-8 flex items-center justify-center rounded-md bg-white/10 hover:bg-white/20 border border-white/20 pointer-events-auto disabled:opacity-50 disabled:cursor-not-allowed"
+              onClick={zoomIn}
+              disabled={scale >= 5}
+              aria-label="Zoom in"
+            >
+              +
+            </button>
           </div>
           <button
-            className="px-3 py-1.5 rounded-md bg-white/10 hover:bg-white/20 border border-white/20"
+            className="px-3 py-1.5 rounded-md bg-white/10 hover:bg-white/20 border border-white/20 pointer-events-auto"
             onClick={onClose}
           >
             Close
