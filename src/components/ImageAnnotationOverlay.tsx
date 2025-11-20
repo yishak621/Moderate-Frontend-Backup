@@ -590,6 +590,9 @@ export default function ImageAnnotationOverlay({
                   }}
                   onClick={(event) => handleSelectAnnotation(event, annotation)}
                 >
+                  <span className="text-[11px] font-semibold text-white bg-black/70 px-1.5 py-0.5 rounded-full">
+                    {replies}
+                  </span>
                   <span
                     className={clsx(
                       "flex items-center justify-center w-7 h-7 rounded-full shadow-lg border text-xs font-semibold",
@@ -599,9 +602,6 @@ export default function ImageAnnotationOverlay({
                     )}
                   >
                     <MessageCircle className="w-4 h-4" />
-                  </span>
-                  <span className="text-[11px] font-semibold text-white bg-black/70 px-1.5 py-0.5 rounded-full">
-                    {replies}
                   </span>
                 </button>
               );
