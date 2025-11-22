@@ -21,6 +21,7 @@ import {
 import { User } from "@/app/types/user";
 import UserAvatar from "@/components/UserAvatar";
 import { timeAgo } from "@/lib/timeAgo";
+import { usePathname } from "next/navigation";
 import {
   useUserModerationDetails,
   useSuspendUser,
@@ -41,6 +42,10 @@ import ResponsiveModal from "@/components/ui/ResponsiveModal";
 export default function ViewUserModal({ user }: { user: User }) {
   const { close } = useModal();
   const userId = user?.id || "";
+  const pathname = usePathname();
+  const isModeratedUsersPage = pathname?.includes(
+    "/dashboard/admin/moderated-users"
+  );
 
   // Fetch moderation details (only if userId exists)
   const { data: moderationData, isLoading: isLoadingModeration } =
@@ -65,6 +70,7 @@ export default function ViewUserModal({ user }: { user: User }) {
   const reports = moderationData?.reports || [];
   const actions = moderationData?.actions || [];
   const appeals = moderationData?.appeals || [];
+  const availableActions = moderationData?.availableActions;
 
   // Format dates
   const formatDate = (dateString: string | null | undefined) => {
@@ -156,17 +162,28 @@ export default function ViewUserModal({ user }: { user: User }) {
               >
                 {user.role || "TEACHER"}
               </span>
-              <span
-                className={`px-3 py-1 text-xs font-semibold rounded-full ${
-                  user.verificationStatus === "active"
-                    ? "bg-green-100 text-green-700"
-                    : user.verificationStatus === "suspended"
-                    ? "bg-red-100 text-red-700"
-                    : "bg-gray-100 text-gray-700"
-                }`}
-              >
-                {user.verificationStatus?.toUpperCase() || "INACTIVE"}
-              </span>
+              {moderation?.status ? (
+                <span
+                  className={`px-3 py-1 text-xs font-semibold rounded-full ${
+                    moderation.status === "active"
+                      ? "bg-green-100 text-green-700"
+                      : moderation.status === "suspended"
+                      ? "bg-orange-100 text-orange-700"
+                      : moderation.status === "banned"
+                      ? "bg-red-100 text-red-700"
+                      : moderation.status === "pending_review"
+                      ? "bg-yellow-100 text-yellow-700"
+                      : "bg-gray-100 text-gray-700"
+                  }`}
+                >
+                  {moderation.status?.toUpperCase().replace("_", " ") ||
+                    "ACTIVE"}
+                </span>
+              ) : (
+                <span className="px-3 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-700">
+                  ACTIVE
+                </span>
+              )}
             </div>
           </div>
         </div>
@@ -195,16 +212,28 @@ export default function ViewUserModal({ user }: { user: User }) {
               </p>
               <p
                 className={`text-sm font-medium ${
+                  moderation?.status === "banned" ||
+                  moderation?.status === "suspended" ||
                   user.isDisabled ||
                   user.verificationStatus === "suspended" ||
                   user.verificationStatus === "inactive"
-                    ? "text-red-600"
+                    ? moderation?.status === "banned"
+                      ? "text-red-600"
+                      : moderation?.status === "suspended"
+                      ? "text-orange-600"
+                      : "text-red-600"
                     : "text-green-600"
                 }`}
               >
-                {user.isDisabled ||
-                user.verificationStatus === "suspended" ||
-                user.verificationStatus === "inactive"
+                {moderation?.status === "banned"
+                  ? "Banned"
+                  : moderation?.status === "suspended"
+                  ? "Suspended"
+                  : moderation?.status === "pending_review"
+                  ? "Pending Review"
+                  : user.isDisabled ||
+                    user.verificationStatus === "suspended" ||
+                    user.verificationStatus === "inactive"
                   ? "Disabled"
                   : "Active"}
               </p>
@@ -240,77 +269,79 @@ export default function ViewUserModal({ user }: { user: User }) {
           </div>
         </div>
 
-        {/* Subscription Details */}
-        <div className="bg-gray-50 rounded-xl p-6 border border-gray-200">
-          <div className="flex items-center gap-2 mb-4">
-            <CreditCard size={18} className="text-gray-600" />
-            <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">
-              Subscription Details
-            </h3>
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <p className="text-xs font-medium text-gray-500 uppercase mb-1">
-                Subscription Status
-              </p>
-              <div className="flex items-center gap-2">
-                {isSubscriptionActive ? (
-                  <CheckCircle2 size={16} className="text-green-600" />
-                ) : (
-                  <XCircle size={16} className="text-gray-400" />
-                )}
-                <span
+        {/* Subscription Details - Hide on moderated-users page */}
+        {!isModeratedUsersPage && (
+          <div className="bg-gray-50 rounded-xl p-6 border border-gray-200">
+            <div className="flex items-center gap-2 mb-4">
+              <CreditCard size={18} className="text-gray-600" />
+              <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">
+                Subscription Details
+              </h3>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <p className="text-xs font-medium text-gray-500 uppercase mb-1">
+                  Subscription Status
+                </p>
+                <div className="flex items-center gap-2">
+                  {isSubscriptionActive ? (
+                    <CheckCircle2 size={16} className="text-green-600" />
+                  ) : (
+                    <XCircle size={16} className="text-gray-400" />
+                  )}
+                  <span
+                    className={`text-sm font-medium ${
+                      isSubscriptionActive ? "text-green-600" : "text-gray-600"
+                    }`}
+                  >
+                    {user.subscriptionStatus?.toUpperCase() || "FREE"}
+                  </span>
+                </div>
+              </div>
+              <div>
+                <p className="text-xs font-medium text-gray-500 uppercase mb-1">
+                  Subscription Plan
+                </p>
+                <p className="text-sm text-gray-800">
+                  {user.subscriptionPlan
+                    ? user.subscriptionPlan.toUpperCase()
+                    : "N/A"}
+                </p>
+              </div>
+              <div>
+                <p className="text-xs font-medium text-gray-500 uppercase mb-1">
+                  Subscription End Date
+                </p>
+                <p
                   className={`text-sm font-medium ${
-                    isSubscriptionActive ? "text-green-600" : "text-gray-600"
+                    subscriptionStatus.color === "red"
+                      ? "text-red-600"
+                      : subscriptionStatus.color === "orange"
+                      ? "text-orange-600"
+                      : "text-green-600"
                   }`}
                 >
-                  {user.subscriptionStatus?.toUpperCase() || "FREE"}
-                </span>
+                  {user.subscriptionEndDate
+                    ? formatDate(user.subscriptionEndDate)
+                    : "N/A"}
+                </p>
+                {user.subscriptionEndDate && (
+                  <p className="text-xs text-gray-500 mt-1">
+                    {subscriptionStatus.status}
+                  </p>
+                )}
+              </div>
+              <div>
+                <p className="text-xs font-medium text-gray-500 uppercase mb-1">
+                  Stripe Customer ID
+                </p>
+                <p className="text-sm text-gray-800 font-mono">
+                  {user.stripeCustomerId || "N/A"}
+                </p>
               </div>
             </div>
-            <div>
-              <p className="text-xs font-medium text-gray-500 uppercase mb-1">
-                Subscription Plan
-              </p>
-              <p className="text-sm text-gray-800">
-                {user.subscriptionPlan
-                  ? user.subscriptionPlan.toUpperCase()
-                  : "N/A"}
-              </p>
-            </div>
-            <div>
-              <p className="text-xs font-medium text-gray-500 uppercase mb-1">
-                Subscription End Date
-              </p>
-              <p
-                className={`text-sm font-medium ${
-                  subscriptionStatus.color === "red"
-                    ? "text-red-600"
-                    : subscriptionStatus.color === "orange"
-                    ? "text-orange-600"
-                    : "text-green-600"
-                }`}
-              >
-                {user.subscriptionEndDate
-                  ? formatDate(user.subscriptionEndDate)
-                  : "N/A"}
-              </p>
-              {user.subscriptionEndDate && (
-                <p className="text-xs text-gray-500 mt-1">
-                  {subscriptionStatus.status}
-                </p>
-              )}
-            </div>
-            <div>
-              <p className="text-xs font-medium text-gray-500 uppercase mb-1">
-                Stripe Customer ID
-              </p>
-              <p className="text-sm text-gray-800 font-mono">
-                {user.stripeCustomerId || "N/A"}
-              </p>
-            </div>
           </div>
-        </div>
+        )}
 
         {/* Free Trial Details */}
         <div className="bg-gray-50 rounded-xl p-6 border border-gray-200">
@@ -414,12 +445,25 @@ export default function ViewUserModal({ user }: { user: User }) {
                     ? "bg-orange-100 text-orange-700"
                     : moderation.status === "banned"
                     ? "bg-red-100 text-red-700"
-                    : "bg-yellow-100 text-yellow-700"
+                    : moderation.status === "pending_review"
+                    ? "bg-yellow-100 text-yellow-700"
+                    : "bg-gray-100 text-gray-700"
                 }`}
               >
                 {moderation.status?.toUpperCase().replace("_", " ") || "ACTIVE"}
               </span>
             </div>
+            {/* Show suspension notice for pending_review */}
+            {moderation.status === "pending_review" && (
+              <div className="mb-4 p-3 bg-orange-50 border border-orange-200 rounded-lg">
+                <p className="text-sm text-orange-800">
+                  <strong>User is currently suspended</strong> and awaiting
+                  admin review. This user is in a suspension period while
+                  waiting for admin response to permanently ban. You can
+                  permanently ban this user using the action button below.
+                </p>
+              </div>
+            )}
             <div className="grid grid-cols-2 gap-4 mb-4">
               <div>
                 <p className="text-xs font-medium text-gray-500 uppercase mb-1">
@@ -468,6 +512,17 @@ export default function ViewUserModal({ user }: { user: User }) {
                   </p>
                 </div>
               )}
+              {/* Show suspension period info for pending_review */}
+              {moderation.status === "pending_review" &&
+                (moderation.suspensionStartDate ||
+                  moderation.suspensionEndDate) && (
+                  <div className="col-span-2 mt-2 p-2 bg-orange-50 border border-orange-200 rounded">
+                    <p className="text-xs font-medium text-orange-800">
+                      ⚠️ User is in suspension period. After pending review, if
+                      not banned, they will remain in suspension.
+                    </p>
+                  </div>
+                )}
               {moderation.bannedAt && (
                 <div>
                   <p className="text-xs font-medium text-gray-500 uppercase mb-1">
@@ -492,49 +547,66 @@ export default function ViewUserModal({ user }: { user: User }) {
 
             {/* Moderation Actions */}
             <div className="flex flex-wrap gap-2 mt-4 pt-4 border-t border-gray-200">
-              {moderation.status === "active" ||
-                (moderation.status === "pending_review" && (
+              {/* When status is pending_review, show ONLY Ban button - always show it */}
+              {moderation?.status === "pending_review" ? (
+                <Button
+                  variant="red"
+                  onClick={() => setShowBanModal(true)}
+                  disabled={isBanning}
+                  className="text-sm"
+                >
+                  <Ban size={16} className="mr-1" />
+                  Ban User
+                </Button>
+              ) : (
+                availableActions && (
                   <>
-                    <Button
-                      variant="outline"
-                      onClick={() => setShowSuspendModal(true)}
-                      disabled={isSuspending}
-                      className="text-sm"
-                    >
-                      <Clock size={16} className="mr-1" />
-                      Suspend User
-                    </Button>
-                    <Button
-                      variant="red"
-                      onClick={() => setShowBanModal(true)}
-                      disabled={isBanning}
-                      className="text-sm"
-                    >
-                      <Ban size={16} className="mr-1" />
-                      Ban User
-                    </Button>
+                    {availableActions.canSuspend && (
+                      <Button
+                        variant="outline"
+                        onClick={() => setShowSuspendModal(true)}
+                        disabled={isSuspending}
+                        className="text-sm"
+                      >
+                        <Clock size={16} className="mr-1" />
+                        Suspend User
+                      </Button>
+                    )}
+                    {availableActions.canBan && (
+                      <Button
+                        variant="red"
+                        onClick={() => setShowBanModal(true)}
+                        disabled={isBanning}
+                        className="text-sm"
+                      >
+                        <Ban size={16} className="mr-1" />
+                        Ban User
+                      </Button>
+                    )}
+                    {availableActions.canUnsuspend && (
+                      <Button
+                        variant="green"
+                        onClick={() => setShowUnsuspendModal(true)}
+                        disabled={isUnsuspending}
+                        className="text-sm"
+                      >
+                        <UserCheck size={16} className="mr-1" />
+                        Unsuspend User
+                      </Button>
+                    )}
+                    {availableActions.canUnban && (
+                      <Button
+                        variant="green"
+                        onClick={() => setShowUnbanModal(true)}
+                        disabled={isUnbanning}
+                        className="text-sm"
+                      >
+                        <UserCheck size={16} className="mr-1" />
+                        Unban User
+                      </Button>
+                    )}
                   </>
-                ))}
-              {moderation.status === "suspended" && (
-                <Button
-                  variant="green"
-                  onClick={() => setShowUnsuspendModal(true)}
-                  disabled={isUnsuspending}
-                  className="text-sm"
-                >
-                  <UserCheck size={16} className="mr-1" />
-                  Unsuspend User
-                </Button>
-              )}
-              {moderation.status === "banned" && (
-                <Button
-                  variant="green"
-                  onClick={() => setShowUnbanModal(true)}
-                  className="text-sm"
-                >
-                  <UserCheck size={16} className="mr-1" />
-                  Unban User
-                </Button>
+                )
               )}
             </div>
           </div>

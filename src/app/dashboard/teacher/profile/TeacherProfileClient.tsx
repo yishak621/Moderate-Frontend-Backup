@@ -8,6 +8,7 @@ import {
   User2Icon,
   ArrowLeft,
   UserPlus,
+  BookOpen,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState, useRef, useEffect } from "react";
@@ -27,7 +28,7 @@ import {
   useGetFollowingUsers,
 } from "@/hooks/useUser";
 import { useForm } from "react-hook-form";
-import { User } from "@/app/types/user";
+import { User, Domain } from "@/app/types/user";
 import toast from "react-hot-toast";
 import DeleteAccountModal from "@/modules/dashboard/shared/modals/DeleteAccountModal";
 import UserAvatar from "@/components/UserAvatar";
@@ -317,6 +318,34 @@ export default function TeacheProfileClient() {
           </div>
         </div>
       </form>
+
+      {/* Curricular Areas / Departments Section */}
+      <div className="flex flex-col py-4 px-4 sm:py-6 sm:px-6 rounded-2xl sm:rounded-[37px] bg-[#FDFDFD]">
+        <SectionHeader
+          title="Curricular Areas"
+          icon={BookOpen}
+          subheader="Your assigned departments and subject areas"
+        />
+        {user?.domains && user.domains.length > 0 ? (
+          <div className="mt-4 sm:mt-6 flex flex-wrap gap-2 sm:gap-3">
+            {user.domains.map((domain: Domain) => (
+              <span
+                key={domain.id}
+                className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium bg-blue-50 text-blue-700 rounded-full border border-blue-200 shadow-sm hover:bg-blue-100 transition-colors"
+              >
+                <BookOpen size={14} className="text-blue-600" />
+                {domain.name}
+              </span>
+            ))}
+          </div>
+        ) : (
+          <div className="mt-4 sm:mt-6 flex items-center justify-center py-6 border border-dashed border-gray-200 rounded-xl bg-gray-50">
+            <p className="text-sm text-gray-500">
+              No curricular areas assigned yet
+            </p>
+          </div>
+        )}
+      </div>
 
       {/* Password Section */}
       <form

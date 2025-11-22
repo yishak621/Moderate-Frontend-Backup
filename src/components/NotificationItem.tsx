@@ -13,6 +13,15 @@ import {
   Bell,
   User,
   Calendar,
+  Shield,
+  UserX,
+  Ban,
+  Clock,
+  CreditCard as CreditCardIcon,
+  Mail,
+  Globe,
+  AlertTriangle,
+  UserPlus,
 } from "lucide-react";
 import { useMarkNotificationAsRead } from "@/hooks/useNotifications";
 import { useRouter } from "next/navigation";
@@ -64,6 +73,30 @@ const getNotificationIcon = (type: Notification["type"]) => {
       return XCircle;
     case "system_announcement":
       return Bell;
+    // Admin notification types
+    case "admin_moderation_warning":
+      return AlertCircle;
+    case "admin_moderation_suspension":
+      return UserX;
+    case "admin_moderation_ban":
+      return Ban;
+    case "admin_moderation_pending_review":
+      return Clock;
+    case "admin_user_dormant":
+      return UserX;
+    case "admin_user_disabled":
+      return UserX;
+    case "admin_payment_failed":
+    case "admin_subscription_expired":
+      return CreditCardIcon;
+    case "admin_support_ticket":
+      return Mail;
+    case "admin_domain_verification":
+      return Globe;
+    case "admin_system_error":
+      return AlertTriangle;
+    case "admin_user_registered":
+      return UserPlus;
     default:
       return Bell;
   }
@@ -83,6 +116,30 @@ const getNotificationColor = (type: Notification["type"]) => {
       return "bg-blue-100 text-blue-600";
     case "message_received":
       return "bg-purple-100 text-purple-600";
+    // Admin notification types
+    case "admin_moderation_warning":
+      return "bg-yellow-100 text-yellow-600";
+    case "admin_moderation_suspension":
+      return "bg-orange-100 text-orange-600";
+    case "admin_moderation_ban":
+      return "bg-red-100 text-red-600";
+    case "admin_moderation_pending_review":
+      return "bg-blue-100 text-blue-600";
+    case "admin_user_dormant":
+      return "bg-gray-100 text-gray-600";
+    case "admin_user_disabled":
+      return "bg-red-100 text-red-600";
+    case "admin_payment_failed":
+    case "admin_subscription_expired":
+      return "bg-red-100 text-red-600";
+    case "admin_support_ticket":
+      return "bg-purple-100 text-purple-600";
+    case "admin_domain_verification":
+      return "bg-blue-100 text-blue-600";
+    case "admin_system_error":
+      return "bg-red-100 text-red-600";
+    case "admin_user_registered":
+      return "bg-green-100 text-green-600";
     default:
       return "bg-gray-100 text-gray-600";
   }
@@ -104,6 +161,28 @@ export default function NotificationItem({
       onMarkAsRead?.(notification.id);
     }
 
+    // Admin notification routing
+    if (notification.type.startsWith("admin_")) {
+      if (notification.type === "admin_moderation_pending_review" || 
+          notification.type === "admin_moderation_warning" ||
+          notification.type === "admin_moderation_suspension" ||
+          notification.type === "admin_moderation_ban") {
+        router.push("/dashboard/admin/moderated-users");
+      } else if (notification.type === "admin_support_ticket") {
+        router.push("/dashboard/admin/support-messages");
+      } else if (notification.type === "admin_domain_verification") {
+        router.push("/dashboard/admin/domains");
+      } else if (notification.type === "admin_user_registered" || 
+                 notification.type === "admin_user_dormant" ||
+                 notification.type === "admin_user_disabled") {
+        router.push("/dashboard/admin/users");
+      } else if (notification.relatedUserId) {
+        router.push(`/dashboard/admin/users?userId=${notification.relatedUserId}`);
+      }
+      return;
+    }
+
+    // Regular user notification routing
     if (notification.relatedPostId) {
       router.push(`/dashboard/teacher/grading/${notification.relatedPostId}`);
     } else if (notification.relatedMessageId) {

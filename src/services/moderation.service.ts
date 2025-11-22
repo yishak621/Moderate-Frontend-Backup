@@ -10,6 +10,7 @@ import {
   SuspendUserInput,
   BanUserInput,
   ReportStats,
+  AvailableActions,
 } from "@/types/moderation";
 
 // ==================== REPORTS ====================
@@ -165,6 +166,7 @@ export const getUserModerationDetails = async (
   reports: Report[];
   actions: ModerationAction[];
   appeals: Appeal[];
+  availableActions?: AvailableActions;
 }> => {
   try {
     const res = await axiosInstance.get(

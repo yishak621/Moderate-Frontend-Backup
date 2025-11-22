@@ -6,6 +6,11 @@ import { createNotificationSocket } from "@/lib/notificationSocket";
 import { Notification } from "@/types/notification.type";
 import { useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
+import { getRole } from "@/services/tokenService";
+import {
+  isAdminNotification,
+  isUserNotification,
+} from "@/utils/notificationFilters";
 
 interface UseNotificationSocketProps {
   userId?: string;
@@ -25,6 +30,9 @@ export function useNotificationSocket({
   useEffect(() => {
     if (!enabled || !userId) return;
 
+    // Get user role
+    const role = getRole() as "SYSTEM_ADMIN" | "TEACHER" | null;
+
     // Create socket connection
     const socket = createNotificationSocket();
     socketRef.current = socket;
@@ -37,6 +45,19 @@ export function useNotificationSocket({
 
     // Listen for new notifications
     socket.on("notification:new", (notification: Notification) => {
+      // Filter notifications based on role
+      if (role === "SYSTEM_ADMIN") {
+        // System admins should only receive admin notifications
+        if (!isAdminNotification(notification.type)) {
+          return; // Ignore user notifications for system admins
+        }
+      } else if (role === "TEACHER") {
+        // Teachers should only receive user notifications
+        if (!isUserNotification(notification.type)) {
+          return; // Ignore admin notifications for teachers
+        }
+      }
+
       // Invalidate queries to refetch notifications
       queryClient.invalidateQueries({ queryKey: ["notifications"] });
       queryClient.invalidateQueries({

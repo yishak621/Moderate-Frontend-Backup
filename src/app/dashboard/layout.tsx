@@ -321,14 +321,17 @@ function DashboardLayoutContent({ children }: { children: ReactNode }) {
 
   const adminRightContent = () => {
     return (
-      <div className="flex flex-row gap-4 ">
+      <div className="flex flex-row items-center gap-4 ">
         {/* 
             NOTIFICATION
             */}
-        <div className=" flex justify-center items-center cursor-pointer w-[44px] h-[44px] rounded-full bg-white relative">
-          <Bell className="w-5.5 h-5.5 text-[#0C0C0C]" />
-          <div className=" absolute bottom-0 right-0 w-[15px] h-[15px] bg-[#368FFF] rounded-full"></div>
-        </div>
+        <NotificationBellWithPanel
+          customIcon={
+            <div className="flex justify-center items-center cursor-pointer w-[44px] h-[44px] rounded-full bg-white relative">
+              <Bell className="w-5.5 h-5.5 text-[#0C0C0C]" />
+            </div>
+          }
+        />
         <div className="relative">
           <button
             type="button"

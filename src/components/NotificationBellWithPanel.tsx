@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, ReactNode } from "react";
+import { useState, useEffect, ReactNode, useMemo } from "react";
 import NotificationBell from "./NotificationBell";
 import NotificationPanel from "./NotificationPanel";
 import MobileNotificationPanel from "./MobileNotificationPanel";
@@ -8,6 +8,8 @@ import { useUserData } from "@/hooks/useUser";
 import { useNotificationSocket } from "@/hooks/useNotificationSocket";
 import { useNotifications } from "@/hooks/useNotifications";
 import { motion } from "framer-motion";
+import { getRole } from "@/services/tokenService";
+import { filterNotificationsByRole } from "@/utils/notificationFilters";
 
 interface NotificationBellWithPanelProps {
   customIcon?: ReactNode;
@@ -21,6 +23,7 @@ export default function NotificationBellWithPanel({
   const [isPanelOpen, setIsPanelOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const { user } = useUserData();
+  const role = getRole() as "SYSTEM_ADMIN" | "TEACHER" | null;
 
   // Only fetch unread notifications for count - limit to 50 to reduce payload
   const { data: notificationsData } = useNotifications({
@@ -28,7 +31,13 @@ export default function NotificationBellWithPanel({
     limit: 50, // Reduced from 100 - we only need count, not all notifications
   });
 
-  const unreadCount = notificationsData?.notifications?.length || 0;
+  // Filter notifications by role
+  const filteredNotifications = useMemo(() => {
+    if (!notificationsData?.notifications || !role) return [];
+    return filterNotificationsByRole(notificationsData.notifications, role);
+  }, [notificationsData?.notifications, role]);
+
+  const unreadCount = filteredNotifications.length;
 
   useEffect(() => {
     const checkMobile = () => {

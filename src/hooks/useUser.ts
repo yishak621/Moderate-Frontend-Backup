@@ -491,8 +491,13 @@ export const useUserSaveGrade = () => {
       toast.success("Grade saved successfully!");
       // Clear edit mode after successful save
       clearEditingGrade(variables.postId);
+      // Invalidate both single post and post feeds to refresh UI
       queryClient.invalidateQueries({
         queryKey: ["userSinglePostData"],
+        exact: false,
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["userPostFeeds"],
         exact: false,
       });
     },

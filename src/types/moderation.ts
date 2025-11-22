@@ -46,6 +46,7 @@ export interface Report {
     name: string;
     email: string;
   };
+  reportedUserActions?: AvailableActions;
 }
 
 export interface UserModeration {
@@ -67,6 +68,7 @@ export interface UserModeration {
     name: string;
     email: string;
   };
+  availableActions?: AvailableActions;
 }
 
 export interface ModerationAction {
@@ -146,4 +148,14 @@ export interface ReportStats {
   pendingReports: number;
   violationCount: number;
   lastReportDate?: string;
+}
+
+export interface AvailableActions {
+  canSuspend: boolean;
+  canBan: boolean;
+  canUnsuspend: boolean;
+  canUnban: boolean;
+  violationCount: number;
+  currentStatus: ModerationStatus;
+  hasReports: boolean;
 }

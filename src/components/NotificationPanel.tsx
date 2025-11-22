@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useMemo } from "react";
 import { X, CheckCheck, Trash2, BellOff } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -11,6 +11,8 @@ import {
 } from "@/hooks/useNotifications";
 import NotificationItem from "./NotificationItem";
 import { Notification } from "@/types/notification.type";
+import { getRole } from "@/services/tokenService";
+import { filterNotificationsByRole } from "@/utils/notificationFilters";
 
 interface NotificationPanelProps {
   isOpen: boolean;
@@ -25,17 +27,22 @@ export default function NotificationPanel({
 }: NotificationPanelProps) {
   const panelRef = useRef<HTMLDivElement>(null);
   const [filter, setFilter] = useState<"all" | "unread">("all");
+  const role = getRole() as "SYSTEM_ADMIN" | "TEACHER" | null;
 
   const { data, isLoading, refetch } = useNotifications({
     read: filter === "unread" ? false : undefined,
-    limit: 20,
+    limit: 50, // Increased to ensure we get enough notifications to filter
   });
 
   const { mutate: markAllAsRead } = useMarkAllNotificationsAsRead();
   const { mutate: deleteAllRead } = useDeleteAllReadNotifications();
   const { mutate: deleteNotification } = useDeleteNotification();
 
-  const notifications = data?.notifications || [];
+  // Filter notifications by role
+  const notifications = useMemo(() => {
+    if (!data?.notifications || !role) return [];
+    return filterNotificationsByRole(data.notifications, role);
+  }, [data?.notifications, role]);
 
   // Close on outside click
   useEffect(() => {

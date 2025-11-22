@@ -10,7 +10,19 @@ export type NotificationType =
   | "grade_updated"
   | "post_commented"
   | "comment_replied"
-  | "system_announcement";
+  | "system_announcement"
+  | "admin_moderation_warning"
+  | "admin_moderation_suspension"
+  | "admin_moderation_ban"
+  | "admin_moderation_pending_review"
+  | "admin_user_dormant"
+  | "admin_user_disabled"
+  | "admin_payment_failed"
+  | "admin_subscription_expired"
+  | "admin_support_ticket"
+  | "admin_domain_verification"
+  | "admin_system_error"
+  | "admin_user_registered";
 
 export interface Notification {
   id: string;

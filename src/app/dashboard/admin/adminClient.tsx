@@ -16,26 +16,17 @@ import {
   User,
   UserPlus,
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import CreateNewAnnouncementModal from "@/modules/dashboard/admin/modal/announcements/CreateNewAnnouncementModal";
 import { StatsCardProps } from "@/types/statusCardProps";
 import { useAdminOverviewData } from "@/hooks/UseAdminRoutes";
 import { ApiRevenueItem } from "@/types/admin.type";
 import { AnimatePresence, motion } from "framer-motion";
 import AddNewEmailDomainModal from "@/modules/dashboard/admin/modal/emailDomain/AddNewEmailDomainModal";
-
-const notifications = [
-  {
-    statusColor: "bg-green-500",
-    title: "New teacher registered: john.doe@westfield.edu",
-    time: "2 minutes ago",
-  },
-  {
-    statusColor: "bg-yellow-500",
-    title: "Assignment pending approval: math101",
-    time: "10 minutes ago",
-  },
-];
+import { useNotifications } from "@/hooks/useNotifications";
+import { useNotificationSocket } from "@/hooks/useNotificationSocket";
+import { useUserData } from "@/hooks/useUser";
+import { filterNotificationsByRole } from "@/utils/notificationFilters";
 
 const buttonData = [
   {
@@ -54,9 +45,41 @@ const buttonData = [
     component: CreateNewAnnouncementModal,
   },
 ];
+
 //--------------------------OVERVIEW DASHBOARD
 export default function AdminPage() {
   const { overview } = useAdminOverviewData();
+  const { user } = useUserData();
+
+  // Initialize notification socket for real-time updates
+  useNotificationSocket({
+    userId: user?.id,
+    enabled: !!user?.id,
+  });
+
+  // Fetch all notifications and filter for admin notifications
+  const { data: notificationsData, isLoading: notificationsLoading } =
+    useNotifications({
+      limit: 50, // Fetch more to ensure we get admin notifications
+    });
+
+  // Filter and get latest 4 admin notifications
+  const adminNotifications = useMemo(() => {
+    if (!notificationsData?.notifications) return [];
+
+    // Filter by role (SYSTEM_ADMIN) - only admin notifications
+    const filtered = filterNotificationsByRole(
+      notificationsData.notifications,
+      "SYSTEM_ADMIN"
+    );
+
+    return filtered
+      .sort(
+        (a, b) =>
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      )
+      .slice(0, 4); // Get latest 4
+  }, [notificationsData]);
   // Map revenueByMonth to chart-friendly format
   const months = [
     "Jan",
@@ -265,14 +288,38 @@ export default function AdminPage() {
 
             {/* right bottom */}
             <div className="flex flex-col gap-6  overflow-hidden">
-              {notifications.map((item, idx) => (
-                <DashboardNotificationItem
-                  key={idx}
-                  statusColor={item.statusColor}
-                  title={item.title}
-                  time={item.time}
-                />
-              ))}
+              {notificationsLoading ? (
+                <div className="flex flex-col gap-4">
+                  {[1, 2, 3, 4].map((idx) => (
+                    <div
+                      key={idx}
+                      className="flex flex-row gap-3 items-start animate-pulse"
+                    >
+                      <div className="w-[25px] h-[25px] bg-gray-200 rounded-full"></div>
+                      <div className="flex flex-col gap-2 flex-1">
+                        <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+                        <div className="h-3 bg-gray-200 rounded w-1/2"></div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : adminNotifications.length > 0 ? (
+                adminNotifications.map((notification) => (
+                  <DashboardNotificationItem
+                    key={notification.id}
+                    notification={notification}
+                  />
+                ))
+              ) : (
+                <div className="flex flex-col items-center justify-center py-8 text-center">
+                  <p className="text-[#717171] text-base font-normal">
+                    No recent activity
+                  </p>
+                  <p className="text-[#717171] text-sm font-normal mt-1">
+                    System events will appear here
+                  </p>
+                </div>
+              )}
             </div>
           </div>
         </div>

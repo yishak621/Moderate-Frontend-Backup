@@ -22,6 +22,7 @@ import { FilterButtons } from "@/components/ui/FilterButtons";
 import Post from "@/modules/dashboard/teacher/PostSection";
 import { PostAttributes } from "@/types/postAttributes";
 import CreatPostModal from "@/modules/dashboard/teacher/post/CreatPostModal";
+import SectionLoading from "@/components/SectionLoading";
 import {
   useUserOverviewStatsData,
   useUserPostFeeds,
@@ -199,15 +200,11 @@ export default function UserClient() {
 
           {/* Posts List - Scrollable */}
           <div className="space-y-4 overflow-y-auto flex-1 scrollbar-hide">
-            {!userPostFeedsData?.posts ? (
-              // Loading skeleton
-              <div className="flex flex-col gap-3 animate-pulse">
-                <div className="h-20 bg-gray-200 rounded-lg" />
-                <div className="h-20 bg-gray-200 rounded-lg" />
-                <div className="h-20 bg-gray-200 rounded-lg" />
-              </div>
-            ) : userPostFeedsData?.posts.length === 0 ? (
-              // No posts state
+            {isUserPostFeedsDataLoading ? (
+              <SectionLoading />
+            ) : !isUserPostFeedsDataLoading &&
+              userPostFeedsData?.posts.length === 0 ? (
+              // No posts state - only show after loading completes
               <div className="flex flex-col items-center justify-center py-12 px-6 bg-gray-50 border border-dashed border-gray-300 rounded-xl space-y-4">
                 <svg
                   className="w-12 h-12 text-gray-400"
@@ -328,15 +325,11 @@ export default function UserClient() {
 
         {/* Posts List */}
         <div className="space-y-4">
-          {!userPostFeedsData?.posts ? (
-            // Loading skeleton
-            <div className="flex flex-col gap-3 animate-pulse">
-              <div className="h-20 bg-gray-200 rounded-lg" />
-              <div className="h-20 bg-gray-200 rounded-lg" />
-              <div className="h-20 bg-gray-200 rounded-lg" />
-            </div>
-          ) : userPostFeedsData?.posts.length === 0 ? (
-            // No posts state
+          {isUserPostFeedsDataLoading ? (
+            <SectionLoading />
+          ) : !isUserPostFeedsDataLoading &&
+            userPostFeedsData?.posts.length === 0 ? (
+            // No posts state - only show after loading completes
             <div className="flex flex-col items-center justify-center py-12 px-6 bg-gray-50 border border-dashed border-gray-300 rounded-xl space-y-4">
               <svg
                 className="w-12 h-12 text-gray-400"

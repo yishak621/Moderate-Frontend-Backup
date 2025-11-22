@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { X, CheckCheck, Trash2, BellOff, ArrowLeft } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -10,6 +10,8 @@ import {
   useDeleteNotification,
 } from "@/hooks/useNotifications";
 import NotificationItem from "./NotificationItem";
+import { getRole } from "@/services/tokenService";
+import { filterNotificationsByRole } from "@/utils/notificationFilters";
 
 interface MobileNotificationPanelProps {
   isOpen: boolean;
@@ -21,6 +23,7 @@ export default function MobileNotificationPanel({
   onClose,
 }: MobileNotificationPanelProps) {
   const [filter, setFilter] = useState<"all" | "unread">("all");
+  const role = getRole() as "SYSTEM_ADMIN" | "TEACHER" | null;
 
   const { data, isLoading, refetch } = useNotifications({
     read: filter === "unread" ? false : undefined,
@@ -31,7 +34,11 @@ export default function MobileNotificationPanel({
   const { mutate: deleteAllRead } = useDeleteAllReadNotifications();
   const { mutate: deleteNotification } = useDeleteNotification();
 
-  const notifications = data?.notifications || [];
+  // Filter notifications by role
+  const notifications = useMemo(() => {
+    if (!data?.notifications || !role) return [];
+    return filterNotificationsByRole(data.notifications, role);
+  }, [data?.notifications, role]);
 
   // Prevent body scroll when panel is open
   useEffect(() => {
