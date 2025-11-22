@@ -18,16 +18,16 @@ import Link from "next/link";
 
 const steps = [
   {
-    title: "Domain Verification",
-    desc: "Enter your official school admin email to verify the domain.",
+    title: "eMail domain verification.",
+    desc: "Enter your school / institution / workplace email address. Your workplace admin team  will receive and email to confirm the email domain.",
   },
   {
     title: "Verification Sent",
-    desc: "A verification link has been sent to the school admin’s email. You can update it if the address is incorrect.",
+    desc: "We have sent an email containing an domain confirmation link. Once the admin team of your institution has confirmed the validity of the domain, therefore confirming your educator status, your Moderate account will be activated.",
   },
   {
     title: "Awaiting Approval",
-    desc: "We’ve received the verification. Your account will be activated once approved by the school admin.",
+    desc: "We're waiting for your workplace admin team to confirm your email domain and educator status. Your account will be activated once approved by your workplace admin.",
   },
 ];
 
@@ -198,7 +198,8 @@ export default function DomainVerification() {
           {step === 1 && (
             <div className="flex flex-col gap-3">
               <div className="text-sm text-gray-600">
-                We’ve sent a verification link to the school admin at{" "}
+                We have sent a verification link to the institution / workplace
+                admin at{" "}
                 <span className="font-medium">{schoolDomainAdminEmail}</span>.
                 You can change the email if it’s incorrect.
               </div>
@@ -248,7 +249,7 @@ export default function DomainVerification() {
               {/* Title */}
               <h3 className="text-xl font-semibold text-gray-800 mb-3">
                 {isPendingVerification
-                  ? "Awaiting Admin Verification"
+                  ? "Awaiting confirmation by your admin team."
                   : "Verification Request Received!"}
               </h3>
 
@@ -256,13 +257,16 @@ export default function DomainVerification() {
               <p className="text-gray-600 mb-6 leading-relaxed">
                 {isPendingVerification ? (
                   <>
-                    Your account is waiting for school admin verification.
-                    Please wait for your school administrator to verify your
-                    email domain before you can access the platform.
+                    Your account will be ready once your workplace admin team
+                    access the link we have sent. Please contact your admin team
+                    and inform them to check the given email address inbox for
+                    our confirmation link. There is no further actions needed.
                     <br />
                     <br />
-                    You can check your email for updates or resend the
-                    verification link if needed.
+                    Once your workplace admin team has confirmed your email
+                    domain, institution and educator status you will receive an
+                    email from us in your workplace address inviting you to
+                    login as your account will be activated and ready for you.
                   </>
                 ) : (
                   <>

@@ -183,6 +183,9 @@ export default function RegisterForm({
           error={errors?.password?.message}
           {...register("password", { required: "Password is required" })}
         />
+        <p className="text-[10px] sm:text-xs text-gray-600 bg-blue-50 border border-blue-200 rounded-lg px-2.5 py-1.5 sm:px-3 sm:py-2 -mt-4 sm:-mt-5">
+          Specify the password cannot be the same as your workplace email password.
+        </p>
         <Input
           label="Confirm Password"
           type="password"
