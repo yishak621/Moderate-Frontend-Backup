@@ -20,6 +20,7 @@ export interface ImageAnnotation {
   uploadId: string;
   xPercent: number;
   yPercent: number;
+  pageNumber?: number | null;
   createdAt: string;
   createdBy?: AnnotationUser;
   author?: AnnotationUser;
@@ -31,6 +32,7 @@ export interface CreateAnnotationPayload {
   comment: string;
   xPercent: number;
   yPercent: number;
+  pageNumber?: number | null;
 }
 
 export interface CreateAnnotationCommentPayload {

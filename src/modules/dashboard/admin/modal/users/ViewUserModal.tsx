@@ -558,6 +558,28 @@ export default function ViewUserModal({ user }: { user: User }) {
                   <Ban size={16} className="mr-1" />
                   Ban User
                 </Button>
+              ) : moderation?.status === "suspended" ? (
+                // When status is suspended, show Unsuspend and Ban buttons
+                <>
+                  <Button
+                    variant="green"
+                    onClick={() => setShowUnsuspendModal(true)}
+                    disabled={isUnsuspending}
+                    className="text-sm"
+                  >
+                    <UserCheck size={16} className="mr-1" />
+                    Unsuspend User
+                  </Button>
+                  <Button
+                    variant="red"
+                    onClick={() => setShowBanModal(true)}
+                    disabled={isBanning}
+                    className="text-sm"
+                  >
+                    <Ban size={16} className="mr-1" />
+                    Ban User
+                  </Button>
+                </>
               ) : (
                 availableActions && (
                   <>

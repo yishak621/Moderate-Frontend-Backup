@@ -102,9 +102,10 @@ export default function PlanSelectionModal({
                   🎉 30-Day Free Trial Guaranteed
                 </h3>
                 <p className="text-xs sm:text-sm text-blue-700 leading-relaxed">
-                  <strong>No charges now!</strong> Your card will only be charged
-                  after your 30-day free trial ends. Cancel anytime during the
-                  trial with no penalty. Start exploring all features risk-free.
+                  <strong>No charges now!</strong> Your card will only be
+                  charged after your 30-day free trial ends. Refer a friend and
+                  get another 30 days free! Start exploring all features
+                  risk-free.
                 </p>
               </div>
             </div>
@@ -149,14 +150,20 @@ export default function PlanSelectionModal({
             </h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
               {[
-                "Full access to all grading features",
-                "Unlimited exams and moderators",
-                "Advanced moderation tools",
-                "Priority support",
-                "Regular feature updates",
-                "Cancel anytime",
+                "Access to all features",
+                "One price tier platform for educators",
+                "Unlimited uploads",
+                "Unlimited collaboration",
+                "Unlimited access to AI Detector, Similarity and Grader tools",
+                "Unlimited smartphone app access",
+                "Seamless cross-platform functionality",
+                "Affordable monthly price compared to others",
+                "Cancel anytime. No hidden fees",
               ].map((feature, idx) => (
-                <div key={idx} className="flex items-center gap-2 text-xs sm:text-sm text-gray-700">
+                <div
+                  key={idx}
+                  className="flex items-center gap-2 text-xs sm:text-sm text-gray-700"
+                >
                   <Check className="w-4 h-4 sm:w-5 sm:h-5 text-green-600 flex-shrink-0" />
                   <span>{feature}</span>
                 </div>
@@ -197,7 +204,12 @@ export default function PlanSelectionModal({
                 </>
               ) : (
                 <>
-                  Continue with {selectedPlan === "monthly" ? "Monthly" : selectedPlan === "yearly" ? "Yearly" : "Plan"}
+                  Continue with{" "}
+                  {selectedPlan === "monthly"
+                    ? "Monthly"
+                    : selectedPlan === "yearly"
+                    ? "Yearly"
+                    : "Plan"}
                   <Zap className="w-5 h-5" />
                 </>
               )}
@@ -212,9 +224,21 @@ export default function PlanSelectionModal({
 
           {/* Security Note */}
           <div className="mt-4 sm:mt-6 text-center">
-            <div className="inline-flex items-center gap-2 text-[11px] sm:text-sm text-gray-500">
-              <Shield className="w-4 h-4" />
-              <span>Secure payment powered by Stripe. Your data is safe.</span>
+            <div className="inline-flex items-start gap-2 text-[11px] sm:text-sm text-gray-500">
+              <Shield className="w-4 h-4 flex-shrink-0 mt-0.5" />
+              <span>
+                We do not have access to or handle, store your banking data. All
+                banking details are being handled and processed by Stripe. For
+                more information please visit:{" "}
+                <a
+                  href="https://stripe.com/gb/resources/more/payment-security"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-600 hover:text-blue-800 underline"
+                >
+                  https://stripe.com/gb/resources/more/payment-security
+                </a>
+              </span>
             </div>
           </div>
         </div>
@@ -272,7 +296,12 @@ function PlanCard({
           {plan.name || (planType === "monthly" ? "Monthly" : "Yearly")}
         </h3>
         <p className="text-xs sm:text-sm text-gray-600 mb-4">
-          {plan.description || `${planType === "monthly" ? "Flexible monthly billing" : "Best value with annual billing"}`}
+          {plan.description ||
+            `${
+              planType === "monthly"
+                ? "Flexible monthly billing"
+                : "Best value with annual billing"
+            }`}
         </p>
       </div>
 
@@ -294,15 +323,18 @@ function PlanCard({
         )}
         <div className="mt-2">
           <span className="text-sm sm:text-base text-blue-600 font-medium">
-            ✓ 30 days free trial
+            ✓ 30 days free trial and another 30 days free if you refer a friend
           </span>
         </div>
       </div>
 
       {plan.features && plan.features.length > 0 && (
         <div className="space-y-2 sm:space-y-3 mt-4">
-          {plan.features.slice(0, 3).map((feature, idx) => (
-            <div key={idx} className="flex items-start gap-2 text-sm sm:text-base text-gray-700">
+          {plan.features.map((feature, idx) => (
+            <div
+              key={idx}
+              className="flex items-start gap-2 text-sm sm:text-base text-gray-700"
+            >
               <Check className="w-4 h-4 sm:w-5 sm:h-5 text-green-600 flex-shrink-0 mt-0.5" />
               <span>{feature}</span>
             </div>
@@ -312,4 +344,3 @@ function PlanCard({
     </div>
   );
 }
-

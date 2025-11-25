@@ -35,6 +35,7 @@ import { useGradeEditStore } from "@/store/gradeEditStore";
 import UserActionsMenu from "@/components/UserActionsMenu";
 import ImageViewer from "@/components/ui/ImageViewer";
 import ImageAnnotationOverlay from "@/components/ImageAnnotationOverlay";
+import PdfAnnotationOverlay from "@/components/PdfAnnotationOverlay";
 
 export default function PostViewClient() {
   const params = useParams();
@@ -115,6 +116,7 @@ export default function PostViewClient() {
           (c: any) => c.commentedBy === currentUserGrade.gradedBy
         );
         const commentId = commentObj?.id;
+        console.log(commentId,commentObj,'comment')
 
         switch (gradeType) {
           case "numeric":
@@ -168,7 +170,7 @@ export default function PostViewClient() {
         }
       })()
     : {};
-
+console.log(existingGradeData,'existinguserdata')
   const currentUserCommentId = (existingGradeData as any)?.commentId as
     | string
     | undefined;
@@ -438,12 +440,17 @@ export default function PostViewClient() {
               {/* Image container */}
               <div className="relative bg-gray-100 w-full rounded-3xl flex items-center justify-center overflow-hidden">
                 {/* File content */}
-                {ext === "pdf" || !currentFile ? (
-                  <iframe
-                    src={`${ensureHttps(currentFile || "")}#toolbar=0`}
-                    className="w-full h-[80vh]"
-                    loading="lazy"
-                    allow="fullscreen"
+                {!currentFile ? (
+                  <div className="flex items-center justify-center w-full h-[80vh] text-sm text-gray-500">
+                    File preview unavailable.
+                  </div>
+                ) : ext === "pdf" ? (
+                  <PdfAnnotationOverlay
+                    postId={postId}
+                    uploadId={currentUploadId}
+                    fileUrl={ensureHttps(currentFile)}
+                    canCreateAnnotations={canCreateImageAnnotations}
+                    variant="desktop"
                   />
                 ) : (
                   <ImageAnnotationOverlay

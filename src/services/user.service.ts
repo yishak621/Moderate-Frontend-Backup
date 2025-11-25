@@ -385,6 +385,7 @@ export const deleteFileApi = async (id: string) => {
 //-------------------SAVE /UPDATE USER GRADE AND COMMENT
 
 export const saveUserGrade = async (postId: string, data: GradeData) => {
+  console.log(data,'coomentdata')
   try {
     // If gradeId exists, use PUT to update, otherwise POST to create
     const method = data.gradeId ? "patch" : "post";

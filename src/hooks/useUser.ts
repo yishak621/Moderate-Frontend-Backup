@@ -491,13 +491,20 @@ export const useUserSaveGrade = () => {
       toast.success("Grade saved successfully!");
       // Clear edit mode after successful save
       clearEditingGrade(variables.postId);
-      // Invalidate both single post and post feeds to refresh UI
+      // Invalidate all post-related queries to refresh UI and show edit/delete buttons
       queryClient.invalidateQueries({
         queryKey: ["userSinglePostData"],
         exact: false,
       });
       queryClient.invalidateQueries({
+        queryKey: ["userSinglePostData", variables.postId],
+      });
+      queryClient.invalidateQueries({
         queryKey: ["userPostFeeds"],
+        exact: false,
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["userMyPostsFeeds"],
         exact: false,
       });
     },
@@ -532,8 +539,20 @@ export const useUserDeleteGrade = () => {
         toast.success("Grade deleted successfully!");
         // Clear edit mode after successful deletion
         clearEditingGrade(variables.postId);
+        // Invalidate all post-related queries to refresh UI
         queryClient.invalidateQueries({
           queryKey: ["userSinglePostData"],
+          exact: false,
+        });
+        queryClient.invalidateQueries({
+          queryKey: ["userSinglePostData", variables.postId],
+        });
+        queryClient.invalidateQueries({
+          queryKey: ["userPostFeeds"],
+          exact: false,
+        });
+        queryClient.invalidateQueries({
+          queryKey: ["userMyPostsFeeds"],
           exact: false,
         });
       },

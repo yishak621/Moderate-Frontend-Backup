@@ -46,6 +46,7 @@ import { User } from "@/app/types/user";
 import UserActionsMenu from "@/components/UserActionsMenu";
 import ImageViewer from "@/components/ui/ImageViewer";
 import ImageAnnotationOverlay from "@/components/ImageAnnotationOverlay";
+import PdfAnnotationOverlay from "@/components/PdfAnnotationOverlay";
 
 interface MobilePostViewProps {
   post: PostType & {
@@ -518,12 +519,17 @@ export default function MobilePostView({
                 {/* Image container */}
                 <div className="relative bg-gray-100 rounded-[24.5px] overflow-hidden">
                   {/* File Viewer */}
-                  {ext === "pdf" || !currentFile ? (
-                    <iframe
-                      src={`${ensureHttps(currentFile || "")}#toolbar=0`}
-                      className="w-full h-[60vh] rounded-[24.5px]"
-                      loading="lazy"
-                      allow="fullscreen"
+                  {!currentFile ? (
+                    <div className="flex items-center justify-center w-full h-[60vh] text-sm text-gray-500">
+                      File preview unavailable.
+                    </div>
+                  ) : ext === "pdf" ? (
+                    <PdfAnnotationOverlay
+                      postId={postId}
+                      uploadId={currentUploadId}
+                      fileUrl={ensureHttps(currentFile)}
+                      canCreateAnnotations={canCreateImageAnnotations}
+                      variant="mobile"
                     />
                   ) : (
                     <ImageAnnotationOverlay
