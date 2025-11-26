@@ -82,7 +82,7 @@ export default function SystemAdminsPanel() {
                 <div className="h-3 w-2/3 rounded bg-gray-200" />
               </div>
             ))
-          : admins.map((admin) => (
+          : admins.map((admin: any) => (
               <div
                 key={admin.id}
                 className="rounded-2xl border border-gray-200 bg-white p-4 flex flex-col gap-4 hover:border-blue-200 transition-colors"
