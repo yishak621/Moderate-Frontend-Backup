@@ -57,7 +57,7 @@ export default function ForgotPasswordForm({ showHeader = true }: { showHeader?:
   if (isSuccess) {
     return (
       <div className="flex items-center justify-center min-h-screen ">
-        <div className="bg-white  rounded-2xl shadow-lg p-8 max-w-md w-full text-center">
+        <div className="bg-white  rounded-2xl shadow-lg p-8 max-w-[577px] w-full text-center">
           <CheckCircle2 className="mx-auto text-green-500 w-16 h-16 mb-4" />
           <h2 className="text-2xl font-semibold text-gray-900 ">
             Password Reset Link Sent
@@ -94,7 +94,7 @@ export default function ForgotPasswordForm({ showHeader = true }: { showHeader?:
       bg-[#fdfdfd]
       px-6 py-8 sm:px-8 sm:py-10 lg:px-10 lg:py-12
       rounded-[20px] sm:rounded-[24px]
-      w-full max-w-md mx-auto
+      w-full max-w-[577px] mx-auto
       flex flex-col gap-6 sm:gap-7
       shadow-lg
       border border-gray-100

@@ -21,6 +21,7 @@ import {
   getAllPlans,
   getAllSiteSettings,
   getAllUsers,
+  getSystemAdmins,
   updateAnnouncment,
   updateCurricularArea,
   updateEmailDomain,
@@ -52,6 +53,36 @@ export function useAdminOverviewData() {
     isSuccess,
     isError,
     error,
+  };
+}
+
+// SYSTEM ADMINS LIST
+export function useSystemAdmins(
+  page: number,
+  limit: number,
+  search: string = ""
+) {
+  const [debouncedSearch, setDebouncedSearch] = useState(search);
+
+  useEffect(() => {
+    const handler = setTimeout(() => setDebouncedSearch(search), 500);
+    return () => clearTimeout(handler);
+  }, [search]);
+
+  const query = useQuery({
+    queryKey: ["systemAdmins", page, limit, debouncedSearch],
+    queryFn: () => getSystemAdmins(page, limit, debouncedSearch),
+    placeholderData: (prev) => prev,
+    staleTime: 2 * 60 * 1000,
+  });
+
+  return {
+    admins: query.data?.admins ?? [],
+    meta: query.data?.meta,
+    isLoading: query.isPending,
+    isSuccess: query.isSuccess,
+    isError: query.isError,
+    error: query.error,
   };
 }
 

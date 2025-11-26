@@ -73,7 +73,7 @@ export default function ResetPasswordForm() {
       sm:px-8 sm:py-10             
       lg:px-10 lg:py-12            
       rounded-[20px] sm:rounded-[24px]
-      w-full max-w-md mx-auto
+      w-full max-w-[577px] mx-auto
       flex flex-col gap-6 sm:gap-7
       shadow-lg
       border border-gray-100

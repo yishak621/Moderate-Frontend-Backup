@@ -5,7 +5,7 @@ import { CheckCircle2 } from "lucide-react";
 export default function PasswordResetSent() {
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-50 ">
-      <div className="bg-white  rounded-2xl shadow-lg p-8 max-w-md w-full text-center">
+      <div className="bg-white  rounded-2xl shadow-lg p-8 max-w-[577px] w-full text-center">
         <CheckCircle2 className="mx-auto text-green-500 w-16 h-16 mb-4" />
         <h2 className="text-2xl font-semibold text-gray-900 ">
           Password Reset Link Sent

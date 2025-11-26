@@ -57,13 +57,11 @@ export default function RegisterForm({
   } = useSignup();
 
   const onSubmit = async (data: SignupFormDataTypes) => {
-    // Check if user has agreed to terms
     if (!hasAgreedToTerms) {
       toast.error("Please agree to the terms and conditions to continue");
       return;
     }
 
-    // Store form data and show plan selection modal
     setPendingFormData(data);
     setIsPlanModalOpen(true);
   };
@@ -72,7 +70,6 @@ export default function RegisterForm({
     if (!pendingFormData) return;
 
     try {
-      // Add plan to form data
       const registrationData = {
         ...pendingFormData,
         plan,
@@ -80,18 +77,15 @@ export default function RegisterForm({
 
       const res = await signupAsync(registrationData);
 
-      // Close modal
       setIsPlanModalOpen(false);
 
-      // Check if registration returned a checkout URL (Stripe subscription setup)
       if (res?.checkoutUrl) {
         toast.success("Redirecting to payment setup...");
-        // Redirect to Stripe Checkout
+
         window.location.href = res.checkoutUrl;
         return;
       }
 
-      // If no checkout URL, proceed with email verification flow
       toast.success("Registered successfully!");
     } catch (err: any) {
       console.log("RAW ERROR:", err);
@@ -111,8 +105,6 @@ export default function RegisterForm({
   };
 
   useEffect(() => {
-    // Only redirect to verify-email if registration succeeded without checkout URL
-    // (checkout URL redirects happen immediately in onSubmit, so this handles legacy flow)
     if (isSuccess && user && !user?.checkoutUrl) {
       router.push("/auth/verify-email");
     }
@@ -125,7 +117,7 @@ export default function RegisterForm({
       bg-[#fdfdfd]
       px-6 py-8 sm:px-8 sm:py-10 lg:px-10 lg:py-12
       rounded-[20px] sm:rounded-[24px]
-      w-full max-w-md mx-auto
+      w-full max-w-[577px] mx-auto
       flex flex-col gap-6 sm:gap-7
       shadow-lg
       border border-gray-100
@@ -156,6 +148,12 @@ export default function RegisterForm({
               required but won&apos;t be charged until trial ends.
             </p>
           </div>
+          <div className="mt-2 px-4 py-2 bg-green-50 border border-green-200 rounded-lg">
+            <p className="text-xs sm:text-sm text-green-700">
+              🙌 Refer a friend and get an extra{" "}
+              <span className="font-semibold">30 days free</span>.
+            </p>
+          </div>
         </div>
       )}
 
@@ -184,7 +182,7 @@ export default function RegisterForm({
           {...register("password", { required: "Password is required" })}
         />
         <p className="text-[10px] sm:text-xs text-gray-600 bg-blue-50 border border-blue-200 rounded-lg px-2.5 py-1.5 sm:px-3 sm:py-2 -mt-4 sm:-mt-5">
-          Specify the password cannot be the same as your workplace email password.
+          The password cannot be the same as your workplace email password.
         </p>
         <Input
           label="Confirm Password"

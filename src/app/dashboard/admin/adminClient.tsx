@@ -6,6 +6,7 @@ import DashboardNotificationItem from "@/modules/dashboard/admin/DashboardNotifi
 import RevenueChart from "@/modules/dashboard/admin/RevenueChart";
 import DashboardButton from "@/modules/dashboard/DashboardButton";
 import StatsCard from "@/modules/dashboard/StatsCards";
+import SystemAdminsPanel from "@/modules/dashboard/admin/SystemAdminsPanel";
 import {
   ChevronDown,
   Download,
@@ -343,6 +344,7 @@ export default function AdminPage() {
           </Modal>
         </div>
       </div>
+      <SystemAdminsPanel />
     </div>
   );
 }

@@ -70,6 +70,44 @@ export const getAllUsers = async (
   }
 };
 
+//-------------------GET SYSTEM ADMINS
+export const getSystemAdmins = async (
+  page: number = 1,
+  limit: number = 12,
+  search: string = ""
+) => {
+  try {
+    const params = new URLSearchParams({
+      page: page.toString(),
+      limit: limit.toString(),
+    });
+    if (search) params.append("search", search);
+
+    const res = await axiosInstance.get(
+      `/api/system/admins?${params.toString()}`
+    );
+
+    if (!res) {
+      throw new Error("No response from server");
+    }
+
+    return res.data;
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error(error);
+      throw new Error(
+        // @ts-expect-error: might be Axios error with response
+        error?.response?.data?.message ||
+          error.message ||
+          "Something went wrong"
+      );
+    } else {
+      console.error("Unknown error", error);
+      throw new Error("Something went wrong");
+    }
+  }
+};
+
 //-------------------CREATE NEW USER
 export const createNewUser = async (data: SignupFormDataTypes) => {
   try {
