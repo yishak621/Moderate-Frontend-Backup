@@ -1,8 +1,10 @@
 "use client";
 
-import { useState, ChangeEvent, DragEvent } from "react";
-import { UploadCloud, Trash } from "lucide-react";
+import { useState, ChangeEvent, DragEvent, useRef } from "react";
+import { UploadCloud, Camera } from "lucide-react";
+import toast from "react-hot-toast";
 import { useUserRemoveUploadedFile, useUserUploadFile } from "@/hooks/useUser";
+import Button from "@/components/ui/Button";
 
 interface UploadedFile {
   id: string;
@@ -35,6 +37,8 @@ export default function FileUploader({
   const [uploadingFiles, setUploadingFiles] = useState<Set<string>>(new Set());
   const { uploadFileAsync } = useUserUploadFile();
   const { deleteFileAsync } = useUserRemoveUploadedFile();
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const cameraInputRef = useRef<HTMLInputElement | null>(null);
 
   const handleFiles = async (selectedFiles: FileList | null) => {
     if (!selectedFiles?.length) return;
@@ -77,7 +81,8 @@ export default function FileUploader({
         onUploadIdsChange?.(updatedFiles.map((f) => f.id));
         onFilesChange?.(updatedFiles);
       } catch (err) {
-        alert(`Failed to upload ${file.name}`);
+        console.error(err);
+        toast.error(`Failed to upload ${file.name}`);
         setFiles((prev) => prev.filter((f) => f.id !== fileId));
         setUploadingFiles((prev) => {
           const copy = new Set(prev);
@@ -101,7 +106,7 @@ export default function FileUploader({
       onFilesChange?.(updated);
     } catch (err) {
       console.error(err);
-      alert("Failed to delete file");
+      toast.error("Failed to delete file");
     } finally {
       onLoadingChange?.(false);
     }
@@ -113,20 +118,16 @@ export default function FileUploader({
   };
 
   return (
-    <div className="w-full">
-      {/* Upload Box */}
-      <div
-        onDrop={handleDrop}
-        onDragOver={(e) => e.preventDefault()}
-        className="flex flex-col items-center justify-center gap-2 border-2 border-dashed border-gray-300 rounded-2xl py-8 px-6 cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition"
-      >
-        <UploadCloud size={28} className="text-blue-500" />
-        <p className="text-base font-medium text-gray-900">{label}</p>
-        <p className="text-sm text-gray-500">
-          Drag & drop or click to upload files
-        </p>
-
+    <div
+      className="w-full space-y-3"
+      onDrop={handleDrop}
+      onDragOver={(e) => e.preventDefault()}
+    >
+      <div className="space-y-2">
+        {label && <p className="text-sm font-medium text-gray-900">{label}</p>}
+        {/* Hidden inputs */}
         <input
+          ref={fileInputRef}
           type="file"
           accept={accept}
           multiple={multiple}
@@ -134,15 +135,51 @@ export default function FileUploader({
             handleFiles(e.target.files)
           }
           className="hidden"
-          id="fileInput"
+        />
+        <input
+          ref={cameraInputRef}
+          type="file"
+          accept={accept}
+          multiple={false}
+          capture="environment"
+          onChange={(e: ChangeEvent<HTMLInputElement>) =>
+            handleFiles(e.target.files)
+          }
+          className="hidden"
         />
 
-        <label
-          htmlFor="fileInput"
-          className="mt-2 px-4 py-2 bg-blue-600 text-white text-sm rounded-lg cursor-pointer hover:bg-blue-700 transition"
-        >
-          Choose File
-        </label>
+        {/* Primary actions – mobile-first, full width */}
+        <div className="flex flex-col sm:flex-row w-full gap-2">
+          <Button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            className="w-full justify-center h-11 sm:h-12 text-sm sm:text-base cursor-pointer transition"
+          >
+            <UploadCloud className="w-4 h-4 mr-2" />
+            Upload file
+          </Button>
+          <Button
+            type="button"
+            variant="secondary"
+            onClick={() => cameraInputRef.current?.click()}
+            className="w-full justify-center h-11 sm:h-12 text-sm sm:text-base cursor-pointer transition"
+          >
+            <Camera className="w-4 h-4 mr-2" />
+            Take photo
+          </Button>
+        </div>
+
+        <p className="text-xs sm:text-[13px] text-gray-500 text-center sm:text-left">
+          Images or PDFs, up to 20MB. On mobile you can capture a new photo.
+        </p>
+
+        {/* Optional drag & drop hint for larger screens */}
+        <div className="hidden md:flex items-center gap-2 text-[13px] text-gray-500">
+          <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-blue-50 text-blue-600 text-xs">
+            <UploadCloud className="w-3 h-3" />
+          </span>
+          <span>Tip: You can also drag & drop files here on desktop.</span>
+        </div>
       </div>
 
       {/* Uploading indicator */}

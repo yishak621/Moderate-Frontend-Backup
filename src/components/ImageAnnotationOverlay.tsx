@@ -65,6 +65,8 @@ export default function ImageAnnotationOverlay({
   const [replyValue, setReplyValue] = useState("");
   const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
   const [editCommentValue, setEditCommentValue] = useState("");
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [commentToDeleteId, setCommentToDeleteId] = useState<string | null>(null);
 
   const shouldLoadAnnotations =
     !!postId && !!uploadId && !annotationAccessDenied;
@@ -262,15 +264,21 @@ export default function ImageAnnotationOverlay({
     }
   };
 
-  const handleDeleteComment = async (commentId: string) => {
-    if (!selectedAnnotationId || !commentId) return;
-    if (!confirm("Are you sure you want to delete this comment?")) return;
+  const handleDeleteComment = (commentId: string) => {
+    setCommentToDeleteId(commentId);
+    setIsDeleteModalOpen(true);
+  };
+
+  const confirmDeleteComment = async () => {
+    if (!selectedAnnotationId || !commentToDeleteId) return;
     try {
       await deleteAnnotationComment({
         annotationId: selectedAnnotationId,
-        commentId,
+        commentId: commentToDeleteId,
       });
       toast.success("Comment deleted");
+      setCommentToDeleteId(null);
+      setIsDeleteModalOpen(false);
     } catch (error) {
       const axiosError = error as AxiosError | undefined;
       if (axiosError?.response?.status === 403) {
@@ -716,6 +724,54 @@ export default function ImageAnnotationOverlay({
           </>
         )}
       </div>
+
+      <ResponsiveModal
+        isOpen={isDeleteModalOpen}
+        onOpenChange={(open) => {
+          setIsDeleteModalOpen(open);
+          if (!open) {
+            setCommentToDeleteId(null);
+          }
+        }}
+        title="Delete comment?"
+        nested
+        zIndex={200}
+      >
+        <div className="p-4 sm:p-5 space-y-4 bg-[#f6f6f6] rounded-2xl">
+          <p className="text-sm text-gray-600">
+            This comment and its thread will be permanently removed. Are you sure
+            you want to continue?
+          </p>
+          <div className="flex justify-end gap-2">
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={() => {
+                setIsDeleteModalOpen(false);
+                setCommentToDeleteId(null);
+              }}
+              className="h-10 px-4 text-sm"
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              onClick={confirmDeleteComment}
+              disabled={isDeletingComment}
+              className="h-10 px-4 text-sm bg-red-600 hover:bg-red-700 disabled:opacity-60"
+            >
+              {isDeletingComment ? (
+                <span className="inline-flex items-center gap-2">
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Deleting...
+                </span>
+              ) : (
+                "Delete"
+              )}
+            </Button>
+          </div>
+        </div>
+      </ResponsiveModal>
 
       <style jsx>{`
         .annotation-thread-scroll {

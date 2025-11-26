@@ -13,6 +13,7 @@ import SectionHeader from "@/components/SectionHeader";
 import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
 import Modal from "@/components/ui/Modal";
+import ResponsiveModal from "@/components/ui/ResponsiveModal";
 import {
   useUpdateUserData,
   useUserData,
@@ -43,6 +44,7 @@ export default function AdminProfileClient() {
 
   const [isDeleteAccountModalOpen, setIsDeleteAccountModalOpen] =
     useState(false);
+  const [isDeletePhotoModalOpen, setIsDeletePhotoModalOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   //react hook form
@@ -103,17 +105,16 @@ export default function AdminProfileClient() {
   };
 
   // Handle profile picture delete
-  const handleDeleteProfilePicture = async () => {
+  const handleDeleteProfilePicture = () => {
     if (!user?.profilePictureUrl) return;
+    setIsDeletePhotoModalOpen(true);
+  };
 
-    if (
-      !window.confirm("Are you sure you want to delete your profile picture?")
-    ) {
-      return;
-    }
-
+  const confirmDeleteProfilePicture = async () => {
+    if (!user?.profilePictureUrl) return;
     try {
       await deleteProfilePictureAsync();
+      setIsDeletePhotoModalOpen(false);
     } catch (err) {
       if (err instanceof Error) {
         toast.error(err.message);
@@ -340,6 +341,64 @@ export default function AdminProfileClient() {
           </Button>
         </div>
       </div>
+
+      {/* Delete Photo Modal */}
+      <ResponsiveModal
+        isOpen={isDeletePhotoModalOpen}
+        onOpenChange={(open) => setIsDeletePhotoModalOpen(open)}
+        title="Remove profile picture?"
+        nested
+        zIndex={200}
+      >
+        <div className="p-4 sm:p-5 space-y-4 bg-[#f6f6f6] rounded-2xl">
+          <p className="text-sm text-gray-600">
+            This will permanently remove your photo from your profile. Are you
+            sure you want to continue?
+          </p>
+          <div className="flex justify-end gap-2">
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={() => setIsDeletePhotoModalOpen(false)}
+              className="h-10 px-4 text-sm"
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              onClick={confirmDeleteProfilePicture}
+              disabled={isDeletingProfilePictureLoading}
+              className="h-10 px-4 text-sm bg-red-600 hover:bg-red-700 disabled:opacity-60"
+            >
+              {isDeletingProfilePictureLoading ? (
+                <span className="inline-flex items-center gap-2">
+                  <svg
+                    className="h-4 w-4 animate-spin text-white"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8v4l3-3-3-3v4a12 12 0 00-12 12h4z"
+                    ></path>
+                  </svg>
+                  Deleting...
+                </span>
+              ) : (
+                "Delete"
+              )}
+            </Button>
+          </div>
+        </div>
+      </ResponsiveModal>
 
       {/* Delete Account Modal */}
       <Modal
