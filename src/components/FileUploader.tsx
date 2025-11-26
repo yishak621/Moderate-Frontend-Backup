@@ -118,11 +118,7 @@ export default function FileUploader({
   };
 
   return (
-    <div
-      className="w-full space-y-3"
-      onDrop={handleDrop}
-      onDragOver={(e) => e.preventDefault()}
-    >
+    <div className="w-full space-y-3">
       <div className="space-y-2">
         {label && <p className="text-sm font-medium text-gray-900">{label}</p>}
         {/* Hidden inputs */}
@@ -148,8 +144,8 @@ export default function FileUploader({
           className="hidden"
         />
 
-        {/* Primary actions – mobile-first, full width */}
-        <div className="flex flex-col sm:flex-row w-full gap-2">
+        {/* Mobile-first primary actions – full width on small screens */}
+        <div className="flex flex-col sm:flex-row w-full gap-2 md:hidden">
           <Button
             type="button"
             onClick={() => fileInputRef.current?.click()}
@@ -169,17 +165,23 @@ export default function FileUploader({
           </Button>
         </div>
 
+        {/* Desktop drag & drop card (original experience) */}
+        <div
+          className="hidden md:flex flex-col items-center justify-center gap-2 border-2 border-dashed border-gray-300 rounded-2xl py-8 px-6 cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition"
+          onDrop={handleDrop}
+          onDragOver={(e) => e.preventDefault()}
+          onClick={() => fileInputRef.current?.click()}
+        >
+          <UploadCloud size={28} className="text-blue-500" />
+          <p className="text-base font-medium text-gray-900">{label}</p>
+          <p className="text-sm text-gray-500">
+            Drag & drop or click to upload files
+          </p>
+        </div>
+
         <p className="text-xs sm:text-[13px] text-gray-500 text-center sm:text-left">
           Images or PDFs, up to 20MB. On mobile you can capture a new photo.
         </p>
-
-        {/* Optional drag & drop hint for larger screens */}
-        <div className="hidden md:flex items-center gap-2 text-[13px] text-gray-500">
-          <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-blue-50 text-blue-600 text-xs">
-            <UploadCloud className="w-3 h-3" />
-          </span>
-          <span>Tip: You can also drag & drop files here on desktop.</span>
-        </div>
       </div>
 
       {/* Uploading indicator */}
