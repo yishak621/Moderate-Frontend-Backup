@@ -95,7 +95,9 @@ export default function PdfAnnotationOverlay({
   const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
   const [editCommentValue, setEditCommentValue] = useState("");
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [commentToDeleteId, setCommentToDeleteId] = useState<string | null>(null);
+  const [commentToDeleteId, setCommentToDeleteId] = useState<string | null>(
+    null
+  );
   const [numPages, setNumPages] = useState(0);
   const [documentError, setDocumentError] = useState<string | null>(null);
   const [isDocumentLoading, setIsDocumentLoading] = useState(true);
@@ -130,11 +132,21 @@ export default function PdfAnnotationOverlay({
         viewerWidth ||
         viewerRef.current?.clientWidth ||
         baseViewport.width;
-      const scale = Math.max(parentWidth / baseViewport.width, 0.1);
-      const viewport = page.getViewport({ scale });
+
+      const devicePixelRatio =
+        typeof window !== "undefined" && window.devicePixelRatio
+          ? window.devicePixelRatio
+          : 1;
+
+      const cssScale = Math.max(parentWidth / baseViewport.width, 0.1);
+      const viewport = page.getViewport({
+        scale: cssScale * devicePixelRatio,
+      });
 
       canvas.width = viewport.width;
       canvas.height = viewport.height;
+      canvas.style.width = `${viewport.width / devicePixelRatio}px`;
+      canvas.style.height = `${viewport.height / devicePixelRatio}px`;
       context.clearRect(0, 0, canvas.width, canvas.height);
 
       await page.render({
@@ -443,7 +455,7 @@ export default function PdfAnnotationOverlay({
         : selectedAnnotation.comments || [];
 
     const body = (
-      <div className="flex flex-col h-full z-[60]">
+      <div className="flex flex-col h-full z-60">
         {variant === "desktop" && (
           <div className="flex items-center justify-between mb-3">
             <div>
@@ -569,7 +581,7 @@ export default function PdfAnnotationOverlay({
                         </div>
                       </div>
                     ) : (
-                      <p className="text-sm text-[#374151] whitespace-pre-wrap mt-0.5 break-words">
+                      <p className="text-sm text-[#374151] whitespace-pre-wrap mt-0.5 wrap-break-word">
                         {comment.comment}
                       </p>
                     )}
@@ -632,7 +644,7 @@ export default function PdfAnnotationOverlay({
     }
 
     return (
-      <div className="absolute top-4 right-4 z-[100] w-full max-w-xs lg:max-w-sm bg-white shadow-2xl rounded-2xl border border-gray-100 p-4 max-h-[70vh] flex flex-col overflow-visible">
+      <div className="absolute top-4 right-4 z-100 w-full max-w-xs lg:max-w-sm bg-white shadow-2xl rounded-2xl border border-gray-100 p-4 max-h-[70vh] flex flex-col overflow-visible">
         {body}
       </div>
     );
@@ -720,8 +732,12 @@ export default function PdfAnnotationOverlay({
             else setIsDraftPinModalOpen(open);
           }}
           title="Add Moderation Comment"
+          nested
+          zIndex={220}
         >
-          <div className="p-3 sm:p-4">{draftPinContent}</div>
+          <div className="p-3 sm:p-4 bg-[#f6f6f6] rounded-2xl">
+            {draftPinContent}
+          </div>
         </ResponsiveModal>
       );
     }
@@ -742,7 +758,7 @@ export default function PdfAnnotationOverlay({
     return (
       <div
         ref={draftPinBoxRef}
-        className="absolute z-[100]"
+        className="absolute z-100"
         style={{
           left: `${draftPin.xPercent}%`,
           top: `${draftPin.yPercent}%`,
@@ -783,6 +799,12 @@ export default function PdfAnnotationOverlay({
             }
             onClick={(event) => {
               event.stopPropagation();
+              // On mobile, if the draft comment bottom sheet is open,
+              // ignore background taps so we don't immediately reopen a new pin.
+              if (variant === "mobile" && isDraftPinModalOpen) {
+                return;
+              }
+
               if (isPlacementEnabled || draftPin) {
                 handlePageClick(event, pageNumber);
               }
@@ -811,13 +833,16 @@ export default function PdfAnnotationOverlay({
                   </span>
                   <span
                     className={clsx(
-                      "flex items-center justify-center w-7 h-7 rounded-full shadow-lg border text-xs font-semibold",
+                      "flex items-center justify-center rounded-full shadow-lg border text-xs font-semibold",
+                      variant === "mobile" ? "w-9 h-9" : "w-7 h-7",
                       isActive
                         ? "bg-[#1D4ED8] text-white border-[#1D4ED8]"
                         : "bg-white text-[#1D4ED8] border-white"
                     )}
                   >
-                    <MessageCircle className="w-4 h-4" />
+                    <MessageCircle
+                      className={variant === "mobile" ? "w-5 h-5" : "w-4 h-4"}
+                    />
                   </span>
                 </button>
               );
@@ -847,6 +872,19 @@ export default function PdfAnnotationOverlay({
           )}
         >
           <div className="px-2 sm:px-4 py-4 max-h-[90vh] overflow-y-auto">
+            {variant === "mobile" && !documentError && (
+              <div className="mb-3 rounded-2xl border border-gray-200 bg-white/90 px-3 py-2 shadow-sm">
+                <p className="text-[11px] font-medium text-gray-900 mb-0.5">
+                  Adding annotation comments
+                </p>
+                <p className="text-[11px] text-gray-600 leading-snug">
+                  Pinch to zoom the PDF, then tap the exact spot on the page to
+                  drop your comment pin. You&apos;ll see a preview pin before
+                  saving.
+                </p>
+              </div>
+            )}
+
             {documentError && (
               <div className="flex flex-col items-center justify-center py-10 text-center text-sm text-red-500">
                 <p>{documentError}</p>

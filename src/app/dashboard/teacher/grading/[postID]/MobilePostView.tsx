@@ -78,6 +78,7 @@ export default function MobilePostView({
     useState<React.ComponentType<any> | null>(null);
   const [modalProps, setModalProps] = useState<Record<string, any>>({});
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isPdfFullScreenOpen, setIsPdfFullScreenOpen] = useState(false);
 
   const postData = post as any;
 
@@ -351,7 +352,7 @@ export default function MobilePostView({
                         <span className="shrink-0 w-5 h-5 flex items-center justify-center">
                           <Edit3 size={18} />
                         </span>
-                        <span className="flex-1 text-left leading-snug break-words">
+                        <span className="flex-1 text-left leading-snug wrap-break-word">
                           Edit Post
                         </span>
                       </button>
@@ -362,7 +363,7 @@ export default function MobilePostView({
                         <span className="shrink-0 w-5 h-5 flex items-center justify-center">
                           <BarChart3 size={18} />
                         </span>
-                        <span className="flex-1 text-left leading-snug break-words">
+                        <span className="flex-1 text-left leading-snug wrap-break-word">
                           View Stats
                         </span>
                       </button>
@@ -373,7 +374,7 @@ export default function MobilePostView({
                         <span className="shrink-0 w-5 h-5 flex items-center justify-center">
                           <Trash2 size={18} />
                         </span>
-                        <span className="flex-1 text-left leading-snug break-words">
+                        <span className="flex-1 text-left leading-snug wrap-break-word">
                           Delete Post
                         </span>
                       </button>
@@ -389,7 +390,7 @@ export default function MobilePostView({
                           <span className="shrink-0 w-5 h-5 flex items-center justify-center">
                             <UserPlus size={18} />
                           </span>
-                          <span className="flex-1 text-left leading-snug break-words">
+                          <span className="flex-1 text-left leading-snug wrap-break-word">
                             {isFollowingAuthor ? "Unfollow" : "Follow"}{" "}
                             {author?.name?.split(" ")[0] || "User"}
                           </span>
@@ -402,7 +403,7 @@ export default function MobilePostView({
                         <span className="shrink-0 w-5 h-5 flex items-center justify-center">
                           <MessagesSquare size={18} />
                         </span>
-                        <span className="flex-1 text-left leading-snug break-words">
+                        <span className="flex-1 text-left leading-snug wrap-break-word">
                           Message {author?.name?.split(" ")[0] || "User"}
                         </span>
                       </button>
@@ -413,7 +414,7 @@ export default function MobilePostView({
                         <span className="shrink-0 w-5 h-5 flex items-center justify-center">
                           <Flag size={18} />
                         </span>
-                        <span className="flex-1 text-left leading-snug break-words">
+                        <span className="flex-1 text-left leading-snug wrap-break-word">
                           Report Flag User
                         </span>
                       </button>
@@ -524,13 +525,25 @@ export default function MobilePostView({
                       File preview unavailable.
                     </div>
                   ) : ext === "pdf" ? (
-                    <PdfAnnotationOverlay
-                      postId={postId}
-                      uploadId={currentUploadId}
-                      fileUrl={ensureHttps(currentFile)}
-                      canCreateAnnotations={canCreateImageAnnotations}
-                      variant="mobile"
-                    />
+                    <>
+                      <div className="absolute top-3 right-3 z-20">
+                        <button
+                          type="button"
+                          onClick={() => setIsPdfFullScreenOpen(true)}
+                          className="rounded-full bg-black/60 text-white text-[11px] px-3 py-1.5 flex items-center gap-1 shadow-md active:scale-95 transition"
+                        >
+                          <span className="w-2 h-2 border border-white rounded-[3px]" />
+                          <span>Full screen</span>
+                        </button>
+                      </div>
+                      <PdfAnnotationOverlay
+                        postId={postId}
+                        uploadId={currentUploadId}
+                        fileUrl={ensureHttps(currentFile)}
+                        canCreateAnnotations={canCreateImageAnnotations}
+                        variant="mobile"
+                      />
+                    </>
                   ) : (
                     <ImageAnnotationOverlay
                       postId={postId}
@@ -1204,6 +1217,42 @@ export default function MobilePostView({
           />
         </ResponsiveModal>
       )}
+
+      {/* PDF Full Screen Viewer - mobile */}
+      <ResponsiveModal
+        isOpen={isPdfFullScreenOpen}
+        onOpenChange={setIsPdfFullScreenOpen}
+        title="PDF Viewer"
+        maxHeight="100vh"
+        nested
+        zIndex={200}
+      >
+        <div className="p-0 h-screen max-h-screen flex flex-col bg-[#F6F7FB]">
+          <div className="flex items-center justify-between px-4 pt-3 pb-2 border-b border-gray-200 bg-white">
+            <p className="text-sm font-medium text-gray-900 truncate pr-2">
+              {currentFile ? currentFile.split("/").pop() : "PDF document"}
+            </p>
+            <button
+              type="button"
+              onClick={() => setIsPdfFullScreenOpen(false)}
+              className="text-xs text-gray-500 hover:text-gray-800 px-2 py-1 rounded-full hover:bg-gray-100"
+            >
+              Close
+            </button>
+          </div>
+          <div className="flex-1 min-h-0 bg-gray-100">
+            {ext === "pdf" && currentFile && (
+              <PdfAnnotationOverlay
+                postId={postId}
+                uploadId={currentUploadId}
+                fileUrl={ensureHttps(currentFile)}
+                canCreateAnnotations={canCreateImageAnnotations}
+                variant="mobile"
+              />
+            )}
+          </div>
+        </div>
+      </ResponsiveModal>
 
       {/* Image Viewer Modal */}
       <ImageViewer
