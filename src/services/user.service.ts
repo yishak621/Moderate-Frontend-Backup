@@ -8,6 +8,15 @@ import {
   UpdateGradingTemplateInput,
 } from "@/types/gradingTemplate";
 
+//-------------------TYPES
+
+type UserPostsFilter =
+  | "all"
+  | "moderated"
+  | "pending"
+  | "following"
+  | "favorites";
+
 //-------------------GET USER DATA
 
 export const userData = async () => {
@@ -91,10 +100,10 @@ export const userOverviewStats = async () => {
 
 //------------------- USER POST FEEDS
 
-export const userPostFeeds = async (page = 1) => {
+export const userPostFeeds = async (page = 1, filter: UserPostsFilter = "all") => {
   try {
     const res = await axiosInstance.get("/api/user/post/feeds", {
-      params: { page },
+      params: { page, filter },
     });
 
     if (!res) {
@@ -145,12 +154,25 @@ export const userSinglePostData = async (postId: string) => {
   }
 };
 
-//------------------- USER POST FEEDS
+//------------------- USER MY POSTS (filters + pagination)
 
-export const userMyPostsFeeds = async (page = 1) => {
+export const userMyPostsFeeds = async ({
+  filter = "pending",
+  page = 1,
+  limit = 10,
+}: {
+  filter?: UserPostsFilter;
+  page?: number;
+  limit?: number;
+}) => {
   try {
-    const res = await axiosInstance.get("/api/user/post", {
-      params: { page },
+    const params = {
+      filter: String(filter || "pending"),
+      page: Number(page),
+      limit: Number(limit),
+    };
+    const res = await axiosInstance.get("/api/user/post/feeds", {
+      params,
     });
 
     if (!res) {

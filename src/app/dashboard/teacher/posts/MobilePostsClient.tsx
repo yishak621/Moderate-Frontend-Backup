@@ -1,6 +1,5 @@
 "use client";
 
-import MobileCustomSelect from "@/components/ui/MobileCustomSelect";
 import Post from "@/modules/dashboard/teacher/PostSection";
 import { PostAttributes } from "@/types/postAttributes";
 import { useState } from "react";
@@ -11,12 +10,12 @@ import MobileCreatePost from "./MobileCreatePost";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-type YearOption = { value: string | boolean; label: string };
+type FilterOption = { value: string; label: string };
 
 interface MobilePostsClientProps {
-  yearOptions: YearOption[];
-  activeFilter: string | boolean;
-  setActiveFilter: (filter: string | boolean) => void;
+  filters: FilterOption[];
+  activeFilter: string;
+  setActiveFilter: (filter: string) => void;
   visiblePosts: PostAttributes[] | undefined;
   hasMorePosts: boolean;
   handleLoadMore: () => void;
@@ -25,7 +24,7 @@ interface MobilePostsClientProps {
 }
 
 export default function MobilePostsClient({
-  yearOptions,
+  filters,
   activeFilter,
   setActiveFilter,
   visiblePosts,
@@ -76,23 +75,22 @@ export default function MobilePostsClient({
           </Link>
         </div>
 
-        {/* Mobile Year Filter */}
-        <div className="w-32">
-          <MobileCustomSelect
-            options={yearOptions}
-            defaultValue={yearOptions.find(
-              (option: any) => option.value === activeFilter
-            )}
-            onChange={(val: any) => {
-              const value = val
-                ? typeof val === "string"
-                  ? val
-                  : val.value
-                : "all";
-              setActiveFilter(value);
-            }}
-            placeholder="Year"
-          />
+        {/* Mobile Filter Pills */}
+        <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide pl-3">
+          {filters.map((filter) => (
+            <button
+              key={filter.value}
+              type="button"
+              onClick={() => setActiveFilter(filter.value)}
+              className={`px-3 py-1.5 rounded-full text-xs font-medium border transition ${
+                activeFilter === filter.value
+                  ? "bg-[#0C0C0C] text-white border-[#0C0C0C]"
+                  : "bg-white text-[#717171] border-[#DBDBDB] hover:bg-gray-50"
+              }`}
+            >
+              {filter.label}
+            </button>
+          ))}
         </div>
       </div>
 
@@ -145,26 +143,27 @@ export default function MobilePostsClient({
         ) : visiblePosts?.length === 0 ? (
           <EmptyState />
         ) : (
-          visiblePosts?.map((post: PostAttributes, idx: number) => {
-            return <Post post={post} key={post.id ?? idx} />;
-          })
+          <>
+            {visiblePosts?.map((post: PostAttributes, idx: number) => {
+              return <Post post={post} key={post.id ?? idx} />;
+            })}
+            {/* Load More Button - positioned below last post */}
+            {hasMorePosts && (
+              <div className="flex justify-center mt-4 pb-4">
+                <button
+                  onClick={handleLoadMore}
+                  disabled={isFetchingNextPage}
+                  className={`bg-[#3B82F6] hover:bg-[#2563EB] text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 ${
+                    isFetchingNextPage ? "opacity-70 cursor-not-allowed" : ""
+                  }`}
+                >
+                  {isFetchingNextPage ? "Loading..." : "Load More Posts"}
+                </button>
+              </div>
+            )}
+          </>
         )}
       </div>
-
-      {/* Load More Button */}
-      {hasMorePosts && (
-        <div className="flex justify-center mt-4">
-          <button
-            onClick={handleLoadMore}
-            disabled={isFetchingNextPage}
-            className={`bg-[#3B82F6] hover:bg-[#2563EB] text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 ${
-              isFetchingNextPage ? "opacity-70 cursor-not-allowed" : ""
-            }`}
-          >
-            {isFetchingNextPage ? "Loading..." : "Load More Posts"}
-          </button>
-        </div>
-      )}
     </div>
   );
 }

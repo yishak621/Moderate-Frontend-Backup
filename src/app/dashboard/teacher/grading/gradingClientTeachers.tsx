@@ -4,29 +4,39 @@ import SectionHeader from "@/components/SectionHeader";
 import { FilterButtons } from "@/components/ui/FilterButtons";
 import Post from "@/modules/dashboard/teacher/PostSection";
 import { customJwtPayload, PostAttributes } from "@/types/postAttributes";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { ChevronUp, ChevronDown, Loader2 } from "lucide-react";
 import {
   useUserPostFeeds,
   useFavoritePosts,
-  useGetFollowingUsers,
 } from "@/hooks/useUser";
 import SectionLoading from "@/components/SectionLoading";
-import { getToken } from "@/services/tokenService";
-import { jwtDecode } from "jwt-decode";
 import { EmptyState } from "@/components/EmptyStateProps";
-import { decoded } from "@/lib/currentUser";
 import MobileGradingClient from "./MobileGradingClient";
 
 //this page collects all posts
 export default function GradingClientTeachers() {
   const filters = ["All", "Moderated", "Pending", "Following", "Favorites"];
-  const [activeFilter, setActiveFilterState] = useState<string>(() => {
-    if (typeof window !== "undefined") {
-      return sessionStorage.getItem("gradingActiveFilter") || "Pending";
-    }
-    return "Pending";
-  }); // ✅ default "Pending"
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  
+  // Map UI filter names to API filter values
+  const filterMap: Record<string, string> = {
+    "All": "all",
+    "Moderated": "moderated",
+    "Pending": "pending",
+    "Following": "following",
+    "Favorites": "favorites",
+  };
+  
+  // Get filter from URL, default to "Pending"
+  const urlFilter = searchParams.get("filter") || "pending";
+  const activeFilter = Object.keys(filterMap).find(
+    key => filterMap[key] === urlFilter
+  ) || "Pending";
+  
+  const apiFilter = filterMap[activeFilter] || "pending";
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -42,13 +52,25 @@ export default function GradingClientTeachers() {
     }
   }, []);
 
-  const setActiveFilter = (filter: string) => {
-    setActiveFilterState(filter);
-    if (typeof window !== "undefined") {
-      sessionStorage.setItem("gradingActiveFilter", filter);
+  // Initialize URL with default filter if not present
+  useEffect(() => {
+    if (!searchParams.get("filter")) {
+      const params = new URLSearchParams();
+      params.set("filter", "pending");
+      router.replace(`?${params.toString()}`, { scroll: false });
     }
+  }, [searchParams, router]);
+
+  // Update URL when filter changes - this triggers fresh API request
+  const handleFilterChange = (filter: string) => {
+    const apiFilterValue = filterMap[filter] || "all";
+    const params = new URLSearchParams();
+    params.set("filter", apiFilterValue);
+    router.push(`?${params.toString()}`, { scroll: false });
+    scrollToTop();
   };
 
+  // Use backend filtering - only fetch posts for "Favorites" separately
   const {
     userPostFeedsData,
     isUserPostFeedsDataError,
@@ -58,56 +80,9 @@ export default function GradingClientTeachers() {
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
-  } = useUserPostFeeds();
+  } = useUserPostFeeds(apiFilter === "favorites" ? "all" : apiFilter, 10);
 
   const { favoritePostsData, isFavoritePostsDataLoading } = useFavoritePosts();
-  const { followingUsers, isFollowingUsersLoading } = useGetFollowingUsers();
-
-  const allPosts = useMemo(
-    () => userPostFeedsData?.posts || [],
-    [userPostFeedsData?.posts]
-  );
-
-  const followingIds = useMemo(
-    () =>
-      followingUsers?.following?.map((user: any) => user.id).filter(Boolean) ||
-      [],
-    [followingUsers]
-  );
-
-  const filteredFollowingPostFeedsData = allPosts.filter((post) =>
-    followingIds.includes(post.author?.id)
-  );
-
-  const filteredModeratedPostFeedsData = allPosts.filter(
-    (post: PostAttributes) => {
-      const hasCommented = post.comments.some(
-        (comment) => comment.commentedBy === decoded?.id
-      );
-
-      const hasGraded = post.grades?.some(
-        (grade) => grade.gradedBy === decoded?.id
-      );
-
-      return hasCommented || hasGraded; // Moderated if user did either
-    }
-  );
-
-  const filteredPendingPostFeedsData = allPosts.filter(
-    (post: PostAttributes) => {
-      const notCommented = !post.comments.some(
-        (comment) => comment.commentedBy === decoded?.id
-      );
-
-      const notGraded = !post.grades?.some(
-        (grade) => grade.gradedBy === decoded?.id
-      );
-
-      const notMyPost = post?.author.id !== decoded?.id;
-
-      return notCommented && notGraded && notMyPost; // Pending if user did neither
-    }
-  );
 
   const handleLoadMore = () => {
     if (activeFilter === "Favorites") return;
@@ -132,26 +107,18 @@ export default function GradingClientTeachers() {
     favoritePostsData?.favoritePosts ||
     (Array.isArray(favoritePostsData) ? favoritePostsData : []);
 
+  // Directly use posts from API - NO client-side filtering
   const visiblePosts =
-    activeFilter === "All"
-      ? allPosts
-      : activeFilter === "Moderated"
-      ? filteredModeratedPostFeedsData
-      : activeFilter === "Pending"
-      ? filteredPendingPostFeedsData
-      : activeFilter === "Following"
-      ? filteredFollowingPostFeedsData
-      : activeFilter === "Favorites"
+    activeFilter === "Favorites"
       ? favoritePostsList
-      : [];
+      : userPostFeedsData?.posts || [];
 
   const shouldShowLoadMore =
     (visiblePosts?.length || 0) > 0 &&
     (activeFilter === "Favorites" ? false : hasNextPage);
 
   const isActiveFilterLoading =
-    (activeFilter === "Favorites" && isFavoritePostsDataLoading) ||
-    (activeFilter === "Following" && isFollowingUsersLoading);
+    activeFilter === "Favorites" && isFavoritePostsDataLoading;
   return (
     <>
       {/* Mobile Version */}
@@ -159,7 +126,7 @@ export default function GradingClientTeachers() {
         <MobileGradingClient
           filters={filters}
           activeFilter={activeFilter}
-          setActiveFilter={setActiveFilter}
+          setActiveFilter={handleFilterChange}
           visiblePosts={visiblePosts}
           hasMorePosts={shouldShowLoadMore}
           handleLoadMore={handleLoadMore}
@@ -167,7 +134,7 @@ export default function GradingClientTeachers() {
           isFavoritePostsDataLoading={isFavoritePostsDataLoading}
           isUserPostFeedsDataLoading={isUserPostFeedsDataLoading}
           isFetchingNextPage={isFetchingNextPage}
-          isFollowingUsersLoading={isFollowingUsersLoading}
+          isFollowingUsersLoading={false}
         />
       </div>
 
@@ -186,7 +153,7 @@ export default function GradingClientTeachers() {
               <FilterButtons
                 filters={filters}
                 activeFilter={activeFilter}
-                onFilterChange={setActiveFilter}
+                onFilterChange={handleFilterChange}
               />
             </div>
           </div>

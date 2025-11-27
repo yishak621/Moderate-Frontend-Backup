@@ -250,7 +250,7 @@ export default function DomainVerification() {
               <h3 className="text-xl font-semibold text-gray-800 mb-3">
                 {isPendingVerification
                   ? "Awaiting confirmation by your admin team."
-                  : "Verification Request Received!"}
+                  : "Verification Request Sent!"}
               </h3>
 
               {/* Description */}
@@ -270,9 +270,9 @@ export default function DomainVerification() {
                   </>
                 ) : (
                   <>
-                    We have successfully received your domain verification
-                    request. Your account will be activated once the school
-                    administrator approves your request.
+                    We have successfully sent your domain verification request.
+                    Your account will be activated once the school administrator
+                    approves your request.
                   </>
                 )}
               </p>

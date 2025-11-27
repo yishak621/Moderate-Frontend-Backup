@@ -104,7 +104,8 @@ export function useUserOverviewStatsData() {
 
 //------------------- USER POST FEEDS
 
-export function useUserPostFeeds() {
+export function useUserPostFeeds(filter: string = "all", limit = 10) {
+  const normalizedFilter = filter || "all";
   const {
     data,
     error,
@@ -116,15 +117,17 @@ export function useUserPostFeeds() {
     isLoading,
     isSuccess,
   } = useInfiniteQuery({
-    queryKey: ["userPostFeeds"],
-    queryFn: ({ pageParam = 1 }) => userPostFeeds(pageParam),
+    queryKey: ["userPostFeeds", normalizedFilter, limit],
+    queryFn: ({ pageParam = 1 }) => userPostFeeds(pageParam, normalizedFilter as any),
     initialPageParam: 1,
     getNextPageParam: (lastPage) => {
       const currentPage = lastPage?.meta?.page ?? 1;
-      const lastPageNumber = lastPage?.meta?.lastPage ?? 1;
-      return currentPage < lastPageNumber ? currentPage + 1 : undefined;
+      const hasMore = lastPage?.meta?.hasNextPage ?? false;
+      return hasMore ? currentPage + 1 : undefined;
     },
-    staleTime: 5 * 60 * 1000,
+    staleTime: 5 * 60 * 1000, // Data is fresh for 5 minutes - use cache if available
+    gcTime: 10 * 60 * 1000, // Keep in cache for 10 minutes
+    refetchOnMount: false, // Use cached data if available, don't refetch on mount
   });
 
   const pages = data?.pages ?? [];
@@ -152,7 +155,8 @@ export function useUserPostFeeds() {
 
 //------------------- USER MY POSTS
 
-export function useUserMyPostsFeeds() {
+export function useUserMyPostsFeeds(filter: string, limit = 10) {
+  const normalizedFilter = filter || "pending";
   const {
     data,
     error,
@@ -163,26 +167,28 @@ export function useUserMyPostsFeeds() {
     isFetchingNextPage,
     isLoading,
     isSuccess,
+    refetch,
   } = useInfiniteQuery({
-    queryKey: ["userMyPostsFeeds"],
-    queryFn: ({ pageParam = 1 }) => userMyPostsFeeds(pageParam),
+    queryKey: ["userMyPostsFeeds", normalizedFilter, limit],
+    queryFn: ({ pageParam = 1 }) =>
+      userMyPostsFeeds({ filter: normalizedFilter as any, page: pageParam, limit }),
     initialPageParam: 1,
     getNextPageParam: (lastPage) => {
       const currentPage = lastPage?.meta?.page ?? 1;
-      const lastPageNumber = lastPage?.meta?.lastPage ?? 1;
-      return currentPage < lastPageNumber ? currentPage + 1 : undefined;
+      const hasMore = lastPage?.meta?.hasNextPage ?? false;
+      return hasMore ? currentPage + 1 : undefined;
     },
-    staleTime: 5 * 60 * 1000,
+    staleTime: 5 * 60 * 1000, // Data is fresh for 5 minutes - use cache if available
+    gcTime: 10 * 60 * 1000, // Keep in cache for 10 minutes
+    refetchOnMount: false, // Use cached data if available, don't refetch on mount
   });
 
   const pages = data?.pages ?? [];
   const combinedPosts = pages.flatMap((page: any) => page?.posts || []) ?? [];
   const latestMeta = pages.length > 0 ? pages[pages.length - 1]?.meta : null;
-  const status = pages.length > 0 ? pages[0]?.status : null;
 
   return {
     userMyPostFeedsData: {
-      status,
       meta: latestMeta,
       posts: combinedPosts,
       pages,
@@ -195,6 +201,7 @@ export function useUserMyPostsFeeds() {
     hasNextPage,
     isFetchingNextPage,
     isFetchingInitial: isFetching && !isFetchingNextPage,
+    refetch,
   };
 }
 
