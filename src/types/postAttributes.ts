@@ -53,4 +53,8 @@ export interface customJwtPayload extends JwtPayload {
   id: string;
   email?: string;
   role?: string;
+  impersonated?: boolean;
+  originalAdminId?: string;
+  originalAdminEmail?: string;
+  originalAdminRole?: string;
 }

@@ -1,6 +1,6 @@
 "use client";
 import { ColumnDef } from "@tanstack/react-table";
-import { Eye, Pencil, Trash2, Mail } from "lucide-react";
+import { Eye, Pencil, Trash2, Mail, UserCog } from "lucide-react";
 import type { ComponentType } from "react";
 import ViewUserModal from "@/modules/dashboard/admin/modal/users/ViewUserModal";
 import EditUserModal from "@/modules/dashboard/admin/modal/users/EditUserModal";
@@ -9,6 +9,18 @@ import MessageUserModal from "@/modules/dashboard/admin/modal/users/MessageUserM
 import { User } from "@/app/types/user";
 import { timeAgo } from "@/lib/timeAgo";
 import Tooltip from "@/components/ui/Tooltip";
+import { useImpersonateUser } from "@/hooks/UseAdminRoutes";
+import {
+  setImpersonationToken,
+  getToken,
+  getImpersonationToken,
+  setRole,
+} from "@/services/tokenService";
+import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
+import { useMemo } from "react";
+import { jwtDecode } from "jwt-decode";
+import { customJwtPayload } from "@/types/postAttributes";
 
 export function getUserColumns(
   handleOpenModal: <P>(component: ComponentType<P>, props?: P) => void
@@ -87,6 +99,94 @@ export function getUserColumns(
       header: "Actions",
       cell: ({ row }) => {
         const user = row.original;
+        const ImpersonateButton = () => {
+          const router = useRouter();
+          const { impersonateUserAsync, isImpersonating } =
+            useImpersonateUser();
+
+          // Get decoded token
+          const currentDecoded = useMemo(() => {
+            if (typeof window === "undefined") return null;
+            try {
+              // Safely get impersonation token, fallback to regular token
+              let impersonationToken: string | null = null;
+              try {
+                impersonationToken = getImpersonationToken() as string | null;
+              } catch {
+                impersonationToken = null;
+              }
+              const regularToken = getToken();
+              const token = impersonationToken || regularToken;
+              if (!token) return null;
+              try {
+                return jwtDecode(token) as customJwtPayload;
+              } catch {
+                return null;
+              }
+            } catch {
+              return null;
+            }
+          }, []);
+
+          // Safely check if currently impersonating
+          let isCurrentlyImpersonating = false;
+          try {
+            const impersonationToken = getImpersonationToken();
+            isCurrentlyImpersonating = !!impersonationToken;
+          } catch {
+            isCurrentlyImpersonating = false;
+          }
+
+          if (isCurrentlyImpersonating || user.id === currentDecoded?.id) {
+            return null;
+          }
+
+          const handleImpersonate = async () => {
+            try {
+              const response = await impersonateUserAsync(user.id as string);
+
+              if (response?.token) {
+                setImpersonationToken(response.token);
+
+                let impersonatedUserRole = "TEACHER";
+                try {
+                  const decoded = jwtDecode(response.token) as customJwtPayload;
+                  impersonatedUserRole =
+                    decoded?.role || response.user?.role || "TEACHER";
+                } catch {
+                  impersonatedUserRole = response.user?.role || "TEACHER";
+                }
+
+                // Update role cookie to match impersonated user
+
+                setRole(impersonatedUserRole);
+
+                toast.success(`Now viewing as ${user.name || user.email}`);
+
+                window.location.href = "/dashboard/teacher";
+              }
+            } catch (error) {
+              const errorMessage =
+                error instanceof Error
+                  ? error.message
+                  : "Failed to impersonate user";
+              toast.error(errorMessage);
+            }
+          };
+
+          return (
+            <Tooltip text="Impersonate User" position="top">
+              <button
+                onClick={handleImpersonate}
+                disabled={isImpersonating}
+                className="p-1 text-purple-500 hover:bg-purple-50 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <UserCog size={16} />
+              </button>
+            </Tooltip>
+          );
+        };
+
         return (
           <div className="flex gap-2">
             <Tooltip text="View User Details" position="top">
@@ -113,6 +213,7 @@ export function getUserColumns(
                 <Mail size={16} />
               </button>
             </Tooltip>
+            <ImpersonateButton />
             <Tooltip text="Delete User" position="top">
               <button
                 onClick={() => handleOpenModal(DeleteUserModal, { user })}

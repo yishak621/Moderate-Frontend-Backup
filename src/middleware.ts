@@ -8,46 +8,46 @@ const PROTECTED_PAGES = ["/dashboard", "/profile"]; // authenticated routes
 export function middleware(req: NextRequest) {
   const cookieHeader = req.headers.get("cookie") || "";
   const cookies = parse(cookieHeader);
-  const token = cookies["jwt"];
+  const impersonationToken = cookies["jwtImpersonation"];
+  const regularToken = cookies["jwt"];
+  const token = impersonationToken || regularToken;
   const role = cookies["role"];
 
   const { pathname } = req.nextUrl;
 
-  // If the user is logged in and visits login/register, redirect to dashboard
   if (token && AUTH_PAGES.some((page) => pathname.includes(page))) {
     return NextResponse.redirect(new URL("/dashboard", req.url));
   }
 
-  // If user is not logged in and visits protected route, redirect to login
   if (!token && PROTECTED_PAGES.some((page) => pathname.startsWith(page))) {
     return NextResponse.redirect(new URL("/auth/login", req.url));
   }
 
-  // Protect admin routes - only SYSTEM_ADMIN can access
+  // Protect admin routes -
   if (pathname.startsWith("/dashboard/admin")) {
     if (role !== "SYSTEM_ADMIN") {
+      // If impersonating, redirect to teacher routes
+
+      if (token && role === "TEACHER") {
+        return NextResponse.redirect(new URL("/dashboard/teacher", req.url));
+      }
       return NextResponse.redirect(new URL("/auth/login", req.url));
     }
   }
 
-  // Protect teacher routes - only TEACHER can access
-  // Note: Subscription checks are handled by backend - middleware only checks authentication
   if (pathname.startsWith("/dashboard/teacher")) {
     if (role !== "TEACHER") {
       return NextResponse.redirect(new URL("/auth/login", req.url));
     }
   }
 
-  // Allow access to payment routes
   if (pathname.startsWith("/payment/")) {
     return NextResponse.next();
   }
 
-  // Allow request
   return NextResponse.next();
 }
 
-// Apply middleware only to certain paths
 export const config = {
   matcher: ["/dashboard/:path*", "/profile/:path*", "/login", "/register"],
 };

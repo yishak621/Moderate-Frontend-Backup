@@ -1,5 +1,6 @@
 import {
   getToken,
+  getImpersonationToken,
   getRole,
   setToken,
   setRole,
@@ -13,12 +14,19 @@ export const axiosInstance = axios.create({
 });
 
 axiosInstance.interceptors.request.use((config) => {
-  const token = getToken();
+  let impersonationToken: string | null = null;
+  try {
+    impersonationToken = getImpersonationToken() ?? null;
+  } catch {
+    impersonationToken = null;
+  }
+
+  const regularToken = getToken();
+  const token = impersonationToken || regularToken;
   if (token) config.headers.Authorization = `Bearer ${token}`;
   return config;
 });
 
-// Response interceptor to handle account disabled/suspended/banned errors
 axiosInstance.interceptors.response.use(
   (response) => response,
   (error) => {
@@ -35,11 +43,9 @@ axiosInstance.interceptors.response.use(
       (responseData?.code === "ACCOUNT_BANNED" ||
         responseData?.code === "ACCOUNT_SUSPENDED")
     ) {
-      // Only redirect if we're in the browser and user is a teacher
       if (typeof window !== "undefined") {
         const role = getRole();
         if (role === "TEACHER") {
-          // Store token if provided
           if (responseData?.token) {
             setToken(responseData.token);
             if (responseData?.user?.role) {
@@ -61,7 +67,6 @@ axiosInstance.interceptors.response.use(
       }
     }
 
-    // Check for old "account disabled" message format (fallback)
     const errorMessage =
       responseData?.message || responseData?.error?.Errormessage || "";
     if (
@@ -77,7 +82,6 @@ axiosInstance.interceptors.response.use(
       }
     }
 
-    // For all other errors, reject normally
     return Promise.reject(error);
   }
 );

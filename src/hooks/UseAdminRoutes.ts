@@ -28,6 +28,8 @@ import {
   updatePlan,
   updateSiteSetting,
   viewUserData,
+  impersonateUser,
+  endImpersonation,
 } from "@/services/admin.service";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -126,6 +128,7 @@ export function useAdminUsersData(
   return {
     allUsers: query.data,
     isUsersLoading: query.isPending,
+    isUsersFetching: query.isFetching,
     isSuccess: query.isSuccess,
     isError: query.isError,
     error: query.error,
@@ -763,5 +766,41 @@ export const useAdminDeletePlan = (id: string) => {
     isDeletePlanSuccess: isSuccess,
     isDeletePlanError: isError,
     deletingPlanError: error,
+  };
+};
+
+//-------------------IMPERSONATE USER
+export const useImpersonateUser = () => {
+  const { mutate, mutateAsync, data, isPending, isSuccess, isError, error } =
+    useMutation({
+      mutationFn: (userId: string) => impersonateUser(userId),
+    });
+
+  return {
+    impersonateUser: mutate,
+    impersonateUserAsync: mutateAsync,
+    data,
+    isImpersonating: isPending,
+    isImpersonateSuccess: isSuccess,
+    isImpersonateError: isError,
+    impersonateError: error,
+  };
+};
+
+//-------------------END IMPERSONATION
+export const useEndImpersonation = () => {
+  const { mutate, mutateAsync, data, isPending, isSuccess, isError, error } =
+    useMutation({
+      mutationFn: () => endImpersonation(),
+    });
+
+  return {
+    endImpersonation: mutate,
+    endImpersonationAsync: mutateAsync,
+    data,
+    isEndingImpersonation: isPending,
+    isEndImpersonationSuccess: isSuccess,
+    isEndImpersonationError: isError,
+    endImpersonationError: error,
   };
 };

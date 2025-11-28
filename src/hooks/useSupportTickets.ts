@@ -12,6 +12,8 @@ import {
 } from "@/services/supportTickets.service";
 import { CreateTicketInput, Ticket } from "@/app/types/support_tickets";
 import toast from "react-hot-toast";
+import { useEffect } from "react";
+import { useState } from "react";
 
 //-------------------- CREATE SUPPORT TICKET
 export const useCreateSupportTicket = () => {
@@ -120,18 +122,52 @@ export const useGetAllSupportTickets = () => {
 };
 
 //-------------------- ADMIN: LIST ALL SUPPORT TICKETS
-export const useAllSupportTickets = () => {
-  const { data, isLoading, isError, error, refetch } = useQuery({
-    queryKey: ["admin-support-tickets"],
-    queryFn: listAllTickets,
+type SupportTicketsQuery = {
+  search?: string;
+  curricular?: string;
+  page?: number;
+  limit?: number;
+};
+
+export const useAllSupportTickets = ({
+  search = "",
+  curricular = "",
+  page = 1,
+  limit = 10,
+}: SupportTicketsQuery = {}) => {
+  const [debouncedSearch, setDebouncedSearch] = useState(search);
+
+  useEffect(() => {
+    const handler = setTimeout(() => setDebouncedSearch(search), 400);
+    return () => clearTimeout(handler);
+  }, [search]);
+
+  const query = useQuery({
+    queryKey: [
+      "admin-support-tickets",
+      page,
+      curricular,
+      debouncedSearch,
+      limit,
+    ],
+    queryFn: () =>
+      listAllTickets({
+        search: debouncedSearch,
+        curricular,
+        page,
+        limit,
+      }),
+    placeholderData: (prev) => prev,
+    refetchOnWindowFocus: false,
   });
 
   return {
-    tickets: data,
-    isTicketsLoading: isLoading,
-    isTicketsError: isError,
-    ticketsError: error,
-    refetchTickets: refetch,
+    tickets: query.data,
+    isTicketsLoading: query.isPending,
+    isTicketsFetching: query.isFetching,
+    isTicketsError: query.isError,
+    ticketsError: query.error,
+    refetchTickets: query.refetch,
   };
 };
 

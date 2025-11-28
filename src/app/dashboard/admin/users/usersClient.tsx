@@ -62,8 +62,14 @@ export default function UsersClient() {
     }) || [];
 
   // Pass debouncedSearch to your query hook
-  const { allUsers, isUsersLoading, isSuccess, isError, error } =
-    useAdminUsersData(page, selectedCurricular || "", debouncedSearch);
+  const {
+    allUsers,
+    isUsersLoading,
+    isUsersFetching,
+    isSuccess,
+    isError,
+    error,
+  } = useAdminUsersData(page, selectedCurricular || "", debouncedSearch);
 
   console.log("all users", allUsers);
 
@@ -164,7 +170,7 @@ export default function UsersClient() {
         </div>
 
         {/* table */}
-        <div className="px-0 p-6">
+        <div className="px-0 p-6 relative">
           {/* {allUsers ? (
             <DataTable<User> data={users} columns={columns} />
           ) : (
@@ -178,7 +184,20 @@ export default function UsersClient() {
               <Loader className="animate-spin" size={32} />
             </div>
           ) : (
-            <DataTable<User> data={allUsers?.users || []} columns={columns} />
+            <>
+              <DataTable<User> data={allUsers?.users || []} columns={columns} />
+              {isUsersFetching && (
+                <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 rounded-[18px] bg-white/80 backdrop-blur-sm">
+                  <Loader className="animate-spin text-[#0C63E7]" size={30} />
+                  <p className="text-[#0C0C0C] font-medium">
+                    Updating search results…
+                  </p>
+                  <p className="text-[#717171] text-sm">
+                    Fetching teachers that match your filters.
+                  </p>
+                </div>
+              )}
+            </>
           )}
           <Modal isOpen={open} onOpenChange={setOpen}>
             <Modal.Content>

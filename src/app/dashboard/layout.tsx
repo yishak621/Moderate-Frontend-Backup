@@ -50,11 +50,15 @@ import {
 } from "@/hooks/useModeration";
 import ModerationWarningBanner from "@/components/ModerationWarningBanner";
 import AccountSuspendedBanner from "@/components/AccountSuspendedBanner";
+import ImpersonationBanner from "@/components/ImpersonationBanner";
 import NotificationBellWithPanel from "@/components/NotificationBellWithPanel";
 import { useUnreadNotificationCount } from "@/hooks/useNotifications";
 import { useUnreadMessages } from "@/hooks/useUnreadMessages";
 import { useMessageSocket } from "@/hooks/useMessageSocket";
 import toast from "react-hot-toast";
+import { getToken, getImpersonationToken } from "@/services/tokenService";
+import { jwtDecode } from "jwt-decode";
+import { customJwtPayload } from "@/types/postAttributes";
 
 type Role = "SYSTEM_ADMIN" | "TEACHER";
 
@@ -177,7 +181,33 @@ function DashboardLayoutContent({ children }: { children: ReactNode }) {
   const [isPopUpOpen, setIsPopUpOpen] = useState(false);
 
   const [query, setQuery] = useState("");
-  const role = getRole() as Role;
+  const router = useRouter();
+  const pathname = usePathname();
+
+  // Check impersonation status
+  let impersonationToken: string | null = null;
+  try {
+    impersonationToken = getImpersonationToken() as string | null;
+  } catch {
+    impersonationToken = null;
+  }
+
+  const regularToken = getToken();
+  const activeToken = impersonationToken || regularToken;
+  const decodedToken = activeToken
+    ? (jwtDecode(activeToken) as customJwtPayload)
+    : null;
+  const isImpersonating = !!impersonationToken;
+
+  const cookieRole = getRole() as Role;
+  const effectiveRole: Role = isImpersonating
+    ? decodedToken?.role === "TEACHER"
+      ? "TEACHER"
+      : cookieRole
+    : cookieRole;
+
+  const role = effectiveRole;
+
   const profileLink =
     role === "SYSTEM_ADMIN"
       ? "/dashboard/admin/profile"
@@ -185,8 +215,14 @@ function DashboardLayoutContent({ children }: { children: ReactNode }) {
       ? "/dashboard/teacher/profile"
       : "";
 
-  const router = useRouter();
   const { user, isLoading, isSuccess, isError, error } = useUserData();
+
+  // Redirect if impersonating and on admin routes
+  useEffect(() => {
+    if (isImpersonating && pathname.startsWith("/dashboard/admin")) {
+      router.replace("/dashboard/teacher");
+    }
+  }, [isImpersonating, pathname, router]);
 
   // Get moderation details for teachers only
   const { data: moderationData } = useUserModerationDetails(user?.id || "", {
@@ -198,16 +234,13 @@ function DashboardLayoutContent({ children }: { children: ReactNode }) {
   const { data: unreadData } = useUnreadNotificationCount();
   const unreadCount = unreadData?.count || 0;
 
-  // Get total unread messages count
   const { totalUnreadCount: unreadMessagesCount } = useUnreadMessages(user?.id);
 
-  // Initialize message socket for real-time updates
   useMessageSocket({
     userId: user?.id,
     enabled: !!user?.id,
   });
 
-  // Update moderation status in cookie when data is fetched
   useEffect(() => {
     if (moderationData?.moderation?.status && role === "TEACHER") {
       setModerationStatus(moderationData.moderation.status);
@@ -219,14 +252,11 @@ function DashboardLayoutContent({ children }: { children: ReactNode }) {
     router.push("/auth/login");
   };
 
-  // Check moderation status from cookie and API on mount and when data changes
-  // Force logout if banned, show banner if suspended/pending_review
   useEffect(() => {
     if (user?.id && role === "TEACHER") {
       const cookieStatus = getModerationStatus();
       const apiStatus = moderationData?.moderation?.status;
 
-      // Use API status if available, otherwise fall back to cookie
       const currentStatus = apiStatus || cookieStatus;
 
       // Force logout if banned
@@ -237,7 +267,6 @@ function DashboardLayoutContent({ children }: { children: ReactNode }) {
         return;
       }
 
-      // Update cookie with latest status from API
       if (apiStatus && apiStatus !== cookieStatus) {
         setModerationStatus(apiStatus);
       }
@@ -279,11 +308,10 @@ function DashboardLayoutContent({ children }: { children: ReactNode }) {
     });
   }, [role, unreadMessagesCount]);
 
-  const pathname = usePathname();
   const searchParams = useSearchParams();
   const title = getDashboardTitle(pathname, role, sidebarItems);
 
-  // Check if we're on a detail page (messages detail, announcement detail, etc.) - MOBILE ONLY
+  // Check if we're on a detail page  - MOBILE ONLY
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
@@ -472,6 +500,7 @@ function DashboardLayoutContent({ children }: { children: ReactNode }) {
   return (
     <>
       <AccountSuspendedBanner />
+      <ImpersonationBanner />
       <DashboardShell
         title={title}
         sidebarItems={sidebarItems}

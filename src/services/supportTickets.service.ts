@@ -64,9 +64,27 @@ export const getSupportStats = async () => {
 };
 
 //------------------- ADMIN: LIST ALL TICKETS
-export const listAllTickets = async () => {
+type ListTicketsParams = {
+  search?: string;
+  curricular?: string;
+  page?: number;
+  limit?: number;
+};
+
+export const listAllTickets = async (params: ListTicketsParams = {}) => {
   try {
-    const res = await axiosInstance.get("/api/support/admin/tickets");
+    const searchParams = new URLSearchParams();
+    if (params.page) searchParams.set("page", params.page.toString());
+    if (params.limit) searchParams.set("limit", params.limit.toString());
+    if (params.search) searchParams.set("search", params.search);
+    if (params.curricular) searchParams.set("curricular", params.curricular);
+
+    const queryString = searchParams.toString();
+    const url = queryString
+      ? `/api/support/admin/tickets?${queryString}`
+      : "/api/support/admin/tickets";
+
+    const res = await axiosInstance.get(url);
     return res.data;
   } catch (error) {
     handleApiError(error);
@@ -96,7 +114,7 @@ export const postAdminMessage = async ({
   try {
     const res = await axiosInstance.post(
       `/api/support/admin/tickets/${ticketId}/messages`,
-      { message }
+      { sender: "admin", message }
     );
     return res.data;
   } catch (error) {

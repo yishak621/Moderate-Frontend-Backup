@@ -356,11 +356,13 @@ export default function MessagesClientTeachers() {
 
       {/* Desktop Version */}
       <div className="hidden md:block">
-        <div className=" grid grid-cols-1 md:grid-cols-[25%_75%] gap-4   max-h-[90vh]">
-          <div className="bg-[#FDFDFD] rounded-[22px] py-6 px-7  flex flex-col">
-            <h4 className="text-[#0C0C0C] text-xl font-medium mb-5">Inbox</h4>
+        <div className="grid grid-cols-1 md:grid-cols-[25%_75%] gap-4 md:gap-6 h-screen">
+          <div className="bg-[#FDFDFD] rounded-[22px] py-6 px-7 flex flex-col h-screen overflow-hidden">
+            <h4 className="text-[#0C0C0C] text-xl font-medium mb-5 shrink-0">
+              Inbox
+            </h4>
 
-            <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-3 h-screen overflow-y-scroll scrollbar-hide">
               {isThreadsLoading ? (
                 <div className="flex flex-col gap-4 p-5">
                   {/* Header shimmer */}
@@ -410,7 +412,7 @@ export default function MessagesClientTeachers() {
               )}
             </div>
           </div>
-          <div className="bg-[#fdfdfd] py-4.5 rounded-[40px] flex flex-col h-[85vh] overflow-hidden">
+          <div className="bg-[#fdfdfd] py-4.5 rounded-[40px] flex flex-col h-screen overflow-hidden">
             {/* top section */}
             <div className="flex flex-row pb-3 px-6 items-center gap-3.5 border-b border-b-[#DBDBDB]">
               <div className="w-[52px] h-[52px] bg-[#368FFF] rounded-full flex items-center justify-center">
@@ -454,7 +456,7 @@ export default function MessagesClientTeachers() {
                           />
                         )}
                         <div
-                          className={`max-w-[70%] p-3 my-1 rounded-xl relative break-words ${
+                          className={`max-w-[70%] p-3 my-1 rounded-xl relative wrap-break-word ${
                             isSender
                               ? "bg-blue-500 text-white self-end ml-auto"
                               : "bg-gray-200 text-black self-start mr-auto"

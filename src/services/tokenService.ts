@@ -1,5 +1,7 @@
 // services/tokenService.ts
 import Cookies from "js-cookie";
+import { jwtDecode } from "jwt-decode";
+import { customJwtPayload } from "@/types/postAttributes";
 
 export type ModerationStatus =
   | "active"
@@ -10,7 +12,7 @@ export type ModerationStatus =
 export const setToken = (token: string) => {
   Cookies.set("jwt", token, {
     expires: 7, // days
-    secure: true,
+    secure: process.env.NODE_ENV === "production", // Only secure in production
     sameSite: "strict",
   });
 };
@@ -59,9 +61,40 @@ export const getSubscriptionPlan = (): string | null => {
 };
 
 export const getToken = () => {
+  // Check for impersonation token first, then regular token
+  return Cookies.get("jwtImpersonation") || Cookies.get("jwt");
+};
+
+export const getRegularToken = () => {
   return Cookies.get("jwt");
 };
+
+export const getImpersonationToken = () => {
+  return Cookies.get("jwtImpersonation");
+};
+
+export const setImpersonationToken = (token: string) => {
+  Cookies.set("jwtImpersonation", token, {
+    expires: 1, // 1 day
+    secure: process.env.NODE_ENV === "production", // Only secure in production
+    sameSite: "strict",
+  });
+};
+
+export const removeImpersonationToken = () => {
+  Cookies.remove("jwtImpersonation");
+};
+
 export const getRole = () => {
+  const impersonationToken = Cookies.get("jwtImpersonation");
+  if (impersonationToken) {
+    try {
+      const decoded = jwtDecode(impersonationToken) as customJwtPayload;
+      return decoded?.role || Cookies.get("role");
+    } catch {
+      return Cookies.get("role");
+    }
+  }
   return Cookies.get("role");
 };
 export const getModerationStatus = (): ModerationStatus | null => {
@@ -77,6 +110,7 @@ export const getModerationStatus = (): ModerationStatus | null => {
 
 export const removeToken = () => {
   Cookies.remove("jwt");
+  Cookies.remove("jwtImpersonation");
   Cookies.remove("role");
   Cookies.remove("moderationStatus");
   Cookies.remove("subscriptionStatus");

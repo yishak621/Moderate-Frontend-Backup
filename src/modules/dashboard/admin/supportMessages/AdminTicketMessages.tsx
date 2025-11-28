@@ -1,30 +1,29 @@
 "use client";
 
 import { useForm } from "react-hook-form";
-import TicketMessage from "./TicketMessage";
+import TicketMessage from "@/modules/dashboard/teacher/supportMessages/TicketMessage";
 import {
   TicketMessagesProps,
   SendMessageTicketInput,
   Message,
 } from "@/app/types/support_tickets";
-import { RefreshCw, SendHorizonal, Mail } from "lucide-react";
+import { RefreshCw, SendHorizonal, Mail, User, Shield } from "lucide-react";
 import Textarea from "@/components/ui/Textarea";
 import {
-  usePostSupportMessage,
+  usePostAdminMessage,
   useTicketMessages,
 } from "@/hooks/useSupportTickets";
 import toast from "react-hot-toast";
-import Loading from "@/components/ui/Loading"; 
+import Loading from "@/components/ui/Loading";
 import { useMemo } from "react";
 
-export default function TicketMessages({ ticket }: TicketMessagesProps) {
-  const thisMessageSender = "user";
-
+export default function AdminTicketMessages({ ticket }: TicketMessagesProps) {
   // Hooks
   const { messages, refetchMessages, isMessagesLoading } = useTicketMessages(
     ticket.id
   );
-  const { sendMessageAsync, isSendingMessageLoading } = usePostSupportMessage();
+  const { sendAdminMessageAsync, isSendingAdminMessageLoading } =
+    usePostAdminMessage();
 
   // React Hook Form
   const {
@@ -38,10 +37,9 @@ export default function TicketMessages({ ticket }: TicketMessagesProps) {
     if (!data.message) return;
 
     try {
-      await sendMessageAsync({
-        ...data,
+      await sendAdminMessageAsync({
         ticketId: ticket.id,
-        sender: thisMessageSender,
+        message: data.message,
       });
 
       // Clear input
@@ -69,9 +67,58 @@ export default function TicketMessages({ ticket }: TicketMessagesProps) {
 
   return (
     <div className="flex flex-col h-full min-h-0">
-      {/* Modern Header */}
+      {/* Modern Header with User Info */}
       <div className="flex-shrink-0 border-b border-gray-200 bg-white sticky top-0 z-10">
-        <div className="p-4 md:p-6">
+        <div className="p-4 md:p-6 space-y-4">
+          {/* User Info Section */}
+          {ticket.user && (
+            <div className="flex items-start gap-3 md:gap-4 pb-4 border-b border-gray-100">
+              {/* Profile Picture */}
+              <div className="flex-shrink-0">
+                {ticket.user.profilePictureUrl ? (
+                  <img
+                    src={ticket.user.profilePictureUrl}
+                    alt={ticket.user.name || "User"}
+                    className="w-12 h-12 md:w-14 md:h-14 rounded-full object-cover border-2 border-gray-200 shadow-sm"
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.style.display = "none";
+                      if (target.nextElementSibling) {
+                        (target.nextElementSibling as HTMLElement).style.display =
+                          "flex";
+                      }
+                    }}
+                  />
+                ) : null}
+                <div
+                  className={`w-12 h-12 md:w-14 md:h-14 rounded-full flex items-center justify-center ${
+                    ticket.user.profilePictureUrl ? "hidden" : "flex"
+                  } bg-gradient-to-br from-blue-400 to-blue-600 text-white shadow-md`}
+                >
+                  <User size={24} className="md:w-7 md:h-7" />
+                </div>
+              </div>
+
+              {/* User Details */}
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 mb-1">
+                  <h3 className="text-base md:text-lg font-semibold text-[#0C0C0C] truncate">
+                    {ticket.user.name || "Unknown User"}
+                  </h3>
+                </div>
+                <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3">
+                  {ticket.user.email && (
+                    <div className="flex items-center gap-1.5 text-sm text-[#717171]">
+                      <Mail size={14} className="flex-shrink-0" />
+                      <span className="truncate">{ticket.user.email}</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Ticket Subject and Status */}
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
             <div className="flex-1 min-w-0">
               <h2 className="text-lg md:text-xl font-semibold text-[#0C0C0C] break-words leading-tight">
@@ -118,7 +165,11 @@ export default function TicketMessages({ ticket }: TicketMessagesProps) {
           ) : messages?.length ? (
             <div className="space-y-1">
               {messages.map((msg: Message) => (
-                <TicketMessage key={msg.id} message={msg} isAdminView={false} />
+                <TicketMessage
+                  key={msg.id}
+                  message={msg}
+                  isAdminView={true}
+                />
               ))}
             </div>
           ) : (
@@ -156,14 +207,14 @@ export default function TicketMessages({ ticket }: TicketMessagesProps) {
               rows={3}
               {...register("message", { required: "Message is required!" })}
               error={errors?.message?.message}
-              disabled={isSendingMessageLoading || ticket.status === "closed"}
+              disabled={isSendingAdminMessageLoading || ticket.status === "closed"}
             />
           </div>
           <button
             type="submit"
-            disabled={isSendingMessageLoading || ticket.status === "closed"}
+            disabled={isSendingAdminMessageLoading || ticket.status === "closed"}
             className={`flex items-center justify-center p-3 md:p-4 rounded-xl text-white transition-all flex-shrink-0 shadow-sm ${
-              isSendingMessageLoading || ticket.status === "closed"
+              isSendingAdminMessageLoading || ticket.status === "closed"
                 ? "bg-gray-400 cursor-not-allowed"
                 : "bg-[#368FFF] hover:bg-[#2574db] hover:shadow-md active:scale-95"
             }`}
@@ -181,3 +232,4 @@ export default function TicketMessages({ ticket }: TicketMessagesProps) {
     </div>
   );
 }
+
