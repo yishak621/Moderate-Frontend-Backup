@@ -55,6 +55,8 @@ import NotificationBellWithPanel from "@/components/NotificationBellWithPanel";
 import { useUnreadNotificationCount } from "@/hooks/useNotifications";
 import { useUnreadMessages } from "@/hooks/useUnreadMessages";
 import { useMessageSocket } from "@/hooks/useMessageSocket";
+import { useUnreadSupportTicketsCount } from "@/hooks/useSupportTickets";
+import { useNotificationSocket } from "@/hooks/useNotificationSocket";
 import toast from "react-hot-toast";
 import { getToken, getImpersonationToken } from "@/services/tokenService";
 import { jwtDecode } from "jwt-decode";
@@ -235,8 +237,15 @@ function DashboardLayoutContent({ children }: { children: ReactNode }) {
   const unreadCount = unreadData?.count || 0;
 
   const { totalUnreadCount: unreadMessagesCount } = useUnreadMessages(user?.id);
+  const { unreadCount: unreadSupportTicketsCount } = useUnreadSupportTicketsCount();
 
   useMessageSocket({
+    userId: user?.id,
+    enabled: !!user?.id,
+  });
+
+  // Initialize notification socket for real-time support message notifications
+  useNotificationSocket({
     userId: user?.id,
     enabled: !!user?.id,
   });
@@ -288,25 +297,37 @@ function DashboardLayoutContent({ children }: { children: ReactNode }) {
 
   const sidebarItems = useMemo(() => {
     const items = getSidebarItems(role);
-    // Add badge count to Messages item
+    // Add badge count to Messages and Support items
     return items.map((item) => {
       if (item.label === "Messages" && role === "TEACHER") {
         return { ...item, badgeCount: unreadMessagesCount };
       }
+      if (item.label === "Support Messages" && role === "SYSTEM_ADMIN") {
+        return { ...item, badgeCount: unreadSupportTicketsCount };
+      }
+      if (item.label === "Support" && role === "TEACHER") {
+        return { ...item, badgeCount: unreadSupportTicketsCount };
+      }
       return item;
     });
-  }, [role, unreadMessagesCount]);
+  }, [role, unreadMessagesCount, unreadSupportTicketsCount]);
 
   const mobileSidebarItems = useMemo(() => {
     const items = getMobileSidebarItems(role);
-    // Add badge count to Messages item
+    // Add badge count to Messages and Support items
     return items.map((item) => {
       if (item.label === "Messages" && role === "TEACHER") {
         return { ...item, badgeCount: unreadMessagesCount };
       }
+      if (item.label === "Support Messages" && role === "SYSTEM_ADMIN") {
+        return { ...item, badgeCount: unreadSupportTicketsCount };
+      }
+      if (item.label === "Support" && role === "TEACHER") {
+        return { ...item, badgeCount: unreadSupportTicketsCount };
+      }
       return item;
     });
-  }, [role, unreadMessagesCount]);
+  }, [role, unreadMessagesCount, unreadSupportTicketsCount]);
 
   const searchParams = useSearchParams();
   const title = getDashboardTitle(pathname, role, sidebarItems);

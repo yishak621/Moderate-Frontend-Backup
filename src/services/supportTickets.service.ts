@@ -134,6 +134,45 @@ export const closeTicket = async (ticketId: string) => {
   }
 };
 
+//------------------- GET UNREAD SUPPORT TICKETS COUNT
+// Note: This endpoint may not exist yet on the backend
+// It should return { count: number } for unread support tickets
+// For users: /api/support/tickets/unread-count
+// For admins: /api/support/admin/tickets/unread-count (if different)
+let hasLogged404 = false; // Track if we've already logged the 404
+export const getUnreadSupportTicketsCount = async () => {
+  try {
+    // Try user endpoint first (works for both user and admin if backend handles role)
+    const res = await axiosInstance.get("/api/support/tickets/unread-count");
+    hasLogged404 = false; // Reset if successful
+    return res.data;
+  } catch (error) {
+    // If endpoint doesn't exist (404) or other error, return default count
+    if (isAxiosError(error)) {
+      if (error.response?.status === 404) {
+        // Endpoint doesn't exist yet, return default
+        // Only log once to avoid console spam
+        if (!hasLogged404) {
+          console.warn(
+            "Unread support tickets count endpoint not implemented yet. Returning 0."
+          );
+          hasLogged404 = true;
+        }
+        return { count: 0 };
+      }
+      // For other errors, log but still return default
+      console.warn(
+        "Failed to fetch unread support tickets count:",
+        error.response?.data || error.message
+      );
+      return { count: 0 };
+    }
+    // For non-axios errors, return default
+    console.warn("Failed to fetch unread support tickets count:", error);
+    return { count: 0 };
+  }
+};
+
 //------------------- Helper Function
 const handleApiError = (error: unknown) => {
   if (isAxiosError(error)) {

@@ -22,7 +22,9 @@ export type NotificationType =
   | "admin_support_ticket"
   | "admin_domain_verification"
   | "admin_system_error"
-  | "admin_user_registered";
+  | "admin_user_registered"
+  | "support_message_received"
+  | "support_message_admin";
 
 export interface Notification {
   id: string;

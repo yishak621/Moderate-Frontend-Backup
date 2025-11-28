@@ -9,6 +9,7 @@ import {
   closeTicket,
   getAllSupportTickets,
   createSupportTicketAdmin,
+  getUnreadSupportTicketsCount,
 } from "@/services/supportTickets.service";
 import { CreateTicketInput, Ticket } from "@/app/types/support_tickets";
 import toast from "react-hot-toast";
@@ -265,5 +266,34 @@ export const useSupportStats = () => {
     isStatsError: isError,
     statsError: error,
     refetchStats: refetch,
+  };
+};
+
+//-------------------- GET UNREAD SUPPORT TICKETS COUNT
+export const useUnreadSupportTicketsCount = () => {
+  const { data, isLoading, isError, error } = useQuery({
+    queryKey: ["unread-support-tickets-count"],
+    queryFn: async () => {
+      try {
+        return await getUnreadSupportTicketsCount();
+      } catch (err) {
+        // If endpoint doesn't exist yet or fails, return 0 count
+        console.warn("Failed to fetch unread support tickets count:", err);
+        return { count: 0 };
+      }
+    },
+    staleTime: 60000, // 1 minute - data is fresh for 1 minute
+    gcTime: 5 * 60 * 1000, // 5 minutes - keep in cache
+    refetchInterval: 30000, // Refetch every 30 seconds to keep count updated
+    refetchOnWindowFocus: true,
+    refetchOnReconnect: true,
+    retry: 1, // Only retry once since we have a fallback
+  });
+
+  return {
+    unreadCount: data?.count || 0,
+    isLoading,
+    isError,
+    error,
   };
 };

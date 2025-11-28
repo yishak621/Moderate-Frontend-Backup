@@ -393,9 +393,23 @@ export default function DashboardShell({
                     },
                   ];
                   const seen = new Set<string>();
+                  // Create a map of badge counts from mobileSidebarItems
+                  const badgeCountMap = new Map<string, number>();
+                  mobileSidebarItems.forEach((item) => {
+                    if (item.badgeCount !== undefined) {
+                      badgeCountMap.set(item.href, item.badgeCount);
+                    }
+                  });
+                  
+                  // Merge badge counts into extras
+                  const extrasWithBadges = extras.map((item) => {
+                    const badgeCount = badgeCountMap.get(item.href);
+                    return badgeCount !== undefined ? { ...item, badgeCount } : item;
+                  });
+                  
                   const combined: NavItem[] = [
                     ...mobileSidebarItems,
-                    ...extras,
+                    ...extrasWithBadges,
                   ].filter((item) => {
                     if (seen.has(item.href)) return false;
                     seen.add(item.href);

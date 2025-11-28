@@ -21,9 +21,9 @@ export default function SupportAdminMessagesClient() {
   const { ticket, isMessagesLoading } = useTicketMessages(ticketId || "");
 
   return (
-    <div className="flex flex-col gap-6 bg-[#FDFDFD] min-h-[90vh] rounded-[22px] p-4 md:p-8">
+    <div className="flex flex-col gap-6 bg-[#FDFDFD] max-h-screen rounded-[22px] p-4 md:p-8 overflow-hidden">
       {/* Ticket Conversation */}
-      <div className="flex-1 bg-[#FFFFFF] rounded-[22px] border border-gray-200 shadow-sm overflow-hidden">
+      <div className="flex-1 min-h-0 bg-[#FFFFFF] rounded-[22px] border border-gray-200 shadow-sm overflow-hidden flex flex-col">
         {isMessagesLoading && !ticket ? (
           <div className="flex items-center justify-center h-[60vh]">
             <Loading text="Loading ticket..." />

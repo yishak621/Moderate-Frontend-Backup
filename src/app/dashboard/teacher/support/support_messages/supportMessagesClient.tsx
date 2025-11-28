@@ -44,7 +44,7 @@ export default function SupportMessagesClient() {
   };
 
   return (
-    <div className="flex flex-col md:flex-row gap-3 md:gap-6 bg-[#FDFDFD] min-h-[90vh] rounded-xl md:rounded-[22px] p-3 md:p-8">
+    <div className="flex flex-col md:flex-row gap-3 md:gap-6 bg-[#FDFDFD] max-h-screen rounded-xl md:rounded-[22px] p-3 md:p-8 overflow-hidden">
       {/* Mobile Header Back Button */}
       <div className="md:hidden -mt-1 -mx-1 mb-2 sticky top-0 z-20 bg-[#FDFDFD]">
         <button
@@ -55,7 +55,7 @@ export default function SupportMessagesClient() {
         </button>
       </div>
       {/* Left Section - Tickets List */}
-      <div className="md:w-1/3 bg-[#FFFFFF] border border-[#EDEDED] rounded-xl md:rounded-[22px] p-3 md:p-6 flex flex-col">
+      <div className="md:w-1/3 bg-[#FFFFFF] border border-[#EDEDED] rounded-xl md:rounded-[22px] p-3 md:p-6 flex flex-col min-h-0 overflow-hidden">
         {/* Header */}
         <div className="flex flex-row justify-between items-start sm:items-center mb-3 md:mb-6 gap-2">
           <div className="min-w-0 flex-1">
@@ -92,7 +92,7 @@ export default function SupportMessagesClient() {
           </Modal>
         )}
         {/* Tickets List */}
-        <div className="flex flex-col gap-2 md:gap-3 overflow-y-auto">
+        <div className="flex flex-col gap-2 md:gap-3 overflow-y-auto flex-1 min-h-0">
           {isTicketsLoading && (
             <div className="flex-1">
               <Loading text="Loading Tickets.." />
@@ -138,7 +138,7 @@ export default function SupportMessagesClient() {
       </div>
 
       {/* Right Section - Ticket Conversation */}
-      <div className="flex-1 bg-[#FFFFFF] border border-[#EDEDED] rounded-xl md:rounded-[22px] p-3 md:p-8">
+      <div className="flex-1 min-h-0 bg-[#FFFFFF] border border-[#EDEDED] rounded-xl md:rounded-[22px] p-3 md:p-8 overflow-hidden flex flex-col">
         {selectedTicket ? (
           <TicketMessages ticket={selectedTicket} />
         ) : (

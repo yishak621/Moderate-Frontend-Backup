@@ -14,6 +14,7 @@ export const ADMIN_NOTIFICATION_TYPES: NotificationType[] = [
   "admin_domain_verification",
   "admin_system_error",
   "admin_user_registered",
+  "support_message_admin", // Admin receives notification when user sends support message
 ];
 
 // User notification types (non-admin)
@@ -30,6 +31,7 @@ export const USER_NOTIFICATION_TYPES: NotificationType[] = [
   "post_commented",
   "comment_replied",
   "system_announcement",
+  "support_message_received", // User receives notification when admin replies
 ];
 
 /**

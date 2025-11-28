@@ -40,7 +40,6 @@ export default function SupportClient() {
   );
   const [modalProps, setModalProps] = useState<any>({});
   const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [selectedCurricular, setSelectedCurricular] = useState<string>("");
@@ -82,7 +81,9 @@ export default function SupportClient() {
     { title: "Resolved", count: stats?.resolvedTickets, icon: CheckCircle },
   ];
 
-  const No_Of_tickets = tickets?.total;
+  const totalTickets = tickets?.meta?.total || 0;
+  const totalPages = tickets?.meta?.totalPages || 1;
+  const hasNextPage = tickets?.meta?.hasNextPage || false;
 
   const curricularOptions = useMemo(() => {
     const base =
@@ -165,12 +166,12 @@ export default function SupportClient() {
         </div>
       </div>
       {/* bottom part */}
-      <div className="relative py-9 px-11 bg-[#FDFDFD] rounded-[22px] h-screen overflow-scroll">
+      <div className="relative py-9 px-11 bg-[#FDFDFD] rounded-[22px] max-h-screen overflow-y-auto">
         {/* table header */}
         <div className=" flex flex-row justify-between">
           <div className="flex flex-col gap-1">
             <p className="text-[#0C0C0C] text-xl font-medium">
-              {`Support Tickets(${No_Of_tickets})`}
+              {`Support Tickets(${totalTickets})`}
             </p>
             <p className="text-[#717171] text-base font-normal">
               Manage user support requests and communications
@@ -217,39 +218,46 @@ export default function SupportClient() {
         </div>
 
         {/* pagination buttons */}
-        {No_Of_tickets > 10 && (
-          <div className=" flex flex-row gap-2 border border-red-500 absolute bottom-0 right-0">
+        {totalPages > 1 && (
+          <div className="flex flex-row gap-2 justify-end items-center mt-6 pt-4 border-t border-gray-200">
             {/* Pagination */}
-            <div className="flex gap-2 mt-4">
+            <div className="flex gap-2 items-center">
               <button
                 disabled={page === 1}
                 onClick={() => setPage((p) => p - 1)}
-                className="px-3 py-1 border rounded disabled:opacity-50"
+                className="px-4 py-2 border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 transition-colors text-sm font-medium text-[#0C0C0C]"
               >
-                Back
+                Previous
               </button>
 
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
-                <button
-                  key={p}
-                  onClick={() => setPage(p)}
-                  className={`px-3 py-1 border rounded ${
-                    p === page
-                      ? "bg-blue-500 text-white"
-                      : "bg-white text-blue-500"
-                  }`}
-                >
-                  {p}
-                </button>
-              ))}
+              <div className="flex gap-1 items-center">
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                  (p) => (
+                    <button
+                      key={p}
+                      onClick={() => setPage(p)}
+                      className={`px-3 py-2 min-w-[40px] border rounded-lg text-sm font-medium transition-colors ${
+                        p === page
+                          ? "bg-[#368FFF] text-white border-[#368FFF]"
+                          : "bg-white text-[#0C0C0C] border-gray-300 hover:bg-gray-50"
+                      }`}
+                    >
+                      {p}
+                    </button>
+                  )
+                )}
+              </div>
 
               <button
-                disabled={page === totalPages}
+                disabled={!hasNextPage || page === totalPages}
                 onClick={() => setPage((p) => p + 1)}
-                className="px-3 py-1 border rounded disabled:opacity-50"
+                className="px-4 py-2 border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 transition-colors text-sm font-medium text-[#0C0C0C]"
               >
                 Next
               </button>
+            </div>
+            <div className="text-sm text-[#717171] ml-4">
+              Page {page} of {totalPages}
             </div>
           </div>
         )}
