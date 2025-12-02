@@ -351,10 +351,18 @@ export const getFavoritePosts = async () => {
 };
 
 //-------------------UPLOAD FILE TO THE API
-export const uploadFileApi = async (file: File) => {
+export const uploadFileApi = async (
+  file: File,
+  textContent?: string
+) => {
   try {
     const formData = new FormData();
     formData.append("files", file);
+    
+    // Send textContent if provided (required for embedding generation)
+    if (textContent) {
+      formData.append("textContent", textContent);
+    }
 
     const res = await axiosInstance.post("/api/user/uploads", formData);
 

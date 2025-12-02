@@ -9,11 +9,12 @@ import { EmptyState } from "@/components/EmptyStateProps";
 import MobileCreatePost from "./MobileCreatePost";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import CustomSelect from "@/components/ui/CustomSelect";
 
-type FilterOption = { value: string; label: string };
+type YearOption = { value: string; label: string };
 
 interface MobilePostsClientProps {
-  filters: FilterOption[];
+  filters: YearOption[];
   activeFilter: string;
   setActiveFilter: (filter: string) => void;
   visiblePosts: PostAttributes[] | undefined;
@@ -21,6 +22,8 @@ interface MobilePostsClientProps {
   handleLoadMore: () => void;
   isFetchingNextPage?: boolean;
   isLoading?: boolean;
+  selectedYear?: string | null;
+  onYearChange?: (year: string | null) => void;
 }
 
 export default function MobilePostsClient({
@@ -32,6 +35,8 @@ export default function MobilePostsClient({
   handleLoadMore,
   isFetchingNextPage = false,
   isLoading = false,
+  selectedYear,
+  onYearChange,
 }: MobilePostsClientProps) {
   const [showCreatePost, setShowCreatePost] = useState(false);
   const pathname = usePathname();
@@ -75,23 +80,25 @@ export default function MobilePostsClient({
           </Link>
         </div>
 
-        {/* Mobile Filter Pills */}
-        <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide pl-3">
-          {filters.map((filter) => (
-            <button
-              key={filter.value}
-              type="button"
-              onClick={() => setActiveFilter(filter.value)}
-              className={`px-3 py-1.5 rounded-full text-xs font-medium border transition ${
-                activeFilter === filter.value
-                  ? "bg-[#0C0C0C] text-white border-[#0C0C0C]"
-                  : "bg-white text-[#717171] border-[#DBDBDB] hover:bg-gray-50"
-              }`}
-            >
-              {filter.label}
-            </button>
-          ))}
-        </div>
+        {/* Mobile Year Dropdown */}
+        {filters.length > 0 && (
+          <div className="flex items-center gap-2 pl-3">
+            <div className="w-full max-w-[200px]">
+              <CustomSelect
+                options={filters}
+                defaultValue={
+                  selectedYear
+                    ? filters.find((y) => y.value === selectedYear)
+                    : filters[0]
+                }
+                onChange={(option) => {
+                  onYearChange?.(option?.value as string | null);
+                }}
+                placeholder="Select Year"
+              />
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Create New Post Section - Mobile */}

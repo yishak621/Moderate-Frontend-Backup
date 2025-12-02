@@ -1,35 +1,27 @@
 "use client";
 
 import CustomSelect from "@/components/ui/CustomSelect";
-import { FilterButtons } from "@/components/ui/FilterButtons";
 import Post from "@/modules/dashboard/teacher/PostSection";
 import { PostAttributes } from "@/types/postAttributes";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import Modal from "@/components/ui/Modal";
 import CreatPostModal from "@/modules/dashboard/teacher/post/CreatPostModal";
 import Button from "@/components/ui/Button";
 import { Plus } from "lucide-react";
-import { useUserMyPostsFeeds } from "@/hooks/useUser";
+import { useUserMyPostsFeeds, useUserData } from "@/hooks/useUser";
 import SectionLoading from "@/components/SectionLoading";
 import { EmptyState } from "@/components/EmptyStateProps";
 import MobilePostsClient from "./MobilePostsClient";
 
-type YearOption = { value: string | boolean; label: string };
-
 export default function PostsClientTeachers() {
-  type PostFilter = "all" | "moderated" | "pending" | "following" | "favorites";
-  const [activeFilter, setActiveFilter] = useState<PostFilter>("pending"); // Default "pending"
+  const [selectedYear, setSelectedYear] = useState<string | null>("all");
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [open, setOpen] = useState(false);
 
-  const filterOptions: { value: PostFilter; label: string }[] = [
-    { value: "all", label: "All" },
-    { value: "moderated", label: "Moderated" },
-    { value: "pending", label: "Pending" },
-    { value: "following", label: "Following" },
-    { value: "favorites", label: "Favorites" },
-  ];
+  // Get current user data to determine minimum year
+  const { user } = useUserData();
 
+  // Fetch all posts (no filter needed)
   const {
     userMyPostFeedsData,
     isUserMyPostFeedsDataError,
@@ -39,10 +31,42 @@ export default function PostsClientTeachers() {
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
-  } = useUserMyPostsFeeds(activeFilter, 10);
+  } = useUserMyPostsFeeds("all", 10);
 
-  // Directly use posts from API - NO client-side filtering
-  const allMyPosts = userMyPostFeedsData?.posts || [];
+  // Generate year options based on user's join date
+  const yearOptions = useMemo(() => {
+    if (!user?.createdAt) return [];
+    
+    const userJoinYear = new Date(user.createdAt).getFullYear();
+    const currentYear = new Date().getFullYear();
+    const years: { value: string; label: string }[] = [];
+    
+    // Add "All Years" option
+    years.push({ value: "all", label: "All Years" });
+    
+    // Generate years from user's join year to current year
+    for (let year = currentYear; year >= userJoinYear; year--) {
+      years.push({ value: year.toString(), label: year.toString() });
+    }
+    
+    return years;
+  }, [user?.createdAt]);
+
+  // Filter posts by selected year (client-side)
+  const allMyPosts = useMemo(() => {
+    const posts = userMyPostFeedsData?.posts || [];
+    
+    if (!selectedYear || selectedYear === "all") {
+      return posts;
+    }
+    
+    const year = parseInt(selectedYear);
+    return posts.filter((post: PostAttributes) => {
+      if (!post.createdAt) return false;
+      const postYear = new Date(post.createdAt).getFullYear();
+      return postYear === year;
+    });
+  }, [userMyPostFeedsData?.posts, selectedYear]);
 
   const handleLoadMore = () => {
     if (hasNextPage) {
@@ -64,17 +88,19 @@ export default function PostsClientTeachers() {
       {/* Mobile Version */}
       <div className="md:hidden">
         <MobilePostsClient
-          filters={filterOptions}
-          activeFilter={activeFilter}
-          setActiveFilter={(value) => {
-            setActiveFilter(value as PostFilter);
-            scrollToTop();
-          }}
+          filters={yearOptions}
+          activeFilter="all"
+          setActiveFilter={() => {}}
           visiblePosts={allMyPosts}
           hasMorePosts={hasNextPage ?? false}
           handleLoadMore={handleLoadMore}
           isFetchingNextPage={isFetchingNextPage}
           isLoading={isUserMyPostFeedsDataLoading}
+          selectedYear={selectedYear}
+          onYearChange={(year) => {
+            setSelectedYear(year);
+            scrollToTop();
+          }}
         />
       </div>
 
@@ -87,25 +113,23 @@ export default function PostsClientTeachers() {
           </h4>
 
           <div className="flex flex-row gap-1.5 items-center">
-            <div className="flex flex-wrap gap-2">
-              {filterOptions.map((option) => (
-                <button
-                  key={option.value}
-                  type="button"
-                  onClick={() => {
-                    setActiveFilter(option.value);
+            {yearOptions.length > 0 && (
+              <div className="w-48">
+                <CustomSelect
+                  options={yearOptions}
+                  defaultValue={
+                    selectedYear
+                      ? yearOptions.find((y) => y.value === selectedYear)
+                      : yearOptions[0]
+                  }
+                  onChange={(option) => {
+                    setSelectedYear(option?.value as string | null);
                     scrollToTop();
                   }}
-                  className={`px-4 py-2 rounded-full text-sm font-medium border transition ${
-                    activeFilter === option.value
-                      ? "bg-[#0C0C0C] text-white border-[#0C0C0C]"
-                      : "bg-white text-[#717171] border-[#DBDBDB] hover:bg-gray-50"
-                  }`}
-                >
-                  {option.label}
-                </button>
-              ))}
-            </div>
+                  placeholder="Select Year"
+                />
+              </div>
+            )}
           </div>
         </div>
 

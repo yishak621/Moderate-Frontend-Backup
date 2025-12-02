@@ -123,7 +123,7 @@ export function useAdminUsersData(
         queryFn: () => getAllUsers(page - 1, curricular || "", debouncedSearch),
       });
     }
-  }, [page, curricular, debouncedSearch]); // queryClient is stable and doesn't need to be in deps
+  }, [page, curricular, debouncedSearch]); 
 
   return {
     allUsers: query.data,

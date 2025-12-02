@@ -437,7 +437,12 @@ export function useFavoritePosts() {
 export const useUserUploadFile = () => {
   const { mutate, mutateAsync, data, isPending, isSuccess, isError, error } =
     useMutation({
-      mutationFn: (data: File) => uploadFileApi(data),
+      mutationFn: (data: File | { file: File; textContent?: string }) => {
+        if (data instanceof File) {
+          return uploadFileApi(data);
+        }
+        return uploadFileApi(data.file, data.textContent);
+      },
       onSuccess: () => {
         toast.success("File Uploaded Successfully!");
       },

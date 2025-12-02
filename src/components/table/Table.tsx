@@ -10,11 +10,13 @@ import {
 interface DataTableProps<T extends object> {
   data: T[];
   columns: ColumnDef<T, any>[];
+  getRowClassName?: (row: { original: T }) => string;
 }
 
 export default function DataTable<T extends object>({
   data,
   columns,
+  getRowClassName,
 }: DataTableProps<T>) {
   const table = useReactTable({
     data,
@@ -48,18 +50,22 @@ export default function DataTable<T extends object>({
 
         {/* Table Body */}
         <tbody>
-          {table.getRowModel().rows.map((row, rowIndex) => (
-            <tr
-              key={row.id}
-              className={rowIndex % 2 === 1 ? "bg-gray-50" : "bg-white"}
-            >
-              {row.getVisibleCells().map((cell) => (
-                <td key={cell.id} className="px-4 py-3 text-sm text-gray-700">
-                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                </td>
-              ))}
-            </tr>
-          ))}
+          {table.getRowModel().rows.map((row, rowIndex) => {
+            const customClassName = getRowClassName?.(row);
+            const defaultClassName = rowIndex % 2 === 1 ? "bg-gray-50" : "bg-white";
+            return (
+              <tr
+                key={row.id}
+                className={customClassName || defaultClassName}
+              >
+                {row.getVisibleCells().map((cell) => (
+                  <td key={cell.id} className="px-4 py-3 text-sm text-gray-700">
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  </td>
+                ))}
+              </tr>
+            );
+          })}
         </tbody>
       </table>
     </div>

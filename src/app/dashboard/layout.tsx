@@ -18,6 +18,7 @@ import {
   CircleQuestionMark,
   User,
   LogOut,
+  Brain,
   Shield,
   BookOpen,
   AtSign,
@@ -119,7 +120,11 @@ function getSidebarItems(role: Role): NavItem[] {
     { label: "Overview", icon: LayoutDashboard, href: "/dashboard/teacher" },
     { label: "Grading Feeds", icon: Star, href: "/dashboard/teacher/grading" },
     { label: "My Posts", icon: FileText, href: "/dashboard/teacher/posts" },
-
+    {
+      label: "AI Analysis",
+      icon: Brain,
+      href: "/dashboard/teacher/ai-analysis",
+    },
     {
       label: "Messages",
       icon: MessageSquare,
@@ -147,12 +152,10 @@ function getSidebarItems(role: Role): NavItem[] {
 }
 
 function getMobileSidebarItems(role: Role): NavItem[] {
-  // Only show mobile sidebar for teachers, not admins
   if (role !== "TEACHER") {
-    return []; // No mobile sidebar for admin
+    return [];
   }
 
-  // Return only 4 specific items for teachers on mobile
   const allTeacherItems = getSidebarItems(role);
 
   const mobileItems = ["Overview", "Grading Feeds", "Messages", "Settings"];
@@ -165,17 +168,14 @@ function getDashboardTitle(
   role: Role,
   sidebarItems: NavItem[]
 ) {
-  // Find the exact match in sidebar items
   const match = sidebarItems.find((item) => item.href === pathname);
   if (match) return match.label;
 
-  // fallback: if nested route, find parent match
   const parentMatch = sidebarItems.find((item) =>
     pathname.startsWith(item.href + "/")
   );
   if (parentMatch) return parentMatch.label;
 
-  // default title
   return "Dashboard";
 }
 
@@ -237,7 +237,8 @@ function DashboardLayoutContent({ children }: { children: ReactNode }) {
   const unreadCount = unreadData?.count || 0;
 
   const { totalUnreadCount: unreadMessagesCount } = useUnreadMessages(user?.id);
-  const { unreadCount: unreadSupportTicketsCount } = useUnreadSupportTicketsCount();
+  const { unreadCount: unreadSupportTicketsCount } =
+    useUnreadSupportTicketsCount();
 
   useMessageSocket({
     userId: user?.id,
@@ -291,7 +292,6 @@ function DashboardLayoutContent({ children }: { children: ReactNode }) {
         router.push(profileLink);
       },
     },
-    // { label: "Settings", onClick: () => router.push("/settings") },
     { label: "Logout", icon: <LogOut size={22} />, onClick: handleLogout },
   ];
 
@@ -337,7 +337,7 @@ function DashboardLayoutContent({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768); // md breakpoint
+      setIsMobile(window.innerWidth < 768);
     };
 
     checkMobile();
@@ -365,7 +365,7 @@ function DashboardLayoutContent({ children }: { children: ReactNode }) {
 
   const handleSearch = () => {
     console.log("Searching for:", query);
-    // Call API or filter list
+    //TODO: Implement search functionality
   };
 
   const adminRightContent = () => {

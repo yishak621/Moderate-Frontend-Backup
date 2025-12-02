@@ -5,6 +5,7 @@ import { UploadCloud, Camera } from "lucide-react";
 import toast from "react-hot-toast";
 import { useUserRemoveUploadedFile, useUserUploadFile } from "@/hooks/useUser";
 import Button from "@/components/ui/Button";
+import { extractTextFromFile } from "@/utils/fileTextExtractor";
 
 interface UploadedFile {
   id: string;
@@ -61,7 +62,76 @@ export default function FileUploader({
       setUploadingFiles((prev) => new Set(prev).add(fileId));
 
       try {
-        const uploadedFile = await uploadFileAsync(file);
+        // Extract text content from file (REQUIRED for embedding generation)
+        let extractedText = "";
+        const isImage = file.type.startsWith("image/");
+
+        if (isImage) {
+          // Show toast for OCR processing (can take time)
+          const ocrToast = toast.loading(`Processing OCR for ${file.name}...`);
+
+          try {
+            extractedText = await extractTextFromFile(file, (progress) => {
+              // Update file progress for OCR
+              setFiles((prev) =>
+                prev.map((f) => (f.id === fileId ? { ...f, progress } : f))
+              );
+            });
+
+            if (extractedText) {
+              toast.success(
+                `✅ Extracted ${extractedText.length} characters from ${file.name}`,
+                { id: ocrToast }
+              );
+              console.log(
+                `✅ Extracted ${extractedText.length} characters from ${file.name}`
+              );
+            } else {
+              toast.dismiss(ocrToast);
+              console.warn(
+                `⚠️ No text found in image ${file.name} (may be image-only or low quality)`
+              );
+            }
+            // Reset progress after OCR completes
+            setFiles((prev) =>
+              prev.map((f) =>
+                f.id === fileId ? { ...f, progress: undefined } : f
+              )
+            );
+          } catch (extractError) {
+            toast.error(
+              `OCR failed for ${file.name}. Uploading without text extraction.`,
+              { id: ocrToast }
+            );
+            console.warn(
+              `⚠️ Failed to extract text from ${file.name}:`,
+              extractError
+            );
+            // Continue with upload even if extraction fails
+          }
+        } else {
+          // For non-images (PDF, text), extract normally
+          try {
+            extractedText = await extractTextFromFile(file);
+            if (extractedText) {
+              console.log(
+                `✅ Extracted ${extractedText.length} characters from ${file.name}`
+              );
+            }
+          } catch (extractError) {
+            console.warn(
+              `⚠️ Failed to extract text from ${file.name}:`,
+              extractError
+            );
+            // Continue with upload even if extraction fails
+          }
+        }
+
+        // Upload file with extracted text content
+        const uploadedFile = await uploadFileAsync({
+          file,
+          textContent: extractedText || undefined,
+        });
         const uploaded: UploadedFile = {
           ...tempFile,
           id: uploadedFile.upload.id,
