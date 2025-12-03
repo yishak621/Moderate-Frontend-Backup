@@ -95,7 +95,10 @@ export function getAIAnalysisColumns(
             status: "completed" as any,
             type: "grader",
             result: isNewStructure
-              ? (graderData as any).rawResult
+              ? {
+                  rawResult: (graderData as any).rawResult,
+                  metadata: (graderData as any).metadata,
+                }
               : (graderData as any).result,
             isPublic: (graderData as any).isPublic || false,
             createdAt: isNewStructure

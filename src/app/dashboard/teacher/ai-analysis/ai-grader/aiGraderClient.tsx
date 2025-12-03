@@ -102,7 +102,13 @@ export default function AIGraderClient() {
         postTitle: undefined,
         status,
         // This is what the grader result modal reads (gradingResult)
-        result: aiResult?.rawResult,
+        // Pass the entire aiResult structure which includes rawResult and metadata
+        result: aiResult
+          ? {
+              rawResult: aiResult.rawResult,
+              metadata: aiResult.metadata,
+            }
+          : undefined,
         error: undefined,
         isPublic: false,
         createdAt: doc.createdAt,
