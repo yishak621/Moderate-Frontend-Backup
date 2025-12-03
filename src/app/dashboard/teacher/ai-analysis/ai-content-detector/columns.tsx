@@ -74,7 +74,7 @@ export function getAIContentDetectorColumns(
           <div className="flex items-center justify-center">
             {hasResult ? (
               <Button
-                variant="ghost"
+                variant="secondary"
                 className="text-purple-600 hover:text-purple-700 text-sm"
                 onClick={() =>
                   handleOpenModal(AIContentDetectorResultModal, {

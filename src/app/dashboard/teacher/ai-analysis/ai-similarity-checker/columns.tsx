@@ -73,7 +73,7 @@ export function getAISimilarityCheckerColumns(
           <div className="flex items-center justify-center">
             {hasResult ? (
               <Button
-                variant="ghost"
+                variant="secondary"
                 className="text-green-600 hover:text-green-700 text-sm"
                 onClick={() =>
                   handleOpenModal(AISimilarityResultModal, {
