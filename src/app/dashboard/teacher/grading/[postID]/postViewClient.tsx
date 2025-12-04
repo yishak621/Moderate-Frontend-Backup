@@ -1,7 +1,7 @@
 "use client";
 
 import { useParams, useRouter } from "next/navigation";
-import { ChevronLeft, ChevronRight, UserPlus } from "lucide-react";
+import { ChevronLeft, ChevronRight, UserPlus, MoreVertical } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { FilterButtons } from "@/components/ui/FilterButtons";
 import PostTags from "@/modules/dashboard/teacher/PostTags";
@@ -31,6 +31,11 @@ import Image from "next/image";
 import toast from "react-hot-toast";
 import ResponsiveModal from "@/components/ui/ResponsiveModal";
 import DeleteGradeModal from "@/modules/dashboard/teacher/DeleteGradeModal";
+import PopupCard from "@/components/PopCard";
+import PostActionsList from "@/modules/dashboard/teacher/post/PostActionsList";
+import EditPostModal from "@/modules/dashboard/teacher/post/EditPostModal";
+import DeletePostModal from "@/modules/dashboard/teacher/post/DeletePostModal";
+import ViewStatPostModal from "@/modules/dashboard/teacher/post/ViewDetailPostModal";
 import { useGradeEditStore } from "@/store/gradeEditStore";
 import UserActionsMenu from "@/components/UserActionsMenu";
 import ImageViewer from "@/components/ui/ImageViewer";
@@ -88,6 +93,12 @@ export default function PostViewClient() {
   const filters = ["Grades", "Grade Test"];
   const [activeFilter, setActiveFilter] = useState("Grades");
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  
+  // Post owner actions state
+  const [isPostActionsOpen, setIsPostActionsOpen] = useState(false);
+  const [isPostModalOpen, setIsPostModalOpen] = useState(false);
+  const [PostModalComponent, setPostModalComponent] = useState<React.ComponentType<any> | null>(null);
+  const [postModalProps, setPostModalProps] = useState<Record<string, any>>({});
 
   // zustand store
   const { isEditingGrade: isEditingGradeInStore, setEditingGrade } =
@@ -219,6 +230,30 @@ console.log(existingGradeData,'existinguserdata')
       return;
     }
     setIsDeleteModalOpen(true);
+  };
+
+  // Handle post owner actions (edit, delete, stats)
+  const handlePostActionSelect = (action: string) => {
+    setIsPostActionsOpen(false);
+    switch (action) {
+      case "edit":
+        setPostModalComponent(() => EditPostModal);
+        setPostModalProps({ post });
+        setIsPostModalOpen(true);
+        break;
+      case "delete":
+        setPostModalComponent(() => DeletePostModal);
+        setPostModalProps({ post });
+        setIsPostModalOpen(true);
+        break;
+      case "stats":
+        setPostModalComponent(() => ViewStatPostModal);
+        setPostModalProps({ post });
+        setIsPostModalOpen(true);
+        break;
+      default:
+        console.log("Selected:", action);
+    }
   };
 
   const nextFile = () => {
@@ -405,7 +440,27 @@ console.log(existingGradeData,'existinguserdata')
                   <p className=" mt-2.5 ">{description}</p>
                 </div>
               </div>
-              {!isAuthor && (
+              {isAuthor ? (
+                /* Owner's three-dot menu with edit, delete, stats */
+                <div className="relative">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setIsPostActionsOpen((v) => !v);
+                    }}
+                    className="p-2 rounded-full hover:bg-gray-100 transition-colors"
+                  >
+                    <MoreVertical size={20} className="text-gray-500 hover:text-gray-700" />
+                  </button>
+                  <PopupCard
+                    isOpen={isPostActionsOpen}
+                    onClose={() => setIsPostActionsOpen(false)}
+                    align="right"
+                  >
+                    <PostActionsList onSelect={handlePostActionSelect} />
+                  </PopupCard>
+                </div>
+              ) : (
                 <div className="flex items-center gap-2">
                   <UserActionsMenu
                     userId={author.id}
@@ -1090,6 +1145,11 @@ console.log(existingGradeData,'existinguserdata')
         isOpen={isImageViewerOpen}
         onClose={closeImageViewer}
       />
+
+      {/* Post Actions Modal (Edit, Delete, Stats) */}
+      <ResponsiveModal isOpen={isPostModalOpen} onOpenChange={setIsPostModalOpen}>
+        {PostModalComponent && <PostModalComponent {...postModalProps} />}
+      </ResponsiveModal>
     </>
   );
 }

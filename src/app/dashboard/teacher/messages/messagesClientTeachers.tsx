@@ -40,6 +40,7 @@ import {
 import { useCreateGroupChat } from "@/hooks/useMessage";
 import CreateGroupModal from "@/modules/dashboard/teacher/messages/CreateGroupModal";
 import GroupMembersModal from "@/modules/dashboard/teacher/messages/GroupMembersModal";
+import UserProfileModal from "@/components/UserProfileModal";
 import ResponsiveModal from "@/components/ui/ResponsiveModal";
 import { decoded } from "@/lib/currentUser";
 import { Message, Thread, Threads } from "@/app/types/threads";
@@ -90,6 +91,9 @@ export default function MessagesClientTeachers() {
   const [isGroupChat, setIsGroupChat] = useState<boolean>(false);
   const [showCreateGroupModal, setShowCreateGroupModal] = useState(false);
   const [showGroupMembersModal, setShowGroupMembersModal] = useState(false);
+  const [profileModalUserId, setProfileModalUserId] = useState<string | null>(
+    null
+  );
 
   // Confirmation modal state
   type ConfirmationType =
@@ -1085,17 +1089,29 @@ export default function MessagesClientTeachers() {
                 </div>
                 {isMessagesSuccess && (
                   <div className="flex flex-col">
-                    <p className="text-xl text-[#0c0c0c] font-medium">
-                      {isGroupChat
-                        ? conversations?.find(
-                            (conv: any) => conv.id === activeConversationId
-                          )?.name || "Group Chat"
-                        : `Chat with ${
-                            threads?.data.find(
-                              (thread: Threads) => thread.partnerId === activeId
-                            )?.partnerName || ""
-                          }`}
-                    </p>
+                    {isGroupChat ? (
+                      <p className="text-xl text-[#0c0c0c] font-medium">
+                        {conversations?.find(
+                          (conv: any) => conv.id === activeConversationId
+                        )?.name || "Group Chat"}
+                      </p>
+                    ) : (
+                      <button
+                        onClick={() => {
+                          if (activeId) {
+                            setProfileModalUserId(activeId);
+                          }
+                        }}
+                        className="text-xl text-[#0c0c0c] font-medium hover:text-blue-600 transition-colors text-left"
+                      >
+                        Chat with{" "}
+                        <span className="hover:underline">
+                          {threads?.data.find(
+                            (thread: Threads) => thread.partnerId === activeId
+                          )?.partnerName || ""}
+                        </span>
+                      </button>
+                    )}
                     {/* Blocked Status Indicator */}
                     {cannotSendMessage && (
                       <div className="flex items-center gap-1.5 mt-1">
@@ -1152,20 +1168,32 @@ export default function MessagesClientTeachers() {
 
                       return (
                         <div key={message.id} className="flex items-end gap-2">
-                          {!isSender &&
-                            (senderProfilePic ? (
-                              <Image
-                                src={senderProfilePic}
-                                alt={senderName}
-                                width={32}
-                                height={32}
-                                className="w-8 h-8 rounded-full object-cover border-2 border-[#368FFF]"
-                              />
-                            ) : (
-                              <div className="w-8 h-8 rounded-full bg-[#368FFF] flex items-center justify-center text-white font-semibold text-sm border-2 border-[#368FFF]">
-                                {senderName.charAt(0).toUpperCase()}
-                              </div>
-                            ))}
+                          {!isSender && (
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                if (message.senderId) {
+                                  setProfileModalUserId(message.senderId);
+                                }
+                              }}
+                              className="flex-shrink-0 hover:opacity-80 transition-opacity cursor-pointer"
+                              title={`View ${senderName}'s profile`}
+                            >
+                              {senderProfilePic ? (
+                                <Image
+                                  src={senderProfilePic}
+                                  alt={senderName}
+                                  width={32}
+                                  height={32}
+                                  className="w-8 h-8 rounded-full object-cover border-2 border-[#368FFF] hover:border-blue-400 transition-colors"
+                                />
+                              ) : (
+                                <div className="w-8 h-8 rounded-full bg-[#368FFF] hover:bg-blue-400 flex items-center justify-center text-white font-semibold text-sm border-2 border-[#368FFF] hover:border-blue-400 transition-colors">
+                                  {senderName.charAt(0).toUpperCase()}
+                                </div>
+                              )}
+                            </button>
+                          )}
                           <div
                             className={`max-w-[70%] p-3 my-1 rounded-xl relative wrap-break-word ${
                               isSender
@@ -1185,9 +1213,17 @@ export default function MessagesClientTeachers() {
                             {message.content}
                             <div className="flex items-center justify-between mt-1  mr-2">
                               {!isSender && isGroupChat && (
-                                <span className="text-[10px] text-gray-600 font-medium mr-3">
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    if (message.senderId) {
+                                      setProfileModalUserId(message.senderId);
+                                    }
+                                  }}
+                                  className="text-[10px] text-gray-600 font-medium mr-3 hover:text-blue-600 hover:underline transition-colors cursor-pointer"
+                                >
                                   {senderName}
-                                </span>
+                                </button>
                               )}
                               <div className="flex items-center gap-1">
                                 <span
@@ -1435,6 +1471,21 @@ export default function MessagesClientTeachers() {
           </>
         )}
       </AnimatePresence>
+
+      {/* User Profile Modal */}
+      <UserProfileModal
+        isOpen={!!profileModalUserId}
+        onClose={() => setProfileModalUserId(null)}
+        userId={profileModalUserId}
+        onBlock={() => {
+          // Refresh threads after blocking
+          setProfileModalUserId(null);
+        }}
+        onUnblock={() => {
+          // Refresh threads after unblocking
+          setProfileModalUserId(null);
+        }}
+      />
     </>
   );
 }
