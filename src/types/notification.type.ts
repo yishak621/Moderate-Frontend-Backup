@@ -24,7 +24,9 @@ export type NotificationType =
   | "admin_system_error"
   | "admin_user_registered"
   | "support_message_received"
-  | "support_message_admin";
+  | "support_message_admin"
+  | "group_member_added"
+  | "group_message_received";
 
 export interface Notification {
   id: string;

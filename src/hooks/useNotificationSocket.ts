@@ -88,8 +88,15 @@ export function useNotificationSocket({
         });
       }
 
-      // Show toast notification
-      // For support messages, show a longer duration and different icon
+      // Invalidate conversation queries when added to a group chat or new group message
+      if (notification.type === "group_member_added" || notification.type === "group_message_received") {
+        queryClient.invalidateQueries({ queryKey: ["conversations"] });
+        queryClient.invalidateQueries({ queryKey: ["group-messages"] });
+      }
+
+      // Show toast notification with unique ID to prevent duplicates
+      const toastId = `notification-${notification.id}`;
+      
       if (
         notification.type === "support_message_received" ||
         notification.type === "support_message_admin"
@@ -101,6 +108,29 @@ export function useNotificationSocket({
           {
             duration: 6000,
             icon: "💬",
+            id: toastId,
+          }
+        );
+      } else if (notification.type === "group_member_added") {
+        toast.success(
+          `${notification.title}${
+            notification.message ? `: ${notification.message}` : ""
+          }`,
+          {
+            duration: 6000,
+            icon: "👥",
+            id: toastId,
+          }
+        );
+      } else if (notification.type === "group_message_received") {
+        toast.success(
+          `${notification.title}${
+            notification.message ? `: ${notification.message}` : ""
+          }`,
+          {
+            duration: 5000,
+            icon: "💬",
+            id: toastId,
           }
         );
       } else {
@@ -111,6 +141,7 @@ export function useNotificationSocket({
           {
             duration: 5000,
             icon: "🔔",
+            id: toastId,
           }
         );
       }

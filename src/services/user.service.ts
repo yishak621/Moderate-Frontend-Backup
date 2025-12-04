@@ -535,6 +535,44 @@ export const saveUserSettings = async (data: { settings: SettingItem }) => {
 
 //-------------------UPLOAD PROFILE PICTURE
 
+//-------------------SEARCH USERS (for group chat)
+export const searchUsers = async (
+  page: number = 1,
+  limit: number = 10,
+  search?: string
+) => {
+  try {
+    const params = new URLSearchParams({
+      page: page.toString(),
+      limit: limit.toString(),
+    });
+    if (search) {
+      params.append("search", search);
+    }
+
+    const res = await axiosInstance.get(`/api/user/search?${params.toString()}`);
+
+    if (!res) {
+      throw new Error("No response from server");
+    }
+
+    return res.data;
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error(error);
+      throw new Error(
+        // @ts-expect-error: might be Axios error with response
+        error?.response?.data?.message ||
+          error.message ||
+          "Something went wrong"
+      );
+    } else {
+      console.error("Unknown error", error);
+      throw new Error("Something went wrong");
+    }
+  }
+};
+
 export const uploadProfilePicture = async (file: File) => {
   try {
     const formData = new FormData();

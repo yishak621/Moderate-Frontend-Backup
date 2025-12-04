@@ -22,6 +22,7 @@ import {
   Globe,
   AlertTriangle,
   UserPlus,
+  Users,
 } from "lucide-react";
 import { useMarkNotificationAsRead } from "@/hooks/useNotifications";
 import { useRouter } from "next/navigation";
@@ -66,6 +67,9 @@ const getNotificationIcon = (type: Notification["type"]) => {
     case "post_commented":
     case "comment_replied":
       return MessageSquare;
+    case "group_member_added":
+    case "group_message_received":
+      return Users;
     case "payment_success":
       return CheckCircle2;
     case "payment_failed":
@@ -115,6 +119,8 @@ const getNotificationColor = (type: Notification["type"]) => {
     case "grade_updated":
       return "bg-blue-100 text-blue-600";
     case "message_received":
+    case "group_member_added":
+    case "group_message_received":
       return "bg-purple-100 text-purple-600";
     // Admin notification types
     case "admin_moderation_warning":
@@ -183,7 +189,16 @@ export default function NotificationItem({
     }
 
     // Regular user notification routing
-    if (notification.relatedPostId) {
+    if (notification.type === "group_member_added" || notification.type === "group_message_received") {
+      // Navigate to group chat using conversationId from metadata
+      const conversationId = notification.metadata?.conversationId;
+      if (conversationId) {
+        router.push(`/dashboard/teacher/messages?conversationId=${conversationId}`);
+      } else {
+        // Fallback to messages page if conversationId is missing
+        router.push("/dashboard/teacher/messages");
+      }
+    } else if (notification.relatedPostId) {
       router.push(`/dashboard/teacher/grading/${notification.relatedPostId}`);
     } else if (notification.relatedMessageId) {
       router.push(

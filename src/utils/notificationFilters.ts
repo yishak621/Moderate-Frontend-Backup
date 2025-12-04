@@ -32,6 +32,8 @@ export const USER_NOTIFICATION_TYPES: NotificationType[] = [
   "comment_replied",
   "system_announcement",
   "support_message_received", // User receives notification when admin replies
+  "group_member_added", // User receives notification when added to a group chat
+  "group_message_received", // User receives notification when new message in group chat
 ];
 
 /**

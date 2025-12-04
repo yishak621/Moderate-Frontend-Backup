@@ -1,6 +1,6 @@
 "use client";
 import PopupCard from "@/components/PopCard";
-import { Ban, MoreVertical, Trash2, User } from "lucide-react";
+import { Ban, LogOut, MoreVertical, Trash2, User, Users, UserCheck } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
@@ -8,44 +8,105 @@ import Image from "next/image";
 
 interface ThreadBox {
   chatId?: string;
+  conversationId?: string;
   name: string;
   unreadCount: number;
   lastMessage: string;
   isActive?: boolean;
   isOnline?: boolean;
   profilePictureUrl?: string | null;
-  onSelect?: (id: string) => void;
+  isGroup?: boolean;
+  isBlocked?: boolean; // You blocked them
+  isBlockedByThem?: boolean; // They blocked you
+  onSelect?: (id: string, isGroup?: boolean) => void;
+  onLeaveGroup?: (conversationId: string) => void;
+  onDeleteThread?: (chatId: string, name: string) => void;
+  onBlockUser?: (chatId: string, name: string) => void;
+  onUnblockUser?: (chatId: string, name: string) => void;
 }
 
 export function ThreadBox({
   chatId,
+  conversationId,
   name,
   unreadCount,
   lastMessage,
   isActive = false,
   isOnline = false,
   profilePictureUrl,
+  isGroup = false,
+  isBlocked = false,
+  isBlockedByThem = false,
   onSelect,
+  onLeaveGroup,
+  onDeleteThread,
+  onBlockUser,
+  onUnblockUser,
 }: ThreadBox) {
   const router = useRouter();
   const [isPopUpOpen, setIsPopUpOpen] = useState(false);
 
-  const menuItems = [
-    {
-      label: "Delete Thread",
-      icon: <Trash2 size={16} />,
-      onClick: () => console.log("Delete thread"),
-    },
-    {
-      label: "Block User",
-      icon: <Ban size={16} />,
-      onClick: () => console.log("Block user"),
-    },
-  ];
+  const handleLeaveGroup = () => {
+    if (conversationId && onLeaveGroup) {
+      onLeaveGroup(conversationId);
+    }
+  };
+
+  const handleDeleteThread = () => {
+    if (chatId && onDeleteThread) {
+      onDeleteThread(chatId, name);
+    }
+  };
+
+  const handleBlockUser = () => {
+    if (chatId && onBlockUser) {
+      onBlockUser(chatId, name);
+    }
+  };
+
+  const handleUnblockUser = () => {
+    if (chatId && onUnblockUser) {
+      onUnblockUser(chatId, name);
+    }
+  };
+
+  const menuItems = isGroup
+    ? [
+        {
+          label: "Leave Group",
+          icon: <LogOut size={16} />,
+          onClick: handleLeaveGroup,
+        },
+      ]
+    : [
+        {
+          label: "Delete Thread",
+          icon: <Trash2 size={16} />,
+          onClick: handleDeleteThread,
+        },
+        isBlocked
+          ? {
+              label: "Unblock User",
+              icon: <UserCheck size={16} />,
+              onClick: handleUnblockUser,
+              className: "text-green-600 hover:text-green-700 hover:bg-green-50",
+            }
+          : {
+              label: "Block User",
+              icon: <Ban size={16} />,
+              onClick: handleBlockUser,
+              className: "text-red-600 hover:text-red-700 hover:bg-red-50",
+            },
+      ];
 
   const handleClick = () => {
-    if (onSelect) onSelect(chatId || "");
-    router.push(`?chatId=${chatId}`);
+    const id = isGroup ? conversationId : chatId;
+    if (onSelect) onSelect(id || "", isGroup);
+    if (isGroup) {
+      router.push(`?conversationId=${conversationId}`);
+    } else {
+      router.push(`?chatId=${chatId}`);
+    }
   };
   console.log(isOnline);
   return (
@@ -59,46 +120,82 @@ export function ThreadBox({
         }`}
     >
       {/* Top row */}
-      <div className="flex flex-row justify-between items-start">
-        <div className="flex-1 min-w-0 flex flex-row gap-3">
-          {/* Profile Picture */}
-          <div className="flex-shrink-0">
-            {profilePictureUrl ? (
-              <Image
-                src={profilePictureUrl}
-                alt={name || "Profile"}
-                width={48}
-                height={48}
-                className="w-12 h-12 rounded-full object-cover border-2 border-[#368FFF]"
-              />
-            ) : (
-              <div className="w-12 h-12 rounded-full bg-[#90BDFD] border-2 border-[#368FFF] flex items-center justify-center">
-                {name ? (
-                  <span className="text-white text-lg font-semibold">
-                    {name[0]?.toUpperCase()}
-                  </span>
-                ) : (
-                  <User className="w-6 h-6 text-white" />
-                )}
-              </div>
+      <div className="flex flex-row items-center gap-3">
+        {/* Profile Picture / Group Icon - Fixed size, never shrinks */}
+        <div 
+          className="rounded-full"
+          style={{ width: '48px', height: '48px', minWidth: '48px', minHeight: '48px', flexShrink: 0 }}
+        >
+          {isGroup ? (
+            <div 
+              className="rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 border-2 border-[#368FFF] flex items-center justify-center"
+              style={{ width: '48px', height: '48px' }}
+            >
+              <Users className="w-6 h-6 text-white" />
+            </div>
+          ) : profilePictureUrl ? (
+            <Image
+              src={profilePictureUrl}
+              alt={name || "Profile"}
+              width={48}
+              height={48}
+              className={`rounded-full object-cover border-2 ${
+                isBlocked || isBlockedByThem
+                  ? "border-gray-300 grayscale opacity-70"
+                  : "border-[#368FFF]"
+              }`}
+              style={{ width: '48px', height: '48px', minWidth: '48px', minHeight: '48px' }}
+            />
+          ) : (
+            <div 
+              className={`rounded-full flex items-center justify-center border-2 ${
+                isBlocked || isBlockedByThem
+                  ? "bg-gray-400 border-gray-300"
+                  : "bg-[#90BDFD] border-[#368FFF]"
+              }`}
+              style={{ width: '48px', height: '48px' }}
+            >
+              {name ? (
+                <span className="text-white text-lg font-semibold">
+                  {name[0]?.toUpperCase()}
+                </span>
+              ) : (
+                <User className="w-6 h-6 text-white" />
+              )}
+            </div>
+          )}
+        </div>
+        
+        {/* Name and Message - Takes remaining space, truncates text */}
+        <div className="flex-1 min-w-0 overflow-hidden">
+          <div className="flex flex-row gap-1 items-center">
+            {!isGroup && isOnline && !isBlocked && !isBlockedByThem && (
+              <span className="inline-block h-2 w-2 bg-green-500 rounded-full flex-shrink-0"></span>
+            )}
+            {isGroup && (
+              <Users className="w-3 h-3 text-blue-600 flex-shrink-0" />
+            )}
+            {!isGroup && (isBlocked || isBlockedByThem) && (
+              <Ban className="w-3 h-3 text-red-500 flex-shrink-0" />
+            )}
+            <p className={`font-medium truncate ${isBlocked || isBlockedByThem ? "text-gray-500" : "text-gray-800"}`}>
+              {name}
+            </p>
+            {isBlocked && (
+              <span className="text-[10px] bg-red-100 text-red-600 px-1.5 py-0.5 rounded font-medium flex-shrink-0">
+                Blocked
+              </span>
             )}
           </div>
-          {/* Name and Message */}
-          <div className="flex-1 min-w-0">
-            <div className=" flex flex-row gap-1 items-center">
-              {" "}
-              {isOnline && (
-                <span className="inline-block h-2 w-2 bg-green-500 rounded-full"></span>
-              )}
-              <p className="font-medium text-gray-800 truncate">{name}</p>
-            </div>
-            <p className="text-[#717171] text-sm font-normal truncate">
-              {lastMessage}
-            </p>
-          </div>
+          <p className={`text-sm font-normal truncate ${isBlocked || isBlockedByThem ? "text-gray-400" : "text-[#717171]"}`}>
+            {isBlockedByThem && !isBlocked
+              ? "This user has restricted messages"
+              : lastMessage}
+          </p>
         </div>
 
-        <div className="flex items-center gap-2 flex-shrink-0">
+        {/* Right side actions - Fixed, never shrinks */}
+        <div className="flex items-center gap-2" style={{ flexShrink: 0 }}>
           {unreadCount > 0 && (
             <div className="flex justify-center items-center w-[20px] h-[20px] rounded-full bg-[#368FFF]">
               <p className="text-[#FDFDFD] text-[11px]">{unreadCount}</p>
@@ -132,9 +229,13 @@ export function ThreadBox({
                 item.onClick();
                 setIsPopUpOpen(false);
               }}
-              className="flex flex-row items-center gap-3 px-5 py-3 text-left text-[15px] text-gray-800 font-medium rounded-lg transition-all duration-200 hover:bg-gray-50 hover:text-blue-600 group"
+              className={`flex flex-row items-center gap-3 px-5 py-3 text-left text-[15px] font-medium rounded-lg transition-all duration-200 group ${
+                item.className || "text-gray-800 hover:bg-gray-50 hover:text-blue-600"
+              }`}
             >
-              <span className="text-gray-500 group-hover:text-blue-500 transition-colors duration-200">
+              <span className={`transition-colors duration-200 ${
+                item.className ? "" : "text-gray-500 group-hover:text-blue-500"
+              }`}>
                 {item.icon}
               </span>
               <span>{item.label}</span>

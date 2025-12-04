@@ -37,6 +37,7 @@ import {
   getFollowingUsers,
   getFollowers,
   unfollowUser,
+  searchUsers,
 } from "@/services/user.service";
 import { Grade, GradeData } from "@/types/Post";
 import { PostCreateInput } from "@/types/postAttributes";
@@ -941,3 +942,27 @@ export const useGetFollowers = () => {
     followersError: error,
   };
 };
+
+//--------------------SEARCH USERS (for group chat)
+export function useSearchUsers(
+  page: number = 1,
+  limit: number = 10,
+  search?: string
+) {
+  const { data, isPending, isSuccess, isError, error } = useQuery({
+    queryKey: ["searchUsers", page, limit, search],
+    queryFn: () => searchUsers(page, limit, search),
+    staleTime: 2 * 60 * 1000, // 2 minutes
+    gcTime: 5 * 60 * 1000, // 5 minutes
+    enabled: true,
+  });
+
+  return {
+    users: data?.users || [],
+    meta: data?.meta || { total: 0, page: 1, lastPage: 1 },
+    isSearchingUsers: isPending,
+    isSearchUsersSuccess: isSuccess,
+    isSearchUsersError: isError,
+    searchUsersError: error,
+  };
+}

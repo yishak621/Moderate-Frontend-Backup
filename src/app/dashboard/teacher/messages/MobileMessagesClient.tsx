@@ -9,7 +9,12 @@ import {
   useMarkMessageAsRead,
   useSendMessageAPI,
   useThreads,
+  useAllConversations,
+  useGroupMessages,
 } from "@/hooks/useMessage";
+import CreateGroupModal from "@/modules/dashboard/teacher/messages/CreateGroupModal";
+import ResponsiveModal from "@/components/ui/ResponsiveModal";
+import Button from "@/components/ui/Button";
 import { decoded } from "@/lib/currentUser";
 import { Message, Thread } from "@/app/types/threads";
 import EmojiPicker from "emoji-picker-react";
@@ -22,6 +27,7 @@ import SectionLoading from "@/components/SectionLoading";
 import { EmptyState } from "@/components/EmptyStateProps";
 import MobileTabNavigation from "@/components/ui/MobileTabNavigation";
 import { Loader2, Users, MessageSquare, Brain } from "lucide-react";
+import toast from "react-hot-toast";
 
 const tabs = [
   {
@@ -52,9 +58,15 @@ export default function MobileMessagesClient() {
   >([]);
   const [onlineUsers, setOnlineUsers] = useState<Set<string>>(new Set());
   const [sending, setSending] = useState<boolean>(false);
+  const sendingRef = useRef<boolean>(false);
 
   const userId: string = decoded?.id || "";
   const [activeId, setActiveId] = useState<string | null>(chatId);
+  const [activeConversationId, setActiveConversationId] = useState<
+    string | null
+  >(null);
+  const [isGroupChat, setIsGroupChat] = useState<boolean>(false);
+  const [showCreateGroupModal, setShowCreateGroupModal] = useState(false);
 
   const socketRef = useRef<Socket<DefaultEventsMap, DefaultEventsMap> | null>(
     null
@@ -66,9 +78,28 @@ export default function MobileMessagesClient() {
 
   // HOOKS
   const { isThreadsLoading, isThreadsSuccess, threads } = useThreads(userId);
-  const { isMessagesLoading, isMessagesSuccess, messages } = useGetMessages(
-    activeId || ""
-  );
+  const { conversations, isConversationsLoading } = useAllConversations();
+
+  // Get messages - either direct or group
+  const {
+    isMessagesLoading: isDirectMessagesLoading,
+    isMessagesSuccess: isDirectMessagesSuccess,
+    messages: directMessages,
+  } = useGetMessages(!isGroupChat ? activeId || "" : "");
+  const {
+    messages: groupMessages,
+    isGroupMessagesLoading,
+    isGroupMessagesSuccess,
+  } = useGroupMessages(isGroupChat ? activeConversationId || "" : "");
+
+  // Determine which messages to use
+  const isMessagesLoading = isGroupChat
+    ? isGroupMessagesLoading
+    : isDirectMessagesLoading;
+  const isMessagesSuccess = isGroupChat
+    ? isGroupMessagesSuccess
+    : isDirectMessagesSuccess;
+  const messages = isGroupChat ? { messages: groupMessages } : directMessages;
   const { markMessageAsRead, markMessageAsReadAsync } = useMarkMessageAsRead();
   const {
     sendMessageAPIAsync,
@@ -76,44 +107,127 @@ export default function MobileMessagesClient() {
     isSendMessageAPISuccess,
   } = useSendMessageAPI();
 
-  // Set chatId from URL params
+  // Set chatId/conversationId from URL params
   useEffect(() => {
     const chatIdParam = searchParams.get("chatId");
-    if (chatIdParam && chatIdParam !== activeId) {
-      setActiveId(chatIdParam);
-      setMessagesState([]); // Clear messages when switching threads
-    } else if (!chatIdParam && activeId) {
+    const conversationIdParam = searchParams.get("conversationId");
+
+    if (conversationIdParam && conversationIdParam !== activeConversationId) {
+      setIsGroupChat(true);
+      setActiveConversationId(conversationIdParam);
       setActiveId(null);
       setMessagesState([]);
-    }
-  }, [searchParams, activeId]);
-
-  // Set messages when fetched
-  useEffect(() => {
-    if (isMessagesSuccess && messages?.messages && activeId) {
-      setMessagesState(
-        [...messages.messages].sort(
-          (a, b) =>
-            new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
-        )
-      );
-    } else if (!activeId) {
+    } else if (chatIdParam && chatIdParam !== activeId) {
+      setIsGroupChat(false);
+      setActiveConversationId(null);
+      setActiveId(chatIdParam);
+      setMessagesState([]);
+    } else if (
+      !chatIdParam &&
+      !conversationIdParam &&
+      (activeId || activeConversationId)
+    ) {
+      setActiveId(null);
+      setActiveConversationId(null);
+      setIsGroupChat(false);
       setMessagesState([]);
     }
-  }, [isMessagesSuccess, messages, activeId]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams]); // Only depend on searchParams, not activeId/activeConversationId
 
-  // Initialize socket
+  // Track last processed message count to prevent infinite loops
+  const lastMessageCountRef = useRef<number>(0);
+  const lastCurrentIdRef = useRef<string | null>(null);
+
+  // Set messages when fetched - merge with existing pending messages
   useEffect(() => {
+    const currentId = isGroupChat ? activeConversationId : activeId;
+
+    // Only process if conversation changed or messages actually changed
+    const messageCount = messages?.messages?.length || 0;
+    const conversationChanged = currentId !== lastCurrentIdRef.current;
+    const messagesChanged = messageCount !== lastMessageCountRef.current;
+
+    if (
+      isMessagesSuccess &&
+      messages?.messages &&
+      currentId &&
+      (conversationChanged || messagesChanged)
+    ) {
+      const apiMessages = messages.messages || [];
+
+      setMessagesState((prev) => {
+        // Keep pending messages that haven't been confirmed yet
+        const pendingMessages = prev.filter((m) => m.pending && !m.failed);
+
+        // Merge API messages with pending messages, avoiding duplicates
+        const existingIds = new Set(prev.map((m) => m.id));
+        const newApiMessages = apiMessages.filter(
+          (m: any) => !existingIds.has(m.id)
+        );
+
+        // If no new messages and no pending, don't update
+        if (
+          newApiMessages.length === 0 &&
+          pendingMessages.length === 0 &&
+          !conversationChanged
+        ) {
+          return prev;
+        }
+
+        // Combine and sort
+        const allMessages = [...pendingMessages, ...newApiMessages].sort(
+          (a, b) =>
+            new Date(a.createdAt || "").getTime() -
+            new Date(b.createdAt || "").getTime()
+        );
+
+        return allMessages;
+      });
+
+      // Update refs
+      lastMessageCountRef.current = messageCount;
+      lastCurrentIdRef.current = currentId;
+    } else if (!currentId) {
+      setMessagesState([]);
+      lastMessageCountRef.current = 0;
+      lastCurrentIdRef.current = null;
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isMessagesSuccess, activeId, activeConversationId, isGroupChat]); // Removed 'messages' from deps
+
+  // Use refs to access current state values in socket handlers
+  const isGroupChatRef = useRef(isGroupChat);
+  const activeConversationIdRef = useRef(activeConversationId);
+  const activeIdRef = useRef(activeId);
+
+  // Update refs when state changes
+  useEffect(() => {
+    isGroupChatRef.current = isGroupChat;
+    activeConversationIdRef.current = activeConversationId;
+    activeIdRef.current = activeId;
+  }, [isGroupChat, activeConversationId, activeId]);
+
+  // Initialize socket - only once
+  useEffect(() => {
+    if (!token || !userId) return;
+
+    // Don't recreate socket if it already exists and is connected
+    if (socketRef.current?.connected) {
+      return;
+    }
+
     const socket = io(getSocketUrl(), {
       auth: { token },
       transports: ["websocket"],
     });
 
     socketRef.current = socket;
-    socket.emit("user:online", { userId });
 
+    // Wait for connection before emitting
     socket.on("connect", () => {
       console.log("WebSocket connected:", socket.id);
+      socket.emit("user:online", { userId });
     });
 
     socket.on("user:online", ({ userId }) => {
@@ -128,24 +242,65 @@ export default function MobileMessagesClient() {
       });
     });
 
-    socket.on("message:new", (message: Message) => {
+    const handleNewMessage = (
+      message: Message & { conversationId?: string }
+    ) => {
       // normalize createdAt like desktop
       const normalized = {
         ...message,
         createdAt: (message as any).createdAt ?? new Date().toISOString(),
       } as any;
 
-      if (
-        normalized.senderId === activeId ||
-        normalized.receiverId === activeId
-      ) {
-        setMessagesState((prev) =>
-          [...prev, normalized].sort(
-            (a: any, b: any) =>
-              new Date(a.createdAt ?? "").getTime() -
-              new Date(b.createdAt ?? "").getTime()
-          )
-        );
+      // Use refs to get current values
+      const currentIsGroupChat = isGroupChatRef.current;
+      const currentActiveConversationId = activeConversationIdRef.current;
+      const currentActiveId = activeIdRef.current;
+      const currentUserId = userId;
+
+      // Check if message is for current conversation (direct or group)
+      const isForCurrentChat = currentIsGroupChat
+        ? normalized.conversationId === currentActiveConversationId
+        : normalized.senderId === currentActiveId ||
+          normalized.receiverId === currentActiveId;
+
+      if (isForCurrentChat) {
+        // Update or append message, avoiding duplicates
+        setMessagesState((prev) => {
+          // Check if this message already exists (might be a pending message being confirmed)
+          const existingIndex = prev.findIndex(
+            (m) =>
+              m.id === normalized.id ||
+              (m.pending &&
+                m.content === normalized.content &&
+                Math.abs(
+                  new Date(m.createdAt || "").getTime() -
+                    new Date(normalized.createdAt || "").getTime()
+                ) < 5000) // Within 5 seconds
+          );
+
+          if (existingIndex >= 0) {
+            // Replace pending message with confirmed one
+            const updated = [...prev];
+            updated[existingIndex] = { ...normalized, pending: false };
+            // Also reset sending state if this was our message
+            if (normalized.senderId === currentUserId && sendingRef.current) {
+              setSending(false);
+              sendingRef.current = false;
+            }
+            return updated.sort(
+              (a: any, b: any) =>
+                new Date(a.createdAt ?? "").getTime() -
+                new Date(b.createdAt ?? "").getTime()
+            );
+          } else {
+            // New message, append it
+            return [...prev, normalized].sort(
+              (a: any, b: any) =>
+                new Date(a.createdAt ?? "").getTime() -
+                new Date(b.createdAt ?? "").getTime()
+            );
+          }
+        });
       } else {
         // update thread preview and unread count
         setThreadsState((prev) =>
@@ -161,15 +316,53 @@ export default function MobileMessagesClient() {
         }));
       }
 
-      if (normalized.senderId !== userId) {
+      if (normalized.senderId !== currentUserId) {
         audioRef.current?.play().catch(() => {});
       }
-    });
+    };
+
+    socket.on("message:new", handleNewMessage);
+
+    const handleMessageRead = ({
+      senderId,
+      readAt,
+    }: {
+      senderId: string;
+      readAt: string;
+    }) => {
+      setMessagesState((prev) =>
+        prev.map((m) => (m.senderId === senderId ? { ...m, readAt } : m))
+      );
+    };
+
+    socket.on("message:read", handleMessageRead);
 
     return () => {
-      socket.disconnect();
+      socket.off("message:new", handleNewMessage);
+      socket.off("message:read", handleMessageRead);
+      socket.off("user:online");
+      socket.off("user:offline");
+      socket.off("connect");
+      // Don't disconnect here - keep connection alive
     };
-  }, [token, userId, activeId]);
+  }, [token, userId]); // Only depend on token and userId
+
+  // Join/leave group conversation room
+  useEffect(() => {
+    if (!socketRef.current?.connected) return;
+
+    if (isGroupChat && activeConversationId) {
+      socketRef.current.emit("join:conversation", activeConversationId);
+      console.log("Joined conversation:", activeConversationId);
+
+      return () => {
+        if (socketRef.current?.connected) {
+          socketRef.current.emit("leave:conversation", activeConversationId);
+          console.log("Left conversation:", activeConversationId);
+        }
+      };
+    }
+  }, [isGroupChat, activeConversationId]);
 
   // Set threads when fetched
   useEffect(() => {
@@ -180,23 +373,36 @@ export default function MobileMessagesClient() {
 
   // Mark messages as read
   useEffect(() => {
-    if (activeId && messagesState.length > 0) {
+    if (!activeId || isGroupChat || !messagesState.length) return;
+
+    // Debounce mark as read to avoid excessive calls
+    const timeoutId = setTimeout(() => {
       markMessageAsReadAsync(activeId);
-    }
-  }, [activeId, messagesState.length, markMessageAsReadAsync]);
+    }, 500);
+
+    return () => clearTimeout(timeoutId);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeId, isGroupChat, messagesState.length]); // Only mark as read when messages change
 
   // Scroll to bottom when new messages arrive
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messagesState]);
 
+  // Sync sending state with ref
+  useEffect(() => {
+    sendingRef.current = sending;
+  }, [sending]);
+
   // Send message via WebSocket (mirror desktop behavior)
   const postId: string | null = null;
   async function handleSendMessage() {
-    if (!newMessage.trim() || !socketRef.current || !activeId || sending)
+    const currentId = isGroupChat ? activeConversationId : activeId;
+    if (!newMessage.trim() || !socketRef.current || !currentId || sending)
       return;
 
     setSending(true);
+    sendingRef.current = true;
     const tempId = `tmp_${Date.now()}_${Math.random()
       .toString(36)
       .slice(2, 7)}`;
@@ -208,22 +414,34 @@ export default function MobileMessagesClient() {
       {
         id: tempId,
         senderId: userId,
-        receiverId: activeId,
+        receiverId: isGroupChat ? undefined : activeId,
+        conversationId: isGroupChat ? activeConversationId : undefined,
         content,
         pending: true,
       } as any,
     ]);
 
     setNewMessage("");
-    setSending(false); // Reset immediately after clearing input
+
+    // Prepare message payload based on chat type
+    const messagePayload = isGroupChat
+      ? { tempId, conversationId: activeConversationId, content }
+      : { tempId, chatId, postId, receiverId: activeId, content };
 
     socketRef.current.emit(
       "message:send",
-      { tempId, chatId, postId, receiverId: activeId, content },
+      messagePayload,
       (ack: { ok?: boolean; message?: Message; error?: string }) => {
+        // Always reset sending state first
+        setSending(false);
+        sendingRef.current = false;
+
         if (!ack) {
           // fallback to HTTP
-          sendMessageAPIAsync({ content, receiverId: activeId } as any)
+          const httpPayload = isGroupChat
+            ? { conversationId: activeConversationId, content }
+            : { content, receiverId: activeId };
+          sendMessageAPIAsync(httpPayload as any)
             .then(() => {
               // let subsequent fetch/socket update the temp message
             })
@@ -236,30 +454,47 @@ export default function MobileMessagesClient() {
             });
           return;
         }
+
         if (ack.ok && ack.message) {
           setMessagesState((prev) =>
-            prev.map((m) => (m.id === tempId ? (ack.message as any) : m))
+            prev.map((m) =>
+              m.id === tempId ? { ...(ack.message as any), pending: false } : m
+            )
           );
         } else {
           setMessagesState((prev) =>
             prev.map((m) =>
-              m.id === tempId ? ({ ...m, failed: true } as any) : m
+              m.id === tempId
+                ? ({ ...m, pending: false, failed: true } as any)
+                : m
             )
           );
           console.error("send failed", ack.error);
+          toast.error(ack.error || "Failed to send message");
         }
       }
     );
   }
 
-  const handleThreadSelect = (threadId: string) => {
-    setActiveId(threadId);
+  const handleThreadSelect = (threadId: string, isGroup?: boolean) => {
+    if (isGroup) {
+      setIsGroupChat(true);
+      setActiveConversationId(threadId);
+      setActiveId(null);
+      router.push(`/dashboard/teacher/messages?conversationId=${threadId}`);
+    } else {
+      setIsGroupChat(false);
+      setActiveConversationId(null);
+      setActiveId(threadId);
+      router.push(`/dashboard/teacher/messages?chatId=${threadId}`);
+    }
     setMessagesState([]); // Clear previous messages
-    router.push(`/dashboard/teacher/messages?chatId=${threadId}`);
   };
 
   const handleBack = () => {
     setActiveId(null);
+    setActiveConversationId(null);
+    setIsGroupChat(false);
     router.push("/dashboard/teacher/messages");
   };
 
@@ -267,9 +502,12 @@ export default function MobileMessagesClient() {
   const activeThread = threadsState.find(
     (thread) => thread.partnerId === activeId
   );
+  const activeGroup = conversations?.find(
+    (conv: any) => conv.id === activeConversationId
+  );
 
-  // Show threads list if no active thread
-  if (!activeId) {
+  // Show threads list if no active thread/group
+  if (!activeId && !activeConversationId) {
     return (
       <div className="flex flex-col h-screen ">
         {/* Tab Navigation */}
@@ -311,10 +549,24 @@ export default function MobileMessagesClient() {
                 </div>
               ))}
             </div>
-          ) : threadsState.length === 0 ? (
+          ) : threadsState.length === 0 &&
+            (!conversations ||
+              conversations.filter((c: any) => c.type === "group").length ===
+                0) ? (
             <EmptyState />
           ) : (
             <div className="flex flex-col gap-3">
+              {/* Create Group Button */}
+              <Button
+                variant="primary"
+                onClick={() => setShowCreateGroupModal(true)}
+                className="w-full mb-2"
+                icon={<Users size={18} />}
+              >
+                Create New Group
+              </Button>
+
+              {/* Direct Messages */}
               {threadsState.map((thread) => (
                 <ThreadBox
                   key={thread.partnerId}
@@ -326,12 +578,34 @@ export default function MobileMessagesClient() {
                     0
                   }
                   lastMessage={thread.lastMessage}
-                  isActive={thread.partnerId === activeId}
+                  isActive={!isGroupChat && thread.partnerId === activeId}
                   isOnline={onlineUsers.has(thread.partnerId || "")}
                   profilePictureUrl={thread.partnerProfilePicture}
-                  onSelect={handleThreadSelect}
+                  onSelect={(id) => handleThreadSelect(id, false)}
+                  isGroup={false}
                 />
               ))}
+
+              {/* Group Conversations */}
+              {conversations
+                ?.filter((conv: any) => conv.type === "group")
+                .map((group: any) => (
+                  <ThreadBox
+                    key={group.id}
+                    conversationId={group.id}
+                    name={group.name}
+                    unreadCount={group.unreadCount || 0}
+                    lastMessage={
+                      group.lastMessage?.content ||
+                      group.messages?.[0]?.content ||
+                      "No messages yet"
+                    }
+                    isActive={isGroupChat && activeConversationId === group.id}
+                    onSelect={(id) => handleThreadSelect(id, true)}
+                    isOnline={false}
+                    isGroup={true}
+                  />
+                ))}
             </div>
           )}
         </div>
@@ -352,7 +626,11 @@ export default function MobileMessagesClient() {
             <ArrowLeft size={20} className="text-[#0C0C0C]" />
           </button>
           <div className="flex items-center gap-3 flex-1 min-w-0">
-            {activeThread?.partnerProfilePicture ? (
+            {isGroupChat ? (
+              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 border-2 border-[#368FFF] flex items-center justify-center">
+                <Users className="w-5 h-5 text-white" />
+              </div>
+            ) : activeThread?.partnerProfilePicture ? (
               <Image
                 src={activeThread.partnerProfilePicture}
                 alt={activeThread.partnerName}
@@ -369,9 +647,11 @@ export default function MobileMessagesClient() {
             )}
             <div className="flex-1 min-w-0">
               <h4 className="text-[#0C0C0C] text-base font-medium truncate">
-                {activeThread?.partnerName || "User"}
+                {isGroupChat
+                  ? activeGroup?.name || "Group Chat"
+                  : activeThread?.partnerName || "User"}
               </h4>
-              {onlineUsers.has(activeId) && (
+              {!isGroupChat && onlineUsers.has(activeId || "") && (
                 <p className="text-xs text-green-500">Online</p>
               )}
             </div>
@@ -403,10 +683,15 @@ export default function MobileMessagesClient() {
                   {!isOwn && (
                     <Image
                       src={
+                        (message as any).sender?.profilePictureUrl ||
                         activeThread?.partnerProfilePicture ||
                         "/images/sample-user.png"
                       }
-                      alt={activeThread?.partnerName || "Receiver"}
+                      alt={
+                        (message as any).sender?.name ||
+                        activeThread?.partnerName ||
+                        "User"
+                      }
                       width={32}
                       height={32}
                       className="w-8 h-8 rounded-full object-cover border-2 border-[#368FFF]"
@@ -425,14 +710,25 @@ export default function MobileMessagesClient() {
                       }`}
                     />
                     {message.content}
-                    <span className="block text-[10px] mt-1 text-black text-right">
-                      {new Date(
-                        message.createdAt ?? Date.now()
-                      ).toLocaleTimeString([], {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
-                    </span>
+                    <div className="flex items-center justify-between mt-1">
+                      {!isOwn && isGroupChat && (
+                        <span className="text-[10px] text-gray-600 font-medium">
+                          {(message as any).sender?.name || "Unknown"}
+                        </span>
+                      )}
+                      <span
+                        className={`text-[10px] ${
+                          isOwn ? "text-white/80" : "text-black"
+                        } text-right`}
+                      >
+                        {new Date(
+                          message.createdAt ?? Date.now()
+                        ).toLocaleTimeString([], {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
+                      </span>
+                    </div>
                   </div>
                 </div>
               );
@@ -487,13 +783,29 @@ export default function MobileMessagesClient() {
           </div>
           <button
             onClick={handleSendMessage}
-            disabled={!newMessage.trim()}
+            disabled={
+              !newMessage.trim() ||
+              sending ||
+              (!activeId && !activeConversationId)
+            }
             className="bg-[#368FFF] hover:bg-[#2574db] disabled:bg-gray-300 text-white rounded-lg transition-colors duration-200 flex items-center justify-center w-[50px] h-[50px]"
           >
-            <Send size={20} />
+            {sending ? (
+              <Loader2 className="w-5 h-5 animate-spin" />
+            ) : (
+              <Send size={20} />
+            )}
           </button>
         </div>
       </div>
+
+      {/* Create Group Modal */}
+      <ResponsiveModal
+        isOpen={showCreateGroupModal}
+        onOpenChange={setShowCreateGroupModal}
+      >
+        <CreateGroupModal />
+      </ResponsiveModal>
     </div>
   );
 }
