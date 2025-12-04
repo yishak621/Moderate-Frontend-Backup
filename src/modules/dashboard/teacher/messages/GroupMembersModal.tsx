@@ -88,7 +88,11 @@ export default function GroupMembersModal({
   const { removeGroupMemberAsync, isRemovingMember } = useRemoveGroupMember();
 
   // Fetch users for adding - only fetch when owner opens add panel
-  const { users, isSearchingUsers } = useSearchUsers(1, 20, isOwner && showAddMember ? addMemberSearch : "");
+  const { users, isSearchingUsers } = useSearchUsers(
+    1,
+    20,
+    isOwner && showAddMember ? addMemberSearch : ""
+  );
 
   // Get existing member IDs
   const existingMemberIds = useMemo(() => {
@@ -122,7 +126,7 @@ export default function GroupMembersModal({
 
   const handleRemoveMember = async () => {
     const { userId, userName } = confirmRemove;
-    
+
     try {
       await removeGroupMemberAsync({ conversationId, userId });
       toast.success(`${userName} has been removed from the group`);
@@ -150,13 +154,15 @@ export default function GroupMembersModal({
     }
 
     try {
-      const memberIds = selectedUsersToAdd.map((u) => u.id);
+      const memberIds = selectedUsersToAdd.map((u) => u.id || "");
       await addGroupMembersAsync({
         conversationId,
-        data: { memberIds },
+        data: { memberIds: memberIds as string[] },
       });
       toast.success(
-        `${selectedUsersToAdd.length} member${selectedUsersToAdd.length > 1 ? "s" : ""} added successfully`
+        `${selectedUsersToAdd.length} member${
+          selectedUsersToAdd.length > 1 ? "s" : ""
+        } added successfully`
       );
       setSelectedUsersToAdd([]);
       setAddMemberSearch("");
@@ -219,7 +225,9 @@ export default function GroupMembersModal({
                     <Users className="w-8 h-8" />
                   </div>
                   <div>
-                    <h2 className="text-2xl font-bold">{groupName || "Group Members"}</h2>
+                    <h2 className="text-2xl font-bold">
+                      {groupName || "Group Members"}
+                    </h2>
                     <p className="text-white/80 flex items-center gap-2 mt-1">
                       <Users className="w-4 h-4" />
                       {memberCount} {memberCount === 1 ? "member" : "members"}
@@ -231,7 +239,9 @@ export default function GroupMembersModal({
                 {isOwner && (
                   <div className="absolute bottom-4 right-6 flex items-center gap-2 px-3 py-1.5 bg-yellow-400/20 rounded-full">
                     <Crown className="w-4 h-4 text-yellow-300" />
-                    <span className="text-sm font-medium text-yellow-200">You're the owner</span>
+                    <span className="text-sm font-medium text-yellow-200">
+                      You&apos;re the owner
+                    </span>
                   </div>
                 )}
               </div>
@@ -273,17 +283,25 @@ export default function GroupMembersModal({
                     <div className="w-16 h-16 rounded-full bg-red-100 flex items-center justify-center mb-4">
                       <X className="w-8 h-8 text-red-500" />
                     </div>
-                    <p className="text-gray-600 font-medium">Unable to load members</p>
-                    <p className="text-gray-400 text-sm mt-1">Only the group owner can view member details</p>
+                    <p className="text-gray-600 font-medium">
+                      Unable to load members
+                    </p>
+                    <p className="text-gray-400 text-sm mt-1">
+                      Only the group owner can view member details
+                    </p>
                   </div>
                 ) : filteredMembers.length === 0 ? (
                   <div className="flex flex-col items-center justify-center py-12 text-center">
                     <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mb-4">
                       <Users className="w-8 h-8 text-gray-400" />
                     </div>
-                    <p className="text-gray-600 font-medium">No members found</p>
+                    <p className="text-gray-600 font-medium">
+                      No members found
+                    </p>
                     <p className="text-gray-400 text-sm mt-1">
-                      {searchQuery ? "Try a different search term" : "This group has no members"}
+                      {searchQuery
+                        ? "Try a different search term"
+                        : "This group has no members"}
                     </p>
                   </div>
                 ) : (
@@ -300,7 +318,7 @@ export default function GroupMembersModal({
                           {member.user?.profilePictureUrl ? (
                             <Image
                               src={member.user.profilePictureUrl}
-                              alt={member.user.name}
+                              alt={member.user.name || ""}
                               width={48}
                               height={48}
                               className="w-12 h-12 rounded-full object-cover ring-2 ring-white shadow-md"
@@ -323,7 +341,7 @@ export default function GroupMembersModal({
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2">
                             <h4 className="font-semibold text-gray-800 truncate">
-                              {member.user?.name || "Unknown User"}
+                              {member.user?.name || ""}
                             </h4>
                             {member.isOwner && (
                               <span className="px-2 py-0.5 bg-yellow-100 text-yellow-700 text-xs font-medium rounded-full">
@@ -352,7 +370,12 @@ export default function GroupMembersModal({
                         {/* Actions - Only for owner, can't remove themselves */}
                         {isOwner && !member.isOwner && (
                           <button
-                            onClick={() => openRemoveConfirmation(member.userId, member.user?.name || "Unknown")}
+                            onClick={() =>
+                              openRemoveConfirmation(
+                                member.userId,
+                                member.user?.name || "Unknown"
+                              )
+                            }
                             className="opacity-0 group-hover:opacity-100 p-2 text-red-500 hover:bg-red-100 rounded-lg transition-all"
                             title="Remove member"
                           >
@@ -410,7 +433,8 @@ export default function GroupMembersModal({
                           <span className="font-semibold text-gray-800">
                             {confirmRemove.userName}
                           </span>{" "}
-                          from this group? They will no longer be able to see or send messages.
+                          from this group? They will no longer be able to see or
+                          send messages.
                         </p>
                       </div>
                       <button
@@ -507,8 +531,15 @@ export default function GroupMembersModal({
                               key={user.id}
                               className="flex items-center gap-2 bg-white border border-blue-200 rounded-lg px-2 py-1"
                             >
-                              <UserAvatar user={user} size="sm" className="w-5 h-5" />
-                              <span className="text-sm text-gray-800">{user.name}</span>
+                              <UserAvatar
+                                profilePictureUrl={user.profilePictureUrl}
+                                name={user.name}
+                                size="sm"
+                                className="w-5 h-5"
+                              />
+                              <span className="text-sm text-gray-800">
+                                {user.name}
+                              </span>
                               <button
                                 onClick={() => toggleUserSelection(user)}
                                 className="text-blue-600 hover:text-blue-800"
@@ -540,7 +571,9 @@ export default function GroupMembersModal({
                       {isSearchingUsers ? (
                         <div className="flex flex-col items-center justify-center py-12">
                           <Loader2 className="w-6 h-6 text-blue-500 animate-spin mb-2" />
-                          <p className="text-gray-500 text-sm">Loading users...</p>
+                          <p className="text-gray-500 text-sm">
+                            Loading users...
+                          </p>
                         </div>
                       ) : availableUsers.length === 0 ? (
                         <div className="flex flex-col items-center justify-center py-12 text-center">
@@ -548,7 +581,9 @@ export default function GroupMembersModal({
                             <Users className="w-7 h-7 text-gray-400" />
                           </div>
                           <p className="text-gray-600 font-medium">
-                            {addMemberSearch ? "No users found" : "No more users to add"}
+                            {addMemberSearch
+                              ? "No users found"
+                              : "No more users to add"}
                           </p>
                           <p className="text-gray-400 text-sm mt-1">
                             {addMemberSearch
@@ -572,12 +607,19 @@ export default function GroupMembersModal({
                                     : "bg-gray-50 border border-gray-200 hover:bg-gray-100"
                                 }`}
                               >
-                                <UserAvatar user={user} size="md" className="w-10 h-10" />
+                                <UserAvatar
+                                  profilePictureUrl={user.profilePictureUrl}
+                                  name={user.name}
+                                  size="md"
+                                  className="w-10 h-10"
+                                />
                                 <div className="flex-1 text-left">
                                   <p className="text-sm font-medium text-gray-900">
                                     {user.name}
                                   </p>
-                                  <p className="text-xs text-gray-500">{user.email}</p>
+                                  <p className="text-xs text-gray-500">
+                                    {user.email}
+                                  </p>
                                 </div>
                                 {isSelected && (
                                   <div className="w-6 h-6 rounded-full bg-blue-500 flex items-center justify-center">
@@ -604,7 +646,9 @@ export default function GroupMembersModal({
                         variant="primary"
                         className="flex-1"
                         onClick={handleAddMembers}
-                        disabled={isAddingMembers || selectedUsersToAdd.length === 0}
+                        disabled={
+                          isAddingMembers || selectedUsersToAdd.length === 0
+                        }
                       >
                         {isAddingMembers ? (
                           <span className="flex items-center gap-2">
@@ -612,7 +656,11 @@ export default function GroupMembersModal({
                             Adding...
                           </span>
                         ) : (
-                          `Add ${selectedUsersToAdd.length > 0 ? `(${selectedUsersToAdd.length})` : ""}`
+                          `Add ${
+                            selectedUsersToAdd.length > 0
+                              ? `(${selectedUsersToAdd.length})`
+                              : ""
+                          }`
                         )}
                       </Button>
                     </div>
@@ -626,4 +674,3 @@ export default function GroupMembersModal({
     </AnimatePresence>
   );
 }
-

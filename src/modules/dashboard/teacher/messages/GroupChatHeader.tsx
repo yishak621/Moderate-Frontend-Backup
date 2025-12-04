@@ -39,11 +39,12 @@ export default function GroupChatHeader({
   const { users, isSearchingUsers } = useSearchUsers(1, 10, searchTerm);
 
   // Get members not already in the group
-  const availableUsers = users?.filter(
-    (user: User) =>
-      user.id !== currentUserId &&
-      !conversation.members.some((m) => m.userId === user.id)
-  ) || [];
+  const availableUsers =
+    users?.filter(
+      (user: User) =>
+        user.id !== currentUserId &&
+        !conversation.members.some((m) => m.userId === user.id)
+    ) || [];
 
   const handleAddMembers = async (memberIds: string[]) => {
     try {
@@ -107,7 +108,9 @@ export default function GroupChatHeader({
           {/* Header */}
           <div className="flex flex-row justify-between items-start gap-3 mb-6">
             <div className="flex flex-col gap-1.5">
-              <p className="text-xl text-[#0c0c0c] font-medium">Group Members</p>
+              <p className="text-xl text-[#0c0c0c] font-medium">
+                Group Members
+              </p>
               <p className="text-base font-normal text-[#717171]">
                 {conversation.name}
               </p>
@@ -125,8 +128,7 @@ export default function GroupChatHeader({
           <div className="space-y-3 mb-6">
             {conversation.members.map((member) => {
               const isCurrentUser = member.userId === currentUserId;
-              const canRemove =
-                isAdmin || isCurrentUser; // Admin can remove anyone, user can remove self
+              const canRemove = isAdmin || isCurrentUser; // Admin can remove anyone, user can remove self
 
               return (
                 <div
@@ -134,7 +136,12 @@ export default function GroupChatHeader({
                   className="flex items-center justify-between p-3 bg-white border border-gray-200 rounded-lg"
                 >
                   <div className="flex items-center gap-3 flex-1 min-w-0">
-                    <UserAvatar user={member.user} size="md" className="w-10 h-10" />
+                    <UserAvatar
+                      profilePictureUrl={member.user.profilePictureUrl}
+                      name={member.user.name}
+                      size="md"
+                      className="w-10 h-10"
+                    />
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
                         <p className="text-sm font-medium text-gray-900 truncate">
@@ -242,11 +249,16 @@ export default function GroupChatHeader({
                   <button
                     key={user.id}
                     type="button"
-                    onClick={() => handleAddMembers([user.id])}
+                    onClick={() => handleAddMembers([user.id || ""])}
                     disabled={isAddingMembers}
                     className="w-full flex items-center gap-3 p-3 rounded-lg bg-white border border-gray-200 hover:bg-gray-50 transition-colors disabled:opacity-50"
                   >
-                    <UserAvatar user={user} size="md" className="w-10 h-10" />
+                    <UserAvatar
+                      profilePictureUrl={user.profilePictureUrl}
+                      name={user.name}
+                      size="md"
+                      className="w-10 h-10"
+                    />
                     <div className="flex-1 text-left">
                       <p className="text-sm font-medium text-gray-900">
                         {user.name}
@@ -273,4 +285,3 @@ export default function GroupChatHeader({
     </>
   );
 }
-
