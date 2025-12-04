@@ -243,10 +243,19 @@ export default function UserProfileModal({
 
                     {/* Info Row */}
                     <div className="flex flex-wrap justify-center gap-4 text-sm text-gray-500 mb-6">
-                      <div className="flex items-center gap-1.5">
-                        <Mail className="w-4 h-4" />
-                        <span className="truncate max-w-[180px]">{profile.email}</span>
-                      </div>
+                      {/* Only show email for own profile */}
+                      {isOwnProfile ? (
+                        <div className="flex items-center gap-1.5">
+                          <Mail className="w-4 h-4" />
+                          <span className="truncate max-w-[180px]">{profile.email}</span>
+                        </div>
+                      ) : (
+                        /* For other users, show following count instead */
+                        <div className="flex items-center gap-1.5">
+                          <UserPlus className="w-4 h-4" />
+                          <span>Following {stats?.followingCount ?? 0} users</span>
+                        </div>
+                      )}
                       <div className="flex items-center gap-1.5">
                         <Calendar className="w-4 h-4" />
                         <span>Joined {formatDate(profile.joinedAt)}</span>

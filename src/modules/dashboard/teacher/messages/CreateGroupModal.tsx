@@ -31,17 +31,11 @@ export default function CreateGroupModal() {
     control,
   } = useForm<CreateGroupInput>();
 
-  const {
-    createGroupChatAsync,
-    isCreatingGroup,
-    isCreateGroupSuccess,
-  } = useCreateGroupChat();
+  const { createGroupChatAsync, isCreatingGroup, isCreateGroupSuccess } =
+    useCreateGroupChat();
 
   // Fetch users for selection using the user search endpoint
-  const {
-    users,
-    isSearchingUsers,
-  } = useSearchUsers(page, 10, searchTerm);
+  const { users, isSearchingUsers } = useSearchUsers(page, 10, searchTerm);
 
   // Filter out current user and already selected members
   const availableUsers = useMemo(() => {
@@ -60,10 +54,10 @@ export default function CreateGroupModal() {
     }
 
     try {
-      const memberIds = selectedMembers.map((member) => member.id);
+      const memberIds = selectedMembers.map((member) => member.id || "");
       const result = await createGroupChatAsync({
         name: data.name,
-        memberIds,
+        memberIds: memberIds as string[],
       });
 
       if (result?.conversation) {
@@ -92,12 +86,14 @@ export default function CreateGroupModal() {
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
-      className="bg-[#FDFDFD] w-full min-w-0 sm:min-w-[551px] max-h-[90vh] overflow-y-auto p-6 sm:p-10 rounded-[27px] flex flex-col"
+      className="bg-[#FDFDFD] w-full min-w-0 sm:min-w-[551px] max-h-[90vh] overflow-y-auto scrollbar-hide p-6 sm:p-10 rounded-[27px] flex flex-col"
     >
       {/* Header */}
       <div className="flex flex-row justify-between items-start gap-3 mb-6">
         <div className="flex flex-col gap-1.5">
-          <p className="text-xl text-[#0c0c0c] font-medium">Create Group Chat</p>
+          <p className="text-xl text-[#0c0c0c] font-medium">
+            Create Group Chat
+          </p>
           <p className="text-base font-normal text-[#717171]">
             Start a group conversation with multiple teachers
           </p>
@@ -116,7 +112,7 @@ export default function CreateGroupModal() {
         <Input
           label="Group Name"
           type="text"
-          placeholder="e.g., ECBA Study Group"
+          placeholder="e.g., ECBA Moderators Group"
           error={errors.name?.message}
           {...register("name", {
             required: "Group name is required",
@@ -141,7 +137,8 @@ export default function CreateGroupModal() {
                 className="flex items-center gap-2 bg-blue-50 border border-blue-200 rounded-lg px-3 py-2"
               >
                 <UserAvatar
-                  user={member}
+                  profilePictureUrl={member.profilePictureUrl}
+                  name={member.name}
                   size="sm"
                   className="w-6 h-6"
                 />
@@ -182,7 +179,9 @@ export default function CreateGroupModal() {
           {isSearchingUsers ? (
             <div className="flex items-center justify-center py-8">
               <Loader2 className="w-5 h-5 animate-spin text-blue-600" />
-              <span className="ml-2 text-sm text-gray-600">Loading users...</span>
+              <span className="ml-2 text-sm text-gray-600">
+                Loading users...
+              </span>
             </div>
           ) : availableUsers.length === 0 ? (
             <div className="text-center py-8 text-gray-500 text-sm">
@@ -202,9 +201,16 @@ export default function CreateGroupModal() {
                       : "bg-white border border-gray-200 hover:bg-gray-50"
                   }`}
                 >
-                  <UserAvatar user={user} size="md" className="w-10 h-10" />
+                  <UserAvatar
+                    profilePictureUrl={user.profilePictureUrl}
+                    name={user.name}
+                    size="md"
+                    className="w-10 h-10"
+                  />
                   <div className="flex-1 text-left">
-                    <p className="text-sm font-medium text-gray-900">{user.name}</p>
+                    <p className="text-sm font-medium text-gray-900">
+                      {user.name}
+                    </p>
                     <p className="text-xs text-gray-500">{user.email}</p>
                   </div>
                   {isSelected && (
@@ -241,4 +247,3 @@ export default function CreateGroupModal() {
     </form>
   );
 }
-

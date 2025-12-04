@@ -46,8 +46,8 @@ import { decoded } from "@/lib/currentUser";
 import { Message, Thread, Threads } from "@/app/types/threads";
 import { GroupMember } from "@/app/types/groupChat";
 import EmojiPicker from "emoji-picker-react";
-import { getToken } from "@/services/tokenService";
-import { useSearchParams } from "next/navigation";
+import { getToken, getImpersonationToken } from "@/services/tokenService";
+import { useSearchParams, useRouter } from "next/navigation";
 import { getSocketUrl } from "@/lib/socketConfig";
 import Image from "next/image";
 import MobileTabNavigation from "@/components/ui/MobileTabNavigation";
@@ -70,9 +70,24 @@ const tabs = [
 
 export default function MessagesClientTeachers() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const [showPicker, setShowPicker] = useState<boolean>(false);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const token = getToken();
+
+  // Block access when admin is impersonating
+  useEffect(() => {
+    try {
+      const impersonationToken = getImpersonationToken();
+      if (impersonationToken) {
+        toast.error("Messages are not accessible during impersonation");
+        router.replace("/dashboard/teacher");
+      }
+    } catch {
+      // Silently handle any errors
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Only run once on mount
 
   const [newMessage, setNewMessage] = useState<string>("");
   const [messagesState, setMessagesState] = useState<Message[]>([]);
@@ -207,6 +222,16 @@ export default function MessagesClientTeachers() {
   // Track local (optimistic) messages separately so they don't get lost
   const localMessagesRef = useRef<Message[]>([]);
 
+  // Create stable message identifiers to prevent infinite loops
+  const groupMessagesIds = useMemo(
+    () => groupMessages?.map((m: Message) => m.id).join(",") || "",
+    [groupMessages]
+  );
+  const directMessagesIds = useMemo(
+    () => directMessages?.messages?.map((m: Message) => m.id).join(",") || "",
+    [directMessages?.messages]
+  );
+
   // Set messages when fetched - merge with existing local messages
   useEffect(() => {
     // Check if thread switched
@@ -267,12 +292,13 @@ export default function MessagesClientTeachers() {
       localMessagesRef.current = [];
       setMessagesState([]);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     isGroupChat,
     activeId,
     activeConversationId,
-    groupMessages,
-    directMessages,
+    groupMessagesIds,
+    directMessagesIds,
     isGroupMessagesSuccess,
     isDirectMessagesSuccess,
   ]);
@@ -901,6 +927,10 @@ export default function MessagesClientTeachers() {
   }, [searchParamsString]);
 
   // Sync activeThread whenever activeId changes
+  // Use JSON stringified threads to prevent infinite loops from reference changes
+  const threadsDataString = JSON.stringify(
+    threads?.data?.map((t: Threads) => t.partnerId) || []
+  );
   useEffect(() => {
     if (!activeId || !threads?.data) {
       setActiveThread(null);
@@ -914,7 +944,8 @@ export default function MessagesClientTeachers() {
     if (selectedThread) {
       setActiveThread(selectedThread);
     }
-  }, [activeId, threads?.data]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeId, threadsDataString]);
 
   // Check if current conversation is blocked (for direct messages only)
   const isCurrentChatBlocked = !isGroupChat && activeThread?.isBlocked;
@@ -922,7 +953,6 @@ export default function MessagesClientTeachers() {
     !isGroupChat && activeThread?.isBlockedByThem;
   const cannotSendMessage = isCurrentChatBlocked || isCurrentChatBlockedByThem;
 
-  console.log(activeThread, "activeThread");
   return (
     <>
       {/* Mobile Version */}
@@ -1311,9 +1341,9 @@ export default function MessagesClientTeachers() {
                 <div className="flex gap-3 items-start ">
                   <div className="flex-1 ">
                     <div className="relative flex flex-row items-center">
-                      {/* Emoji picker dropdown */}
+                      {/* Emoji picker dropdown - hidden on mobile */}
                       {showPicker && (
-                        <div className="absolute bottom-14 left-0">
+                        <div className="absolute bottom-14 left-0 hidden md:block">
                           <EmojiPicker
                             onEmojiClick={(emojiObject) =>
                               setNewMessage((prev) => prev + emojiObject.emoji)
@@ -1322,16 +1352,16 @@ export default function MessagesClientTeachers() {
                         </div>
                       )}
                       <div className="relative w-full">
-                        {/* Emoji toggle button */}
+                        {/* Emoji toggle button - hidden on mobile (mobile has native emoji keyboard) */}
                         <button
                           type="button"
                           onClick={() => setShowPicker((prev) => !prev)}
-                          className="absolute left-3 top-1/2 -translate-y-1/2 p-1.5 hover:bg-gray-100 rounded-full transition"
+                          className="absolute left-3 top-1/2 -translate-y-1/2 p-1.5 hover:bg-gray-100 rounded-full transition hidden md:block"
                         >
                           <SmileIcon size={22} className="text-gray-500" />
                         </button>
 
-                        {/* Message input */}
+                        {/* Message input - adjusted padding for mobile (no emoji button) */}
                         <textarea
                           ref={inputRef}
                           value={newMessage}
@@ -1343,7 +1373,7 @@ export default function MessagesClientTeachers() {
                             }
                           }}
                           placeholder="Type your message..."
-                          className="w-full pl-14 pr-3 py-2 pt-2.5 border border-[#DBDBDB] rounded-lg resize-none focus:outline-none focus:border-[#368FFF] h-[50px] leading-6"
+                          className="w-full pl-3 md:pl-14 pr-3 py-2 pt-2.5 border border-[#DBDBDB] rounded-lg resize-none focus:outline-none focus:border-[#368FFF] h-[50px] leading-6"
                           rows={1}
                         />
                       </div>

@@ -108,7 +108,7 @@ export function ThreadBox({
       router.push(`?chatId=${chatId}`);
     }
   };
-  console.log(isOnline);
+
   return (
     <div
       onClick={handleClick}

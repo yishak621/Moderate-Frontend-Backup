@@ -296,7 +296,11 @@ function DashboardLayoutContent({ children }: { children: ReactNode }) {
   ];
 
   const sidebarItems = useMemo(() => {
-    const items = getSidebarItems(role);
+    let items = getSidebarItems(role);
+    // Hide Messages when admin is impersonating
+    if (isImpersonating) {
+      items = items.filter((item) => item.label !== "Messages");
+    }
     // Add badge count to Messages and Support items
     return items.map((item) => {
       if (item.label === "Messages" && role === "TEACHER") {
@@ -310,10 +314,14 @@ function DashboardLayoutContent({ children }: { children: ReactNode }) {
       }
       return item;
     });
-  }, [role, unreadMessagesCount, unreadSupportTicketsCount]);
+  }, [role, unreadMessagesCount, unreadSupportTicketsCount, isImpersonating]);
 
   const mobileSidebarItems = useMemo(() => {
-    const items = getMobileSidebarItems(role);
+    let items = getMobileSidebarItems(role);
+    // Hide Messages when admin is impersonating
+    if (isImpersonating) {
+      items = items.filter((item) => item.label !== "Messages");
+    }
     // Add badge count to Messages and Support items
     return items.map((item) => {
       if (item.label === "Messages" && role === "TEACHER") {
@@ -327,7 +335,7 @@ function DashboardLayoutContent({ children }: { children: ReactNode }) {
       }
       return item;
     });
-  }, [role, unreadMessagesCount, unreadSupportTicketsCount]);
+  }, [role, unreadMessagesCount, unreadSupportTicketsCount, isImpersonating]);
 
   const searchParams = useSearchParams();
   const title = getDashboardTitle(pathname, role, sidebarItems);
@@ -531,6 +539,7 @@ function DashboardLayoutContent({ children }: { children: ReactNode }) {
           role === "SYSTEM_ADMIN" ? adminRightContent() : userRightContent()
         }
         place={role === "SYSTEM_ADMIN" ? "SYSTEM_ADMIN" : "TEACHER"}
+        isImpersonating={isImpersonating}
       >
         {/* Moderation Warning Banner for Teachers */}
         {role === "TEACHER" &&

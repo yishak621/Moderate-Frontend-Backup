@@ -59,6 +59,7 @@ type DashboardShellProps = {
   rightContent?: React.ReactNode;
   mobileSidebarItems?: NavItem[];
   place?: string;
+  isImpersonating?: boolean;
 };
 
 function checkIsActive(pathname: string, href: string) {
@@ -77,6 +78,7 @@ export default function DashboardShell({
   initialSearch = "",
   rightContent,
   place = "admin",
+  isImpersonating = false,
 }: DashboardShellProps) {
   const pathname = usePathname();
   const [isExpanded, setIsExpanded] = useState(true);
@@ -365,7 +367,7 @@ export default function DashboardShell({
               {/* Mobile Sidebar Nav (Unified Quick Links style) */}
               <nav className="flex-1 overflow-y-auto p-4 space-y-1.5">
                 {(() => {
-                  const extras: NavItem[] = [
+                  const allExtras: NavItem[] = [
                     {
                       href: "/dashboard/teacher/profile",
                       label: "Profile",
@@ -392,6 +394,10 @@ export default function DashboardShell({
                       icon: HelpCircle,
                     },
                   ];
+                  // Filter out Messages when admin is impersonating
+                  const extras = isImpersonating
+                    ? allExtras.filter((item) => item.label !== "Messages")
+                    : allExtras;
                   const seen = new Set<string>();
                   // Create a map of badge counts from mobileSidebarItems
                   const badgeCountMap = new Map<string, number>();
@@ -400,13 +406,15 @@ export default function DashboardShell({
                       badgeCountMap.set(item.href, item.badgeCount);
                     }
                   });
-                  
+
                   // Merge badge counts into extras
                   const extrasWithBadges = extras.map((item) => {
                     const badgeCount = badgeCountMap.get(item.href);
-                    return badgeCount !== undefined ? { ...item, badgeCount } : item;
+                    return badgeCount !== undefined
+                      ? { ...item, badgeCount }
+                      : item;
                   });
-                  
+
                   const combined: NavItem[] = [
                     ...mobileSidebarItems,
                     ...extrasWithBadges,

@@ -2,7 +2,7 @@
 
 import { ThreadBox } from "@/modules/dashboard/teacher/ThreadBox";
 import { useEffect, useRef, useState } from "react";
-import { ArrowLeft, Send, SmileIcon } from "lucide-react";
+import { ArrowLeft, Send } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
   useGetMessages,
@@ -17,7 +17,6 @@ import ResponsiveModal from "@/components/ui/ResponsiveModal";
 import Button from "@/components/ui/Button";
 import { decoded } from "@/lib/currentUser";
 import { Message, Thread } from "@/app/types/threads";
-import EmojiPicker from "emoji-picker-react";
 import { getToken } from "@/services/tokenService";
 import { getSocketUrl } from "@/lib/socketConfig";
 import { io, Socket } from "socket.io-client";
@@ -46,7 +45,6 @@ export default function MobileMessagesClient() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const chatId = searchParams.get("chatId");
-  const [showPicker, setShowPicker] = useState<boolean>(false);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const token = getToken();
 
@@ -743,27 +741,8 @@ export default function MobileMessagesClient() {
         <div className="flex gap-3 items-start">
           <div className="flex-1">
             <div className="relative flex flex-row items-center">
-              {/* Emoji picker dropdown */}
-              {showPicker && (
-                <div className="absolute bottom-14 left-0">
-                  <EmojiPicker
-                    onEmojiClick={(emojiObject) =>
-                      setNewMessage((prev) => prev + emojiObject.emoji)
-                    }
-                  />
-                </div>
-              )}
+              {/* Message input - no emoji picker on mobile (native keyboard has emojis) */}
               <div className="relative w-full">
-                {/* Emoji toggle button */}
-                <button
-                  type="button"
-                  onClick={() => setShowPicker((prev) => !prev)}
-                  className="absolute left-3 top-1/2 -translate-y-1/2 p-1.5 hover:bg-gray-100 rounded-full transition flex items-center justify-center"
-                >
-                  <SmileIcon size={22} className="text-gray-500" />
-                </button>
-
-                {/* Message input */}
                 <textarea
                   ref={inputRef}
                   value={newMessage}
@@ -775,7 +754,7 @@ export default function MobileMessagesClient() {
                     }
                   }}
                   placeholder="Type your message..."
-                  className="w-full pl-14 pr-3 py-2 border border-[#DBDBDB] rounded-lg resize-none focus:outline-none focus:border-[#368FFF] h-[50px] leading-6"
+                  className="w-full pl-3 pr-3 py-2 border border-[#DBDBDB] rounded-lg resize-none focus:outline-none focus:border-[#368FFF] h-[50px] leading-6"
                   rows={1}
                 />
               </div>
