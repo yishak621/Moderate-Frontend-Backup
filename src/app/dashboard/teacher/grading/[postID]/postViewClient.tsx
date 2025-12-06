@@ -1,7 +1,14 @@
 "use client";
 
 import { useParams, useRouter } from "next/navigation";
-import { ChevronLeft, ChevronRight, UserPlus, MoreVertical } from "lucide-react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  UserPlus,
+  MoreVertical,
+  Brain,
+  ChevronDown,
+} from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { FilterButtons } from "@/components/ui/FilterButtons";
 import PostTags from "@/modules/dashboard/teacher/PostTags";
@@ -41,6 +48,10 @@ import UserActionsMenu from "@/components/UserActionsMenu";
 import ImageViewer from "@/components/ui/ImageViewer";
 import ImageAnnotationOverlay from "@/components/ImageAnnotationOverlay";
 import PdfAnnotationOverlay from "@/components/PdfAnnotationOverlay";
+import AIGraderResultModal from "@/app/dashboard/teacher/ai-analysis/modals/AIGraderResultModal";
+import AIContentDetectorResultModal from "@/app/dashboard/teacher/ai-analysis/modals/AIContentDetectorResultModal";
+import AISimilarityResultModal from "@/app/dashboard/teacher/ai-analysis/modals/AISimilarityResultModal";
+import { AIAnalysisResult } from "@/types/aiAnalysis.type";
 
 export default function PostViewClient() {
   const params = useParams();
@@ -90,14 +101,21 @@ export default function PostViewClient() {
   } = post || {};
 
   const [currentFileIndex, setCurrentFileIndex] = useState(0);
-  const filters = ["Grades", "Grade Test"];
+  const filters = ["Grades", "Grade Test", "AI Analysis"];
   const [activeFilter, setActiveFilter] = useState("Grades");
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  
+
+  // AI Analysis state
+  const [aiModalOpen, setAiModalOpen] = useState(false);
+  const [aiModalComponent, setAiModalComponent] =
+    useState<React.ComponentType<any> | null>(null);
+  const [aiModalProps, setAiModalProps] = useState<Record<string, any>>({});
+
   // Post owner actions state
   const [isPostActionsOpen, setIsPostActionsOpen] = useState(false);
   const [isPostModalOpen, setIsPostModalOpen] = useState(false);
-  const [PostModalComponent, setPostModalComponent] = useState<React.ComponentType<any> | null>(null);
+  const [PostModalComponent, setPostModalComponent] =
+    useState<React.ComponentType<any> | null>(null);
   const [postModalProps, setPostModalProps] = useState<Record<string, any>>({});
 
   // zustand store
@@ -127,7 +145,7 @@ export default function PostViewClient() {
           (c: any) => c.commentedBy === currentUserGrade.gradedBy
         );
         const commentId = commentObj?.id;
-        console.log(commentId,commentObj,'comment')
+        console.log(commentId, commentObj, "comment");
 
         switch (gradeType) {
           case "numeric":
@@ -181,7 +199,7 @@ export default function PostViewClient() {
         }
       })()
     : {};
-console.log(existingGradeData,'existinguserdata')
+  console.log(existingGradeData, "existinguserdata");
   const currentUserCommentId = (existingGradeData as any)?.commentId as
     | string
     | undefined;
@@ -269,6 +287,161 @@ console.log(existingGradeData,'existinguserdata')
   const currentUploadId =
     currentUpload?.id !== undefined ? String(currentUpload.id) : undefined;
   const ext = currentFile?.split(".").pop()?.toLowerCase();
+
+  // Extract AI results directly from post uploads
+  const postAIResults = useMemo(() => {
+    if (!uploads || uploads.length === 0) return [];
+
+    const results: AIAnalysisResult[] = [];
+
+    uploads.forEach((upload: any) => {
+      const uploadId = String(upload?.id || "");
+      const fileName = upload?.fileName || "";
+      const fileUrl = upload?.fileUrl || "";
+      const aiResults = upload?.aiResults;
+
+      if (!aiResults) return;
+
+      // Transform grader result
+      if (aiResults.grader && aiResults.grader.rawResult) {
+        results.push({
+          id: `grader-${uploadId}`,
+          uploadId,
+          fileName,
+          fileUrl,
+          postId: postId,
+          status: "completed",
+          type: "grader",
+          result: {
+            rawResult: aiResults.grader.rawResult,
+            metadata: aiResults.grader.metadata || {},
+          },
+          isPublic: false,
+          createdAt:
+            aiResults.grader.createdAt ||
+            upload.createdAt ||
+            new Date().toISOString(),
+          updatedAt: upload.updatedAt || new Date().toISOString(),
+        });
+      }
+
+      // Transform detector result
+      if (aiResults.detector && aiResults.detector.rawResult) {
+        results.push({
+          id: `detector-${uploadId}`,
+          uploadId,
+          fileName,
+          fileUrl,
+          postId: postId,
+          status: "completed",
+          type: "content_detector",
+          result: aiResults.detector.rawResult,
+          isPublic: false,
+          createdAt:
+            aiResults.detector.createdAt ||
+            upload.createdAt ||
+            new Date().toISOString(),
+          updatedAt: upload.updatedAt || new Date().toISOString(),
+        });
+      }
+
+      // Transform similarity checker result
+      if (
+        aiResults.similarityChecker &&
+        aiResults.similarityChecker.rawResult
+      ) {
+        results.push({
+          id: `similarity-${uploadId}`,
+          uploadId,
+          fileName,
+          fileUrl,
+          postId: postId,
+          status: "completed",
+          type: "similarity_checker",
+          result: aiResults.similarityChecker.rawResult,
+          isPublic: false,
+          createdAt:
+            aiResults.similarityChecker.createdAt ||
+            upload.createdAt ||
+            new Date().toISOString(),
+          updatedAt: upload.updatedAt || new Date().toISOString(),
+        });
+      }
+    });
+
+    return results;
+  }, [uploads, postId]);
+
+  const isAILoading = false; // No loading state needed since data comes from post
+
+  // Group AI results by type
+  const aiResultsByType = useMemo(() => {
+    const grouped: {
+      grader?: AIAnalysisResult[];
+      content_detector?: AIAnalysisResult[];
+      similarity_checker?: AIAnalysisResult[];
+    } = {};
+
+    postAIResults.forEach((result: AIAnalysisResult) => {
+      if (!grouped[result.type]) {
+        grouped[result.type] = [];
+      }
+      grouped[result.type]!.push(result);
+    });
+
+    return grouped;
+  }, [postAIResults]);
+
+  // Handle AI option click - opens modal directly
+  const handleAIOptionClick = (
+    type: "grader" | "content_detector" | "similarity_checker"
+  ) => {
+    const results = aiResultsByType[type];
+    if (!results || results.length === 0) {
+      toast.error(
+        `No ${
+          type === "grader"
+            ? "AI Grader"
+            : type === "content_detector"
+            ? "AI Content Checker"
+            : "AI Similarity Checker"
+        } results found for this post`
+      );
+      return;
+    }
+
+    // Use the first result (or most recent)
+    const latestResult = results.sort(
+      (a, b) =>
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    )[0];
+
+    switch (type) {
+      case "grader":
+        setAiModalComponent(() => AIGraderResultModal);
+        setAiModalProps({
+          result: latestResult,
+          onClose: () => setAiModalOpen(false),
+        });
+        break;
+      case "content_detector":
+        setAiModalComponent(() => AIContentDetectorResultModal);
+        setAiModalProps({
+          result: latestResult,
+          onClose: () => setAiModalOpen(false),
+        });
+        break;
+      case "similarity_checker":
+        setAiModalComponent(() => AISimilarityResultModal);
+        setAiModalProps({
+          result: latestResult,
+          onClose: () => setAiModalOpen(false),
+        });
+        break;
+    }
+
+    setAiModalOpen(true);
+  };
 
   // Image Viewer
   const [isImageViewerOpen, setIsImageViewerOpen] = useState(false);
@@ -450,7 +623,10 @@ console.log(existingGradeData,'existinguserdata')
                     }}
                     className="p-2 rounded-full hover:bg-gray-100 transition-colors"
                   >
-                    <MoreVertical size={20} className="text-gray-500 hover:text-gray-700" />
+                    <MoreVertical
+                      size={20}
+                      className="text-gray-500 hover:text-gray-700"
+                    />
                   </button>
                   <PopupCard
                     isOpen={isPostActionsOpen}
@@ -1121,6 +1297,141 @@ console.log(existingGradeData,'existinguserdata')
           {/* {post?.gradingTemplate?.type === "passFail" && (
             <GradeTemplatePassFail />
           )} */}
+
+          {activeFilter === "AI Analysis" && (
+            <div className="mt-8 flex flex-col items-start w-full">
+              {isAILoading ? (
+                <div className="flex items-center justify-center py-12 w-full">
+                  <div className="text-center">
+                    <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-[#368FFF] mb-4"></div>
+                    <p className="text-sm text-gray-600">
+                      Loading AI Analysis results...
+                    </p>
+                  </div>
+                </div>
+              ) : postAIResults.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-12 text-center w-full">
+                  <Brain size={48} className="text-gray-300 mb-4" />
+                  <h3 className="text-lg font-semibold text-gray-700 mb-2">
+                    No AI Analysis Results
+                  </h3>
+                  <p className="text-sm text-gray-500 max-w-md">
+                    No AI analysis has been run on the documents in this post
+                    yet. Visit the AI Features page to run analysis on your
+                    documents.
+                  </p>
+                </div>
+              ) : (
+                <div className="w-full space-y-3">
+                  <p className="text-sm font-medium text-gray-700 mb-3">
+                    AI Analysis Results Available:
+                  </p>
+
+                  {/* AI Grader Card */}
+                  {aiResultsByType.grader &&
+                    aiResultsByType.grader.length > 0 && (
+                      <button
+                        onClick={() => handleAIOptionClick("grader")}
+                        className="w-full bg-gradient-to-r cursor-pointer from-blue-50 to-blue-100 border border-blue-200 rounded-xl p-4 hover:shadow-md transition-all duration-200 text-left group"
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center">
+                              <Brain size={20} className="text-white" />
+                            </div>
+                            <div>
+                              <p className="font-semibold text-gray-800 group-hover:text-blue-700 transition-colors">
+                                AI Grader Result
+                              </p>
+                              <p className="text-xs text-gray-600">
+                                {aiResultsByType.grader.length} result
+                                {aiResultsByType.grader.length > 1
+                                  ? "s"
+                                  : ""}{" "}
+                                available
+                              </p>
+                            </div>
+                          </div>
+                          <ChevronRight
+                            size={20}
+                            className="text-gray-400 group-hover:text-blue-600 transition-colors"
+                          />
+                        </div>
+                      </button>
+                    )}
+
+                  {/* AI Content Checker Card */}
+                  {aiResultsByType.content_detector &&
+                    aiResultsByType.content_detector.length > 0 && (
+                      <button
+                        onClick={() => handleAIOptionClick("content_detector")}
+                        className="w-full bg-gradient-to-r cursor-pointer from-purple-50 to-purple-100 border border-purple-200 rounded-xl p-4 hover:shadow-md transition-all duration-200 text-left group"
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-full bg-purple-500 flex items-center justify-center">
+                              <Brain size={20} className="text-white" />
+                            </div>
+                            <div>
+                              <p className="font-semibold text-gray-800 group-hover:text-purple-700 transition-colors">
+                                AI Content Checker
+                              </p>
+                              <p className="text-xs text-gray-600">
+                                {aiResultsByType.content_detector.length} result
+                                {aiResultsByType.content_detector.length > 1
+                                  ? "s"
+                                  : ""}{" "}
+                                available
+                              </p>
+                            </div>
+                          </div>
+                          <ChevronRight
+                            size={20}
+                            className="text-gray-400 group-hover:text-purple-600 transition-colors"
+                          />
+                        </div>
+                      </button>
+                    )}
+
+                  {/* AI Similarity Checker Card */}
+                  {aiResultsByType.similarity_checker &&
+                    aiResultsByType.similarity_checker.length > 0 && (
+                      <button
+                        onClick={() =>
+                          handleAIOptionClick("similarity_checker")
+                        }
+                        className="w-full bg-gradient-to-r cursor-pointer from-green-50 to-green-100 border border-green-200 rounded-xl p-4 hover:shadow-md transition-all duration-200 text-left group"
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-full bg-green-500 flex items-center justify-center">
+                              <Brain size={20} className="text-white" />
+                            </div>
+                            <div>
+                              <p className="font-semibold text-gray-800 group-hover:text-green-700 transition-colors">
+                                AI Similarity Checker
+                              </p>
+                              <p className="text-xs text-gray-600">
+                                {aiResultsByType.similarity_checker.length}{" "}
+                                result
+                                {aiResultsByType.similarity_checker.length > 1
+                                  ? "s"
+                                  : ""}{" "}
+                                available
+                              </p>
+                            </div>
+                          </div>
+                          <ChevronRight
+                            size={20}
+                            className="text-gray-400 group-hover:text-green-600 transition-colors"
+                          />
+                        </div>
+                      </button>
+                    )}
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
 
@@ -1147,9 +1458,26 @@ console.log(existingGradeData,'existinguserdata')
       />
 
       {/* Post Actions Modal (Edit, Delete, Stats) */}
-      <ResponsiveModal isOpen={isPostModalOpen} onOpenChange={setIsPostModalOpen}>
+      <ResponsiveModal
+        isOpen={isPostModalOpen}
+        onOpenChange={setIsPostModalOpen}
+      >
         {PostModalComponent && <PostModalComponent {...postModalProps} />}
       </ResponsiveModal>
+
+      {/* AI Analysis Modal */}
+      {aiModalComponent && (
+        <ResponsiveModal
+          isOpen={aiModalOpen}
+          onOpenChange={setAiModalOpen}
+          zIndex={200}
+        >
+          {(() => {
+            const AiModalComponent = aiModalComponent;
+            return <AiModalComponent {...aiModalProps} />;
+          })()}
+        </ResponsiveModal>
+      )}
     </>
   );
 }
