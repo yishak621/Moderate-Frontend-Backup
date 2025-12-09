@@ -1101,7 +1101,7 @@ export default function PostViewClient() {
                     <SectionLoading />
                   </div>
                 ) : !groupedGrades?.length ? (
-                  <div className="flex flex-col items-center justify-center mt-8 py-16 px-6 bg-gray-50 border border-dashed border-gray-300 rounded-xl space-y-4">
+                  <div className="flex flex-col items-center justify-center mt-8 py-12 border border-gray-200 rounded-lg bg-gray-50 w-full">
                     <svg
                       className="w-16 h-16 text-gray-400"
                       fill="none"
@@ -1287,7 +1287,7 @@ export default function PostViewClient() {
           )}
 
           {activeFilter === "Grade Test" && checkPostIsNotThisUser && (
-            <div className="mt-8 flex flex-col items-center justify-center border border-gray-200 rounded-lg p-4 w-full">
+            <div className="mt-8 flex flex-col items-center justify-center border border-gray-200 rounded-lg bg-gray-50 py-12 w-full">
               <p className="text-sm text-gray-500 text-center">
                 You are not allowed to grade your own moderation post.
               </p>
@@ -1310,7 +1310,7 @@ export default function PostViewClient() {
                   </div>
                 </div>
               ) : postAIResults.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-12 text-center w-full">
+                <div className="flex flex-col items-center justify-center py-12 text-center border border-gray-200 rounded-lg bg-gray-50 w-full">
                   <Brain size={48} className="text-gray-300 mb-4" />
                   <h3 className="text-lg font-semibold text-gray-700 mb-2">
                     No AI Analysis Results

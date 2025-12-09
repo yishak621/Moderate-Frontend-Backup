@@ -16,6 +16,7 @@ import { AIAnalysisStatus } from "@/types/aiAnalysis.type";
 import ResponsiveModal from "@/components/ui/ResponsiveModal";
 import AIGraderResultModal from "../modals/AIGraderResultModal";
 import RunAIGraderModal from "../modals/RunAIGraderModal";
+import DocumentViewer from "@/components/ui/DocumentViewer";
 import { useQueryClient } from "@tanstack/react-query";
 
 export default function AIGraderClient() {
@@ -137,6 +138,13 @@ export default function AIGraderClient() {
     fileName: string;
     postId?: string;
   } | null>(null);
+  const [documentViewerOpen, setDocumentViewerOpen] = useState(false);
+  const [documentViewerProps, setDocumentViewerProps] = useState<{
+    fileUrl: string;
+    fileName: string;
+    uploadId?: string;
+    postId?: string;
+  } | null>(null);
 
   const handleRunAnalysis = (
     uploadId: string,
@@ -147,7 +155,26 @@ export default function AIGraderClient() {
     setRunModalOpen(true);
   };
 
-  const columns = getAIGraderColumns(handleOpenModal, handleRunAnalysis) as any;
+  const handleViewDocument = (
+    fileUrl: string,
+    fileName: string,
+    uploadId?: string,
+    postId?: string
+  ) => {
+    setDocumentViewerProps({
+      fileUrl,
+      fileName,
+      uploadId,
+      postId,
+    });
+    setDocumentViewerOpen(true);
+  };
+
+  const columns = getAIGraderColumns(
+    handleOpenModal,
+    handleRunAnalysis,
+    handleViewDocument
+  ) as any;
 
   const totalDocuments = documentsData?.meta?.total || 0;
   const totalPages = documentsData?.meta?.lastPage || 1;
@@ -319,6 +346,21 @@ export default function AIGraderClient() {
           documentId={selectedDocument.id}
           fileName={selectedDocument.fileName}
           postId={selectedDocument.postId}
+        />
+      )}
+
+      {/* Document Viewer Modal */}
+      {documentViewerProps && (
+        <DocumentViewer
+          fileUrl={documentViewerProps.fileUrl}
+          fileName={documentViewerProps.fileName}
+          isOpen={documentViewerOpen}
+          onClose={() => {
+            setDocumentViewerOpen(false);
+            setDocumentViewerProps(null);
+          }}
+          uploadId={documentViewerProps.uploadId}
+          postId={documentViewerProps.postId}
         />
       )}
     </div>

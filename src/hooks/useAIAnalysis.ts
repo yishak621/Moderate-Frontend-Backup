@@ -59,8 +59,8 @@ export function useAIAnalysisResultsByType(
   return useQuery({
     queryKey: ["ai-analysis-results", type, filters],
     queryFn: () => getAIAnalysisResultsByType(type, filters),
-    staleTime: 60000,
-    refetchInterval: 60000,
+    staleTime: 600000, // 10 minutes
+    refetchInterval: 600000, // 10 minutes (600000 ms)
   });
 }
 

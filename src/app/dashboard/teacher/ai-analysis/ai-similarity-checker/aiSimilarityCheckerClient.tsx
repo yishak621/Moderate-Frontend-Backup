@@ -15,6 +15,8 @@ import {
 import Modal from "@/components/ui/Modal";
 import AISimilarityResultModal from "../modals/AISimilarityResultModal";
 import RunAISimilarityModal from "../modals/RunAISimilarityModal";
+import DocumentViewer from "@/components/ui/DocumentViewer";
+import { useQueryClient } from "@tanstack/react-query";
 
 export default function AISimilarityCheckerClient() {
   const [uploadedFiles, setUploadedFiles] = useState<string[]>([]);
@@ -27,6 +29,7 @@ export default function AISimilarityCheckerClient() {
   const [page, setPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
+  const queryClient = useQueryClient();
 
   // Fetch stats
   const { data: stats, isLoading: isStatsLoading } =
@@ -62,6 +65,16 @@ export default function AISimilarityCheckerClient() {
   useEffect(() => {
     setPage(1);
   }, [debouncedSearch]);
+
+  // Refetch documents/results when new files are uploaded
+  useEffect(() => {
+    if (!uploadedFiles.length) return;
+
+    // Refetch user's documents list
+    queryClient.invalidateQueries({ queryKey: ["user-documents"] });
+    // Refetch similarity checker analysis results (all variants)
+    queryClient.invalidateQueries({ queryKey: ["ai-analysis-results"] });
+  }, [uploadedFiles.length, queryClient]);
 
   // Merge documents with their AI results
   // Show ALL documents, with AI results if available
@@ -110,15 +123,38 @@ export default function AISimilarityCheckerClient() {
     id: string;
     fileName: string;
   } | null>(null);
+  const [documentViewerOpen, setDocumentViewerOpen] = useState(false);
+  const [documentViewerProps, setDocumentViewerProps] = useState<{
+    fileUrl: string;
+    fileName: string;
+    uploadId?: string;
+    postId?: string;
+  } | null>(null);
 
   const handleRunAnalysis = (uploadId: string, fileName: string) => {
     setSelectedDocument({ id: uploadId, fileName });
     setRunModalOpen(true);
   };
 
+  const handleViewDocument = (
+    fileUrl: string,
+    fileName: string,
+    uploadId?: string,
+    postId?: string
+  ) => {
+    setDocumentViewerProps({
+      fileUrl,
+      fileName,
+      uploadId,
+      postId,
+    });
+    setDocumentViewerOpen(true);
+  };
+
   const columns = getAISimilarityCheckerColumns(
     handleOpenModal,
-    handleRunAnalysis
+    handleRunAnalysis,
+    handleViewDocument
   ) as any;
 
   const totalDocuments = documentsData?.meta?.total || 0;
@@ -295,6 +331,21 @@ export default function AISimilarityCheckerClient() {
             fileName: doc.fileName,
             uploadId: doc.uploadId,
           }))}
+        />
+      )}
+
+      {/* Document Viewer Modal */}
+      {documentViewerProps && (
+        <DocumentViewer
+          fileUrl={documentViewerProps.fileUrl}
+          fileName={documentViewerProps.fileName}
+          isOpen={documentViewerOpen}
+          onClose={() => {
+            setDocumentViewerOpen(false);
+            setDocumentViewerProps(null);
+          }}
+          uploadId={documentViewerProps.uploadId}
+          postId={documentViewerProps.postId}
         />
       )}
     </div>

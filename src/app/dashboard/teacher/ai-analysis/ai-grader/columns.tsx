@@ -1,7 +1,7 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
-import { FileText, Eye, Play, Loader2 } from "lucide-react";
+import { FileText, Eye, Play, Loader2, FileSearch } from "lucide-react";
 import Button from "@/components/ui/Button";
 import { AIAnalysisResult, AIAnalysisStatus } from "@/types/aiAnalysis.type";
 import AIGraderResultModal from "../modals/AIGraderResultModal";
@@ -17,7 +17,8 @@ export function getAIGraderColumns(
     uploadId: string,
     fileName: string,
     postId?: string
-  ) => void
+  ) => void,
+  handleViewDocument: (fileUrl: string, fileName: string, uploadId?: string, postId?: string) => void
 ): ColumnDef<GraderRow>[] {
   const getStatusColor = (status: AIAnalysisStatus) => {
     switch (status) {
@@ -81,6 +82,31 @@ export function getAIGraderColumns(
           <span className="px-2 py-1 text-xs font-medium rounded bg-green-100 text-green-800">
             Completed
           </span>
+        );
+      },
+    },
+    {
+      id: "viewDocument",
+      header: "View Document",
+      cell: ({ row }) => {
+        return (
+          <div className="flex items-center justify-center">
+            <Button
+              variant="outline"
+              className="text-gray-600 hover:text-gray-700 text-sm"
+              onClick={() =>
+                handleViewDocument(
+                  row.original.fileUrl,
+                  row.original.fileName,
+                  row.original.uploadId,
+                  row.original.postId
+                )
+              }
+            >
+              <FileSearch className="w-4 h-4 mr-1" />
+              View
+            </Button>
+          </div>
         );
       },
     },

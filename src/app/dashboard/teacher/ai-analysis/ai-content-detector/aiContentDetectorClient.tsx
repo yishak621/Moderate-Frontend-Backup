@@ -15,6 +15,8 @@ import {
 import ResponsiveModal from "@/components/ui/ResponsiveModal";
 import AIContentDetectorResultModal from "../modals/AIContentDetectorResultModal";
 import RunAIDetectorModal from "../modals/RunAIDetectorModal";
+import DocumentViewer from "@/components/ui/DocumentViewer";
+import { useQueryClient } from "@tanstack/react-query";
 
 export default function AIContentDetectorClient() {
   const [uploadedFiles, setUploadedFiles] = useState<string[]>([]);
@@ -27,6 +29,7 @@ export default function AIContentDetectorClient() {
   const [page, setPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
+  const queryClient = useQueryClient();
 
   // Fetch stats
   const { data: stats, isLoading: isStatsLoading } =
@@ -63,19 +66,54 @@ export default function AIContentDetectorClient() {
     setPage(1);
   }, [debouncedSearch]);
 
+  // Refetch documents/results when new files are uploaded
+  useEffect(() => {
+    if (!uploadedFiles.length) return;
+
+    // Refetch user's documents list
+    queryClient.invalidateQueries({ queryKey: ["user-documents"] });
+    // Refetch detector analysis results (all variants)
+    queryClient.invalidateQueries({ queryKey: ["ai-analysis-results"] });
+  }, [uploadedFiles.length, queryClient]);
+
   // Merge documents with their AI results
   // Show ALL documents, with AI results if available
   const mergedData = useMemo(() => {
     if (!documentsData?.uploads) return [];
 
-    // New backend shape: resultsData.data = [{ id, aiResult, ... }]
-    const resultsMap = new Map(
-      (resultsData?.data || []).map((r: any) => [r.id, r])
-    );
+    // New backend shape: resultsData.data = [{ id (uploadId), aiResult, ... }]
+    // Map by both id and uploadId to handle different response structures
+    const resultsMap = new Map();
+    (resultsData?.data || []).forEach((r: any) => {
+      // Use uploadId as primary key (matches doc.id), fallback to id
+      const key = r.uploadId || r.id;
+      if (key) {
+        resultsMap.set(key, r);
+      }
+    });
 
     return documentsData.uploads.map((doc: any) => {
+      // Try to find result by doc.id (which is the uploadId)
       const resEntry = resultsMap.get(doc.id) as any | undefined;
-      const aiResult = resEntry?.aiResult;
+      // Check both resEntry?.aiResult and doc.aiResults?.detector (document might have aiResults directly)
+      const aiResult = resEntry?.aiResult || (doc as any).aiResults?.detector;
+
+      // Extract detector result - handle multiple possible structures
+      // Based on JSON: json.detector.rawResult contains the actual data
+      // aiResult might be: { rawResult: {...}, metadata: {...} } or { detector: { rawResult: {...} } }
+      let detectorResult = null;
+      if (aiResult) {
+        // Check if aiResult has a detector property (nested structure)
+        if (aiResult.detector) {
+          detectorResult = aiResult.detector.rawResult || aiResult.detector;
+        } else if (aiResult.rawResult) {
+          // Direct rawResult (similar to grader structure)
+          detectorResult = aiResult.rawResult;
+        } else {
+          // aiResult itself might be the rawResult
+          detectorResult = aiResult;
+        }
+      }
 
       return {
         id: resEntry?.id || doc.id,
@@ -86,7 +124,8 @@ export default function AIContentDetectorClient() {
         postTitle: undefined, // Not in response
         status: aiResult ? "completed" : "queued",
         // This is what the detector result modal reads
-        result: aiResult?.rawResult,
+        // Pass the detector result (rawResult) directly, similar to how grader passes { rawResult, metadata }
+        result: detectorResult || undefined,
         error: undefined,
         isPublic: false,
         createdAt: doc.createdAt,
@@ -101,7 +140,11 @@ export default function AIContentDetectorClient() {
 
   const handleOpenModal = (component: React.FC<any>, props: any = {}) => {
     setModalComponent(() => component);
-    setModalProps(props);
+    // Inject a standard onClose handler so result modals can close themselves
+    setModalProps({
+      ...props,
+      onClose: () => setOpen(false),
+    });
     setOpen(true);
   };
 
@@ -110,15 +153,38 @@ export default function AIContentDetectorClient() {
     id: string;
     fileName: string;
   } | null>(null);
+  const [documentViewerOpen, setDocumentViewerOpen] = useState(false);
+  const [documentViewerProps, setDocumentViewerProps] = useState<{
+    fileUrl: string;
+    fileName: string;
+    uploadId?: string;
+    postId?: string;
+  } | null>(null);
 
   const handleRunAnalysis = (uploadId: string, fileName: string) => {
     setSelectedDocument({ id: uploadId, fileName });
     setRunModalOpen(true);
   };
 
+  const handleViewDocument = (
+    fileUrl: string,
+    fileName: string,
+    uploadId?: string,
+    postId?: string
+  ) => {
+    setDocumentViewerProps({
+      fileUrl,
+      fileName,
+      uploadId,
+      postId,
+    });
+    setDocumentViewerOpen(true);
+  };
+
   const columns = getAIContentDetectorColumns(
     handleOpenModal,
-    handleRunAnalysis
+    handleRunAnalysis,
+    handleViewDocument
   ) as any;
 
   const totalDocuments = documentsData?.meta?.total || 0;
@@ -292,6 +358,21 @@ export default function AIContentDetectorClient() {
           onOpenChange={setRunModalOpen}
           documentId={selectedDocument.id}
           fileName={selectedDocument.fileName}
+        />
+      )}
+
+      {/* Document Viewer Modal */}
+      {documentViewerProps && (
+        <DocumentViewer
+          fileUrl={documentViewerProps.fileUrl}
+          fileName={documentViewerProps.fileName}
+          isOpen={documentViewerOpen}
+          onClose={() => {
+            setDocumentViewerOpen(false);
+            setDocumentViewerProps(null);
+          }}
+          uploadId={documentViewerProps.uploadId}
+          postId={documentViewerProps.postId}
         />
       )}
     </div>

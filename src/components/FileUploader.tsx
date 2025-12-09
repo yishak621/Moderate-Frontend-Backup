@@ -36,6 +36,7 @@ export default function FileUploader({
 }: FileUploaderProps) {
   const [files, setFiles] = useState<UploadedFile[]>([]);
   const [uploadingFiles, setUploadingFiles] = useState<Set<string>>(new Set());
+  const [isDragging, setIsDragging] = useState(false);
   const { uploadFileAsync } = useUserUploadFile();
   const { deleteFileAsync } = useUserRemoveUploadedFile();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
@@ -182,8 +183,27 @@ export default function FileUploader({
     }
   };
 
+  const handleDragEnter = (e: DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+  };
+
+  const handleDragOver = (e: DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
   const handleDrop = (e: DragEvent<HTMLDivElement>) => {
     e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
     handleFiles(e.dataTransfer.files);
   };
 
@@ -237,15 +257,38 @@ export default function FileUploader({
 
         {/* Desktop drag & drop card (original experience) */}
         <div
-          className="hidden md:flex flex-col items-center justify-center gap-2 border-2 border-dashed border-gray-300 rounded-2xl py-8 px-6 cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition"
+          className={`hidden md:flex flex-col items-center justify-center gap-2 border-2 border-dashed rounded-2xl py-8 px-6 cursor-pointer transition-all duration-200 ${
+            isDragging
+              ? "border-blue-500 bg-blue-100 scale-[1.02] shadow-lg"
+              : "border-gray-300 hover:border-blue-500 hover:bg-blue-50"
+          }`}
           onDrop={handleDrop}
-          onDragOver={(e) => e.preventDefault()}
+          onDragOver={handleDragOver}
+          onDragEnter={handleDragEnter}
+          onDragLeave={handleDragLeave}
           onClick={() => fileInputRef.current?.click()}
         >
-          <UploadCloud size={28} className="text-blue-500" />
-          <p className="text-base font-medium text-gray-900">{label}</p>
-          <p className="text-sm text-gray-500">
-            Drag & drop or click to upload files
+          <UploadCloud
+            size={28}
+            className={`transition-colors duration-200 ${
+              isDragging ? "text-blue-600" : "text-blue-500"
+            }`}
+          />
+          <p
+            className={`text-base font-medium transition-colors duration-200 ${
+              isDragging ? "text-blue-900" : "text-gray-900"
+            }`}
+          >
+            {isDragging ? "Drop files here" : label}
+          </p>
+          <p
+            className={`text-sm transition-colors duration-200 ${
+              isDragging ? "text-blue-700" : "text-gray-500"
+            }`}
+          >
+            {isDragging
+              ? "Release to upload"
+              : "Drag & drop or click to upload files"}
           </p>
         </div>
 

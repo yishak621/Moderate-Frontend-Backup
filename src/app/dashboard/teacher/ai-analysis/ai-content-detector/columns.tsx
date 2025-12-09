@@ -1,17 +1,28 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
-import { FileText, Eye, Play, Loader2 } from "lucide-react";
+import { FileText, Eye, Play, Loader2, FileSearch } from "lucide-react";
 import Button from "@/components/ui/Button";
 import { AIAnalysisResult, AIAnalysisStatus } from "@/types/aiAnalysis.type";
 import AIContentDetectorResultModal from "../modals/AIContentDetectorResultModal";
 
 import RunAIDetectorModal from "../modals/RunAIDetectorModal";
 
+// Extend the base result type with document flags coming from uploads
+type DetectorRow = AIAnalysisResult & {
+  documentRunAIDetector?: boolean;
+};
+
 export function getAIContentDetectorColumns(
   handleOpenModal: (component: React.FC<any>, props?: any) => void,
-  handleRunAnalysis: (uploadId: string, fileName: string) => void
-): ColumnDef<AIAnalysisResult>[] {
+  handleRunAnalysis: (uploadId: string, fileName: string) => void,
+  handleViewDocument: (
+    fileUrl: string,
+    fileName: string,
+    uploadId?: string,
+    postId?: string
+  ) => void
+): ColumnDef<DetectorRow>[] {
   return [
     {
       accessorKey: "fileIcon",
@@ -49,11 +60,10 @@ export function getAIContentDetectorColumns(
       accessorKey: "status",
       header: "Status",
       cell: ({ row }) => {
-        // Backend doesn't send real queue status yet, so only mark documents
-        // that have a detector result as completed.
-        const hasResult = !!row.original.result;
+        // Only show a positive status when the detector has actually run.
+        const isProcessed = row.original.documentRunAIDetector;
 
-        if (!hasResult) {
+        if (!isProcessed) {
           return <span className="text-xs text-gray-400">Not processed</span>;
         }
 
@@ -65,10 +75,39 @@ export function getAIContentDetectorColumns(
       },
     },
     {
+      id: "viewDocument",
+      header: "View Document",
+      cell: ({ row }) => {
+        return (
+          <div className="flex items-center justify-center">
+            <Button
+              variant="outline"
+              className="text-gray-600 hover:text-gray-700 text-sm"
+              onClick={() =>
+                handleViewDocument(
+                  row.original.fileUrl,
+                  row.original.fileName,
+                  row.original.uploadId,
+                  row.original.postId
+                )
+              }
+            >
+              <FileSearch className="w-4 h-4 mr-1" />
+              View
+            </Button>
+          </div>
+        );
+      },
+    },
+    {
       id: "viewResult",
       header: "View Result",
       cell: ({ row }) => {
-        const hasResult = !!row.original.result;
+        // Show "View" when the document has been processed by the detector,
+        // even if we don't yet have a rich result payload.
+        const hasResult =
+          row.original.documentRunAIDetector ||
+          row.original.status === "completed";
 
         return (
           <div className="flex items-center justify-center">
@@ -114,4 +153,3 @@ export function getAIContentDetectorColumns(
     },
   ];
 }
-
