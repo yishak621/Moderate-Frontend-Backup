@@ -804,3 +804,92 @@ export const endImpersonation = async () => {
     }
   }
 };
+
+//-------------------GET EMAIL TEMPLATE LOGO
+export const getEmailTemplateLogo = async () => {
+  try {
+    const res = await axiosInstance.get("/api/system/email-template/logo");
+
+    if (!res) {
+      throw new Error("No response from server");
+    }
+
+    return res.data;
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error(error);
+      throw new Error(
+        // @ts-expect-error: might be Axios error with response
+        error?.response?.data?.message ||
+          error.message ||
+          "Something went wrong"
+      );
+    } else {
+      console.error("Unknown error", error);
+      throw new Error("Something went wrong");
+    }
+  }
+};
+
+//-------------------UPLOAD/UPDATE EMAIL TEMPLATE LOGO
+export const uploadEmailTemplateLogo = async (file: File) => {
+  try {
+    const formData = new FormData();
+    formData.append("logo", file);
+
+    const res = await axiosInstance.post(
+      "/api/system/email-template/logo",
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
+
+    if (!res) {
+      throw new Error("No response from server");
+    }
+
+    return res.data;
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error(error);
+      throw new Error(
+        // @ts-expect-error: might be Axios error with response
+        error?.response?.data?.message ||
+          error.message ||
+          "Something went wrong"
+      );
+    } else {
+      console.error("Unknown error", error);
+      throw new Error("Something went wrong");
+    }
+  }
+};
+
+//-------------------DELETE EMAIL TEMPLATE LOGO
+export const deleteEmailTemplateLogo = async () => {
+  try {
+    const res = await axiosInstance.delete("/api/system/email-template/logo");
+
+    if (!res) {
+      throw new Error("No response from server");
+    }
+
+    return res.data;
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error(error);
+      throw new Error(
+        // @ts-expect-error: might be Axios error with response
+        error?.response?.data?.message ||
+          error.message ||
+          "Something went wrong"
+      );
+    } else {
+      console.error("Unknown error", error);
+      throw new Error("Something went wrong");
+    }
+  }
+};

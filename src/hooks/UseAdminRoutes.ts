@@ -30,6 +30,9 @@ import {
   viewUserData,
   impersonateUser,
   endImpersonation,
+  getEmailTemplateLogo,
+  uploadEmailTemplateLogo,
+  deleteEmailTemplateLogo,
 } from "@/services/admin.service";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -802,5 +805,70 @@ export const useEndImpersonation = () => {
     isEndImpersonationSuccess: isSuccess,
     isEndImpersonationError: isError,
     endImpersonationError: error,
+  };
+};
+
+//-------------------EMAIL TEMPLATE LOGO
+export function useEmailTemplateLogo() {
+  const query = useQuery({
+    queryKey: ["emailTemplateLogo"],
+    queryFn: () => getEmailTemplateLogo(),
+    staleTime: 5 * 60 * 1000,
+  });
+
+  return {
+    logoData: query.data,
+    logoUrl: query.data?.logoUrl || null,
+    isLoading: query.isPending,
+    isSuccess: query.isSuccess,
+    isError: query.isError,
+    error: query.error,
+    refetch: query.refetch,
+  };
+}
+
+//-------------------UPLOAD EMAIL TEMPLATE LOGO
+export const useUploadEmailTemplateLogo = () => {
+  const { mutate, mutateAsync, data, isPending, isSuccess, isError, error } =
+    useMutation({
+      mutationFn: (file: File) => uploadEmailTemplateLogo(file),
+      onSuccess: () => {
+        queryClient.invalidateQueries({
+          queryKey: ["emailTemplateLogo"],
+        });
+      },
+    });
+
+  return {
+    uploadLogo: mutate,
+    uploadLogoAsync: mutateAsync,
+    data,
+    isUploading: isPending,
+    isUploadSuccess: isSuccess,
+    isUploadError: isError,
+    uploadError: error,
+  };
+};
+
+//-------------------DELETE EMAIL TEMPLATE LOGO
+export const useDeleteEmailTemplateLogo = () => {
+  const { mutate, mutateAsync, data, isPending, isSuccess, isError, error } =
+    useMutation({
+      mutationFn: () => deleteEmailTemplateLogo(),
+      onSuccess: () => {
+        queryClient.invalidateQueries({
+          queryKey: ["emailTemplateLogo"],
+        });
+      },
+    });
+
+  return {
+    deleteLogo: mutate,
+    deleteLogoAsync: mutateAsync,
+    data,
+    isDeleting: isPending,
+    isDeleteSuccess: isSuccess,
+    isDeleteError: isError,
+    deleteError: error,
   };
 };

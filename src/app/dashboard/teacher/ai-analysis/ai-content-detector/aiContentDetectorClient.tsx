@@ -17,8 +17,20 @@ import AIContentDetectorResultModal from "../modals/AIContentDetectorResultModal
 import RunAIDetectorModal from "../modals/RunAIDetectorModal";
 import DocumentViewer from "@/components/ui/DocumentViewer";
 import { useQueryClient } from "@tanstack/react-query";
+import { isAIContentDetectorEnabled } from "@/utils/featureFlags";
+import FeatureUnderDevelopment from "@/components/ui/FeatureUnderDevelopment";
 
 export default function AIContentDetectorClient() {
+  // Check if feature is enabled
+  if (!isAIContentDetectorEnabled()) {
+    return (
+      <FeatureUnderDevelopment
+        featureName="AI Content Detector"
+        icon={<FileCheck className="w-16 h-16 text-purple-600" />}
+        description="AI content detection feature is currently under development and will be available soon."
+      />
+    );
+  }
   const [uploadedFiles, setUploadedFiles] = useState<string[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
   const [open, setOpen] = useState(false);

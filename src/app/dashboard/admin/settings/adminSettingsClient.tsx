@@ -10,6 +10,7 @@ import {
 } from "@/hooks/UseAdminRoutes";
 import AdminPaymentSetting from "@/modules/dashboard/admin/AdminPaymentSetting";
 import ToggleSetting from "@/modules/dashboard/admin/ToggleSetting";
+import EmailTemplateLogoManager from "@/modules/dashboard/admin/EmailTemplateLogoManager";
 import { Setting } from "@/types/admin.type";
 import { Globe, Loader, Plus, Settings, Shield } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -182,7 +183,7 @@ export default function AdminSettingClient() {
         </div>
       </div> */}
       {/* fifth section */}
-      <div className=" flex flex-col py-[30px] px-6 rounded-[37px] bg-[#FDFDFD]">
+      {/* <div className=" flex flex-col py-[30px] px-6 rounded-[37px] bg-[#FDFDFD]">
         <div className="flex flex-col">
           <SectionHeader
             title="Static Pages Content"
@@ -213,7 +214,10 @@ export default function AdminSettingClient() {
             <Button>Save Changes</Button>
           </div>
         </div>
-      </div>
+      </div> */}
+
+      {/* sixth section - Email Template Logo */}
+      <EmailTemplateLogoManager />
     </div>
   );
 }

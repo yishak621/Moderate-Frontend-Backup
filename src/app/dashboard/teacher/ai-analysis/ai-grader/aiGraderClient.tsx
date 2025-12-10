@@ -18,8 +18,20 @@ import AIGraderResultModal from "../modals/AIGraderResultModal";
 import RunAIGraderModal from "../modals/RunAIGraderModal";
 import DocumentViewer from "@/components/ui/DocumentViewer";
 import { useQueryClient } from "@tanstack/react-query";
+import { isAIGraderEnabled } from "@/utils/featureFlags";
+import FeatureUnderDevelopment from "@/components/ui/FeatureUnderDevelopment";
 
 export default function AIGraderClient() {
+  // Check if feature is enabled
+  if (!isAIGraderEnabled()) {
+    return (
+      <FeatureUnderDevelopment
+        featureName="AI Grader"
+        icon={<Sparkles className="w-16 h-16 text-blue-600" />}
+        description="AI-powered grading feature is currently under development and will be available soon."
+      />
+    );
+  }
   const [uploadedFiles, setUploadedFiles] = useState<string[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
   const [open, setOpen] = useState(false);

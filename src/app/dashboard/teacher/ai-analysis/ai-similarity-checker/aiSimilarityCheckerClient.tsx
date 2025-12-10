@@ -17,8 +17,20 @@ import AISimilarityResultModal from "../modals/AISimilarityResultModal";
 import RunAISimilarityModal from "../modals/RunAISimilarityModal";
 import DocumentViewer from "@/components/ui/DocumentViewer";
 import { useQueryClient } from "@tanstack/react-query";
+import { isAISimilarityCheckerEnabled } from "@/utils/featureFlags";
+import FeatureUnderDevelopment from "@/components/ui/FeatureUnderDevelopment";
 
 export default function AISimilarityCheckerClient() {
+  // Check if feature is enabled
+  if (!isAISimilarityCheckerEnabled()) {
+    return (
+      <FeatureUnderDevelopment
+        featureName="AI Similarity Checker"
+        icon={<Search className="w-16 h-16 text-green-600" />}
+        description="AI similarity checking feature is currently under development and will be available soon."
+      />
+    );
+  }
   const [uploadedFiles, setUploadedFiles] = useState<string[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
   const [open, setOpen] = useState(false);
